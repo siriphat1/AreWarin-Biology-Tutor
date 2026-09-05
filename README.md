@@ -128,3 +128,14 @@ supabase/AREWARIN_FULL_SETUP_V15_1.sql
 8. เปิด Student Portal ของนักเรียน → ชั่วโมงคงเหลือต้องเปลี่ยน
 9. ลอง Student Code + PIN → Quick Check ต้องแสดงยอดเดียวกัน
 
+
+
+## V15.2 — Student Hub UI Refresh
+
+- ปรับ Student Portal เป็น Student Hub ในธีมเดียวกับเว็บหลัก AreWarin Biology
+- ใช้ Prompt + Sky/Indigo + Slate + Glass surface + rounded cards
+- ปรับหน้า Login / Signup / Quick Hours / Dashboard / Course / Attendance / Payment / Profile / Modal
+- ปรับ Mobile navigation เป็น bottom dock ที่อ่านง่ายขึ้น
+- เพิ่มทางลัดกลับเว็บหลักใน top bar
+- ไม่เปลี่ยน RPC, RLS, Hour Ledger, Group Locker, Payment หรือ Student Auth contract
+- ไม่ต้องรัน SQL เพิ่มสำหรับการอัปเดตหน้าตา V15.2
