@@ -10,3 +10,6 @@ verify_jwt = false
 
 [functions.submit-tutor-application]
 verify_jwt = false
+
+[functions.student-auth]
+verify_jwt = false

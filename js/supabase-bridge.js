@@ -18,12 +18,18 @@
 
   async function getPublicCatalog() {
     const db = needClient();
-    const [tRes,cRes,pRes] = await Promise.all([
+    const [tRes,cRes,pRes,oRes] = await Promise.all([
       db.from('tutors').select('*').eq('active',true).order('sort_order'),
       db.from('courses').select('*').eq('active',true).order('sort_order'),
-      db.from('course_prices').select('*').eq('active',true)
+      db.from('course_prices').select('*').eq('active',true),
+      db.from('course_offerings').select('*').eq('enrollment_open',true).eq('status','open')
     ]);
     for (const x of [tRes,cRes,pRes]) if (x.error) throw x.error;
+    // V15: course_offerings is the shared publish switch. If V15 SQL has not
+    // been installed yet, keep V14 behavior as a safe fallback.
+    const offeringRows = oRes.error ? null : (oRes.data || []);
+    const openCourseIds = offeringRows ? new Set(offeringRows.map(x => x.course_id)) : null;
+    const offeringByCourse = Object.fromEntries((offeringRows || []).map(x => [x.course_id,x]));
 
     const tutorProfiles = {};
     (tRes.data || []).forEach(t => {
@@ -46,10 +52,15 @@
     const tutorNameById = Object.fromEntries((tRes.data || []).map(t => [t.id,t.display_name]));
     const coursesByTutor = {};
     (cRes.data || []).forEach(c => {
+      if (openCourseIds && !openCourseIds.has(c.id)) return;
       const tutor = tutorNameById[c.tutor_id];
       if (!tutor) return;
+      const offering = offeringByCourse[c.id] || null;
       (coursesByTutor[tutor] ||= []).push({
         id: c.id,
+        tutorId: c.tutor_id,
+        offeringId: offering?.id || null,
+        offering: offering,
         name: c.name,
         type: c.course_type || 'content',
         detail: c.short_detail || '',
@@ -66,7 +77,7 @@
 
     const prices = { standard:{}, university:{} };
     (pRes.data || []).forEach(p => { prices[p.tier][p.package_code] = Number(p.amount || 0); });
-    return { tutorProfiles, coursesByTutor, prices };
+    return { tutorProfiles, coursesByTutor, prices, courseOfferings:offeringRows || [] };
   }
 
   async function checkDiscountCode(code) {

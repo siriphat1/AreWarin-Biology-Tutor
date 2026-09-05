@@ -1,144 +1,130 @@
-# AreWarin Biology · V14 Tutor OS Integration
+# AreWarin Biology · Unified System V15.1
 
-V14 integrates the uploaded Tutor OS concept into the current AreWarin Biology GitHub + Supabase system as a real staff-only subweb at `/tutor-os/` while keeping the existing enrollment site, Manager, Reviews, Tutor Application, Policy CMS, receipt/payment flows, and tutor-specific schedules intact.
+Release นี้รวม Enrollment, Manager, Tutor OS, Student Portal, Tutor Application, Reviews และ Library ให้ใช้ Supabase Project เดียวและอ้างอิงข้อมูลกลางชุดเดียวกัน
 
-## What changed in V14
+## แนวคิดหลัก
 
-### New `/tutor-os/` subweb
-- Unified dashboard / operations overview
-- Students + operational student records synced from the main `enrollments`
-- CRM + guardian contacts + follow-up date
-- Student Portal preview
-- Courses using the same Course UUIDs as Manager
-- Course requests workflow
-- Attendance sessions and per-student status: present / late / absent / leave
-- Teaching logs and lesson hours
-- Learning topics + video/file/link/sheet resources
-- Tasks and team announcements
-- Shared tutor schedule viewer linked to Manager schedule editing
-- Finance dashboard for Admin using main payments + Tutor OS ledger
-- Tutors overview
-- Staff permissions (`teacher` / `admin`)
-- Team Library
-- HR records for Admin
-- Tutor recruitment and speaker-request summaries linked to Manager
-- Reports + CSV export
-- Quick Replies
-- CRM CSV import + template
-- System health / connected-app shortcuts
+Single Source of Truth:
+- Course UUID
+- Course Offering
+- Student UUID + Student Code
+- Enrollment UUID + Enrollment Items
+- Tutor UUID
+- Hour Pool + Hour Ledger
+- Attendance Session
+- Payment / Portal Payment
+- Module Registry + System Events
 
-### Connected data model
-Main transactional/catalog data remains the single source of truth:
-- `tutors`
-- `courses`
-- `enrollments`
-- `payments`
-- `tutor_schedules`
-- `schedule_templates`
-- `tutor_applications`
-- `speaker_requests`
+Subweb ใหม่ในอนาคตควรอ่าน/เขียนผ่านข้อมูลกลางเหล่านี้ ไม่สร้าง Student/Course/Tutor ซ้ำ
 
-Tutor OS adds only operational extension tables prefixed `os_`. Database triggers sync main Enrollment and Payment changes into Tutor OS student/course/finance records.
+## V15.1 เพิ่ม Group Lockers
 
-### Manager integration
-`/manager/` now has Tutor OS links in:
-- top bar
-- sidebar
-- dashboard hero
+Tutor OS → **กลุ่มเรียน · Locker**
 
-Manager supports `?section=...` deep links, so Tutor OS can jump directly to Course, Tutor, Enrollment, Schedule, Payment, Policy, and Tutor Application screens.
+- สร้างกลุ่มเรียนผูกกับ Course + Tutor
+- Group Code อัตโนมัติ เช่น `AWG-2026-0001`
+- เพิ่ม/นำสมาชิกออกโดยไม่ลบประวัตินักเรียน
+- สมาชิกต้องมี Enrollment ของคอร์สเดียวกับกลุ่ม
+- กำหนดชั่วโมงเริ่มต้นต่อคาบ และ override รายคนได้
+- เปิดคาบจาก Locker แล้วสร้าง roster `pending` อัตโนมัติ
+- เช็กชื่อ มาเรียน / สาย / ขาด / ลา
+- เริ่มจับเวลาจริง / จบและคำนวณเวลา
+- ตัดชั่วโมง **รายคน** หรือบันทึกทั้งกลุ่มในครั้งเดียว
+- ปรับชั่วโมงซ้ำได้โดยสร้าง Adjustment ใน Hour Ledger ไม่ double-charge
+- Admin คืนชั่วโมงรายคนหรือทั้งคาบได้
+- Student Portal อัปเดต Realtime จาก Hour Ledger
 
-### Security
-- Uses the same Supabase Auth session as the main system.
-- Existing Manager/Admin profiles are automatically bridged to `os_staff_profiles` as Tutor OS `admin`.
-- Tutor accounts can be granted `teacher` access by UID from Tutor OS → Team → Staff & สิทธิ์.
-- Finance, HR, Staff permission changes, permanent student deletion, and sensitive core workflow records are protected by database RLS for Tutor OS Admin.
-- Teachers can work with Student operations, CRM, Attendance, Teaching, Learning, Tasks, Announcements, Library, and Course Requests.
+> Group Locker เป็นเครื่องมือจัดกลุ่มของผู้สอน นักเรียนแต่ละคนยังมี Student Code, Enrollment, Hour Pool และประวัติส่วนตัวแยกจากกัน
 
-## Supabase project already in use
+## Student Portal
 
-This package is configured for the current AreWarin Supabase project through the shared root `config.js`.
+`/student/`
 
-For an **existing V13 project**, run **one SQL file** in Supabase → SQL Editor:
+- สมัคร Portal ด้วยเบอร์ที่ใช้สมัครเรียน
+- Login ด้วย Email/Password
+- Student Code แสดงบน Digital Student Card
+- เช็กชั่วโมงแบบเร็วด้วย **Student Code + PIN 4 หลัก** โดยไม่ต้อง login
+- หน้า quick check แสดงเฉพาะชื่อ, คอร์ส, ชั่วโมงคงเหลือ และ Group Locker — ไม่เปิดเบอร์/อีเมล/ที่อยู่
+- Attendance แสดงชั่วโมงที่ตัดจริงต่อคาบ
+- Realtime: Hour Ledger, Attendance, Course Offering, Groups, Notifications
 
-```text
-supabase/V14_EXISTING_PROJECT_UPGRADE.sql
-```
+## Course Opening / Enrollment Integration
 
-The SQL is designed to be re-runnable and will:
-- create the Tutor OS operational schema
-- sync current Manager/Admin accounts
-- backfill existing enrollments and payments
-- create sync triggers for future records
-- install RLS
-- create private `tutor-os-assets` storage bucket
+`course_offerings` เป็นสวิตช์กลางสำหรับทุกระบบ
 
-Then logout/login once and open:
+Tutor OS เปิด/ปิด Course Offering →
+- เว็บสมัครเรียนเห็น/ซ่อนคอร์สตาม Offering
+- Student Portal Catalog เห็นคอร์สเดียวกัน
+- Enrollment ใหม่สร้าง Enrollment Item ด้วย Course UUID
+- ระบบ Student Operations และ Hour Pool อ้างอิง Course UUID เดียวกัน
+
+## ติดตั้งกับ Supabase Project ปัจจุบัน
+
+Project: `ihmiqtwclnqrezsnswfz`
+
+ถ้า Project ปัจจุบันยังอยู่ V13/V14 ให้รันไฟล์เดียว:
 
 ```text
-https://YOUR_GITHUB_PAGES/tutor-os/
+supabase/V15_1_EXISTING_PROJECT_UPGRADE.sql
 ```
 
-## Brand-new Supabase project
+ไฟล์นี้รวม V14 Tutor OS + V15 Unified Core + V15.1 Group Lockers
 
-Use this cumulative SQL instead:
-
-```text
-supabase/AREWARIN_FULL_SETUP_V14.sql
-```
-
-Do **not** run both Full Setup and V14 Upgrade on a fresh database unless you specifically want to rerun the idempotent upgrade.
-
-## Edge Functions
-
-Tutor OS itself does not require a new Edge Function. Existing public forms still use:
+จากนั้น deploy Edge Functions:
 
 ```bash
 supabase link --project-ref ihmiqtwclnqrezsnswfz
 supabase functions deploy create-enrollment --no-verify-jwt
 supabase functions deploy get-receipt --no-verify-jwt
 supabase functions deploy submit-tutor-application --no-verify-jwt
+supabase functions deploy student-auth --no-verify-jwt
 ```
 
-The Tutor Application CORS fix is included in this package. `supabase/config.toml` has `verify_jwt = false` for all three public functions.
+## Fresh Supabase Project
 
-## Structure
+ใช้ไฟล์เดียว:
 
 ```text
-arewarin-tutor-os-v14/
-├── index.html                  # Main enrollment / renewal site
-├── config.js                   # Shared Supabase config
+supabase/AREWARIN_FULL_SETUP_V15_1.sql
+```
+
+## โครงสร้าง
+
+```text
+/
+├── index.html                 # สมัครเรียน / ต่อคอร์ส
+├── config.js                  # Shared Supabase config
+├── manager/                   # Admin/Manager
+├── tutor-os/                  # Teaching / Group Locker / Operations
+├── student/                   # Student Portal
+├── tutor-apply/               # Tutor Recruitment TH/EN
+├── reviews/                   # Reviews
+├── library/                   # Student/Team Library
 ├── js/
-├── manager/                    # Main Manager + Tutor OS entry points
-├── reviews/
-├── tutor-apply/                # TH/EN tutor recruitment + CORS-safe submit
-├── tutor-os/                   # NEW unified staff subweb
-│   ├── index.html
-│   ├── styles.css
-│   ├── app.js
-│   └── staff/index.html
-├── templates/
 └── supabase/
-    ├── V14_EXISTING_PROJECT_UPGRADE.sql
-    ├── TUTOR_OS_V14_UPGRADE.sql
-    ├── AREWARIN_FULL_SETUP_V14.sql
-    ├── config.toml
+    ├── V15_1_EXISTING_PROJECT_UPGRADE.sql
+    ├── V15_1_GROUP_LOCKERS_UPGRADE.sql
+    ├── AREWARIN_FULL_SETUP_V15_1.sql
     └── functions/
 ```
 
-## Staff access
+## Security
 
-For the current Manager/Admin user, simply run the V14 SQL and sign in with the same Manager credentials.
+- Frontend ใช้ Publishable Key เท่านั้น
+- ห้ามใส่ `service_role` ใน GitHub
+- Group Lockers เข้าถึงได้เฉพาะ Tutor OS staff
+- Student quick hour check ต้องใช้ Student Code + PIN และคืนข้อมูลขั้นต่ำ
+- Finance / HR / Staff permission ยังถูกจำกัดด้วย RLS ฝั่งฐานข้อมูล
 
-For a new Tutor/Teacher account:
-1. Supabase → Authentication → Add user.
-2. Copy that Auth user UID.
-3. Sign in as Tutor OS Admin.
-4. Team & เนื้อหา → Staff & สิทธิ์ → ให้สิทธิ์.
-5. Paste UID and choose `teacher`.
+## ตรวจสอบหลัง deploy
 
-Do not put a Supabase service-role/secret key into any frontend file.
+1. Tutor OS → กลุ่มเรียน → สร้าง Locker
+2. เพิ่มนักเรียนที่มีคอร์สตรงกัน
+3. เปิดคาบจาก Locker
+4. เช็กชื่อรายคน
+5. กดเริ่ม/จบสอน
+6. ตั้งชั่วโมงรายคน เช่น 1.50 / 1.25 / 0.75
+7. บันทึกตัดชั่วโมง
+8. เปิด Student Portal ของนักเรียน → ชั่วโมงคงเหลือต้องเปลี่ยน
+9. ลอง Student Code + PIN → Quick Check ต้องแสดงยอดเดียวกัน
 
-## Source-code adaptation note
-
-The supplied Tutor OS source combined multiple generations/modules in one large HTML application. V14 keeps its functional areas, but remaps them to the current AreWarin schema instead of connecting the old source directly to its former database. This avoids maintaining duplicate student/course/tutor records and makes Manager + Enrollment + Tutor OS operate against one Supabase project.

@@ -20,6 +20,9 @@ Deno.serve(async req => {
 
   let enrollmentId:string|null=null;
   let slipPath:string|null=null;
+  let packageCode='monthly';
+  let packageHours:number|null=30;
+  let packageUnlimited=false;
   try {
     const d=await req.json();
     const studentType=clean(d.studentType)==='old'?'old':'new';
@@ -56,7 +59,9 @@ Deno.serve(async req => {
 
     if(isCatalogEnrollment){
       const tier=d.hasUniversity?'university':'standard';
-      const packageCode=['yearly','monthly','pack20','pack10','hourly'].includes(clean(d.selectedMode)) ? clean(d.selectedMode) : 'monthly';
+      packageCode=['yearly','monthly','pack20','pack10','hourly'].includes(clean(d.selectedMode)) ? clean(d.selectedMode) : 'monthly';
+      packageUnlimited=packageCode==='yearly';
+      packageHours=packageUnlimited?null:(packageCode==='monthly'?30:packageCode==='pack20'?20:packageCode==='pack10'?10:Math.max(1,Math.floor(num(d.hourlyCount,1))));
       const {data:price,error:priceErr}=await sb.from('course_prices').select('amount').eq('tier',tier).eq('package_code',packageCode).eq('active',true).single();
       if(priceErr||!price) throw new Error('ไม่พบราคาสำหรับแพ็กเกจที่เลือก');
 
@@ -124,6 +129,57 @@ Deno.serve(async req => {
     const {data:enrollment,error:enrollErr}=await sb.from('enrollments').insert(enrollmentRow).select('id,receipt_no,receipt_token').single();
     if(enrollErr) throw enrollErr;
     enrollmentId=enrollment.id;
+
+    // V15 canonical course line items. These UUID links are the bridge used by
+    // Tutor OS, Student Portal, hour pools and future subwebs. Never rely on
+    // course name text when a UUID is available.
+    if(isCatalogEnrollment){
+      const rawItems=Array.isArray(d.courseItems)?d.courseItems:[];
+      const normalized:any[]=[];
+      for(const item of rawItems){
+        let courseId=clean(item?.courseId)||null;
+        let tutorId=clean(item?.tutorId)||null;
+        let offeringId=clean(item?.offeringId)||null;
+        const courseName=clean(item?.courseName);
+        const tutorName=clean(item?.tutorName);
+        if(!courseId && courseName){
+          let q=sb.from('courses').select('id,tutor_id,name,active').eq('name',courseName).eq('active',true);
+          if(tutorId) q=q.eq('tutor_id',tutorId);
+          const {data:resolved}=await q.limit(1).maybeSingle();
+          courseId=resolved?.id||null; tutorId=tutorId||resolved?.tutor_id||null;
+        }
+        if(!courseId) continue;
+        const {data:courseRow,error:courseErr}=await sb.from('courses').select('id,tutor_id,name,active').eq('id',courseId).maybeSingle();
+        if(courseErr||!courseRow||!courseRow.active) throw new Error(`คอร์ส ${courseName||courseId} ยังไม่เปิดใช้งาน`);
+        tutorId=tutorId||courseRow.tutor_id;
+        const {data:offering,error:offerErr}=await sb.from('course_offerings').select('id,status,enrollment_open').eq('course_id',courseId).maybeSingle();
+        if(offerErr) throw offerErr;
+        if(offering && (!offering.enrollment_open || offering.status!=='open')) throw new Error(`คอร์ส ${courseRow.name} ยังไม่เปิดรับสมัคร`);
+        offeringId=offeringId||offering?.id||null;
+        let resolvedTutorName=tutorName;
+        if(!resolvedTutorName && tutorId){ const {data:t}=await sb.from('tutors').select('display_name').eq('id',tutorId).maybeSingle(); resolvedTutorName=t?.display_name||''; }
+        normalized.push({courseId,tutorId,offeringId,courseName:courseRow.name,tutorName:resolvedTutorName});
+      }
+      if(!normalized.length) throw new Error('ไม่พบ Course UUID สำหรับรายการที่เลือก กรุณารีเฟรชหน้าแล้วเลือกคอร์สอีกครั้ง');
+      const shareMode=clean(d.cartShareMode)==='separate'?'separate':'shared';
+      const allocatedAmount=normalized.length?Math.round((finalAmount/normalized.length)*100)/100:0;
+      const rows=normalized.map(x=>({
+        enrollment_id:enrollment.id,
+        course_id:x.courseId,
+        tutor_id:x.tutorId,
+        offering_id:x.offeringId,
+        course_name_snapshot:x.courseName,
+        tutor_name_snapshot:x.tutorName||null,
+        package_code:packageCode,
+        share_mode:shareMode,
+        hours_allocated:packageHours,
+        hours_unlimited:packageUnlimited,
+        amount_allocated:allocatedAmount,
+        status:'pending'
+      }));
+      const {error:itemErr}=await sb.from('enrollment_items').insert(rows);
+      if(itemErr) throw itemErr;
+    }
 
     // Reserve every selected slot for every tutor in the cart using the DB lock/capacity function.
     if(isCatalogEnrollment){

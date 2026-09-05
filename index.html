@@ -1676,17 +1676,29 @@
                     </div>
 
                     <!-- Bento Apps — Equal Quick Actions -->
-                    <div class="col-span-2 md:col-span-4 grid grid-cols-3 sm:grid-cols-5 gap-2.5 md:gap-3">
+                    <div class="col-span-2 md:col-span-4 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 md:gap-3">
                         <button type="button" onclick="showCheckStatus()" class="group min-h-[82px] md:min-h-[86px] rounded-[1.25rem] bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-sky-200 transition flex flex-col items-center justify-center gap-2 px-2">
                             <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-500 border border-sky-100 flex items-center justify-center text-base group-hover:-translate-y-0.5 transition"><i class="fas fa-search"></i></span>
                             <span class="text-[9.5px] md:text-[10px] font-semibold text-slate-600 leading-none">เช็คสถานะ</span>
                         </button>
+
+                        <a href="./student/" class="group min-h-[82px] md:min-h-[86px] rounded-[1.25rem] bg-indigo-50/70 border border-indigo-100 shadow-sm hover:shadow-md hover:border-indigo-300 transition flex flex-col items-center justify-center gap-2 px-2 relative overflow-hidden">
+                            <span class="absolute top-2 right-2 text-[7px] font-semibold text-indigo-600 bg-white/90 border border-indigo-100 rounded-full px-1.5 py-0.5">PORTAL</span>
+                            <span class="w-9 h-9 rounded-xl bg-white text-indigo-500 border border-indigo-100 flex items-center justify-center text-base group-hover:-translate-y-0.5 transition"><i class="fas fa-graduation-cap"></i></span>
+                            <span class="text-[9.5px] md:text-[10px] font-semibold text-indigo-800 leading-none">ระบบนักเรียน</span>
+                        </a>
 
                         <button type="button" onclick="showStep('stepSpeaker')" class="group min-h-[82px] md:min-h-[86px] rounded-[1.25rem] bg-emerald-50/70 border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-300 transition flex flex-col items-center justify-center gap-2 px-2 relative overflow-hidden">
                             <span class="absolute top-2 right-2 text-[7px] font-semibold text-emerald-600 bg-white/90 border border-emerald-100 rounded-full px-1.5 py-0.5">องค์กร</span>
                             <span class="w-9 h-9 rounded-xl bg-white text-emerald-500 border border-emerald-100 flex items-center justify-center text-base group-hover:-translate-y-0.5 transition"><i class="fas fa-chalkboard-teacher"></i></span>
                             <span class="text-[9.5px] md:text-[10px] font-semibold text-emerald-800 leading-none">จ้างวิทยากร</span>
                         </button>
+
+                        <a href="./tutor-apply/" class="group min-h-[82px] md:min-h-[86px] rounded-[1.25rem] bg-cyan-50/70 border border-cyan-100 shadow-sm hover:shadow-md hover:border-cyan-300 transition flex flex-col items-center justify-center gap-2 px-2 relative overflow-hidden">
+                            <span class="absolute top-2 right-2 text-[7px] font-semibold text-cyan-700 bg-white/90 border border-cyan-100 rounded-full px-1.5 py-0.5">TH / EN</span>
+                            <span class="w-9 h-9 rounded-xl bg-white text-cyan-600 border border-cyan-100 flex items-center justify-center text-base group-hover:-translate-y-0.5 transition"><i class="fas fa-user-plus"></i></span>
+                            <span class="text-[9.5px] md:text-[10px] font-semibold text-cyan-800 leading-none">สมัครติวเตอร์</span>
+                        </a>
 
                         <a href="./reviews/" class="group min-h-[82px] md:min-h-[86px] rounded-[1.25rem] bg-amber-50/70 border border-amber-100 shadow-sm hover:shadow-md hover:border-amber-300 transition flex flex-col items-center justify-center gap-2 px-2 relative overflow-hidden">
                             <span class="absolute top-2 right-2 text-[7px] font-semibold text-amber-600 bg-white/90 border border-amber-100 rounded-full px-1.5 py-0.5">NEW</span>
@@ -3121,6 +3133,9 @@
                 <button type="button" onclick="printReceipt()" class="bg-indigo-500 text-white px-10 py-3.5 rounded-[1.5rem] hover:bg-indigo-600 transition font-bold shadow-md hover:shadow-indigo-200 transform hover:-translate-y-1 w-full md:w-auto flex items-center justify-center gap-2">
                     <i class="fas fa-print"></i> พิมพ์ใบเสร็จ
                 </button>
+                <a href="./student/" class="bg-slate-900 text-white px-10 py-3.5 rounded-[1.5rem] hover:bg-slate-800 transition font-bold w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fas fa-graduation-cap"></i> Student Portal
+                </a>
                 <button type="button" onclick="resetForm()" class="bg-white border border-slate-200 text-slate-600 px-10 py-3.5 rounded-[1.5rem] hover:bg-slate-50 transition font-bold w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-home"></i> กลับหน้าหลัก
                 </button>
@@ -3497,6 +3512,18 @@
                 const staticPriceEls = { policyStdYearly: PRICE_STD_YEARLY, policyStd30: PRICE_STD_30H, policyStd20: PRICE_STD_20H, policyStd10: PRICE_STD_10H, policyStdHourly: PRICE_STD_HOURLY, policyUniYearly: PRICE_UNI_YEARLY, policyUni30: PRICE_UNI_30H, policyUni20: PRICE_UNI_20H, policyUni10: PRICE_UNI_10H, policyUniHourly: PRICE_UNI_HOURLY };
                 Object.entries(staticPriceEls).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.textContent=Number(val).toLocaleString('th-TH'); });
                 const oldText=document.getElementById('oldCourseStandardPriceText'); if(oldText) oldText.textContent='ราคามาตรฐาน '+Number(PRICE_STD_30H).toLocaleString('th-TH')+' บ. (มหาลัย '+Number(PRICE_UNI_30H).toLocaleString('th-TH')+' บ.)';
+                // Deep-link contract used by Student Portal / future subwebs.
+                const params = new URLSearchParams(location.search);
+                const requestedCourseId = params.get('course');
+                if (requestedCourseId) {
+                    for (const tutorName of Object.keys(coursesByTutor||{})) {
+                        const c = (coursesByTutor[tutorName]||[]).find(x => String(x.id||'') === String(requestedCourseId));
+                        if (c) {
+                            window.AW_PRESELECTED_COURSE = { tutor:tutorName, course:c };
+                            break;
+                        }
+                    }
+                }
             } catch (e) { console.warn('Catalog fallback to built-in data:', e); }
         }
 
@@ -3505,6 +3532,40 @@
             if (logo) document.querySelectorAll('[data-site-logo]').forEach(img => { img.src = logo; });
             const th = document.getElementById('siteBusinessNameTh'); if(th) th.textContent = siteBranding.site_name_th || 'กวดวิชาชีววิทยา อาวริน';
             const en = document.getElementById('siteBusinessNameEn'); if(en) en.textContent = siteBranding.site_name_en || 'AreWarin Biology';
+        }
+
+        async function applyConnectedStudentDeepLink() {
+            try {
+                const params = new URLSearchParams(location.search);
+                if (params.get('source') !== 'student-portal' || !params.get('course')) return;
+                const db = window.AreWarinAPI?.sb;
+                if (!db) return;
+                const { data:{session} } = await db.auth.getSession();
+                if (!session) return;
+                const { data, error } = await db.rpc('student_v11_bootstrap');
+                if (error || !data?.student?.phone) return;
+                studentType = 'old';
+                resetExistingStudentLookup();
+                showStep('stepOldLookup');
+                const input = document.getElementById('oldLookupPhone');
+                if (input) { input.value = data.student.phone; formatPhone(input); }
+                await lookupExistingStudent();
+                if (!existingStudentRecord) return;
+                prefillExistingStudentProfile();
+                courseCart = existingStudentCourseMatches.map(x=>({...x}));
+                const reqId = params.get('course');
+                for (const tutorName of Object.keys(coursesByTutor||{})) {
+                    const c = (coursesByTutor[tutorName]||[]).find(x => String(x.id||'') === String(reqId));
+                    if (c && !courseCart.some(x=>String(x.courseId||'')===String(c.id))) {
+                        courseCart.push({tutor:tutorName,tutorId:c.tutorId||tutorProfiles[tutorName]?.id||null,course:c.name,courseId:c.id,offeringId:c.offeringId||null,isUni:!!c.isUni});
+                        break;
+                    }
+                }
+                renderCartItems();
+                renderOldSelectedCourses();
+                showStep('stepOldInfo');
+                Swal.fire({icon:'success',title:'เชื่อมข้อมูล Student Portal แล้ว',text:'ดึงข้อมูลนักเรียนและคอร์สที่เลือกมาให้แล้ว สามารถแก้ไข เพิ่ม หรือลบคอร์สก่อนสมัครได้',confirmButtonColor:'#0f172a',customClass:{popup:'rounded-[1.5rem]'}});
+            } catch (e) { console.warn('Student Portal deep link:', e); }
         }
 
         window.onload = async function() {
@@ -3518,6 +3579,7 @@
                 startBannerSlider(); 
                 setTimeout(() => showAssistantDog(1), 1000); 
                 loadAppConfig();
+                await applyConnectedStudentDeepLink();
             } catch(e) { console.error("Initialization Error:", e); }
         };
 
@@ -4521,7 +4583,7 @@
             const c = activeCourseDetail.course;
             const tutor = activeCourseDetail.tutor;
             const idx = courseCart.findIndex(function(item){ return item.course === c.name && item.tutor === tutor; });
-            if (idx === -1) courseCart.push({ tutor: tutor, course: c.name, isUni: !!c.isUni });
+            if (idx === -1) courseCart.push({ tutor: tutor, tutorId: c.tutorId || tutorProfiles[tutor]?.id || null, course: c.name, courseId: c.id || null, offeringId: c.offeringId || null, isUni: !!c.isUni });
             else courseCart.splice(idx, 1);
             renderCourseCartList();
             renderCartItems();
@@ -4603,8 +4665,9 @@
 
         function toggleCourseInCart(courseName, isUni, checkboxElement) {
             const index = courseCart.findIndex(item => item.course === courseName && item.tutor === selectedTutor);
+            const course = (coursesByTutor[selectedTutor] || []).find(c => c.name === courseName) || {};
             if (checkboxElement.checked && index === -1) {
-                courseCart.push({ tutor: selectedTutor, course: courseName, isUni: isUni });
+                courseCart.push({ tutor: selectedTutor, tutorId: course.tutorId || tutorProfiles[selectedTutor]?.id || null, course: courseName, courseId: course.id || null, offeringId: course.offeringId || null, isUni: isUni });
             } else if (!checkboxElement.checked && index > -1) {
                 courseCart.splice(index, 1);
             }
@@ -5592,6 +5655,16 @@
             
             fd.course = courseCart.map(c => c.course + ' (' + c.tutor + ')').join(', ');
             fd.tutor = [...new Set(courseCart.map(c => c.tutor))].join(', ');
+            // V15 shared identifiers: Enrollment -> Tutor OS -> Student Portal all
+            // reference the same Course/Tutor/Offering UUIDs instead of matching text.
+            fd.courseItems = courseCart.map(c => ({
+                courseId: c.courseId || null,
+                tutorId: c.tutorId || null,
+                offeringId: c.offeringId || null,
+                courseName: c.course,
+                tutorName: c.tutor,
+                isUniversity: !!c.isUni
+            }));
             
             var discountInput = document.getElementById('discountCode');
             if (discountInput && discountInput.value) fd.discountCode = discountInput.value;
