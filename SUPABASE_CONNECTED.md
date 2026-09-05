@@ -13,3 +13,6 @@ Next required steps for a new project:
 4. Deploy Edge Functions:
    - `create-enrollment`
    - `get-receipt`
+
+## Renewal V11 upgrade
+For the current existing project, run `supabase/EXISTING_STUDENT_RENEWAL_UPGRADE.sql` once and redeploy `create-enrollment`.

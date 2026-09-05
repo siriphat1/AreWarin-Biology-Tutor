@@ -1,3 +1,12 @@
-AreWarin Complete System — Tutor Recruitment Edition
-Version: 2026.09.05-tutor-application
-Includes: configured Supabase project, Manager role diagnostics, dynamic tutor schedules, CMS, reviews, enrollment, receipt, tutor recruitment subweb.
+AreWarin Biology Complete System
+Version: 2026-09-05 Renewal V11 + Tutor Safe Delete
+Supabase Project: ihmiqtwclnqrezsnswfz
+Features added:
+- Manager safe tutor delete / deactivate
+- Existing student lookup by registered phone
+- Previous course/history retrieval
+- Same-course renewal
+- Edit/add/remove courses before renewal
+- Editable returning-student profile
+- Current package pricing + dynamic schedule for renewals
+- Server verification of previous enrollment + lookup phone

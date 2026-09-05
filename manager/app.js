@@ -1,5 +1,5 @@
 const sb = window.AreWarinAPI.sb;
-let state = { tutors: [], courses: [], reviews: [], prices: [], promotions: [], enrollments: [], payments: [], speakers: [], receipt: null, settings: {}, scheduleTemplates: [], schedules: [], scheduleReservations: [], branding: null, banners: [], categories: [] };
+let state = { tutors: [], courses: [], reviews: [], prices: [], promotions: [], enrollments: [], payments: [], speakers: [], tutorApplications: [], receipt: null, settings: {}, scheduleTemplates: [], schedules: [], scheduleReservations: [], branding: null, banners: [], categories: [] };
 let activeScheduleTutorId = null;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -7,10 +7,33 @@ const lines = v => String(v || '').split('\n').map(x=>x.trim()).filter(Boolean);
 const csv = v => String(v || '').split(',').map(x=>x.trim()).filter(Boolean);
 const notify = (icon,title,text='') => Swal.fire({icon,title,text,confirmButtonColor:'#0ea5e9',customClass:{popup:'rounded-[1.5rem]'}});
 
+let lastManagerAccessError = '';
 async function ensureManager(session) {
-  if (!session?.user) return false;
+  lastManagerAccessError = '';
+  if (!session?.user) {
+    lastManagerAccessError = 'ไม่พบ Supabase session';
+    return false;
+  }
+  if (!sb) {
+    lastManagerAccessError = 'ยังไม่ได้เชื่อมต่อ Supabase โปรดตรวจสอบ config.js';
+    return false;
+  }
   const { data, error } = await sb.from('profiles').select('display_name,role').eq('id',session.user.id).maybeSingle();
-  if (error || !data || !['manager','admin'].includes(data.role)) { await sb.auth.signOut(); return false; }
+  if (error) {
+    lastManagerAccessError = `อ่าน public.profiles ไม่ได้: ${error.message}`;
+    await sb.auth.signOut();
+    return false;
+  }
+  if (!data) {
+    lastManagerAccessError = `ล็อกอิน Auth สำเร็จ แต่ไม่พบ profile ของ ${session.user.email} (user id: ${session.user.id})`;
+    await sb.auth.signOut();
+    return false;
+  }
+  if (!['manager','admin'].includes(data.role)) {
+    lastManagerAccessError = `บัญชี ${session.user.email} มี role = ${data.role || '(ว่าง)'} ต้องเป็น manager หรือ admin`;
+    await sb.auth.signOut();
+    return false;
+  }
   $('userLabel').textContent = `${data.display_name || session.user.email} • ${data.role}`;
   return true;
 }
@@ -24,7 +47,7 @@ async function boot() {
 $('btnLogin').onclick = async () => {
   const { data, error } = await sb.auth.signInWithPassword({ email:$('loginEmail').value.trim(), password:$('loginPassword').value });
   if (error) return notify('error','เข้าสู่ระบบไม่สำเร็จ',error.message);
-  if (!(await ensureManager(data.session))) return notify('error','ไม่มีสิทธิ์ Manager','บัญชีนี้ยังไม่มี role manager/admin');
+  if (!(await ensureManager(data.session))) return notify('error','ไม่มีสิทธิ์ Manager',lastManagerAccessError || 'บัญชีนี้ยังไม่มี role manager/admin');
   $('login').classList.add('hidden'); $('app').classList.remove('hidden'); await loadAll();
 };
 $('btnLogout').onclick = () => sb.auth.signOut();
@@ -35,7 +58,7 @@ document.querySelectorAll('.nav').forEach(b => b.onclick = () => {
 });
 
 async function loadAll() {
-  const [t,c,rv,p,pr,en,pay,sp,rs,as,st,sch,sr,brand,bn,cat] = await Promise.all([
+  const [t,c,rv,p,pr,en,pay,sp,ta,rs,as,st,sch,sr,brand,bn,cat] = await Promise.all([
     sb.from('tutors').select('*').order('sort_order'),
     sb.from('courses').select('*').order('sort_order'),
     sb.from('reviews').select('*').order('featured',{ascending:false}).order('sort_order').order('created_at',{ascending:false}),
@@ -44,6 +67,7 @@ async function loadAll() {
     sb.from('enrollments').select('*').order('created_at',{ascending:false}),
     sb.from('payments').select('*,enrollments(*)').order('created_at',{ascending:false}),
     sb.from('speaker_requests').select('*').order('created_at',{ascending:false}),
+    sb.from('tutor_applications').select('*').order('created_at',{ascending:false}),
     sb.from('receipt_settings').select('*').eq('id',1).single(),
     sb.from('app_settings').select('*'),
     sb.from('schedule_templates').select('*').order('sort_order').order('start_time'),
@@ -53,7 +77,7 @@ async function loadAll() {
     sb.from('home_banners').select('*').order('sort_order').order('created_at'),
     sb.from('subject_categories').select('*').order('sort_order').order('name_th')
   ]);
-  for (const x of [t,c,rv,p,pr,en,pay,sp,rs,as,st,sch,sr,brand,bn,cat]) if(x.error) console.error(x.error);
+  for (const x of [t,c,rv,p,pr,en,pay,sp,ta,rs,as,st,sch,sr,brand,bn,cat]) if(x.error) console.error(x.error);
   state.tutors=t.data||[];
   state.courses=c.data||[];
   state.reviews=rv.data||[];
@@ -62,6 +86,7 @@ async function loadAll() {
   state.enrollments=en.data||[];
   state.payments=pay.data||[];
   state.speakers=sp.data||[];
+  state.tutorApplications=ta.data||[];
   state.receipt=rs.data||{};
   state.settings=Object.fromEntries((as.data||[]).map(x=>[x.key,typeof x.value==='object'&&x.value?.value!==undefined?x.value.value:x.value]));
   state.scheduleTemplates=st.data||[];
@@ -76,7 +101,7 @@ async function loadAll() {
   $('statPending').textContent=state.payments.filter(x=>x.status==='pending').length;
   $('statEnrollments').textContent=state.enrollments.length;
   if($('statReviews')) $('statReviews').textContent=state.reviews.filter(x=>x.active).length;
-  renderHomepage(); renderTutors(); renderCourses(); renderReviews(); renderEnrollments(); renderSpeakers(); renderPrices(); renderPromos(); renderPayments(); renderReceipt(); renderSystem(); fillTutorSelect(); renderScheduleManager();
+  renderHomepage(); renderTutors(); renderTutorApplications(); renderCourses(); renderReviews(); renderEnrollments(); renderSpeakers(); renderPrices(); renderPromos(); renderPayments(); renderReceipt(); renderSystem(); fillTutorSelect(); renderScheduleManager();
 }
 
 async function uploadPublic(bucket,file,prefix) {
@@ -157,9 +182,98 @@ if($('categoryForm')) $('categoryForm').onsubmit=async e=>{e.preventDefault();tr
   let q; if(original){const {id:_,...upd}=row;q=sb.from('subject_categories').update(upd).eq('id',original);} else {q=sb.from('subject_categories').insert(row);} const{error}=await q;if(error)throw error;resetCategoryForm();await loadAll();notify('success','บันทึกหมวดวิชาแล้ว');
 }catch(err){notify('error','บันทึกหมวดไม่สำเร็จ',err.message)}};
 
-function renderTutors(){ $('tutorList').innerHTML=state.tutors.map(t=>`<button onclick="editTutor('${t.id}')" class="text-left border rounded-2xl p-4 hover:border-sky-300"><div class="flex gap-3"><img src="${esc(t.image_url||'')}" class="w-14 h-14 rounded-xl object-cover bg-slate-100"><div><div class="font-bold">${esc(t.display_name)}</div><div class="text-xs text-slate-500">${esc(t.full_name||'')}</div><div class="mt-1"><span class="tag">${t.active?'เปิด':'ปิด'}</span></div></div></div></button>`).join('')||'<p class="text-slate-400">ยังไม่มีติวเตอร์</p>'; }
+function renderTutors(){
+  if(!$('tutorList'))return;
+  $('tutorList').innerHTML=state.tutors.map(t=>{
+    const courseCount=state.courses.filter(c=>c.tutor_id===t.id).length;
+    const scheduleCount=state.schedules.filter(s=>s.tutor_id===t.id).length;
+    return `<article class="border rounded-2xl p-4 hover:border-sky-200 transition bg-white">
+      <div class="flex gap-3">
+        <img src="${esc(t.image_url||'')}" onerror="this.style.visibility='hidden'" class="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-100">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800 truncate">${esc(t.display_name)}</div>
+              <div class="text-xs text-slate-500 truncate">${esc(t.full_name||'')}</div>
+            </div>
+            <span class="tag shrink-0">${t.active?'เปิด':'ปิด'}</span>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-1.5 text-[9px] text-slate-400">
+            <span class="px-2 py-1 rounded-lg bg-slate-50 border border-slate-100"><i class="fas fa-book-open mr-1"></i>${courseCount} คอร์ส</span>
+            <span class="px-2 py-1 rounded-lg bg-slate-50 border border-slate-100"><i class="far fa-calendar mr-1"></i>${scheduleCount} ช่องเวลา</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-[1fr_auto] gap-2 mt-3 pt-3 border-t border-slate-100">
+        <button type="button" onclick="editTutor('${t.id}')" class="py-2 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 text-[10.5px] font-semibold"><i class="fas fa-pen mr-1"></i> แก้ไข</button>
+        <button type="button" onclick="deleteTutor('${t.id}')" class="w-10 h-9 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100" title="ลบติวเตอร์"><i class="far fa-trash-can"></i></button>
+      </div>
+    </article>`;
+  }).join('')||'<p class="text-slate-400">ยังไม่มีติวเตอร์</p>';
+}
 window.editTutor=id=>{const t=state.tutors.find(x=>x.id===id); if(!t)return; $('tutorId').value=t.id;$('tutorDisplay').value=t.display_name||'';$('tutorFull').value=t.full_name||'';$('tutorRole').value=t.role_text||'';$('tutorImageUrl').value=t.image_url||'';$('tutorEdu').value=(t.education||[]).join('\n');$('tutorAwards').value=(t.awards||[]).join('\n');$('tutorLevels').value=(t.levels||[]).join(',');$('tutorCategories').value=(t.categories||[]).join(',');$('tutorVideo').value=t.video_id||'';$('tutorActive').checked=t.active;window.scrollTo({top:0,behavior:'smooth'});};
-$('tutorReset').onclick=()=>$('tutorForm').reset();
+
+window.deleteTutor=async id=>{
+  const t=state.tutors.find(x=>x.id===id);if(!t)return;
+  const courseCount=state.courses.filter(c=>c.tutor_id===id).length;
+  const tutorScheduleIds=new Set(state.schedules.filter(s=>s.tutor_id===id).map(s=>s.id));
+  const reservationCount=state.scheduleReservations.filter(r=>tutorScheduleIds.has(r.tutor_schedule_id)&&['reserved','confirmed'].includes(r.status)).length;
+  const scheduleCount=tutorScheduleIds.size;
+
+  if(reservationCount>0){
+    const result=await Swal.fire({
+      icon:'warning',
+      title:'ยังลบถาวรไม่ได้',
+      html:`<div class="text-left text-sm leading-relaxed text-slate-600">
+        <p><b>${esc(t.display_name)}</b> ยังมีรายการจอง/ตารางเรียนที่ใช้งานอยู่ <b>${reservationCount}</b> รายการ</p>
+        <p class="mt-2">เพื่อไม่ให้ประวัตินักเรียนและตารางจองสูญหาย ระบบจะให้ <b>ปิดการใช้งานติวเตอร์</b> แทน</p>
+      </div>`,
+      showCancelButton:true,confirmButtonText:'ปิดการใช้งาน',cancelButtonText:'ยกเลิก',confirmButtonColor:'#0f172a'
+    });
+    if(!result.isConfirmed)return;
+    const{error}=await sb.from('tutors').update({active:false,updated_at:new Date().toISOString()}).eq('id',id);
+    if(error)return notify('error','ปิดติวเตอร์ไม่สำเร็จ',error.message);
+    await loadAll();notify('success','ปิดการใช้งานติวเตอร์แล้ว','ข้อมูลคอร์สและการจองเดิมยังคงอยู่');
+    return;
+  }
+
+  const first=await Swal.fire({
+    icon:'warning',
+    title:`ลบ ${t.display_name}?`,
+    html:`<div class="text-left text-sm text-slate-600 space-y-2">
+      <p>การลบถาวรจะลบข้อมูลที่ผูกกับติวเตอร์นี้ตามฐานข้อมูลด้วย</p>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-xl bg-slate-50 p-3"><div class="text-[9px] text-slate-400">คอร์สที่ผูก</div><div class="font-bold text-slate-700">${courseCount}</div></div>
+        <div class="rounded-xl bg-slate-50 p-3"><div class="text-[9px] text-slate-400">ช่องตาราง</div><div class="font-bold text-slate-700">${scheduleCount}</div></div>
+      </div>
+      <p class="text-[10px] text-amber-600">แนะนำให้เลือก “ปิดใช้งาน” หากต้องการเก็บข้อมูลไว้</p>
+    </div>`,
+    showDenyButton:true,showCancelButton:true,
+    confirmButtonText:'ลบถาวร',denyButtonText:'ปิดใช้งานแทน',cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#e11d48',denyButtonColor:'#0f172a'
+  });
+  if(first.isDenied){
+    const{error}=await sb.from('tutors').update({active:false,updated_at:new Date().toISOString()}).eq('id',id);
+    if(error)return notify('error','ปิดติวเตอร์ไม่สำเร็จ',error.message);
+    await loadAll();notify('success','ปิดการใช้งานติวเตอร์แล้ว');return;
+  }
+  if(!first.isConfirmed)return;
+
+  const confirm=await Swal.fire({
+    title:'ยืนยันการลบถาวร',
+    text:'พิมพ์ DELETE เพื่อยืนยัน',
+    input:'text',inputPlaceholder:'DELETE',showCancelButton:true,
+    confirmButtonText:'ยืนยันลบ',cancelButtonText:'ยกเลิก',confirmButtonColor:'#e11d48',
+    inputValidator:v=>String(v||'').trim().toUpperCase()==='DELETE'?undefined:'กรุณาพิมพ์ DELETE'
+  });
+  if(!confirm.isConfirmed)return;
+
+  const{error}=await sb.from('tutors').delete().eq('id',id);
+  if(error)return notify('error','ลบติวเตอร์ไม่สำเร็จ',error.message);
+  if($('tutorId').value===id){$('tutorForm').reset();$('tutorId').value='';}
+  await loadAll();notify('success','ลบติวเตอร์แล้ว');
+};
+$('tutorReset').onclick=()=>{$('tutorForm').reset();$('tutorId').value='';$('tutorActive').checked=true;};
 $('tutorForm').onsubmit=async e=>{e.preventDefault();try{let image=$('tutorImageUrl').value.trim()||null;if($('tutorImage').files[0]) image=await uploadPublic('tutor-assets',$('tutorImage').files[0],'tutors');const row={display_name:$('tutorDisplay').value.trim(),full_name:$('tutorFull').value.trim(),role_text:$('tutorRole').value.trim(),image_url:image,education:lines($('tutorEdu').value),awards:lines($('tutorAwards').value),levels:csv($('tutorLevels').value),categories:csv($('tutorCategories').value),video_id:$('tutorVideo').value.trim(),active:$('tutorActive').checked,updated_at:new Date().toISOString()};let q=$('tutorId').value?sb.from('tutors').update(row).eq('id',$('tutorId').value):sb.from('tutors').insert(row);const{error}=await q;if(error)throw error;$('tutorForm').reset();$('tutorId').value='';await loadAll();notify('success','บันทึกติวเตอร์แล้ว');}catch(err){notify('error','บันทึกไม่สำเร็จ',err.message)}};
 
 function fillTutorSelect(){ $('courseTutor').innerHTML='<option value="">เลือกติวเตอร์</option>'+state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join(''); if($('scheduleTutorFilter')){$('scheduleTutorFilter').innerHTML=state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join(''); if(activeScheduleTutorId)$('scheduleTutorFilter').value=activeScheduleTutorId;} }
@@ -397,6 +511,38 @@ window.editScheduleCell=async(weekday,templateId)=>{
   }catch(err){notify('error','บันทึกตารางไม่สำเร็จ',err.message)}
 };
 
+
+
+// ---------- Tutor Recruitment ----------
+const TA_STATUS_LABELS={new:'ใบสมัครใหม่',reviewing:'กำลังตรวจสอบ',interview:'สัมภาษณ์ / ทดลองสอน',accepted:'ผ่านการพิจารณา',rejected:'ไม่ผ่าน',withdrawn:'ยกเลิก'};
+const TA_DAY_LABELS={mon:'จ.',tue:'อ.',wed:'พ.',thu:'พฤ.',fri:'ศ.',sat:'ส.',sun:'อา.'};
+const taArr=v=>Array.isArray(v)?v:[];
+const taStatusClass=s=>({new:'bg-sky-50 text-sky-700',reviewing:'bg-amber-50 text-amber-700',interview:'bg-violet-50 text-violet-700',accepted:'bg-emerald-50 text-emerald-700',rejected:'bg-rose-50 text-rose-700',withdrawn:'bg-slate-100 text-slate-600'}[s]||'bg-slate-100 text-slate-600');
+function renderTutorApplications(){
+  if(!$('tutorApplicationRows'))return;
+  const all=state.tutorApplications||[];
+  if($('taStatAll'))$('taStatAll').textContent=all.length;
+  if($('taStatNew'))$('taStatNew').textContent=all.filter(x=>x.status==='new').length;
+  if($('taStatReview'))$('taStatReview').textContent=all.filter(x=>x.status==='reviewing').length;
+  if($('taStatInterview'))$('taStatInterview').textContent=all.filter(x=>x.status==='interview').length;
+  if($('taStatAccepted'))$('taStatAccepted').textContent=all.filter(x=>x.status==='accepted').length;
+  const q=String($('tutorApplicationSearch')?.value||'').trim().toLowerCase(), f=$('tutorApplicationStatusFilter')?.value||'all';
+  const list=all.filter(x=>{const hay=[x.application_no,x.first_name,x.last_name,x.nickname,x.phone,x.email,...taArr(x.subjects)].join(' ').toLowerCase();return(f==='all'||x.status===f)&&(!q||hay.includes(q));});
+  $('tutorApplicationRows').innerHTML=list.map(x=>{
+    const days=taArr(x.availability).filter(a=>a?.day).map(a=>TA_DAY_LABELS[a.day]||a.day).join(' ');
+    return `<tr><td class="text-[10px] text-slate-500">${new Date(x.created_at).toLocaleDateString('th-TH')}</td><td><span class="font-mono text-[10px] font-semibold text-slate-600">${esc(x.application_no)}</span></td><td><b>${esc(x.first_name)} ${esc(x.last_name)}</b><div class="text-[10px] text-slate-400">${esc(x.nickname||'-')} • ${esc(x.current_occupation||'-')}</div></td><td><div class="text-[10px]">${esc(x.phone)}</div><div class="text-[9px] text-slate-400">${esc(x.email)}</div></td><td><div class="flex flex-wrap gap-1">${taArr(x.subjects).slice(0,4).map(v=>`<span class="tag">${esc(v)}</span>`).join('')||'<span class="text-slate-300">-</span>'}</div></td><td class="text-[10px] text-slate-500">${esc(days||'-')}</td><td><span class="inline-flex px-2 py-1 rounded-full text-[9px] font-semibold ${taStatusClass(x.status)}">${esc(TA_STATUS_LABELS[x.status]||x.status)}</span></td><td class="text-right"><button onclick="viewTutorApplication('${x.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[10px] font-semibold">เปิดใบสมัคร</button></td></tr>`;
+  }).join('')||'<tr><td colspan="8" class="py-10 text-center text-slate-400">ไม่พบใบสมัครติวเตอร์</td></tr>';
+}
+if($('tutorApplicationSearch'))$('tutorApplicationSearch').oninput=renderTutorApplications;
+if($('tutorApplicationStatusFilter'))$('tutorApplicationStatusFilter').onchange=renderTutorApplications;
+if($('refreshTutorApplications'))$('refreshTutorApplications').onclick=loadAll;
+
+function taEducationHtml(items){return taArr(items).map((x,i)=>`<div class="p-3 rounded-xl border border-slate-100 bg-slate-50/70"><div class="text-[10px] font-semibold text-slate-700">${esc(x.institution||'-')}</div><div class="text-[9px] text-slate-500 mt-1">${esc([x.degree,x.major,x.year].filter(Boolean).join(' • ')||'-')}</div>${x.detail?`<div class="text-[9px] text-slate-400 mt-1">${esc(x.detail)}</div>`:''}</div>`).join('')||'<div class="text-[10px] text-slate-400">ไม่มีข้อมูล</div>';}
+function taWorkHtml(items){return taArr(items).map(x=>`<div class="p-3 rounded-xl border border-slate-100 bg-slate-50/70"><div class="text-[10px] font-semibold text-slate-700">${esc(x.organization||x.role||'-')}</div><div class="text-[9px] text-slate-500 mt-1">${esc([x.role,x.period,x.subject].filter(Boolean).join(' • ')||'-')}</div>${x.detail?`<div class="text-[9px] text-slate-400 mt-1 leading-relaxed">${esc(x.detail)}</div>`:''}</div>`).join('')||'<div class="text-[10px] text-slate-400">ไม่มีข้อมูล</div>';}
+function taAvailabilityHtml(items){return taArr(items).map(a=>`<span class="tag">${esc(TA_DAY_LABELS[a.day]||a.day)} ${esc(a.start||'')}–${esc(a.end||'')}</span>`).join(' ')||'<span class="text-slate-400">-</span>';}
+window.openTutorApplicationFile=async(id,field)=>{const a=state.tutorApplications.find(x=>x.id===id),path=a?.[field];if(!path)return notify('warning','ไม่มีไฟล์แนบ');const{data,error}=await sb.storage.from('tutor-application-assets').createSignedUrl(path,300);if(error)return notify('error','เปิดไฟล์ไม่ได้',error.message);window.open(data.signedUrl,'_blank','noopener');};
+window.prefillTutorFromApplication=async id=>{const a=state.tutorApplications.find(x=>x.id===id);if(!a)return;let photoUrl='';if(a.profile_photo_path){try{const d=await sb.storage.from('tutor-application-assets').download(a.profile_photo_path);if(!d.error&&d.data){const ext=(d.data.type?.split('/')[1]||'jpg').replace('jpeg','jpg');const path=`tutors/from-application-${a.id}.${ext}`;const up=await sb.storage.from('tutor-assets').upload(path,d.data,{contentType:d.data.type,upsert:true});if(!up.error)photoUrl=sb.storage.from('tutor-assets').getPublicUrl(path).data.publicUrl;}}catch(e){console.warn(e)}}$('tutorId').value='';$('tutorDisplay').value=a.nickname?`พี่${a.nickname}`:'';$('tutorFull').value=`${a.first_name||''} ${a.last_name||''}`.trim();$('tutorRole').value=taArr(a.subjects).join(' / ');$('tutorImageUrl').value=photoUrl;$('tutorEdu').value=taArr(a.education).map(x=>[x.degree,x.major,x.institution,x.year].filter(Boolean).join(' • ')).join('\n');$('tutorAwards').value=a.achievements||'';$('tutorLevels').value=taArr(a.levels).join(',');$('tutorCategories').value=taArr(a.subjects).join(',');$('tutorActive').checked=false;Swal.close();const nav=document.querySelector('.nav[data-section="tutors"]');if(nav)nav.click();setTimeout(()=>$('tutorForm')?.scrollIntoView({behavior:'smooth',block:'start'}),100);notify('success','นำข้อมูลมาใส่ฟอร์มติวเตอร์แล้ว','ตรวจสอบข้อมูลและกดบันทึกเมื่อพร้อม');};
+window.viewTutorApplication=async id=>{const a=state.tutorApplications.find(x=>x.id===id);if(!a)return;const fileBtns=[['profile_photo_path','รูปโปรไฟล์','fa-image'],['resume_path','Resume / CV','fa-file-pdf'],['portfolio_path','Portfolio','fa-folder-open'],['transcript_path','Transcript','fa-file-lines']].filter(([f])=>a[f]).map(([f,l,ic])=>`<button type="button" onclick="openTutorApplicationFile('${a.id}','${f}')" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-semibold"><i class="far ${ic} mr-1"></i>${l}</button>`).join('');const result=await Swal.fire({title:`${esc(a.nickname||a.first_name)} • ${esc(a.application_no)}`,width:820,html:`<div class="text-left max-h-[68vh] overflow-y-auto pr-1 space-y-4"><div class="grid md:grid-cols-2 gap-3"><div class="p-4 rounded-2xl bg-slate-50 border border-slate-100"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Personal</div><div class="text-[12px] font-semibold text-slate-800 mt-1">${esc(a.first_name)} ${esc(a.last_name)} (${esc(a.nickname)})</div><div class="text-[10px] text-slate-500 mt-2 leading-relaxed">${esc(a.phone)}<br>${esc(a.email)}${a.line_id?`<br>LINE: ${esc(a.line_id)}`:''}${a.province?`<br>${esc(a.province)}`:''}</div><div class="text-[10px] text-slate-500 mt-2">${esc(a.current_occupation||'-')}</div></div><div class="p-4 rounded-2xl bg-sky-50 border border-sky-100"><div class="text-[9px] uppercase tracking-wider text-sky-500 font-semibold">Teaching</div><div class="flex flex-wrap gap-1 mt-2">${taArr(a.subjects).map(v=>`<span class="tag">${esc(v)}</span>`).join('')}</div><div class="text-[10px] text-sky-800 mt-2">ระดับ: ${esc(taArr(a.levels).join(', ')||'-')}</div><div class="text-[10px] text-sky-800 mt-1">รูปแบบ: ${esc(taArr(a.teaching_modes).join(', ')||'-')} • ประสบการณ์ ${Number(a.teaching_experience_years||0)} ปี</div></div></div>${a.intro?`<div><div class="text-[10px] font-semibold text-slate-600 mb-1">แนะนำตัว</div><div class="text-[10px] leading-relaxed text-slate-500 whitespace-pre-line">${esc(a.intro)}</div></div>`:''}<div class="grid md:grid-cols-2 gap-3"><div><div class="text-[10px] font-semibold text-slate-600 mb-2">การศึกษา</div><div class="space-y-2">${taEducationHtml(a.education)}</div></div><div><div class="text-[10px] font-semibold text-slate-600 mb-2">ประสบการณ์</div><div class="space-y-2">${taWorkHtml(a.work_experience)}</div></div></div>${a.achievements?`<div><div class="text-[10px] font-semibold text-slate-600 mb-1">รางวัล / ผลงาน</div><div class="text-[10px] leading-relaxed text-slate-500 whitespace-pre-line">${esc(a.achievements)}</div></div>`:''}<div><div class="text-[10px] font-semibold text-slate-600 mb-2">วันที่สะดวก</div><div class="flex flex-wrap gap-1">${taAvailabilityHtml(a.availability)}</div></div><div class="grid md:grid-cols-2 gap-3">${a.teaching_style?`<div class="p-3 rounded-xl bg-slate-50"><div class="text-[9px] font-semibold text-slate-500">สไตล์การสอน</div><div class="text-[10px] text-slate-600 mt-1 leading-relaxed">${esc(a.teaching_style)}</div></div>`:''}${a.why_join?`<div class="p-3 rounded-xl bg-slate-50"><div class="text-[9px] font-semibold text-slate-500">เหตุผลที่อยากร่วมทีม</div><div class="text-[10px] text-slate-600 mt-1 leading-relaxed">${esc(a.why_join)}</div></div>`:''}</div>${fileBtns?`<div><div class="text-[10px] font-semibold text-slate-600 mb-2">ไฟล์แนบ</div><div class="flex flex-wrap gap-2">${fileBtns}</div></div>`:''}<div class="grid md:grid-cols-2 gap-3 pt-3 border-t border-slate-100"><label class="text-[10px] font-semibold text-slate-600">สถานะ<select id="taStatus" class="input mt-1"><option value="new" ${a.status==='new'?'selected':''}>ใบสมัครใหม่</option><option value="reviewing" ${a.status==='reviewing'?'selected':''}>กำลังตรวจสอบ</option><option value="interview" ${a.status==='interview'?'selected':''}>สัมภาษณ์ / ทดลองสอน</option><option value="accepted" ${a.status==='accepted'?'selected':''}>ผ่านการพิจารณา</option><option value="rejected" ${a.status==='rejected'?'selected':''}>ไม่ผ่าน</option><option value="withdrawn" ${a.status==='withdrawn'?'selected':''}>ยกเลิก</option></select></label><label class="text-[10px] font-semibold text-slate-600">ข้อความที่ผู้สมัครเห็น<textarea id="taPublicNote" class="input mt-1 h-20">${esc(a.public_status_note||'')}</textarea></label></div><label class="text-[10px] font-semibold text-slate-600">บันทึกภายใน Manager<textarea id="taManagerNote" class="input mt-1 h-24">${esc(a.manager_notes||'')}</textarea></label>${a.additional_note?`<div class="p-3 rounded-xl bg-amber-50 border border-amber-100 text-[10px] text-amber-800"><b>ข้อความเพิ่มเติม:</b> ${esc(a.additional_note)}</div>`:''}</div>`,showCancelButton:true,showDenyButton:true,confirmButtonText:'บันทึกสถานะ',denyButtonText:'สร้างเป็นติวเตอร์',cancelButtonText:'ปิด',confirmButtonColor:'#0ea5e9',denyButtonColor:'#0f172a',customClass:{popup:'rounded-[1.5rem]'},preConfirm:()=>({status:document.getElementById('taStatus').value,public_status_note:document.getElementById('taPublicNote').value.trim()||null,manager_notes:document.getElementById('taManagerNote').value.trim()||null})});if(result.isDenied)return prefillTutorFromApplication(id);if(!result.isConfirmed)return;try{const session=(await sb.auth.getSession()).data.session;const row={...result.value,reviewed_by:session?.user?.id||null,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()};const{error}=await sb.from('tutor_applications').update(row).eq('id',id);if(error)throw error;await loadAll();notify('success','บันทึกใบสมัครติวเตอร์แล้ว');}catch(err){notify('error','บันทึกไม่สำเร็จ',err.message)}};
 
 // ---------- Enrollments ----------
 const statusLabel = s => ({pending_payment_verification:'รอตรวจสอบ',confirmed:'ยืนยันแล้ว',rejected:'ไม่ผ่าน',cancelled:'ยกเลิก'}[s]||s||'-');

@@ -166,6 +166,7 @@ http://localhost:8080/reviews/
 - `course-assets` — PUBLIC
 - `review-assets` — PUBLIC
 - `site-assets` — PUBLIC
+- `tutor-application-assets` — PRIVATE
 
 # ตารางหลัก
 
@@ -187,6 +188,8 @@ http://localhost:8080/reviews/
 - `site_branding`
 - `home_banners`
 - `subject_categories`
+- `tutor_applications`
+- `tutor_application_sequences`
 
 # หมายเหตุด้านระบบ
 
@@ -209,3 +212,49 @@ http://localhost:8080/reviews/
 - Deploy: `supabase functions deploy submit-tutor-application --no-verify-jwt`
 
 ดูรายละเอียดใน `TUTOR_APPLICATION_SETUP.md`
+
+
+---
+
+## Manager: ลบติวเตอร์อย่างปลอดภัย
+
+หน้า `Manager > ติวเตอร์` เพิ่มปุ่มลบแล้ว
+
+- ถ้าติเตอร์ยังมี reservation ที่สถานะ `reserved/confirmed` ระบบ **ไม่ลบถาวร** และเสนอให้ปิดการใช้งานแทน
+- ถ้าไม่มี reservation ที่ใช้งานอยู่ สามารถลบถาวรได้หลังยืนยัน `DELETE`
+- เนื่องจาก schema เดิมใช้ `ON DELETE CASCADE` คอร์สและตารางที่ผูกกับติวเตอร์จะถูกลบตามเมื่อเลือกลบถาวร
+- จึงแนะนำใช้ `ปิดใช้งาน` เป็นหลัก หากต้องการเก็บประวัติ
+
+## Existing Student Renewal V11
+
+นักเรียนเดิมเริ่มจากกรอก **เบอร์โทรที่เคยสมัครไว้** ก่อน ระบบจึงดึง:
+
+- ข้อมูลนักเรียนล่าสุด
+- คอร์สและติวเตอร์ล่าสุด
+- ประวัติสมัครย้อนหลังสูงสุด 6 รายการ
+- รูปแบบเรียนเดิม
+
+จากนั้นเลือกได้:
+
+1. `ต่อคอร์สเดิม`
+2. `แก้ไข / เพิ่มคอร์ส`
+
+ข้อมูลส่วนตัวสามารถแก้ไขก่อนสมัครรอบใหม่ และระบบใช้ **ราคา/โปรโมชั่น/ตารางว่างปัจจุบัน** ไม่ใช้ยอดเงินจากใบสมัครเก่า
+
+### Existing Supabase Project
+
+รัน SQL 1 ครั้ง:
+
+```text
+supabase/EXISTING_STUDENT_RENEWAL_UPGRADE.sql
+```
+
+แล้ว redeploy Edge Function:
+
+```bash
+supabase functions deploy create-enrollment --no-verify-jwt
+```
+
+### New Supabase Project
+
+`supabase/AREWARIN_FULL_SETUP.sql` รวม `lookup_existing_student()` ไว้แล้ว ไม่ต้องรัน upgrade แยก

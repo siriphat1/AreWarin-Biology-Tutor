@@ -23,16 +23,29 @@ Deno.serve(async req => {
   try {
     const d=await req.json();
     const studentType=clean(d.studentType)==='old'?'old':'new';
+    const renewalMode=clean(d.renewalMode);
+    const isCatalogEnrollment=studentType==='new'||(studentType==='old'&&renewalMode==='catalog');
     const fullname=clean(d.fullname);
     if(!fullname) throw new Error('กรุณากรอกชื่อผู้สมัคร');
 
     const courseText=clean(d.course);
     const tutorText=clean(d.tutor);
     const phone=clean(d.phone);
-    if(studentType==='new' && (!courseText || !tutorText)) throw new Error('ข้อมูลคอร์สหรือติวเตอร์ไม่ครบ');
+    if(isCatalogEnrollment && (!courseText || !tutorText)) throw new Error('ข้อมูลคอร์สหรือติวเตอร์ไม่ครบ');
+
+    // Returning-student renewal must point back to a real prior enrollment found by the registered phone.
+    if(studentType==='old'&&renewalMode==='catalog'){
+      const previousEnrollmentId=clean(d.previousEnrollmentId);
+      const lookupPhone=clean(d.lookupPhone).replace(/\D/g,'');
+      if(!previousEnrollmentId||lookupPhone.length<9) throw new Error('ไม่พบข้อมูลอ้างอิงนักเรียนเดิม กรุณาค้นหาด้วยเบอร์โทรอีกครั้ง');
+      const {data:previous,error:previousErr}=await sb.from('enrollments').select('id,phone').eq('id',previousEnrollmentId).maybeSingle();
+      if(previousErr||!previous) throw new Error('ไม่พบรายการสมัครเดิม');
+      const previousPhone=clean(previous.phone).replace(/\D/g,'');
+      if(previousPhone!==lookupPhone) throw new Error('เบอร์โทรไม่ตรงกับรายการสมัครเดิม');
+    }
 
     // Duplicate guard: same formatted phone + course during the last 5 minutes.
-    if(studentType==='new' && phone){
+    if(isCatalogEnrollment && phone){
       const since=new Date(Date.now()-5*60*1000).toISOString();
       const {data:dupe}=await sb.from('enrollments').select('id').eq('phone',phone).eq('course_text',courseText).gte('created_at',since).limit(1);
       if(dupe?.length) throw new Error('พบการส่งข้อมูลซ้ำ กรุณารอสักครู่');
@@ -41,7 +54,7 @@ Deno.serve(async req => {
     let finalAmount=0;
     let promotionCode:string|null=clean(d.discountCode).toUpperCase()||null;
 
-    if(studentType==='new'){
+    if(isCatalogEnrollment){
       const tier=d.hasUniversity?'university':'standard';
       const packageCode=['yearly','monthly','pack20','pack10','hourly'].includes(clean(d.selectedMode)) ? clean(d.selectedMode) : 'monthly';
       const {data:price,error:priceErr}=await sb.from('course_prices').select('amount').eq('tier',tier).eq('package_code',packageCode).eq('active',true).single();
@@ -111,7 +124,7 @@ Deno.serve(async req => {
     enrollmentId=enrollment.id;
 
     // Reserve every selected slot for every tutor in the cart using the DB lock/capacity function.
-    if(studentType==='new'){
+    if(isCatalogEnrollment){
       const tutorNames=tutorText.split(',').map((x:string)=>x.trim()).filter(Boolean);
       const {data:tutors,error:tutorErr}=await sb.from('tutors').select('id,display_name').in('display_name',tutorNames);
       if(tutorErr) throw tutorErr;

@@ -122,6 +122,15 @@
     return data || {found:false};
   }
 
+  async function lookupExistingStudent(phone) {
+    const db = needClient();
+    const normalized = cleanPhone(phone);
+    if (normalized.length < 9) return {found:false};
+    const { data, error } = await db.rpc('lookup_existing_student',{p_phone:normalized});
+    if (error) throw error;
+    return data || {found:false};
+  }
+
   async function getAppConfig() {
     const db = needClient();
     const { data, error } = await db.from('app_settings').select('key,value');
@@ -184,13 +193,13 @@
       withSuccessHandler(fn){ return makeRunner(fn,failureCb); },
       withFailureHandler(fn){ return makeRunner(successCb,fn); }
     };
-    const methods = { checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, getTutorAvailability, getAppConfig, saveAppConfig, exportCSV };
+    const methods = { checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getTutorAvailability, getAppConfig, saveAppConfig, exportCSV };
     Object.entries(methods).forEach(([name,fn]) => {
       runner[name] = (...args) => { Promise.resolve().then(()=>fn(...args)).then(v=>successCb?.(v)).catch(err=>failureCb?.(err)); return runner; };
     });
     return runner;
   }
 
-  window.AreWarinAPI = { sb, configured:!!sb, getPublicCatalog, getScheduleMatrix, checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, getAppConfig, saveAppConfig, exportCSV };
+  window.AreWarinAPI = { sb, configured:!!sb, getPublicCatalog, getScheduleMatrix, checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getAppConfig, saveAppConfig, exportCSV };
   if (sb) window.google = { script:{ run:makeRunner(null,null) } };
 })();
