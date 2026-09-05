@@ -96,9 +96,38 @@
   }
 
   async function processApplication(payload) {
-    const db = needClient();
-    const { data, error } = await db.functions.invoke('create-enrollment', { body: payload });
-    if (error) throw new Error(error.message || 'ส่งใบสมัครไม่สำเร็จ');
+    // Public enrollment uses a direct, CORS-simple POST instead of functions.invoke().
+    // functions.invoke adds Authorization/apikey/x-client-info headers and therefore forces
+    // a browser preflight. GitHub Pages was being blocked when the deployed Edge Function
+    // had not yet been redeployed with verify_jwt=false. text/plain is CORS-safelisted and
+    // keeps the public form independent from the visitor's Supabase Auth session.
+    needClient();
+    const endpoint = `${String(cfg.SUPABASE_URL || '').replace(/\/$/,'')}/functions/v1/create-enrollment`;
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'text/plain;charset=UTF-8',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload || {})
+      });
+    } catch (err) {
+      console.error('create-enrollment network error:', err);
+      throw new Error('เชื่อมต่อระบบสมัครเรียนไม่ได้ กรุณาตรวจว่า Edge Function create-enrollment ถูก Deploy แบบ --no-verify-jwt แล้ว');
+    }
+
+    const raw = await response.text();
+    let data = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch (_) { data = null; }
+
+    if (!response.ok) {
+      const detail = data?.message || raw || `HTTP ${response.status}`;
+      throw new Error(`ส่งใบสมัครไม่สำเร็จ: ${detail}`);
+    }
     if (!data?.success) throw new Error(data?.message || 'ส่งใบสมัครไม่สำเร็จ');
     return data;
   }

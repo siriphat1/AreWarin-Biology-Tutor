@@ -3263,6 +3263,14 @@
             if(el) el.classList.remove('input-error');
         }
 
+        // Shared HTML escaping helper used by Policy CMS and dynamic UI fragments.
+        // Keep this global because several legacy modules in index.html call escapeHTML().
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(ch) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+            });
+        }
+
         function formatPhone(i) {
             var v = i.value.replace(/\D/g, '');
             if (v.length > 10) v = v.substring(0, 10);

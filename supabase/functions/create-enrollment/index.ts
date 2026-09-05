@@ -2,15 +2,17 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 const json = (body: unknown, status=200) => new Response(JSON.stringify(body), {status, headers:{...corsHeaders,'Content-Type':'application/json; charset=utf-8'}});
 const num = (v: unknown, fallback=0) => Number.isFinite(Number(v)) ? Number(v) : fallback;
 const clean = (v: unknown) => String(v ?? '').trim();
 
 Deno.serve(async req => {
-  if (req.method === 'OPTIONS') return new Response('ok',{headers:corsHeaders});
+  if (req.method === 'OPTIONS') return new Response(null,{status:204,headers:corsHeaders});
+  if (req.method === 'GET') return json({ok:true,function:'create-enrollment',version:'v15.2.1-cors'});
   if (req.method !== 'POST') return json({success:false,message:'Method not allowed'},405);
 
   const url=Deno.env.get('SUPABASE_URL');
@@ -24,7 +26,13 @@ Deno.serve(async req => {
   let packageHours:number|null=30;
   let packageUnlimited=false;
   try {
-    const d=await req.json();
+    let d:any={};
+    try {
+      const rawBody=await req.text();
+      d=rawBody ? JSON.parse(rawBody) : {};
+    } catch (_) {
+      return json({success:false,message:'ข้อมูลที่ส่งมาไม่ใช่ JSON ที่ถูกต้อง'},400);
+    }
     const studentType=clean(d.studentType)==='old'?'old':'new';
     const renewalMode=clean(d.renewalMode);
     const isCatalogEnrollment=studentType==='new'||(studentType==='old'&&renewalMode==='catalog');
