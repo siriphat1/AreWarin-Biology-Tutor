@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AreWarin Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../config.js"></script>
+  <script src="../js/supabase-bridge.js"></script>
+  <script src="../js/receipt.js"></script>
+  <style>
+    :root{--bg:#f6f8fc;--surface:#fff;--line:#e7ecf3;--text:#172033;--muted:#7b879b;--sky:#0ea5e9;--indigo:#6366f1;--emerald:#10b981;--amber:#f59e0b;--rose:#f43f5e;--radius:22px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Prompt',sans-serif;color:var(--text);background:radial-gradient(circle at 0% 0%,rgba(14,165,233,.08),transparent 28rem),radial-gradient(circle at 100% 10%,rgba(99,102,241,.07),transparent 30rem),var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}button,a,input,select,textarea{font:inherit}button,a{transition:all .18s ease}button:active{transform:scale(.985)}::selection{background:#dbeafe;color:#0f172a}
+    .card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 2px rgba(15,23,42,.025),0 14px 38px -28px rgba(15,23,42,.32)}.card:hover{box-shadow:0 1px 2px rgba(15,23,42,.025),0 18px 42px -30px rgba(15,23,42,.4)}
+    .input{width:100%;min-height:44px;padding:.72rem .86rem;border:1px solid #dfe6ef;border-radius:13px;background:#fbfcfe;color:#263247;outline:none;transition:border-color .18s,box-shadow .18s,background .18s;font-size:13px;font-weight:400}.input::placeholder{color:#a0aaba;font-weight:300}.input:hover{border-color:#cbd5e1;background:#fff}.input:focus{background:#fff;border-color:#7dd3fc;box-shadow:0 0 0 4px rgba(14,165,233,.10)}textarea.input{line-height:1.65}input[type=checkbox],input[type=radio]{accent-color:#0ea5e9}input[type=file].input{padding:.48rem .6rem;background:#f8fafc}input[type=file]::file-selector-button{border:0;border-radius:10px;padding:.5rem .75rem;margin-right:.65rem;background:#fff;color:#475569;font-weight:600;font-size:11px;cursor:pointer;box-shadow:inset 0 0 0 1px #e2e8f0}
+    .manager-topbar{position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(226,232,240,.86);background:rgba(246,248,252,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.brand-mark{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#0f172a,#334155);color:#fff;font-size:12px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 18px -11px #0f172a}.top-action{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:38px;padding:.56rem .8rem;border-radius:12px;font-size:11px;font-weight:600;border:1px solid transparent;white-space:nowrap}.top-action:hover{transform:translateY(-1px)}
+    .manager-shell{width:min(1480px,100%);margin:0 auto;padding:20px;display:grid;grid-template-columns:244px minmax(0,1fr);gap:20px;align-items:start}.manager-sidebar{position:sticky;top:82px;min-height:calc(100vh - 102px);padding:12px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:24px;box-shadow:0 16px 42px -32px rgba(15,23,42,.35)}.sidebar-mini{padding:13px 12px 14px;margin-bottom:8px;border-bottom:1px solid #eef2f7}.nav-group-label{color:#a0aaba;font-size:9px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;padding:10px 11px 6px}.nav{width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;color:#5b687c;border-radius:12px;font-size:12px;font-weight:500;text-align:left;position:relative;transition:all .16s ease}.nav i{width:18px;text-align:center;font-size:12px;color:#94a3b8;transition:color .16s}.nav:hover{background:#f7f9fc;color:#1e293b}.nav:hover i{color:#475569}.nav.active{color:#fff;background:linear-gradient(135deg,#172033,#111827);box-shadow:0 10px 22px -15px rgba(15,23,42,.9)}.nav.active i{color:#7dd3fc}.nav.active::after{content:'';position:absolute;right:10px;width:5px;height:5px;border-radius:999px;background:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.13)}.manager-content{min-width:0;padding-bottom:60px}.section{display:none;animation:sectionIn .22s ease both}.section.active{display:block}@keyframes sectionIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:4px 2px 18px}.page-kicker{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8}.page-title{font-size:22px;line-height:1.25;font-weight:700;color:#172033;margin-top:4px}.page-subtitle{font-size:11px;color:#8a96a8;margin-top:5px;line-height:1.55}
+    .dashboard-hero{position:relative;overflow:hidden;padding:25px 27px;background:linear-gradient(135deg,#111827 0%,#172554 55%,#1e3a8a 100%);color:#fff;border:0;min-height:150px}.dashboard-hero::after{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-70px;top:-125px;background:rgba(125,211,252,.16)}.dashboard-hero::before{content:'';position:absolute;width:120px;height:120px;border-radius:50%;right:130px;bottom:-80px;background:rgba(167,139,250,.15)}.hero-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.13);color:#dbeafe;font-size:9px;font-weight:500;backdrop-filter:blur(6px)}
+    .stat-card{position:relative;overflow:hidden;min-height:128px;padding:18px;display:flex;flex-direction:column;justify-content:space-between}.stat-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px}.stat-value{font-size:27px;font-weight:700;letter-spacing:-.025em;color:#172033;line-height:1}.stat-label{font-size:10px;font-weight:500;color:#7c899d}.stat-note{font-size:9px;color:#a2acba}.stat-card::after{content:'';position:absolute;width:80px;height:80px;border-radius:50%;right:-38px;top:-38px;background:var(--stat-glow,#eff6ff)}
+    form.card{position:relative}form.card h2,.card>h2{color:#1e293b;letter-spacing:-.01em}form.card label{color:#66758a}.tag{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;line-height:1;padding:5px 8px;border-radius:999px;background:#f2f5f9;color:#64748b;border:1px solid #e9eef5}.table-wrap{overflow:auto;border:1px solid #edf1f6;border-radius:16px;background:#fff}table thead{background:#f8fafc}table th{font-weight:600;letter-spacing:.01em;padding:11px 12px}table td{padding:10px 12px;color:#475569}table tbody tr{transition:background .15s}table tbody tr:hover{background:#fbfdff}.schedule-cell{min-height:76px;transition:.16s;border-radius:12px}.schedule-cell:hover{transform:translateY(-1px);box-shadow:0 7px 18px -15px rgba(15,23,42,.5)}.custom-scroll::-webkit-scrollbar{height:5px;width:5px}.custom-scroll::-webkit-scrollbar-track{background:transparent}.custom-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+    #tutorList>*,#courseList>*,#promoList>*,#reviewList>*{border-color:#e9eef5!important;background:linear-gradient(180deg,#fff,#fcfdff)!important;border-radius:16px!important}
+    #login{position:relative;overflow:hidden;background:radial-gradient(circle at 13% 18%,rgba(14,165,233,.12),transparent 22rem),radial-gradient(circle at 84% 75%,rgba(99,102,241,.10),transparent 25rem),#f7f9fc}.login-shell{width:min(920px,100%);min-height:520px;display:grid;grid-template-columns:1.05fr .95fr;background:#fff;border:1px solid #e6ebf2;border-radius:30px;overflow:hidden;box-shadow:0 30px 80px -48px rgba(15,23,42,.48)}.login-showcase{position:relative;overflow:hidden;padding:42px;background:linear-gradient(145deg,#0f172a,#172554 60%,#1e3a8a);color:#fff;display:flex;flex-direction:column;justify-content:space-between}.login-showcase::before{content:'';position:absolute;width:270px;height:270px;border-radius:50%;right:-120px;top:-80px;border:52px solid rgba(125,211,252,.08)}.login-showcase::after{content:'';position:absolute;width:170px;height:170px;border-radius:50%;left:-95px;bottom:-80px;background:rgba(167,139,250,.08)}.login-panel{padding:44px 38px;display:flex;flex-direction:column;justify-content:center}.login-field{position:relative}.login-field i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#94a3b8}.login-field .input{padding-left:39px}
+    @media(max-width:1023px){.manager-shell{grid-template-columns:1fr;padding:12px}.manager-sidebar{position:sticky;top:68px;z-index:32;min-height:0;padding:8px;border-radius:16px;overflow:auto}.sidebar-mini,.nav-group-label{display:none}.manager-sidebar>div{display:flex!important;grid-template-columns:none!important;gap:5px;min-width:max-content}.nav{width:auto;white-space:nowrap;padding:9px 11px}.nav.active::after{display:none}.manager-content{padding-top:2px}}
+    @media(max-width:767px){.manager-topbar .top-label{display:none}.top-action{width:38px;padding:0}.login-shell{grid-template-columns:1fr;min-height:auto;max-width:430px}.login-showcase{display:none}.login-panel{padding:34px 24px}.page-title{font-size:19px}.dashboard-hero{padding:22px;min-height:140px}.dashboard-hero h2{font-size:22px!important}.manager-shell{padding:10px}.card{border-radius:18px}main .card{padding:16px}}
+  </style>
+</head>
+<body class="text-slate-800">
+  <div id="login" class="min-h-screen flex items-center justify-center p-5">
+    <div class="login-shell">
+      <div class="login-showcase">
+        <div class="relative z-10"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center font-bold text-sm backdrop-blur">AW</div><div><div class="text-sm font-semibold">AreWarin Biology</div><div class="text-[9px] text-sky-200/80 mt-0.5 tracking-wider uppercase">Management Console</div></div></div></div>
+        <div class="relative z-10 max-w-sm"><span class="hero-chip"><i class="fas fa-shield-halved"></i> Secure workspace</span><h1 class="text-[32px] leading-tight font-semibold mt-4 tracking-tight">จัดการทุกส่วนของระบบ<br><span class="text-sky-300">จากที่เดียว</span></h1><p class="text-[12px] leading-relaxed text-slate-300 mt-4 max-w-xs">ติวเตอร์ คอร์ส ตารางเรียน รีวิว การชำระเงิน โปรโมชั่น และใบเสร็จ เชื่อมต่อกับ Supabase โดยตรง</p></div>
+        <div class="relative z-10 flex items-center gap-5 text-[9px] text-slate-400"><span><i class="fas fa-database mr-1 text-sky-300"></i> Supabase</span><span><i class="fas fa-lock mr-1 text-emerald-300"></i> Auth + RLS</span><span><i class="fas fa-cloud mr-1 text-indigo-300"></i> Storage</span></div>
+      </div>
+      <div class="login-panel">
+        <div class="mb-7"><div class="w-11 h-11 rounded-2xl bg-slate-900 text-white mb-5 flex items-center justify-center text-xs font-bold shadow-lg shadow-slate-200">AW</div><div class="text-[9px] tracking-[.14em] uppercase text-sky-500 font-semibold">Manager Portal</div><h2 class="text-2xl font-semibold text-slate-900 mt-2">ยินดีต้อนรับกลับ</h2><p class="text-[11px] text-slate-400 mt-2">เข้าสู่ระบบด้วยบัญชี Manager หรือ Admin</p></div>
+        <div class="space-y-3"><label class="block text-[10px] font-medium text-slate-500">อีเมล<div class="login-field mt-1.5"><i class="far fa-envelope"></i><input id="loginEmail" class="input" type="email" placeholder="name@example.com" autocomplete="email"></div></label><label class="block text-[10px] font-medium text-slate-500">รหัสผ่าน<div class="login-field mt-1.5"><i class="fas fa-key"></i><input id="loginPassword" class="input" type="password" placeholder="••••••••" autocomplete="current-password"></div></label><button id="btnLogin" class="w-full mt-2 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-semibold shadow-lg shadow-slate-200">เข้าสู่ระบบ <i class="fas fa-arrow-right ml-1.5 text-[9px]"></i></button></div>
+        <p class="text-[9px] leading-relaxed text-slate-400 mt-6 flex items-start gap-2"><i class="fas fa-lock mt-0.5 text-emerald-500"></i><span>ระบบหลังบ้านจำกัดสิทธิ์ด้วย Supabase Authentication และ Row Level Security</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden min-h-screen">
+    <header class="manager-topbar"><div class="max-w-[1480px] mx-auto px-4 md:px-5 py-3 flex justify-between items-center gap-3"><div class="flex items-center gap-3 min-w-0"><div class="brand-mark overflow-hidden"><img id="managerBrandLogo" class="hidden w-full h-full object-cover" alt="AreWarin"><span id="managerBrandFallback">AW</span></div><div class="min-w-0"><div class="font-semibold text-[13px] text-slate-900 leading-tight">AreWarin Manager</div><div class="flex items-center gap-2 mt-1 min-w-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,.1)]"></span><span id="userLabel" class="text-[9.5px] text-slate-400 truncate"></span></div></div></div><div class="flex gap-2 items-center"><a href="../" class="top-action bg-white border-slate-200 text-slate-600 hover:border-sky-200 hover:text-sky-600" title="ดูเว็บสมัคร"><i class="fas fa-arrow-up-right-from-square"></i><span class="top-label">เว็บสมัคร</span></a><a href="../reviews/" class="top-action bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100" title="ดูหน้ารีวิว"><i class="far fa-comment-dots"></i><span class="top-label">หน้ารีวิว</span></a><button id="btnLogout" class="top-action bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100" title="ออกจากระบบ"><i class="fas fa-arrow-right-from-bracket"></i><span class="top-label">ออกจากระบบ</span></button></div></div></header>
+
+    <div class="manager-shell"><aside class="manager-sidebar"><div class="sidebar-mini"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fas fa-table-cells-large"></i></div><div><div class="text-[11px] font-semibold text-slate-700">Control Center</div><div class="text-[8.5px] text-slate-400 mt-0.5">จัดการระบบ AreWarin</div></div></div></div><div><div class="nav-group-label">Overview</div><button data-section="dashboard" class="nav active"><i class="fas fa-chart-pie"></i><span>Dashboard</span></button><div class="nav-group-label">Content</div><button data-section="homepage" class="nav"><i class="fas fa-house-laptop"></i><span>หน้าแรก & แบรนด์</span></button><button data-section="tutors" class="nav"><i class="fas fa-user-graduate"></i><span>ติวเตอร์</span></button><button data-section="courses" class="nav"><i class="fas fa-book-open"></i><span>คอร์ส</span></button><button data-section="reviews" class="nav"><i class="far fa-comment-dots"></i><span>รีวิว</span></button><div class="nav-group-label">Operations</div><button data-section="schedule" class="nav"><i class="far fa-calendar-alt"></i><span>ตารางสอน</span></button><button data-section="enrollments" class="nav"><i class="fas fa-clipboard-list"></i><span>การสมัครเรียน</span></button><button data-section="speakers" class="nav"><i class="fas fa-microphone-lines"></i><span>จ้างวิทยากร</span></button><button data-section="prices" class="nav"><i class="fas fa-tag"></i><span>ราคา</span></button><button data-section="promotions" class="nav"><i class="fas fa-ticket"></i><span>โปรโมชั่น</span></button><button data-section="payments" class="nav"><i class="fas fa-wallet"></i><span>การชำระเงิน</span></button><div class="nav-group-label">Settings</div><button data-section="receipt" class="nav"><i class="fas fa-receipt"></i><span>ตั้งค่าใบเสร็จ</span></button><button data-section="system" class="nav"><i class="fas fa-sliders"></i><span>ตั้งค่าระบบ</span></button></div></aside><main class="manager-content space-y-5">
+        <section id="section-dashboard" class="section active space-y-4"><div class="page-head"><div><div class="page-kicker">Overview</div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">ภาพรวมข้อมูลสำคัญของ AreWarin Biology ในที่เดียว</p></div><div class="hidden sm:flex items-center gap-2 text-[9.5px] text-slate-400 bg-white border border-slate-200 rounded-full px-3 py-2"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> ระบบเชื่อมต่ออยู่</div></div><div class="card dashboard-hero"><div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 h-full"><div><span class="hero-chip"><i class="fas fa-wand-magic-sparkles"></i> AreWarin Workspace</span><h2 class="text-[27px] md:text-[30px] font-semibold tracking-tight mt-4">จัดการระบบได้ง่ายขึ้น<br><span class="text-sky-300">และเห็นภาพรวมได้ทันที</span></h2><p class="text-[10.5px] md:text-[11px] text-slate-300 mt-3 max-w-xl leading-relaxed">ข้อมูลติวเตอร์ คอร์ส ตารางเรียน รีวิว ราคา โปรโมชั่น และการชำระเงินเชื่อมต่อกับหน้าเว็บหลักแบบเรียลไทม์</p></div><div class="flex gap-2"><a href="../" class="hero-chip hover:bg-white/15"><i class="fas fa-eye"></i> ดูหน้าเว็บ</a><a href="../reviews/" class="hero-chip hover:bg-white/15"><i class="far fa-comment-dots"></i> ดูรีวิว</a></div></div></div><div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3"><div class="card stat-card" style="--stat-glow:#e0f2fe"><div class="flex items-start justify-between"><div class="stat-icon bg-sky-50 text-sky-600"><i class="fas fa-user-graduate"></i></div><span class="tag">Tutor</span></div><div><div id="statTutors" class="stat-value">0</div><div class="stat-label mt-2">ติวเตอร์ทั้งหมด</div><div class="stat-note mt-1">ผู้สอนในระบบ</div></div></div><div class="card stat-card" style="--stat-glow:#ede9fe"><div class="flex items-start justify-between"><div class="stat-icon bg-violet-50 text-violet-600"><i class="fas fa-book-open"></i></div><span class="tag">Course</span></div><div><div id="statCourses" class="stat-value">0</div><div class="stat-label mt-2">คอร์สทั้งหมด</div><div class="stat-note mt-1">หลักสูตรที่จัดการอยู่</div></div></div><div class="card stat-card" style="--stat-glow:#fef3c7"><div class="flex items-start justify-between"><div class="stat-icon bg-amber-50 text-amber-600"><i class="fas fa-hourglass-half"></i></div><span class="tag">Pending</span></div><div><div id="statPending" class="stat-value text-amber-500">0</div><div class="stat-label mt-2">รอตรวจสลิป</div><div class="stat-note mt-1">ต้องดำเนินการ</div></div></div><div class="card stat-card" style="--stat-glow:#dcfce7"><div class="flex items-start justify-between"><div class="stat-icon bg-emerald-50 text-emerald-600"><i class="fas fa-user-check"></i></div><span class="tag">Enroll</span></div><div><div id="statEnrollments" class="stat-value">0</div><div class="stat-label mt-2">สมัครทั้งหมด</div><div class="stat-note mt-1">รายการลงทะเบียน</div></div></div><div class="card stat-card" style="--stat-glow:#e0e7ff"><div class="flex items-start justify-between"><div class="stat-icon bg-indigo-50 text-indigo-600"><i class="fas fa-star"></i></div><span class="tag">Review</span></div><div><div id="statReviews" class="stat-value text-indigo-500">0</div><div class="stat-label mt-2">รีวิวเผยแพร่</div><div class="stat-note mt-1">Social proof</div></div></div></div></section>
+
+        <section id="section-homepage" class="section space-y-5">
+          <div class="page-head">
+            <div>
+              <div class="page-kicker">Website Content</div>
+              <h1 class="page-title">หน้าแรก & แบรนด์</h1>
+              <p class="page-subtitle">เปลี่ยน Logo จัดการแบนเนอร์เลื่อน และเปิด/ปิดหมวดวิชาจากหลังบ้านได้ทันที</p>
+            </div>
+            <a href="../" target="_blank" class="top-action bg-white border-slate-200 text-slate-600 hover:border-sky-200 hover:text-sky-600"><i class="fas fa-arrow-up-right-from-square"></i><span>Preview</span></a>
+          </div>
+
+          <div class="grid xl:grid-cols-[0.9fr_1.35fr] gap-4 items-start">
+            <form id="brandForm" class="card p-5 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div><div class="page-kicker">Brand Identity</div><h2 class="font-semibold text-[15px] text-slate-800 mt-1">Logo และข้อมูลแบรนด์</h2><p class="text-[10px] text-slate-400 mt-1">Logo นี้ใช้กับหน้าเว็บหลัก หน้ารีวิว และ Manager</p></div>
+                <span class="tag">Live</span>
+              </div>
+              <div class="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+                <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm"><img id="brandLogoPreview" class="hidden w-full h-full object-cover" alt="Logo preview"><span id="brandLogoFallback" class="text-lg font-bold text-slate-300">AW</span></div>
+                <div class="flex-1 min-w-0"><label class="text-[10px] font-semibold text-slate-500">อัปโหลด Logo<input id="brandLogoFile" type="file" accept="image/*" class="input mt-1"></label><p class="text-[9px] text-slate-400 mt-1.5">แนะนำ PNG / WebP พื้นหลังโปร่งใส หรือสัดส่วน 1:1</p></div>
+              </div>
+              <label class="text-[10px] font-semibold text-slate-500">หรือ URL Logo<input id="brandLogoUrl" class="input mt-1" placeholder="https://..."></label>
+              <div class="grid md:grid-cols-2 gap-3">
+                <label class="text-[10px] font-semibold text-slate-500">ชื่อภาษาไทย<input id="brandNameTh" class="input mt-1" placeholder="กวดวิชาชีววิทยา อาวริน"></label>
+                <label class="text-[10px] font-semibold text-slate-500">ชื่อภาษาอังกฤษ<input id="brandNameEn" class="input mt-1" placeholder="AreWarin Biology"></label>
+              </div>
+              <label class="text-[10px] font-semibold text-slate-500">Tagline<input id="brandTagline" class="input mt-1" placeholder="เปลี่ยนเรื่องยาก ให้เป็นเรื่องง่าย"></label>
+              <div class="grid md:grid-cols-2 gap-3">
+                <label class="text-[10px] font-semibold text-slate-500">ข้อความสถานที่<input id="brandLocation" class="input mt-1" placeholder="Onsite @ขอนแก่น"></label>
+                <label class="text-[10px] font-semibold text-slate-500">ป้ายเปิดรับสมัคร<input id="brandRegistration" class="input mt-1" placeholder="🚀 เปิดรับสมัครแล้ว!"></label>
+              </div>
+              <button class="w-full py-3 rounded-xl bg-slate-900 text-white text-[11px] font-semibold hover:bg-black transition"><i class="fas fa-floppy-disk mr-1.5"></i> บันทึกแบรนด์</button>
+            </form>
+
+            <div class="space-y-4">
+              <div class="card p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <div><div class="page-kicker">Hero Slider</div><h2 class="font-semibold text-[15px] text-slate-800 mt-1">แบนเนอร์เลื่อนหน้าแรก</h2><p class="text-[10px] text-slate-400 mt-1">เพิ่ม แก้ไข ปิดแสดง ลบ และจัดลำดับได้</p></div>
+                  <span id="bannerCount" class="tag">0</span>
+                </div>
+                <form id="bannerForm" class="grid lg:grid-cols-[1fr_1fr] gap-4 p-4 rounded-2xl border border-slate-200 bg-slate-50/60">
+                  <input type="hidden" id="bannerId">
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center"><h3 class="text-[11px] font-semibold text-slate-700">ข้อมูลแบนเนอร์</h3><button type="button" id="bannerReset" class="text-[10px] font-semibold text-sky-600">สร้างใหม่</button></div>
+                    <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-semibold text-slate-500">หัวข้อ<input id="bannerTitle" class="input mt-1" placeholder="กวดวิชาชีววิทยา" required></label><label class="text-[10px] font-semibold text-slate-500">ข้อความ Highlight<input id="bannerHighlight" class="input mt-1" placeholder="อาวริน"></label></div>
+                    <label class="text-[10px] font-semibold text-slate-500">คำอธิบาย<input id="bannerDesc" class="input mt-1" placeholder="เปลี่ยนเรื่องยาก ให้เป็นเรื่องง่าย"></label>
+                    <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-semibold text-slate-500">Badge<input id="bannerBadge" class="input mt-1" placeholder="🚀 เปิดรับสมัครแล้ว!"></label><label class="text-[10px] font-semibold text-slate-500">Location<input id="bannerLocation" class="input mt-1" placeholder="Onsite @ขอนแก่น"></label></div>
+                    <label class="text-[10px] font-semibold text-slate-500">ลิงก์เมื่อคลิก (ถ้ามี)<input id="bannerLink" class="input mt-1" placeholder="https://..."></label>
+                    <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-semibold text-slate-500">ลำดับ<input id="bannerSort" type="number" class="input mt-1" value="100" min="0"></label><label class="flex items-center justify-between gap-2 px-3 mt-[19px] h-[42px] rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-600">แสดงบนเว็บ<input id="bannerActive" type="checkbox" checked></label></div>
+                  </div>
+                  <div class="space-y-3">
+                    <div class="aspect-[16/9] rounded-2xl border border-slate-200 bg-white overflow-hidden relative"><img id="bannerImagePreview" class="hidden w-full h-full object-cover" alt="Banner preview"><div id="bannerImageFallback" class="absolute inset-0 flex items-center justify-center text-slate-300 text-2xl"><i class="far fa-image"></i></div></div>
+                    <label class="text-[10px] font-semibold text-slate-500">อัปโหลดรูป<input id="bannerImageFile" type="file" accept="image/*" class="input mt-1"></label>
+                    <label class="text-[10px] font-semibold text-slate-500">หรือ URL รูป<input id="bannerImageUrl" class="input mt-1" placeholder="https://..."></label>
+                    <button class="w-full py-3 rounded-xl bg-sky-500 text-white text-[11px] font-semibold hover:bg-sky-600 transition"><i class="fas fa-plus-circle mr-1.5"></i> บันทึกแบนเนอร์</button>
+                  </div>
+                </form>
+                <div id="bannerList" class="grid md:grid-cols-2 gap-3 mt-4"></div>
+              </div>
+
+              <div class="card p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <div><div class="page-kicker">Subjects</div><h2 class="font-semibold text-[15px] text-slate-800 mt-1">หมวดที่เปิดสอน</h2><p class="text-[10px] text-slate-400 mt-1">ปิดหมวดได้ทันที หรือเพิ่มหมวดใหม่สำหรับติวเตอร์และคอร์สในอนาคต</p></div>
+                  <span id="categoryCount" class="tag">0</span>
+                </div>
+                <div class="grid lg:grid-cols-[0.8fr_1.2fr] gap-4 items-start">
+                  <form id="categoryForm" class="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
+                    <input type="hidden" id="categoryOriginalId">
+                    <div class="flex justify-between items-center"><h3 class="text-[11px] font-semibold text-slate-700">เพิ่ม / แก้ไขหมวด</h3><button type="button" id="categoryReset" class="text-[10px] font-semibold text-sky-600">สร้างใหม่</button></div>
+                    <label class="text-[10px] font-semibold text-slate-500">รหัสหมวด (slug)<input id="categoryKey" class="input mt-1" placeholder="bio" pattern="[a-z0-9_-]+" required></label>
+                    <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-semibold text-slate-500">ชื่อภาษาไทย<input id="categoryNameTh" class="input mt-1" placeholder="ชีววิทยา" required></label><label class="text-[10px] font-semibold text-slate-500">ชื่อภาษาอังกฤษ<input id="categoryNameEn" class="input mt-1" placeholder="Biology"></label></div>
+                    <label class="text-[10px] font-semibold text-slate-500">Font Awesome icon<input id="categoryIcon" class="input mt-1" placeholder="fas fa-dna"></label>
+                    <div class="grid grid-cols-2 gap-2"><label class="text-[10px] font-semibold text-slate-500">Theme<select id="categoryTheme" class="input mt-1"><option>rose</option><option>teal</option><option>indigo</option><option>amber</option><option>sky</option><option>violet</option><option>emerald</option><option>slate</option></select></label><label class="text-[10px] font-semibold text-slate-500">ลำดับ<input id="categorySort" type="number" class="input mt-1" value="100" min="0"></label></div>
+                    <label class="flex items-center justify-between gap-2 px-3 h-[42px] rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-600">เปิดแสดงหมวดนี้<input id="categoryActive" type="checkbox" checked></label>
+                    <button class="w-full py-3 rounded-xl bg-indigo-500 text-white text-[11px] font-semibold hover:bg-indigo-600 transition"><i class="fas fa-floppy-disk mr-1.5"></i> บันทึกหมวด</button>
+                  </form>
+                  <div id="categoryList" class="space-y-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-tutors" class="section"><div class="page-head"><div><div class="page-kicker">People</div><h1 class="page-title">จัดการติวเตอร์</h1><p class="page-subtitle">เพิ่ม แก้ไข และดูข้อมูลผู้สอนที่แสดงบนหน้าเว็บ</p></div></div>
+          <div class="grid xl:grid-cols-[380px_1fr] gap-5">
+            <form id="tutorForm" class="card p-5 space-y-3">
+              <div class="flex justify-between"><h2 class="font-bold text-lg">เพิ่ม/แก้ไขติวเตอร์</h2><button type="button" id="tutorReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div>
+              <input type="hidden" id="tutorId"><input id="tutorDisplay" class="input" placeholder="ชื่อที่แสดง เช่น พี่อาร์" required><input id="tutorFull" class="input" placeholder="ชื่อ-นามสกุล"><input id="tutorRole" class="input" placeholder="บทบาท/วิชาที่สอน">
+              <label class="text-xs font-bold">รูปติวเตอร์</label><input id="tutorImage" type="file" accept="image/*" class="input"><input id="tutorImageUrl" class="input" placeholder="หรือ URL รูปเดิม">
+              <textarea id="tutorEdu" class="input h-24" placeholder="การศึกษา: 1 บรรทัดต่อ 1 รายการ"></textarea><textarea id="tutorAwards" class="input h-20" placeholder="รางวัล: 1 บรรทัดต่อ 1 รายการ"></textarea>
+              <input id="tutorLevels" class="input" placeholder="levels: senior,university"><input id="tutorCategories" class="input" placeholder="categories: bio,chem,sci,math"><input id="tutorVideo" class="input" placeholder="YouTube Video ID">
+              <label class="flex gap-2 items-center text-sm"><input id="tutorActive" type="checkbox" checked> เปิดใช้งาน</label>
+              <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px]">บันทึกติวเตอร์</button>
+            </form>
+            <div class="card p-5"><h2 class="font-bold text-lg mb-4">รายชื่อติวเตอร์</h2><div id="tutorList" class="grid md:grid-cols-2 gap-3"></div></div>
+          </div>
+        </section>
+
+        <section id="section-courses" class="section"><div class="page-head"><div><div class="page-kicker">Courses</div><h1 class="page-title">จัดการคอร์ส</h1><p class="page-subtitle">จัดการรายละเอียดคอร์ส รูปภาพ กลุ่มเป้าหมาย และสถานะการเปิดสอน</p></div></div>
+          <div class="grid xl:grid-cols-[380px_1fr] gap-5">
+            <form id="courseForm" class="card p-5 space-y-3">
+              <div class="flex justify-between"><h2 class="font-bold text-lg">เพิ่ม/แก้ไขคอร์ส</h2><button type="button" id="courseReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div>
+              <input type="hidden" id="courseId"><select id="courseTutor" class="input" required></select><input id="courseName" class="input" placeholder="ชื่อคอร์ส" required><select id="courseType" class="input"><option value="content">เนื้อหา</option><option value="exam">ตะลุยโจทย์/สอบ</option></select>
+              <input id="courseShort" class="input" placeholder="รายละเอียดสั้น"><textarea id="courseFull" class="input h-24" placeholder="รายละเอียดเต็ม"></textarea><input id="courseTarget" class="input" placeholder="เหมาะกับใคร"><textarea id="courseOutcomes" class="input h-24" placeholder="Learning outcomes — 1 ข้อต่อบรรทัด"></textarea><textarea id="courseSyllabus" class="input h-28" placeholder="เนื้อหา / Syllabus — 1 หัวข้อต่อบรรทัด"></textarea><select id="courseBadge" class="input"><option value="">ไม่มี Badge</option><option value="new">NEW</option><option value="recommend">แนะนำ</option><option value="star">Star</option></select>
+              <label class="text-xs font-bold">รูปคอร์ส</label><input id="courseImage" type="file" accept="image/*" class="input"><input id="courseImageUrl" class="input" placeholder="หรือ URL รูปเดิม"><label class="flex gap-2 items-center text-sm"><input id="courseUni" type="checkbox"> ราคา/เนื้อหาระดับมหาวิทยาลัย</label><label class="flex gap-2 items-center text-sm"><input id="courseActive" type="checkbox" checked> เปิดใช้งาน</label>
+              <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px]">บันทึกคอร์ส</button>
+            </form>
+            <div class="card p-5"><h2 class="font-bold text-lg mb-4">รายการคอร์ส</h2><div id="courseList" class="space-y-3"></div></div>
+          </div>
+        </section>
+
+        <section id="section-reviews" class="section space-y-5"><div class="page-head"><div><div class="page-kicker">Social Proof</div><h1 class="page-title">จัดการรีวิว</h1><p class="page-subtitle">เผยแพร่รีวิวจากนักเรียนและนำเข้าข้อมูลจำนวนมากจาก Excel</p></div></div>
+          <div class="grid xl:grid-cols-[390px_1fr] gap-5">
+            <div class="space-y-5">
+              <form id="reviewForm" class="card p-5 space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div><h2 class="font-bold text-lg">เพิ่ม / แก้ไขรีวิว</h2><p class="text-xs text-slate-400 mt-1">ข้อมูลที่เปิดเผยบนหน้ารีวิวของเว็บไซต์</p></div>
+                  <button type="button" id="reviewReset" class="text-xs font-bold text-sky-600">ล้างฟอร์ม</button>
+                </div>
+                <input type="hidden" id="reviewId">
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="text-[11px] font-bold text-slate-500">ชื่อน้อง *<input id="reviewName" class="input mt-1" placeholder="เช่น น้องมิ้นท์" required></label>
+                  <label class="text-[11px] font-bold text-slate-500">โรงเรียน<input id="reviewSchool" class="input mt-1" placeholder="ชื่อโรงเรียน"></label>
+                </div>
+                <label class="text-[11px] font-bold text-slate-500">คอร์สที่ลง<input id="reviewCourse" list="reviewCourseOptions" class="input mt-1" placeholder="เช่น A-Level Biology"><datalist id="reviewCourseOptions"></datalist></label>
+                <label class="text-[11px] font-bold text-slate-500">รีวิว *<textarea id="reviewText" class="input mt-1 h-32 resize-y" placeholder="ข้อความรีวิวจากนักเรียน" required></textarea></label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="text-[11px] font-bold text-slate-500">คะแนน<select id="reviewRating" class="input mt-1"><option value="5">5 ดาว</option><option value="4">4 ดาว</option><option value="3">3 ดาว</option><option value="2">2 ดาว</option><option value="1">1 ดาว</option></select></label>
+                  <label class="text-[11px] font-bold text-slate-500">ลำดับ<input id="reviewSort" type="number" class="input mt-1" value="100" min="0"></label>
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-500">รูปนักเรียน</label>
+                  <input id="reviewImage" type="file" accept="image/*" class="input mt-1">
+                  <input id="reviewImageUrl" class="input mt-2" placeholder="หรือ URL รูปภาพ">
+                  <div id="reviewImagePreviewWrap" class="hidden mt-2"><img id="reviewImagePreview" class="w-20 h-20 rounded-2xl object-cover border border-slate-200"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex gap-2 items-center text-sm p-3 rounded-xl border bg-slate-50"><input id="reviewFeatured" type="checkbox"> รีวิวแนะนำ</label>
+                  <label class="flex gap-2 items-center text-sm p-3 rounded-xl border bg-slate-50"><input id="reviewActive" type="checkbox" checked> แสดงบนเว็บ</label>
+                </div>
+                <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px] transition"><i class="fas fa-save mr-1"></i> บันทึกรีวิว</button>
+              </form>
+
+              <div class="card p-5">
+                <div class="flex items-start justify-between gap-3 mb-4"><div><h3 class="font-bold text-sm"><i class="fas fa-file-excel text-emerald-500 mr-1"></i> นำเข้าจาก Excel</h3><p class="text-[10px] text-slate-400 mt-1">เพิ่มหลายรีวิวพร้อมกันจาก Template</p></div><span class="tag">Bulk import</span></div>
+                <a href="../templates/arewarin-review-import-template.xlsx" download class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold hover:bg-emerald-100 transition"><i class="fas fa-download"></i> ดาวน์โหลด Excel Template</a>
+                <div class="mt-3 p-3 rounded-xl bg-slate-50 border border-dashed border-slate-200">
+                  <input id="reviewImportFile" type="file" accept=".xlsx,.xls" class="block w-full text-[10px] text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-white file:text-slate-600 file:font-bold">
+                </div>
+                <button id="reviewImportBtn" type="button" class="w-full mt-3 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold"><i class="fas fa-file-import mr-1"></i> ตรวจสอบและนำเข้า</button>
+                <div class="mt-3 text-[9.5px] leading-relaxed text-slate-400"><b class="text-slate-500">รูปภาพ:</b> Excel รองรับ URL รูปภาพสาธารณะ หากไม่มี URL สามารถอัปโหลดรูปภายหลังจาก Manager ได้</div>
+              </div>
+            </div>
+
+            <div class="card p-5 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div><h2 class="font-bold text-lg">รีวิวทั้งหมด</h2><p class="text-xs text-slate-400">จัดการลำดับ รีวิวแนะนำ และสถานะการเผยแพร่</p></div>
+                <div class="flex items-center gap-2"><input id="reviewSearch" class="input !w-48" placeholder="ค้นหารีวิว"><span id="reviewCount" class="tag">0</span></div>
+              </div>
+              <div id="reviewList" class="grid md:grid-cols-2 gap-3"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-schedule" class="section space-y-5">
+          <div class="page-head">
+            <div>
+              <div class="page-kicker">Schedule</div>
+              <h1 class="page-title">จัดการตารางสอน</h1>
+              <p class="page-subtitle">กำหนดวันและช่วงเวลาสอนแยกเฉพาะติวเตอร์แต่ละคน พร้อมเปิดรับคิว บล็อกเวลา และคัดลอกตารางได้</p>
+            </div>
+          </div>
+
+          <!-- Tutor-specific weekly availability builder -->
+          <div class="card p-5 md:p-6 overflow-hidden relative">
+            <div class="absolute -right-12 -top-14 w-44 h-44 rounded-full bg-sky-50 pointer-events-none"></div>
+            <div class="relative z-10 flex flex-col xl:flex-row xl:items-start justify-between gap-5">
+              <div class="min-w-0 xl:max-w-[330px]">
+                <div class="flex items-center gap-3">
+                  <div id="scheduleTutorAvatar" class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-sm overflow-hidden shrink-0">AW</div>
+                  <div class="min-w-0">
+                    <div class="text-[9px] uppercase tracking-[.12em] font-semibold text-sky-500">Tutor availability</div>
+                    <h2 id="schedulePresetTutorName" class="text-[16px] font-bold text-slate-800 truncate">เลือกติวเตอร์</h2>
+                    <p id="scheduleTutorSummary" class="text-[10px] text-slate-400 mt-1">กำหนดตารางประจำรายบุคคล</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <label class="text-[10px] font-semibold text-slate-500">ติวเตอร์ที่ต้องการจัดตาราง</label>
+                  <select id="scheduleTutorFilter" class="input mt-1.5 w-full"></select>
+                </div>
+                <div class="mt-3 grid grid-cols-2 gap-2">
+                  <button id="scheduleSelectWeekdays" type="button" class="py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-semibold text-slate-600 hover:border-sky-200">จันทร์–ศุกร์</button>
+                  <button id="scheduleSelectWeekend" type="button" class="py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-semibold text-slate-600 hover:border-sky-200">เสาร์–อาทิตย์</button>
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0 grid lg:grid-cols-[.85fr_1.15fr] gap-5">
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <label class="text-[10px] font-semibold text-slate-500">วันที่เปิดสอน</label>
+                    <div class="flex gap-1">
+                      <button id="scheduleSelectAllDays" type="button" class="text-[9px] font-semibold text-sky-600 px-2 py-1 rounded-lg hover:bg-sky-50">ทั้งหมด</button>
+                      <button id="scheduleClearDays" type="button" class="text-[9px] font-semibold text-slate-400 px-2 py-1 rounded-lg hover:bg-slate-50">ล้าง</button>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 gap-2">
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="1"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">จ.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="2"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">อ.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="3"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">พ.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="4"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">พฤ.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="5"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">ศ.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="6"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-violet-50 peer-checked:border-violet-300 peer-checked:text-violet-700">ส.</span></label>
+                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="7"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-violet-50 peer-checked:border-violet-300 peer-checked:text-violet-700">อา.</span></label>
+                  </div>
+
+                  <div class="flex items-center justify-between gap-2 mt-4 mb-2">
+                    <label class="text-[10px] font-semibold text-slate-500">ช่วงเวลาที่สอนได้</label>
+                    <div class="flex gap-1">
+                      <button id="scheduleSelectAllTimes" type="button" class="text-[9px] font-semibold text-sky-600 px-2 py-1 rounded-lg hover:bg-sky-50">ทั้งหมด</button>
+                      <button id="scheduleClearTimes" type="button" class="text-[9px] font-semibold text-slate-400 px-2 py-1 rounded-lg hover:bg-slate-50">ล้าง</button>
+                    </div>
+                  </div>
+                  <div id="scheduleBulkTimes" class="grid sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[180px] overflow-y-auto custom-scroll pr-1"></div>
+                </div>
+
+                <div class="bg-slate-50/70 border border-slate-100 rounded-2xl p-4">
+                  <div class="grid sm:grid-cols-2 gap-3">
+                    <label class="text-[10px] font-semibold text-slate-500">สถานะ
+                      <select id="scheduleBulkStatus" class="input mt-1.5">
+                        <option value="available">เปิดรับนักเรียน</option>
+                        <option value="blocked">บล็อก / ไม่รับคิว</option>
+                      </select>
+                    </label>
+                    <label class="text-[10px] font-semibold text-slate-500">จำนวนที่รับพร้อมกัน
+                      <input id="scheduleBulkCapacity" type="number" min="1" max="100" value="1" class="input mt-1.5">
+                    </label>
+                  </div>
+                  <label class="block text-[10px] font-semibold text-slate-500 mt-3">หมายเหตุ
+                    <input id="scheduleBulkNote" class="input mt-1.5" placeholder="เช่น รับเฉพาะ Online / เตรียมสอบ A-Level">
+                  </label>
+                  <label class="flex items-start gap-2 mt-3 p-3 rounded-xl bg-white border border-slate-100 cursor-pointer">
+                    <input id="scheduleReplaceMode" type="checkbox" checked class="mt-0.5">
+                    <span><span class="block text-[10px] font-semibold text-slate-700">ใช้เป็นตารางหลักของติวเตอร์คนนี้</span><span class="block text-[9px] text-slate-400 mt-0.5 leading-relaxed">ช่วงอื่นที่ไม่ได้เลือกจะถูกปิดรับ แต่รายการจองเดิมจะไม่ถูกลบ</span></span>
+                  </label>
+                  <button id="scheduleApplyPreset" type="button" class="w-full mt-3 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold shadow-sm"><i class="fas fa-check mr-1.5"></i> บันทึกตารางประจำติวเตอร์</button>
+
+                  <div class="border-t border-slate-200 mt-4 pt-4">
+                    <div class="text-[10px] font-semibold text-slate-600 mb-2">คัดลอกตารางจากติวเตอร์คนอื่น</div>
+                    <div class="flex gap-2">
+                      <select id="scheduleCopySource" class="input flex-1"><option value="">เลือกต้นแบบ</option></select>
+                      <button id="scheduleCopyBtn" type="button" class="px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-[10px] font-semibold hover:border-violet-200 hover:text-violet-600">คัดลอก</button>
+                    </div>
+                    <button id="scheduleCloseWeekBtn" type="button" class="w-full mt-2 py-2.5 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-semibold hover:bg-rose-100"><i class="fas fa-calendar-xmark mr-1"></i> ปิดรับทั้งสัปดาห์</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid xl:grid-cols-[330px_1fr] gap-5">
+            <div class="space-y-5">
+              <form id="scheduleTemplateForm" class="card p-5 space-y-3">
+                <div>
+                  <h2 class="font-bold text-lg flex items-center gap-2"><i class="far fa-clock text-sky-500"></i> ช่วงเวลาเรียน</h2>
+                  <p class="text-xs text-slate-400 mt-1">เพิ่มช่วงเวลาได้เอง แล้วนำไปใช้กับติวเตอร์แต่ละคน</p>
+                </div>
+                <input type="hidden" id="scheduleTemplateId">
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="text-[11px] font-bold text-slate-500">เริ่ม<input id="scheduleStart" type="time" class="input mt-1" required></label>
+                  <label class="text-[11px] font-bold text-slate-500">สิ้นสุด<input id="scheduleEnd" type="time" class="input mt-1" required></label>
+                </div>
+                <input id="scheduleLabel" class="input" placeholder="ชื่อแสดง เช่น รอบเช้า (ไม่ใส่ก็ได้)">
+                <label class="flex items-center gap-2 text-sm"><input id="scheduleTemplateActive" type="checkbox" checked> เปิดใช้งานช่วงเวลานี้</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button class="py-2.5 rounded-xl bg-sky-500 text-white font-bold text-sm">บันทึก</button>
+                  <button id="scheduleTemplateReset" type="button" class="py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">ล้าง</button>
+                </div>
+              </form>
+              <div class="card p-5">
+                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">ช่วงเวลาทั้งหมด</h3><span id="scheduleTemplateCount" class="tag">0</span></div>
+                <div id="scheduleTemplateList" class="space-y-2 max-h-[420px] overflow-y-auto"></div>
+              </div>
+            </div>
+
+            <div class="card p-5 overflow-hidden">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-calendar-week text-purple-500"></i> ตารางว่างรายสัปดาห์</h2>
+                  <p class="text-xs text-slate-400 mt-1">ตารางด้านล่างเป็นของติวเตอร์ที่เลือกด้านบน คลิกแต่ละช่องเพื่อปรับเฉพาะช่องได้</p>
+                </div>
+                <button id="refreshSchedule" type="button" class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold"><i class="fas fa-sync-alt mr-1"></i> รีเฟรช</button>
+              </div>
+              <div class="grid grid-cols-3 gap-2 mb-4">
+                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-3"><div class="text-[10px] text-emerald-600">เปิดรับ</div><div id="scheduleStatOpen" class="text-xl font-bold text-emerald-700">0</div></div>
+                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-3"><div class="text-[10px] text-amber-600">มีการจอง</div><div id="scheduleStatBooked" class="text-xl font-bold text-amber-700">0</div></div>
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3"><div class="text-[10px] text-slate-500">ปิด/ยังไม่เปิด</div><div id="scheduleStatBlocked" class="text-xl font-bold text-slate-700">0</div></div>
+              </div>
+              <div class="overflow-x-auto custom-scroll pb-2">
+                <div id="scheduleCalendar" class="min-w-[900px]"></div>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-3 text-[10px] text-slate-500">
+                <span><i class="fas fa-circle text-emerald-400 mr-1"></i> เปิดรับ</span>
+                <span><i class="fas fa-circle text-amber-400 mr-1"></i> มีผู้จอง</span>
+                <span><i class="fas fa-circle text-slate-300 mr-1"></i> ยังไม่เปิด/บล็อก</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-enrollments" class="section space-y-5">
+          <div class="page-head"><div><div class="page-kicker">Enrollment</div><h1 class="page-title">การสมัครเรียน</h1><p class="page-subtitle">ค้นหา ตรวจสอบ และจัดการรายการสมัครเรียนทั้งหมด</p></div><button id="refreshEnrollments" class="top-action bg-white border-slate-200 text-slate-600"><i class="fas fa-rotate"></i><span>รีเฟรช</span></button></div>
+          <div class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4"><div><h2 class="font-bold text-lg">รายการสมัครทั้งหมด</h2><p class="text-xs text-slate-400">เปิดดูข้อมูลผู้สมัคร คอร์ส ตารางเวลา ยอด และสถานะ</p></div><div class="flex gap-2"><input id="enrollmentSearch" class="input !w-64" placeholder="ค้นหาชื่อ เบอร์ คอร์ส เลขใบเสร็จ"><select id="enrollmentStatusFilter" class="input !w-48"><option value="all">ทุกสถานะ</option><option value="pending_payment_verification">รอตรวจสอบ</option><option value="confirmed">ยืนยันแล้ว</option><option value="rejected">ไม่ผ่าน</option><option value="cancelled">ยกเลิก</option></select></div></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4"><div class="bg-slate-50 rounded-2xl p-3 border border-slate-100"><div class="text-[10px] text-slate-400">ทั้งหมด</div><div id="enrollmentStatAll" class="text-xl font-bold mt-1">0</div></div><div class="bg-amber-50 rounded-2xl p-3 border border-amber-100"><div class="text-[10px] text-amber-600">รอตรวจสอบ</div><div id="enrollmentStatPending" class="text-xl font-bold text-amber-700 mt-1">0</div></div><div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-100"><div class="text-[10px] text-emerald-600">ยืนยันแล้ว</div><div id="enrollmentStatConfirmed" class="text-xl font-bold text-emerald-700 mt-1">0</div></div><div class="bg-rose-50 rounded-2xl p-3 border border-rose-100"><div class="text-[10px] text-rose-500">ไม่ผ่าน / ยกเลิก</div><div id="enrollmentStatClosed" class="text-xl font-bold text-rose-600 mt-1">0</div></div></div>
+            <div class="table-wrap"><table class="w-full text-sm min-w-[1050px]"><thead><tr class="text-left text-xs text-slate-400"><th>เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส / ติวเตอร์</th><th>เวลา</th><th>ยอด</th><th>ชำระเงิน</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="enrollmentRows"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="section-speakers" class="section space-y-5">
+          <div class="page-head"><div><div class="page-kicker">Speaker Requests</div><h1 class="page-title">คำขอจ้างวิทยากร</h1><p class="page-subtitle">ติดตามคำขอจากโรงเรียน หน่วยงาน และกิจกรรมภายนอก</p></div><button id="refreshSpeakers" class="top-action bg-white border-slate-200 text-slate-600"><i class="fas fa-rotate"></i><span>รีเฟรช</span></button></div>
+          <div class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4"><div><h2 class="font-bold text-lg">Speaker Request Queue</h2><p class="text-xs text-slate-400">อัปเดตสถานะได้โดยไม่ส่งอีเมลอัตโนมัติ</p></div><div class="flex gap-2"><input id="speakerSearch" class="input !w-64" placeholder="ค้นหาหน่วยงาน ผู้ประสานงาน หัวข้อ"><select id="speakerStatusFilter" class="input !w-44"><option value="all">ทุกสถานะ</option><option value="pending">รอติดต่อ</option><option value="contacted">ติดต่อแล้ว</option><option value="quoted">เสนอราคาแล้ว</option><option value="confirmed">ยืนยันงาน</option><option value="cancelled">ยกเลิก</option></select></div></div>
+            <div class="table-wrap"><table class="w-full text-sm min-w-[1050px]"><thead><tr class="text-left text-xs text-slate-400"><th>วันที่</th><th>หน่วยงาน / ผู้ประสานงาน</th><th>วิชา / หัวข้อ</th><th>วันเวลา / สถานที่</th><th>งบประมาณ</th><th>ใบเสนอราคา</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="speakerRows"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="section-prices" class="section"><div class="page-head"><div><div class="page-kicker">Pricing</div><h1 class="page-title">ราคาคอร์ส</h1><p class="page-subtitle">กำหนดราคากลางสำหรับแต่ละแพ็กเกจและระดับการเรียน</p></div></div><div class="card p-5"><div class="flex justify-between items-center mb-4"><div><h2 class="font-bold text-lg">ราคาคอร์ส</h2><p class="text-xs text-slate-400">หน้าเว็บสมัครเรียนจะดึงราคานี้โดยอัตโนมัติ</p></div><button id="savePrices" class="px-4 py-2 rounded-xl bg-sky-500 text-white font-bold text-sm">บันทึกราคา</button></div><div id="priceGrid" class="grid md:grid-cols-2 gap-5"></div></div></section>
+
+        <section id="section-promotions" class="section"><div class="page-head"><div><div class="page-kicker">Marketing</div><h1 class="page-title">โปรโมชั่น</h1><p class="page-subtitle">สร้างโค้ดส่วนลด กำหนดช่วงเวลา และเปิด/ปิดโปรโมชั่น</p></div></div>
+          <div class="grid xl:grid-cols-[380px_1fr] gap-5"><form id="promoForm" class="card p-5 space-y-3"><div class="flex justify-between"><h2 class="font-bold text-lg">Promotion</h2><button type="button" id="promoReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div><input type="hidden" id="promoId"><input id="promoCode" class="input uppercase" placeholder="CODE" required><input id="promoName" class="input" placeholder="ชื่อโปรโมชั่น"><select id="promoType" class="input"><option value="fixed">ลดเป็นจำนวนเงิน</option><option value="percent">ลดเปอร์เซ็นต์</option></select><input id="promoValue" class="input" type="number" min="0" step="0.01" placeholder="จำนวนส่วนลด" required><label class="text-xs font-bold">เริ่มใช้</label><input id="promoStart" class="input" type="datetime-local"><label class="text-xs font-bold">สิ้นสุด</label><input id="promoEnd" class="input" type="datetime-local"><label class="flex gap-2 items-center text-sm"><input id="promoActive" type="checkbox" checked> เปิดใช้งาน</label><button class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[12px]">บันทึก Promotion</button></form><div class="card p-5"><h2 class="font-bold text-lg mb-4">โปรโมชั่นทั้งหมด</h2><div id="promoList" class="space-y-3"></div></div></div>
+        </section>
+
+        <section id="section-payments" class="section"><div class="page-head"><div><div class="page-kicker">Finance</div><h1 class="page-title">การชำระเงิน</h1><p class="page-subtitle">ตรวจสลิป ยืนยันยอด และจัดการสถานะการชำระเงิน</p></div></div><div class="card p-5"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตรวจสอบการชำระเงิน</h2><p class="text-xs text-slate-400">เมื่อกดยืนยัน ใบเสร็จจะเปลี่ยนสถานะเป็นชำระเงินแล้ว</p></div><button id="refreshPayments" class="text-xs px-3 py-2 bg-slate-100 rounded-xl font-bold">รีเฟรช</button></div><div class="table-wrap"><table class="w-full text-sm min-w-[900px]"><thead><tr class="text-left text-xs text-slate-400 border-b"><th class="py-2">เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส</th><th>ยอด</th><th>วิธีชำระ</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div></section>
+
+        <section id="section-receipt" class="section"><div class="page-head"><div><div class="page-kicker">Documents</div><h1 class="page-title">ตั้งค่าใบเสร็จ</h1><p class="page-subtitle">จัดการข้อมูลธุรกิจ Logo ลายเซ็น และรูปแบบใบเสร็จ</p></div></div><form id="receiptForm" class="card p-5 max-w-3xl space-y-4"><div><h2 class="font-bold text-lg">ตั้งค่าใบเสร็จ</h2><p class="text-xs text-slate-400">Logo และลายเซ็นเก็บใน private Supabase Storage</p></div><div class="grid md:grid-cols-2 gap-3"><input id="rBusiness" class="input" placeholder="ชื่อกิจการ"><input id="rBusinessEn" class="input" placeholder="ชื่อภาษาอังกฤษ"><input id="rTax" class="input" placeholder="เลขประจำตัวผู้เสียภาษี"><input id="rPhone" class="input" placeholder="เบอร์โทร"><input id="rPrefix" class="input" placeholder="Prefix เลขใบเสร็จ เช่น AR"><input id="rSigner" class="input" placeholder="ชื่อผู้ลงนาม"><input id="rPosition" class="input" placeholder="ตำแหน่งผู้ลงนาม"><input id="rFooter" class="input" placeholder="ข้อความท้ายใบเสร็จ"></div><textarea id="rAddress" class="input h-20" placeholder="ที่อยู่"></textarea><div class="grid md:grid-cols-2 gap-5"><div><label class="text-xs font-bold">Logo</label><input id="rLogo" type="file" accept="image/*" class="input mt-1"><img id="rLogoPreview" class="mt-2 max-h-24 rounded-xl border hidden"></div><div><label class="text-xs font-bold">ลายเซ็น</label><input id="rSignature" type="file" accept="image/*" class="input mt-1"><img id="rSignaturePreview" class="mt-2 max-h-24 rounded-xl border hidden"></div></div><div class="flex gap-5"><label class="text-sm flex gap-2"><input id="rShowLogo" type="checkbox" checked> แสดง Logo</label><label class="text-sm flex gap-2"><input id="rShowSignature" type="checkbox" checked> แสดงลายเซ็น</label></div><button class="px-5 py-3 rounded-xl bg-slate-900 text-white font-bold">บันทึกตั้งค่าใบเสร็จ</button></form></section>
+
+        <section id="section-system" class="section"><div class="page-head"><div><div class="page-kicker">System</div><h1 class="page-title">ตั้งค่าระบบ</h1><p class="page-subtitle">เปิด/ปิดแพ็กเกจ ประกาศ และโหมดปิดปรับปรุง</p></div></div><div class="card p-5 max-w-3xl"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตั้งค่าระบบเดิม</h2><p class="text-xs text-slate-400">เปิด/ปิดแพ็กเกจ Announcement และ Maintenance</p></div><button id="saveSystem" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold">บันทึก</button></div><div id="systemSettings" class="grid md:grid-cols-2 gap-3"></div></div></section>
+      </main>
+    </div>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
