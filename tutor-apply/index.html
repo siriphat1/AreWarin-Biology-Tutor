@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>สมัครเป็นติวเตอร์ | AreWarin Biology</title>
+  <meta name="description" content="สมัครร่วมทีมติวเตอร์กับ AreWarin Biology กรอกประวัติการศึกษา ประสบการณ์ วิชาที่สอน และวันที่สะดวกได้ผ่านระบบออนไลน์">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config.js"></script>
+  <script src="../js/supabase-bridge.js"></script>
+  <style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Prompt',sans-serif;color:#334155;background:#f8fafc;min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 4% 0%,rgba(56,189,248,.12),transparent 28%),radial-gradient(circle at 96% 4%,rgba(129,140,248,.12),transparent 31%),linear-gradient(180deg,#f8fbff 0%,#fff 46%,#fafafa 100%)}
+    .glass{background:rgba(255,255,255,.84);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(226,232,240,.92)}
+    .soft-shadow{box-shadow:0 24px 64px -44px rgba(15,23,42,.45)}
+    .hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#172554 52%,#312e81 100%)}
+    .hero:before{content:"";position:absolute;width:390px;height:390px;border-radius:50%;right:-130px;top:-260px;background:rgba(125,211,252,.13)}
+    .hero:after{content:"";position:absolute;width:250px;height:250px;border-radius:50%;left:18%;bottom:-190px;background:rgba(196,181,253,.11)}
+    .form-card{background:rgba(255,255,255,.96);border:1px solid #e9eef5;border-radius:24px;box-shadow:0 18px 48px -38px rgba(15,23,42,.36)}
+    .field{width:100%;min-height:44px;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:10px 12px;font-size:11px;color:#334155;outline:none;transition:.18s}
+    .field:focus{border-color:#7dd3fc;box-shadow:0 0 0 4px rgba(14,165,233,.08)}.field::placeholder{color:#b1bbc9}
+    textarea.field{min-height:100px;resize:vertical;line-height:1.7}
+    .label{display:block;font-size:10px;font-weight:600;color:#64748b}.req{color:#f43f5e}
+    .choice{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid #e2e8f0;border-radius:13px;background:#fff;font-size:10.5px;color:#64748b;cursor:pointer;transition:.16s}.choice:hover{border-color:#bae6fd;background:#fafdff}.choice input{accent-color:#0ea5e9}
+    .section-kicker{font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0ea5e9}.section-title{font-size:16px;font-weight:600;color:#1e293b;line-height:1.35}.section-desc{font-size:10.5px;color:#94a3b8;line-height:1.65;margin-top:3px}
+    .step-pane{display:none}.step-pane.active{display:block;animation:fadeIn .2s ease both}@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .step-dot{width:30px;height:30px;border-radius:11px;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:.2s}.step-item.active .step-dot{background:#0f172a;color:#fff;border-color:#0f172a}.step-item.done .step-dot{background:#ecfdf5;color:#059669;border-color:#a7f3d0}.step-label{font-size:9px;color:#94a3b8;font-weight:500}.step-item.active .step-label{color:#334155;font-weight:600}
+    .repeat-row{border:1px solid #e8edf4;border-radius:18px;background:#fbfdff;padding:13px}.remove-btn{width:28px;height:28px;border-radius:9px;background:#fff1f2;color:#e11d48;font-size:10px;border:1px solid #ffe4e6}
+    .day-card{border:1px solid #e2e8f0;background:#fff;border-radius:15px;padding:11px;transition:.16s}.day-card.on{border-color:#bae6fd;background:#f0f9ff}.day-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.day-times{display:none;margin-top:9px;grid-template-columns:1fr 1fr;gap:7px}.day-card.on .day-times{display:grid}
+    .upload-box{border:1px dashed #cbd5e1;border-radius:18px;background:#f8fafc;padding:16px;transition:.16s}.upload-box:hover{border-color:#7dd3fc;background:#f0f9ff}.upload-box input{font-size:10px;width:100%}
+    .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:14px;background:#0f172a;color:#fff;font-size:11px;font-weight:600;transition:.18s}.btn-primary:hover{background:#020617;transform:translateY(-1px)}
+    .btn-soft{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 15px;border-radius:13px;background:#f1f5f9;color:#64748b;font-size:10.5px;font-weight:600;transition:.18s}.btn-soft:hover{background:#e2e8f0;color:#334155}
+    .mini-stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.10)}
+    .status-modal-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:11px}.status-modal-row:last-child{border:0}.status-modal-row span:first-child{color:#94a3b8}.status-pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:9px;font-weight:600}
+    @media(max-width:767px){.form-card{border-radius:20px}.hero{border-radius:26px}.section-title{font-size:15px}.step-label{font-size:8px}.step-dot{width:28px;height:28px}.status-modal-row{grid-template-columns:1fr;gap:2px}}
+  </style>
+</head>
+<body>
+  <header class="sticky top-0 z-40 glass border-x-0 border-t-0">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <a href="../" class="flex items-center gap-3 min-w-0">
+        <img id="brandLogo" src="https://img2.pic.in.th/pic/531691933_1782062845771076_6500762805646335341_n.jpg" alt="AreWarin Biology" class="w-9 h-9 rounded-xl object-cover border border-white shadow-sm">
+        <div class="min-w-0"><div id="brandName" class="text-[12px] font-semibold text-slate-800 truncate">AreWarin Biology</div><div class="text-[9px] text-slate-400">Tutor Application</div></div>
+      </a>
+      <div class="flex items-center gap-2">
+        <button id="btnCheckStatus" type="button" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-sky-50 text-sky-700 text-[10px] font-semibold border border-sky-100 hover:bg-sky-100 transition"><i class="far fa-clock"></i> เช็คสถานะใบสมัคร</button>
+        <a href="../" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[10px] font-semibold text-slate-600 transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-9">
+    <section class="hero rounded-[30px] p-6 md:p-9 text-white soft-shadow mb-6">
+      <div class="relative z-10 grid lg:grid-cols-[1fr_320px] gap-7 items-end">
+        <div>
+          <div class="inline-flex items-center gap-2 text-[9px] uppercase tracking-[.18em] font-semibold text-sky-200 mb-4"><span class="w-6 h-px bg-sky-300"></span> JOIN OUR TEACHING TEAM</div>
+          <h1 class="text-[26px] md:text-[34px] leading-tight font-semibold tracking-tight">สมัครร่วมทีมติวเตอร์ <span class="text-sky-300">AreWarin Biology</span></h1>
+          <p class="mt-3 text-[11.5px] md:text-[12px] leading-relaxed text-slate-300 max-w-2xl">เปิดรับผู้สอนที่รักการถ่ายทอดความรู้ มีความรับผิดชอบ และพร้อมเติบโตไปกับผู้เรียน กรอกข้อมูลครั้งเดียว ทีมงานจะตรวจสอบประวัติและติดต่อกลับตามลำดับ</p>
+          <button id="btnCheckStatusMobile" type="button" class="sm:hidden mt-4 inline-flex items-center gap-2 text-[10px] text-sky-200"><i class="far fa-clock"></i> เช็คสถานะใบสมัครเดิม</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="mini-stat text-center"><div class="text-[17px] font-semibold">4</div><div class="text-[8px] text-slate-300 mt-1">ขั้นตอน</div></div>
+          <div class="mini-stat text-center"><div class="text-[17px] font-semibold"><i class="fas fa-shield-heart text-sky-300"></i></div><div class="text-[8px] text-slate-300 mt-1">ข้อมูลปลอดภัย</div></div>
+          <div class="mini-stat text-center"><div class="text-[17px] font-semibold"><i class="far fa-file-lines text-indigo-200"></i></div><div class="text-[8px] text-slate-300 mt-1">แนบเอกสารได้</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid lg:grid-cols-[230px_1fr] gap-5 items-start">
+      <aside class="glass rounded-[22px] p-4 lg:sticky lg:top-24 soft-shadow">
+        <div class="section-kicker">Application Progress</div>
+        <div class="mt-4 space-y-3" id="stepSidebar">
+          <div class="step-item active flex items-center gap-3" data-step-indicator="1"><div class="step-dot">1</div><div><div class="text-[10px] font-semibold text-slate-700">ข้อมูลส่วนตัว</div><div class="step-label">Personal</div></div></div>
+          <div class="step-item flex items-center gap-3" data-step-indicator="2"><div class="step-dot">2</div><div><div class="text-[10px] font-semibold text-slate-700">การศึกษา & งาน</div><div class="step-label">Background</div></div></div>
+          <div class="step-item flex items-center gap-3" data-step-indicator="3"><div class="step-dot">3</div><div><div class="text-[10px] font-semibold text-slate-700">การสอน & วันว่าง</div><div class="step-label">Teaching</div></div></div>
+          <div class="step-item flex items-center gap-3" data-step-indicator="4"><div class="step-dot">4</div><div><div class="text-[10px] font-semibold text-slate-700">เอกสาร & ยืนยัน</div><div class="step-label">Submit</div></div></div>
+        </div>
+        <div class="mt-5 pt-4 border-t border-slate-100 text-[9px] leading-relaxed text-slate-400"><i class="fas fa-wand-magic-sparkles text-sky-400 mr-1"></i> ระบบบันทึกร่างอัตโนมัติในอุปกรณ์นี้ โดยไม่บันทึกไฟล์แนบจนกว่าจะกดส่ง</div>
+      </aside>
+
+      <form id="applicationForm" novalidate>
+        <div class="form-card p-5 md:p-6">
+          <section class="step-pane active" data-step="1">
+            <div class="section-kicker">Step 01</div><h2 class="section-title mt-1">ข้อมูลส่วนตัวและช่องทางติดต่อ</h2><p class="section-desc">ใช้สำหรับตรวจสอบใบสมัครและติดต่อเพื่อนัดพูดคุยเท่านั้น</p>
+            <div class="grid md:grid-cols-2 gap-3 mt-5">
+              <label class="label">ชื่อ <span class="req">*</span><input id="firstName" class="field mt-1" autocomplete="given-name" required placeholder="ชื่อจริง"></label>
+              <label class="label">นามสกุล <span class="req">*</span><input id="lastName" class="field mt-1" autocomplete="family-name" required placeholder="นามสกุล"></label>
+              <label class="label">ชื่อเล่น <span class="req">*</span><input id="nickname" class="field mt-1" required placeholder="ชื่อที่อยากให้เรียก"></label>
+              <label class="label">เบอร์โทร <span class="req">*</span><input id="phone" class="field mt-1" inputmode="numeric" autocomplete="tel" maxlength="12" required placeholder="08x-xxx-xxxx"></label>
+              <label class="label">อีเมล <span class="req">*</span><input id="email" type="email" class="field mt-1" autocomplete="email" required placeholder="name@example.com"></label>
+              <label class="label">LINE ID<input id="lineId" class="field mt-1" placeholder="ถ้ามี"></label>
+              <label class="label">จังหวัดที่พักปัจจุบัน<input id="province" class="field mt-1" placeholder="เช่น ขอนแก่น"></label>
+              <label class="label">อาชีพ / สถานะปัจจุบัน<input id="currentOccupation" class="field mt-1" placeholder="เช่น นักศึกษา ป.โท / ครู / นักวิจัย"></label>
+            </div>
+            <div class="mt-4"><label class="label">แนะนำตัวสั้นๆ<textarea id="intro" class="field mt-1" placeholder="เล่าเกี่ยวกับตัวเอง ความสนใจ และสิ่งที่อยากให้ทีมงานรู้จัก"></textarea></label></div>
+          </section>
+
+          <section class="step-pane" data-step="2">
+            <div class="section-kicker">Step 02</div><h2 class="section-title mt-1">ประวัติการศึกษาและประสบการณ์ทำงาน</h2><p class="section-desc">สามารถเพิ่มได้หลายรายการ เรียงจากข้อมูลล่าสุดก่อน</p>
+            <div class="mt-5">
+              <div class="flex items-center justify-between gap-3 mb-3"><div><h3 class="text-[12px] font-semibold text-slate-700">ประวัติการศึกษา</h3><p class="text-[9.5px] text-slate-400 mt-0.5">มหาวิทยาลัย / ปริญญา / สาขา / ปี</p></div><button id="addEducation" type="button" class="btn-soft !min-h-[36px]"><i class="fas fa-plus"></i> เพิ่มการศึกษา</button></div>
+              <div id="educationList" class="space-y-3"></div>
+            </div>
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="flex items-center justify-between gap-3 mb-3"><div><h3 class="text-[12px] font-semibold text-slate-700">ประวัติการทำงาน / การสอน</h3><p class="text-[9.5px] text-slate-400 mt-0.5">ถ้ายังไม่มีประสบการณ์สามารถเว้นได้</p></div><button id="addWork" type="button" class="btn-soft !min-h-[36px]"><i class="fas fa-plus"></i> เพิ่มประสบการณ์</button></div>
+              <div id="workList" class="space-y-3"></div>
+            </div>
+            <div class="mt-4"><label class="label">รางวัล / ใบประกาศ / ผลงานที่เกี่ยวข้อง<textarea id="achievements" class="field mt-1" placeholder="เช่น สอวน., งานวิจัย, รางวัลการสอน, คะแนนสอบ, ผลงานวิชาการ"></textarea></label></div>
+          </section>
+
+          <section class="step-pane" data-step="3">
+            <div class="section-kicker">Step 03</div><h2 class="section-title mt-1">วิชาที่สอน ระดับผู้เรียน และวันที่สะดวก</h2><p class="section-desc">เลือกได้หลายรายการ เพื่อให้ทีมงานจับคู่กับคอร์สและผู้เรียนได้เหมาะสม</p>
+            <div class="mt-5"><div class="label mb-2">วิชาที่สนใจสอน <span class="req">*</span></div><div id="subjectChoices" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"></div></div>
+            <div class="mt-5"><div class="label mb-2">ระดับผู้เรียนที่สอนได้ <span class="req">*</span></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <label class="choice"><input type="checkbox" name="levels" value="primary"> ประถมศึกษา</label><label class="choice"><input type="checkbox" name="levels" value="junior"> มัธยมต้น</label><label class="choice"><input type="checkbox" name="levels" value="senior"> มัธยมปลาย</label><label class="choice"><input type="checkbox" name="levels" value="university"> มหาวิทยาลัย</label>
+            </div></div>
+            <div class="mt-5 grid md:grid-cols-2 gap-4">
+              <div><div class="label mb-2">รูปแบบการสอนที่สะดวก <span class="req">*</span></div><div class="grid grid-cols-2 gap-2"><label class="choice"><input type="checkbox" name="modes" value="online"> Online</label><label class="choice"><input type="checkbox" name="modes" value="onsite"> Onsite</label></div></div>
+              <div class="grid grid-cols-2 gap-2"><label class="label">ประสบการณ์สอน (ปี)<input id="experienceYears" type="number" min="0" max="50" step="0.5" class="field mt-1" placeholder="0"></label><label class="label">เรทที่คาดหวัง / ชม.<input id="expectedRate" class="field mt-1" placeholder="ระบุได้ถ้ามี"></label></div>
+            </div>
+            <div class="mt-4"><label class="label">พื้นที่ Onsite ที่สะดวก<input id="preferredLocation" class="field mt-1" placeholder="เช่น ขอนแก่น / นครราชสีมา / ตามตกลง"></label></div>
+            <div class="mt-6 pt-5 border-t border-slate-100"><div class="flex items-end justify-between gap-3 mb-3"><div><h3 class="text-[12px] font-semibold text-slate-700">วันที่และเวลาที่สะดวกประจำ</h3><p class="text-[9.5px] text-slate-400 mt-0.5">เลือกวัน แล้วระบุช่วงเวลาที่โดยทั่วไปสะดวก</p></div><span class="text-[8.5px] text-sky-600 bg-sky-50 border border-sky-100 rounded-full px-2 py-1">แก้ไขภายหลังได้</span></div><div id="availabilityGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-2"></div></div>
+            <div class="mt-5 grid md:grid-cols-2 gap-3"><label class="label">สไตล์การสอน<textarea id="teachingStyle" class="field mt-1" placeholder="เช่น เน้นปูพื้นฐาน ใช้ภาพ เชื่อมโยงโจทย์ หรือเน้น active learning"></textarea></label><label class="label">เหตุผลที่อยากร่วมทีม AreWarin<textarea id="whyJoin" class="field mt-1" placeholder="สิ่งที่สนใจเกี่ยวกับการสอนหรือทีมของเรา"></textarea></label></div>
+          </section>
+
+          <section class="step-pane" data-step="4">
+            <div class="section-kicker">Step 04</div><h2 class="section-title mt-1">เอกสารประกอบและการยืนยันข้อมูล</h2><p class="section-desc">ไฟล์ทั้งหมดจะเก็บในพื้นที่ส่วนตัวของระบบ และเปิดดูได้เฉพาะ Manager/Admin</p>
+            <div class="grid md:grid-cols-2 gap-3 mt-5">
+              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-image text-sky-500 mr-1.5"></i> รูปโปรไฟล์ (ถ้ามี)</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">JPG / PNG / WebP ไม่เกิน 5 MB</span><input id="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-pdf text-rose-500 mr-1.5"></i> Resume / CV</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB</span><input id="resumeFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-folder-open text-indigo-500 mr-1.5"></i> Portfolio / ผลงาน</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">ถ้ามี — PDF หรือรูป ไม่เกิน 10 MB</span><input id="portfolioFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-lines text-emerald-500 mr-1.5"></i> Transcript / เอกสารการศึกษา</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">ถ้ามี — PDF หรือรูป ไม่เกิน 10 MB</span><input id="transcriptFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+            </div>
+            <div class="mt-5"><label class="label">ข้อความเพิ่มเติม<textarea id="additionalNote" class="field mt-1" placeholder="เช่น วันที่สะดวกเริ่มงาน ข้อจำกัด หรือข้อมูลอื่นที่อยากแจ้ง"></textarea></label></div>
+            <div class="mt-5 space-y-2">
+              <label class="choice !items-start"><input id="accuracyCheck" type="checkbox" class="mt-0.5" required><span>ข้าพเจ้ารับรองว่าข้อมูลที่กรอกเป็นความจริงและสามารถตรวจสอบได้ <span class="req">*</span></span></label>
+              <label class="choice !items-start"><input id="pdpaCheck" type="checkbox" class="mt-0.5" required><span>ยินยอมให้ AreWarin Biology เก็บและใช้ข้อมูลนี้เพื่อพิจารณาการร่วมงาน การติดต่อ และการบริหารบุคลากรตามวัตถุประสงค์ที่เกี่ยวข้อง <span class="req">*</span></span></label>
+            </div>
+            <div class="mt-5 rounded-2xl bg-sky-50 border border-sky-100 p-4 text-[9.5px] leading-relaxed text-sky-800"><i class="fas fa-circle-info mr-1"></i> การส่งใบสมัครไม่ได้ถือเป็นการรับเข้าทำงานหรือรับเป็นติวเตอร์ทันที ทีมงานอาจนัดสัมภาษณ์ ทดลองสอน หรือตรวจเอกสารเพิ่มเติมก่อนยืนยันผล</div>
+          </section>
+
+          <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+            <button id="btnBack" type="button" class="btn-soft invisible"><i class="fas fa-arrow-left"></i> ย้อนกลับ</button>
+            <div class="text-[9px] text-slate-400 hidden md:block" id="draftStatus"><i class="far fa-floppy-disk mr-1"></i> บันทึกร่างอัตโนมัติ</div>
+            <button id="btnNext" type="button" class="btn-primary">ถัดไป <i class="fas fa-arrow-right"></i></button>
+            <button id="btnSubmit" type="submit" class="btn-primary hidden bg-sky-500 hover:bg-sky-600">ส่งใบสมัคร <i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="mt-7 rounded-[24px] border border-slate-200 bg-white p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 soft-shadow">
+      <div><div class="section-kicker">What happens next?</div><h3 class="text-[15px] font-semibold text-slate-800 mt-1">หลังส่งใบสมัคร</h3><p class="text-[10px] leading-relaxed text-slate-500 mt-1 max-w-2xl">ระบบจะออกเลขใบสมัครให้ทันที จากนั้น Manager จะตรวจข้อมูลและเอกสาร คุณสามารถกลับมาเช็คสถานะด้วยเลขใบสมัครและเบอร์โทรได้ตลอดเวลา</p></div>
+      <div class="flex gap-2 text-[9px]"><span class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-500">ตรวจประวัติ</span><span class="px-3 py-2 rounded-xl bg-sky-50 border border-sky-100 text-sky-700">นัดพูดคุย</span><span class="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700">ยืนยันร่วมทีม</span></div>
+    </section>
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 pb-8 text-center text-[9px] text-slate-400">© <span id="year"></span> AreWarin Biology · Tutor Recruitment System</footer>
+  <script src="./app.js"></script>
+</body>
+</html>
