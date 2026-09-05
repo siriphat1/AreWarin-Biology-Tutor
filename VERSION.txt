@@ -1,0 +1,5 @@
+AreWarin Biology Complete System
+Build: 2026-09-05
+Backend: Supabase
+Email notifications: disabled
+Includes: Student web, Reviews subweb, Manager, Dynamic Tutor Schedule, Payments, Receipts, Speaker Requests, Branding/Banners/Categories, Excel Review Import

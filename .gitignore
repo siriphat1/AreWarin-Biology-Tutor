@@ -1,0 +1,7 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+# Keep config.js only if it contains the public Supabase URL + publishable/anon key.
+# Never place the service_role key in this repository.
