@@ -1,12 +1,13 @@
 AreWarin Biology Complete System
-Version: 2026-09-05 Renewal V11 + Tutor Safe Delete
+Version: 2026-09-05 V13 International Tutor Application + Policy CMS
 Supabase Project: ihmiqtwclnqrezsnswfz
-Features added:
-- Manager safe tutor delete / deactivate
-- Existing student lookup by registered phone
-- Previous course/history retrieval
-- Same-course renewal
-- Edit/add/remove courses before renewal
-- Editable returning-student profile
-- Current package pricing + dynamic schedule for renewals
-- Server verification of previous enrollment + lookup phone
+
+New in V13:
+- Tutor Application welcome page before form
+- Editable policy/rules CMS for main student enrollment and tutor recruitment
+- Policy revision tracking stored on student enrollments and tutor applications
+- Thai / English language switch for Tutor Application
+- English policy content editable from Manager
+- International tutor support: nationality, country of residence, international phone 8–15 digits
+- Manager shows applicant language/nationality/country
+- Existing V11 features preserved: returning-student renewal, safe tutor delete, tutor-specific schedules, reviews, branding, banners, receipts, payments

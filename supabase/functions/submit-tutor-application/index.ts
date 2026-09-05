@@ -37,17 +37,19 @@ Deno.serve(async (req) => {
     let p: any
     try { p = JSON.parse(rawPayload) } catch { return json({ success:false, message:'รูปแบบข้อมูลไม่ถูกต้อง' }, 400) }
 
+    const lang = p.preferred_language === 'en' ? 'en' : 'th'
+    const msg = (th:string,en:string) => lang === 'en' ? en : th
     const required = ['first_name','last_name','nickname','phone','email']
-    for (const k of required) if (!text(p[k],300)) return json({ success:false, message:`กรุณากรอก ${k}` }, 400)
+    for (const k of required) if (!text(p[k],300)) return json({ success:false, message:msg(`กรุณากรอก ${k}`,`Please complete ${k}.`) }, 400)
     const phone = cleanPhone(p.phone)
-    if (phone.length < 9 || phone.length > 10) return json({ success:false, message:'เบอร์โทรไม่ถูกต้อง' }, 400)
+    if (phone.length < 8 || phone.length > 15) return json({ success:false, message:msg('เบอร์โทรไม่ถูกต้อง','Invalid phone number. Please include the country code when applicable.') }, 400)
     const email = text(p.email,320).toLowerCase()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ success:false, message:'อีเมลไม่ถูกต้อง' }, 400)
-    if (!arr(p.subjects).length) return json({ success:false, message:'กรุณาเลือกวิชาที่สอน' }, 400)
-    if (!arr(p.levels).length) return json({ success:false, message:'กรุณาเลือกระดับผู้เรียน' }, 400)
-    if (!arr(p.teaching_modes).length) return json({ success:false, message:'กรุณาเลือกรูปแบบการสอน' }, 400)
-    if (!arr(p.availability).length) return json({ success:false, message:'กรุณาเลือกวันที่สะดวก' }, 400)
-    if (p.consent_pdpa !== true || p.certified_accuracy !== true) return json({ success:false, message:'กรุณายืนยันข้อมูลและการใช้ข้อมูลส่วนบุคคล' }, 400)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ success:false, message:msg('อีเมลไม่ถูกต้อง','Invalid email address.') }, 400)
+    if (!arr(p.subjects).length) return json({ success:false, message:msg('กรุณาเลือกวิชาที่สอน','Please select at least one subject.') }, 400)
+    if (!arr(p.levels).length) return json({ success:false, message:msg('กรุณาเลือกระดับผู้เรียน','Please select at least one learner level.') }, 400)
+    if (!arr(p.teaching_modes).length) return json({ success:false, message:msg('กรุณาเลือกรูปแบบการสอน','Please select a teaching mode.') }, 400)
+    if (!arr(p.availability).length) return json({ success:false, message:msg('กรุณาเลือกวันที่สะดวก','Please select at least one available day.') }, 400)
+    if (p.consent_pdpa !== true || p.certified_accuracy !== true) return json({ success:false, message:msg('กรุณายืนยันข้อมูลและการใช้ข้อมูลส่วนบุคคล','Please confirm data accuracy and consent to data use.') }, 400)
 
     for (const [key,rule] of Object.entries(fileRules)) {
       const f = form.get(key)
@@ -70,6 +72,9 @@ Deno.serve(async (req) => {
       phone,
       email,
       line_id:text(p.line_id,200) || null,
+      preferred_language:lang,
+      nationality:text(p.nationality,200) || null,
+      country_residence:text(p.country_residence,200) || null,
       province:text(p.province,200) || null,
       current_occupation:text(p.current_occupation,300) || null,
       intro:text(p.intro,6000) || null,
@@ -89,6 +94,8 @@ Deno.serve(async (req) => {
       status:'new',
       consent_pdpa:true,
       certified_accuracy:true,
+      policy_version_acknowledged:Math.max(1,Math.floor(Number(p.policy_version)||1)),
+      policy_acknowledged_at:new Date().toISOString(),
     }
 
     const { error:insertErr } = await admin.from('tutor_applications').insert(row)

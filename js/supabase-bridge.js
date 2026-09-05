@@ -131,6 +131,18 @@
     return data || {found:false};
   }
 
+  async function getPolicyPage(pageKey) {
+    const db = needClient();
+    const key = String(pageKey || '').trim();
+    const [pRes,sRes] = await Promise.all([
+      db.from('policy_pages').select('*').eq('page_key',key).eq('active',true).maybeSingle(),
+      db.from('policy_sections').select('*').eq('page_key',key).eq('active',true).order('sort_order').order('created_at')
+    ]);
+    if (pRes.error) throw pRes.error;
+    if (sRes.error) throw sRes.error;
+    return { page:pRes.data || null, sections:sRes.data || [] };
+  }
+
   async function getAppConfig() {
     const db = needClient();
     const { data, error } = await db.from('app_settings').select('key,value');
@@ -193,13 +205,13 @@
       withSuccessHandler(fn){ return makeRunner(fn,failureCb); },
       withFailureHandler(fn){ return makeRunner(successCb,fn); }
     };
-    const methods = { checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getTutorAvailability, getAppConfig, saveAppConfig, exportCSV };
+    const methods = { checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getTutorAvailability, getPolicyPage, getAppConfig, saveAppConfig, exportCSV };
     Object.entries(methods).forEach(([name,fn]) => {
       runner[name] = (...args) => { Promise.resolve().then(()=>fn(...args)).then(v=>successCb?.(v)).catch(err=>failureCb?.(err)); return runner; };
     });
     return runner;
   }
 
-  window.AreWarinAPI = { sb, configured:!!sb, getPublicCatalog, getScheduleMatrix, checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getAppConfig, saveAppConfig, exportCSV };
+  window.AreWarinAPI = { sb, configured:!!sb, getPublicCatalog, getScheduleMatrix, checkDiscountCode, processApplication, submitSpeakerRequest, checkApplicationStatus, lookupExistingStudent, getPolicyPage, getAppConfig, saveAppConfig, exportCSV };
   if (sb) window.google = { script:{ run:makeRunner(null,null) } };
 })();

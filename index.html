@@ -1714,8 +1714,8 @@
                     <div class="pv2-head">
                         <div>
                             <div class="pv2-eyebrow"><i class="fas fa-file-signature"></i> ก่อนเริ่มสมัครเรียน</div>
-                            <h2 class="pv2-title">ข้อตกลงและนโยบาย <span aria-hidden="true">📝</span></h2>
-                            <p class="pv2-sub">อ่านเงื่อนไขสำคัญเกี่ยวกับการเลื่อนเรียน การเข้าเรียน ค่าใช้จ่าย และการคืนเงินให้ครบก่อนดำเนินการต่อ</p>
+                            <h2 id="studentPolicyTitle" class="pv2-title">ข้อตกลงและนโยบาย <span aria-hidden="true">📝</span></h2>
+                            <p id="studentPolicySubtitle" class="pv2-sub">อ่านเงื่อนไขสำคัญเกี่ยวกับการเลื่อนเรียน การเข้าเรียน ค่าใช้จ่าย และการคืนเงินให้ครบก่อนดำเนินการต่อ</p>
                         </div>
                         <div class="pv2-shield" aria-hidden="true"><i class="fas fa-shield-heart"></i></div>
                     </div>
@@ -1737,7 +1737,7 @@
 
                     <div class="pv2-scroll">
                         <div class="pv2-layout">
-                            <div class="pv2-stack">
+                            <div id="studentPolicySections" class="pv2-stack">
                                 <section class="pv2-card blue">
                                     <div class="pv2-card-head">
                                         <div class="pv2-card-icon"><i class="far fa-clock"></i></div>
@@ -1842,15 +1842,16 @@
                         <label class="pv2-consent" for="pdpaCheck">
                             <input type="checkbox" id="pdpaCheck">
                             <div>
-                                <strong>ฉันได้อ่านและยอมรับข้อตกลงและนโยบายทั้งหมด</strong>
-                                <span>ต้องยอมรับเงื่อนไขก่อนจึงจะสามารถดำเนินการสมัครเรียนต่อได้</span>
+                                <strong id="studentPolicyConsentTitle">ฉันได้อ่านและยอมรับข้อตกลงและนโยบายทั้งหมด</strong>
+                                <span id="studentPolicyConsentDesc">ต้องยอมรับเงื่อนไขก่อนจึงจะสามารถดำเนินการสมัครเรียนต่อได้</span>
                             </div>
                             <div class="pv2-consent-check"><i class="fas fa-check"></i></div>
                         </label>
 
                         <div class="pv2-actions">
                             <button type="button" onclick="showStep('step1')" class="pv2-btn pv2-back"><i class="fas fa-arrow-left"></i> กลับ</button>
-                            <button type="button" onclick="validatePDPA()" class="pv2-btn pv2-next">ยอมรับและไปต่อ <i class="fas fa-arrow-right"></i></button>
+                            <button id="studentPolicyNextBtn" type="button" onclick="validatePDPA()" class="pv2-btn pv2-next">ยอมรับและไปต่อ <i class="fas fa-arrow-right"></i></button>
+                            <input type="hidden" id="studentPolicyRevision" value="1">
                         </div>
                     </div>
                 </div>
@@ -5008,6 +5009,32 @@
             showStep('step5');
         }
 
+        const POLICY_THEME_CLASS = new Set(['blue','sky','indigo','violet','emerald','amber','orange','rose','red','slate']);
+        function renderPolicyContentLines(text) {
+            const parts = String(text || '').split(/\n+/).map(x=>x.trim()).filter(Boolean);
+            if (!parts.length) return '<p class="pv2-policy-paragraph">ยังไม่มีรายละเอียด</p>';
+            return '<ul class="pv2-list">' + parts.map(line => '<li><i class="fas fa-circle"></i><span>' + escapeHTML(line.replace(/^[-•]\s*/,'')) + '</span></li>').join('') + '</ul>';
+        }
+        async function loadStudentPolicyCMS() {
+            const wrap=document.getElementById('studentPolicySections');
+            if(!wrap || !window.AreWarinAPI?.getPolicyPage) return;
+            try{
+                const res=await window.AreWarinAPI.getPolicyPage('student_enrollment');
+                if(!res?.page) return;
+                const page=res.page;
+                document.getElementById('studentPolicyTitle').textContent=page.policy_title || 'ข้อตกลงและนโยบาย';
+                document.getElementById('studentPolicySubtitle').textContent=page.policy_subtitle || '';
+                document.getElementById('studentPolicyConsentTitle').textContent=page.consent_title || 'ฉันได้อ่านและยอมรับข้อตกลงและนโยบายทั้งหมด';
+                document.getElementById('studentPolicyConsentDesc').textContent=page.consent_description || '';
+                document.getElementById('studentPolicyRevision').value=Number(page.revision || 1);
+                const next=document.getElementById('studentPolicyNextBtn'); if(next) next.innerHTML=escapeHTML(page.start_button_label || 'ยอมรับและไปต่อ')+' <i class="fas fa-arrow-right"></i>';
+                if(Array.isArray(res.sections) && res.sections.length){
+                    wrap.innerHTML=res.sections.map(x=>{const theme=POLICY_THEME_CLASS.has(x.theme)?x.theme:'blue';return '<section class="pv2-card '+theme+'"><div class="pv2-card-head"><div class="pv2-card-icon"><i class="'+escapeHTML(x.icon_class||'fas fa-circle-info')+'"></i></div><div><h3>'+escapeHTML(x.title||'')+'</h3>'+(x.caption?'<span class="pv2-caption">'+escapeHTML(x.caption)+'</span>':'')+'</div></div>'+renderPolicyContentLines(x.content)+'</section>';}).join('');
+                }
+            }catch(err){console.warn('Policy CMS fallback:',err);}
+        }
+        window.addEventListener('load',()=>setTimeout(loadStudentPolicyCMS,150));
+
         function validatePDPA() { if(document.getElementById('pdpaCheck').checked) showStep('step3'); else Swal.fire('เตือน', 'ยอมรับเงื่อนไข', 'warning'); }
         
         function validateStep4() { 
@@ -5554,6 +5581,7 @@
 
         function sendData(fileData, fileName, mimeType, callback) {
             var fd = { studentType: studentType, price: finalPrice, paymentMethod: paymentMethod, fileData: fileData, fileName: fileName, mimeType: mimeType };
+            fd.policyVersion = Number(document.getElementById('studentPolicyRevision')?.value || 1);
             fd.selectedMode = selectedMode;
             fd.cartShareMode = cartShareMode;
             fd.courseCount = courseCart.length;

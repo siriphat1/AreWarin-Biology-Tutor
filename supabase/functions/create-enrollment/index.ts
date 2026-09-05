@@ -117,6 +117,8 @@ Deno.serve(async req => {
       amount_quoted:finalAmount,
       promotion_code:promotionCode,
       status:'pending_payment_verification',
+      policy_version_acknowledged:Math.max(1,Math.floor(num(d.policyVersion,1))),
+      policy_acknowledged_at:new Date().toISOString(),
       raw_payload:{...d,fileData:undefined}
     };
     const {data:enrollment,error:enrollErr}=await sb.from('enrollments').insert(enrollmentRow).select('id,receipt_no,receipt_token').single();

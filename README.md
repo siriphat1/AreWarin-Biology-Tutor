@@ -258,3 +258,20 @@ supabase functions deploy create-enrollment --no-verify-jwt
 ### New Supabase Project
 
 `supabase/AREWARIN_FULL_SETUP.sql` รวม `lookup_existing_student()` ไว้แล้ว ไม่ต้องรัน upgrade แยก
+
+
+---
+
+# V13 — International Tutor Application + Editable Policy CMS
+
+เวอร์ชันนี้เพิ่มหน้า Welcome และ Policy ก่อนฟอร์มสมัครติวเตอร์ พร้อมระบบ TH/EN สำหรับผู้สมัครต่างชาติ
+
+Manager → **นโยบาย & กติกา** สามารถแก้ Policy ของทั้ง:
+- สมัครเรียนหลัก
+- สมัครติวเตอร์
+
+รองรับข้อความภาษาไทยและภาษาอังกฤษ, เพิ่ม/ลบ/ซ่อน/เรียงหัวข้อ และเพิ่ม Revision อัตโนมัติทุกครั้งที่แก้
+
+Tutor Application รองรับ `preferred_language`, `nationality`, `country_residence` และเบอร์โทรระหว่างประเทศ 8–15 หลัก
+
+ดูขั้นตอนติดตั้งใน `V13_SETUP.md`.
