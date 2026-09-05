@@ -1,9 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
+  // Public application form. No cookies/credentials are used, so wildcard CORS is safe here.
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
+  'Vary': 'Origin',
 }
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
@@ -23,7 +26,10 @@ const fileRules: Record<string, { max: number; types: string[]; prefix: string }
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  // IMPORTANT: deploy this function with verify_jwt = false / --no-verify-jwt.
+  // Otherwise Supabase's gateway can reject OPTIONS before this code gets a chance to answer CORS.
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders })
+  if (req.method === 'GET') return json({ ok:true, function:'submit-tutor-application', version:'v13-cors-fix' })
   if (req.method !== 'POST') return json({ success:false, message:'Method not allowed' }, 405)
 
   try {

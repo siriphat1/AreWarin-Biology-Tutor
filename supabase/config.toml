@@ -1,5 +1,7 @@
-[functions.create-enrollment]
-verify_jwt = false
+# Supabase local/deploy config for public AreWarin functions.
+# The tutor application form is intentionally public, therefore JWT verification
+# must be disabled at the Edge Function gateway. Validation and DB writes happen
+# inside the function with the service role.
 
-[functions.get-receipt]
+[functions.submit-tutor-application]
 verify_jwt = false

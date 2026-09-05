@@ -199,13 +199,36 @@
     [['profile_photo','profilePhoto'],['resume','resumeFile'],['portfolio','portfolioFile'],['transcript','transcriptFile']].forEach(([key,id])=>{const f=$(id).files[0];if(f)fd.append(key,f,f.name)});
     $('btnSubmit').disabled=true;$('btnSubmit').innerHTML=`<i class="fas fa-circle-notch fa-spin"></i> ${L('กำลังส่ง...','Submitting...')}`;
     try{
-      const res=await fetch(`${cfg.SUPABASE_URL}/functions/v1/submit-tutor-application`,{method:'POST',headers:{apikey:cfg.SUPABASE_ANON_KEY,Authorization:`Bearer ${cfg.SUPABASE_ANON_KEY}`},body:fd});
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),45000);
+      let res;
+      try{
+        // Public Edge Function: intentionally send no Authorization/apikey headers.
+        // This keeps FormData as a simple CORS request and avoids a browser preflight.
+        res=await fetch(`${cfg.SUPABASE_URL}/functions/v1/submit-tutor-application`,{
+          method:'POST',
+          body:fd,
+          mode:'cors',
+          cache:'no-store',
+          signal:controller.signal
+        });
+      }finally{clearTimeout(timeout)}
       let data={};try{data=await res.json()}catch{}
-      if(!res.ok||!data.success)throw new Error(data.message||`HTTP ${res.status}`);
+      if(!res.ok||!data.success){
+        const detail=data.message||`HTTP ${res.status}`;
+        if(res.status===404)throw new Error(L('ยังไม่พบ Edge Function submit-tutor-application กรุณา Deploy ฟังก์ชันก่อน', 'The submit-tutor-application Edge Function is not deployed yet.'));
+        if(res.status===401||res.status===403)throw new Error(L('Edge Function ยังเปิด JWT verification อยู่ กรุณา Deploy แบบ --no-verify-jwt', 'JWT verification is still enabled for this public Edge Function. Deploy it with --no-verify-jwt.'));
+        throw new Error(detail);
+      }
       localStorage.removeItem(DRAFT_KEY);const no=data.application_no;
       await Swal.fire({icon:'success',title:L('ส่งใบสมัครเรียบร้อย','Application submitted'),html:`<div class="text-[11px] text-slate-500">${L('เลขใบสมัครของคุณ','Your application number')}</div><div class="mt-2 px-4 py-3 rounded-xl bg-slate-900 text-white font-mono text-lg tracking-wide">${esc(no)}</div><div class="mt-3 text-[10px] text-slate-400 leading-relaxed">${L('กรุณาบันทึกเลขนี้ไว้ ใช้ร่วมกับเบอร์โทรเพื่อเช็คสถานะใบสมัคร','Please save this number. Use it with your phone number to check your application status.')}</div>`,confirmButtonText:L('กลับหน้าหลัก','Back to home'),confirmButtonColor:'#0f172a',customClass:{popup:'rounded-[1.5rem]'}});
       location.href='../';
-    }catch(e){toast('error',L('ส่งใบสมัครไม่สำเร็จ','Could not submit application'),e.message||L('กรุณาลองใหม่อีกครั้ง','Please try again.'))}
+    }catch(e){
+      const message=e?.name==='AbortError'
+        ? L('การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง','The request timed out. Please try again.')
+        : (e.message||L('กรุณาลองใหม่อีกครั้ง','Please try again.'));
+      toast('error',L('ส่งใบสมัครไม่สำเร็จ','Could not submit application'),message)
+    }
     finally{$('btnSubmit').disabled=false;$('btnSubmit').innerHTML=`${L('ส่งใบสมัคร','Submit application')} <i class="fas fa-paper-plane"></i>`}
   }
 
