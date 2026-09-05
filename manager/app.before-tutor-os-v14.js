@@ -48,12 +48,12 @@ $('btnLogin').onclick = async () => {
   const { data, error } = await sb.auth.signInWithPassword({ email:$('loginEmail').value.trim(), password:$('loginPassword').value });
   if (error) return notify('error','เข้าสู่ระบบไม่สำเร็จ',error.message);
   if (!(await ensureManager(data.session))) return notify('error','ไม่มีสิทธิ์ Manager',lastManagerAccessError || 'บัญชีนี้ยังไม่มี role manager/admin');
-  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); await loadAll(); applyManagerDeepLink();
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); await loadAll();
 };
 $('btnLogout').onclick = () => sb.auth.signOut();
 
-document.querySelectorAll('.nav[data-section]').forEach(b => b.onclick = () => {
-  document.querySelectorAll('.nav[data-section]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+document.querySelectorAll('.nav').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active')); b.classList.add('active');
   document.querySelectorAll('.section').forEach(x=>x.classList.remove('active')); $('section-'+b.dataset.section).classList.add('active');
 });
 
@@ -620,14 +620,5 @@ $('receiptForm').onsubmit=async e=>{e.preventDefault();try{let logo=state.receip
 const systemKeys=['COURSE_YEARLY','COURSE_30H','COURSE_20H','COURSE_10H','COURSE_HOURLY','ONSITE_OPTION','ANNOUNCEMENT_STATUS','ANNOUNCEMENT_IMG','ANNOUNCEMENT_MSG','MAINTENANCE_START','MAINTENANCE_END'];
 function renderSystem(){$('systemSettings').innerHTML=systemKeys.map(k=>{const v=state.settings[k]??'';if(['COURSE_YEARLY','COURSE_30H','COURSE_20H','COURSE_10H','COURSE_HOURLY','ONSITE_OPTION','ANNOUNCEMENT_STATUS'].includes(k))return `<label class="border rounded-xl p-3 flex justify-between text-sm"><span>${k}</span><input class="system-setting" data-key="${k}" type="checkbox" ${v==='OPEN'?'checked':''}></label>`;return `<label class="text-xs font-bold">${k}<input class="input system-setting mt-1" data-key="${k}" value="${esc(v)}"></label>`}).join('');}
 $('saveSystem').onclick=async()=>{try{const rows=[...document.querySelectorAll('.system-setting')].map(i=>({key:i.dataset.key,value:i.type==='checkbox'?(i.checked?'OPEN':'CLOSE'):i.value,updated_at:new Date().toISOString()}));const{error}=await sb.from('app_settings').upsert(rows,{onConflict:'key'});if(error)throw error;await loadAll();notify('success','บันทึกตั้งค่าระบบแล้ว');}catch(err){notify('error','บันทึกไม่สำเร็จ',err.message)}};
-
-function applyManagerDeepLink(){
-  const wanted=new URLSearchParams(location.search).get('section');
-  if(!wanted)return;
-  const btn=document.querySelector(`.nav[data-section="${wanted}"]`);
-  if(btn)setTimeout(()=>btn.click(),0);
-}
-const __originalBoot=boot;
-boot=async function(){await __originalBoot();applyManagerDeepLink();};
 
 boot();

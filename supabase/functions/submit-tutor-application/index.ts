@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
   // IMPORTANT: deploy this function with verify_jwt = false / --no-verify-jwt.
   // Otherwise Supabase's gateway can reject OPTIONS before this code gets a chance to answer CORS.
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders })
-  if (req.method === 'GET') return json({ ok:true, function:'submit-tutor-application', version:'v13-cors-fix' })
+  if (req.method === 'GET') return json({ ok:true, function:'submit-tutor-application', version:'v14-cors-fix' })
   if (req.method !== 'POST') return json({ success:false, message:'Method not allowed' }, 405)
 
   try {

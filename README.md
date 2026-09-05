@@ -1,277 +1,144 @@
-# AreWarin Biology — Complete GitHub + Supabase System
+# AreWarin Biology · V14 Tutor OS Integration
 
-ชุดนี้คือเวอร์ชันรวมระบบที่พัฒนามาทั้งหมดสำหรับเว็บสมัครเรียน AreWarin Biology โดยใช้ GitHub/Static Hosting + Supabase แทน Google Sheets / Google Drive / Apps Script และไม่มีระบบส่งอีเมลอัตโนมัติ
+V14 integrates the uploaded Tutor OS concept into the current AreWarin Biology GitHub + Supabase system as a real staff-only subweb at `/tutor-os/` while keeping the existing enrollment site, Manager, Reviews, Tutor Application, Policy CMS, receipt/payment flows, and tutor-specific schedules intact.
 
-## ระบบที่รวมมาแล้ว
+## What changed in V14
 
-### เว็บสมัครเรียน `index.html`
-- ข้อตกลงและนโยบาย
-- เลือกประเภทนักเรียนใหม่ / นักเรียนเดิม
-- เลือกรูปแบบเรียนเดี่ยว / กลุ่ม
-- หมวดวิชาแบบเปิด/ปิดจาก Manager
-- เลือกติวเตอร์ + Profile
-- เลือกคอร์ส + Course Detail + Learning Outcomes + Syllabus
-- เลือกหลายคอร์ส / แชร์แพ็กเกจ / แยกแพ็กเกจ
-- ราคาแบบ Dynamic จาก Supabase
-- Promotion code
-- Dynamic Schedule แยกตามติวเตอร์
-- เลือกเวลาเฉพาะช่วงที่ติวเตอร์ทุกคนในตะกร้าว่างตรงกัน
-- Capacity และป้องกันจองชนที่ฐานข้อมูล
-- แนบสลิปเข้า private Supabase Storage
-- สมัครเรียน / ต่อคอร์ส
-- เช็คสถานะการสมัคร + ประวัติล่าสุด
-- ดาวน์โหลดใบเสร็จ PDF
-- ระบบจ้างวิทยากร
-- Banner / Logo / Branding จาก Manager
+### New `/tutor-os/` subweb
+- Unified dashboard / operations overview
+- Students + operational student records synced from the main `enrollments`
+- CRM + guardian contacts + follow-up date
+- Student Portal preview
+- Courses using the same Course UUIDs as Manager
+- Course requests workflow
+- Attendance sessions and per-student status: present / late / absent / leave
+- Teaching logs and lesson hours
+- Learning topics + video/file/link/sheet resources
+- Tasks and team announcements
+- Shared tutor schedule viewer linked to Manager schedule editing
+- Finance dashboard for Admin using main payments + Tutor OS ledger
+- Tutors overview
+- Staff permissions (`teacher` / `admin`)
+- Team Library
+- HR records for Admin
+- Tutor recruitment and speaker-request summaries linked to Manager
+- Reports + CSV export
+- Quick Replies
+- CRM CSV import + template
+- System health / connected-app shortcuts
 
-### Reviews subweb `/reviews/`
-- รีวิวจากนักเรียน
-- รูป ชื่อ โรงเรียน คอร์ส รีวิว คะแนนดาว
-- Featured review
-- Search + Filter
+### Connected data model
+Main transactional/catalog data remains the single source of truth:
+- `tutors`
+- `courses`
+- `enrollments`
+- `payments`
+- `tutor_schedules`
+- `schedule_templates`
+- `tutor_applications`
+- `speaker_requests`
 
-### Manager `/manager/`
-- Supabase Auth + role `manager/admin`
-- Dashboard
-- Logo / Branding เว็บไซต์
-- Banner Slider เพิ่ม/แก้ไข/ลบ/เปิด/ปิด/จัดลำดับ
-- หมวดวิชา เพิ่ม/แก้ไข/เปิด/ปิด
-- Tutor CRUD + รูป + ประวัติ + ระดับ + หมวด + วิดีโอ
-- Course CRUD + รูป + รายละเอียด + outcomes + syllabus + badge
-- รีวิว CRUD + Excel Import + Template
-- Dynamic Schedule Templates
-- ตารางสอนเฉพาะของติวเตอร์แต่ละคน
-- ตั้งตารางรายสัปดาห์แบบ Bulk / Merge / Replace
-- Copy ตารางระหว่างติวเตอร์
-- Block ตารางทั้งสัปดาห์
-- Capacity / Reservation status
-- รายการสมัครเรียน + Search / Filter / Status
-- คำขอจ้างวิทยากร + Status workflow
-- ราคาคอร์ส
-- Promotion codes
-- ตรวจสลิป / Paid / Rejected
-- Receipt settings: Logo, ลายเซ็น, Tax ID, ที่อยู่, Prefix
-- System settings / Maintenance / Announcement
+Tutor OS adds only operational extension tables prefixed `os_`. Database triggers sync main Enrollment and Payment changes into Tutor OS student/course/finance records.
 
-## โครงสร้าง
+### Manager integration
+`/manager/` now has Tutor OS links in:
+- top bar
+- sidebar
+- dashboard hero
 
-```text
-arewarin-complete-system/
-├─ index.html
-├─ config.js
-├─ config.example.js
-├─ js/
-│  ├─ supabase-bridge.js
-│  └─ receipt.js
-├─ manager/
-│  ├─ index.html
-│  └─ app.js
-├─ reviews/
-│  └─ index.html
-├─ templates/
-│  └─ arewarin-review-import-template.xlsx
-└─ supabase/
-   ├─ AREWARIN_FULL_SETUP.sql
-   ├─ PROMOTE_ADMIN.sql
-   ├─ config.toml
-   ├─ legacy-upgrades/
-   └─ functions/
-      ├─ create-enrollment/index.ts
-      └─ get-receipt/index.ts
-```
+Manager supports `?section=...` deep links, so Tutor OS can jump directly to Course, Tutor, Enrollment, Schedule, Payment, Policy, and Tutor Application screens.
 
-# ติดตั้งจาก Supabase Project ใหม่
+### Security
+- Uses the same Supabase Auth session as the main system.
+- Existing Manager/Admin profiles are automatically bridged to `os_staff_profiles` as Tutor OS `admin`.
+- Tutor accounts can be granted `teacher` access by UID from Tutor OS → Team → Staff & สิทธิ์.
+- Finance, HR, Staff permission changes, permanent student deletion, and sensitive core workflow records are protected by database RLS for Tutor OS Admin.
+- Teachers can work with Student operations, CRM, Attendance, Teaching, Learning, Tasks, Announcements, Library, and Course Requests.
 
-## 1. สร้าง Supabase Project
+## Supabase project already in use
 
-สร้าง Project ใหม่ที่ Supabase
+This package is configured for the current AreWarin Supabase project through the shared root `config.js`.
 
-## 2. สร้าง Manager Auth user
-
-Dashboard → Authentication → Users → Add user
-
-แนะนำให้สร้าง email ที่จะใช้เข้า Manager ก่อนรัน SQL เช่น:
+For an **existing V13 project**, run **one SQL file** in Supabase → SQL Editor:
 
 ```text
-arewarin.biology@gmail.com
+supabase/V14_EXISTING_PROJECT_UPGRADE.sql
 ```
 
-## 3. รัน SQL ตัวเดียว
+The SQL is designed to be re-runnable and will:
+- create the Tutor OS operational schema
+- sync current Manager/Admin accounts
+- backfill existing enrollments and payments
+- create sync triggers for future records
+- install RLS
+- create private `tutor-os-assets` storage bucket
 
-Dashboard → SQL Editor → New Query
-
-Copy ทั้งไฟล์:
+Then logout/login once and open:
 
 ```text
-supabase/AREWARIN_FULL_SETUP.sql
+https://YOUR_GITHUB_PAGES/tutor-os/
 ```
 
-แล้วกด **Run**
+## Brand-new Supabase project
 
-SQL นี้ใช้สำหรับ Fresh Project และรวมทุกฟีเจอร์ไว้แล้ว ไม่ต้องรันไฟล์ upgrade แยก
+Use this cumulative SQL instead:
 
-ถ้า Auth user ถูกสร้างไว้ก่อน SQL จะ promote email `arewarin.biology@gmail.com` เป็น admin อัตโนมัติ หากใช้ email อื่น ให้แก้ `v_admin_email` ท้าย SQL หรือรัน `PROMOTE_ADMIN.sql` หลังแก้ email
-
-## 4. ตั้งค่า `config.js`
-
-นำ Project URL และ Publishable/Anon key จาก Project Settings → API มาใส่:
-
-```js
-window.AREWARIN_CONFIG = {
-  SUPABASE_URL: 'https://ihmiqtwclnqrezsnswfz.supabase.co',
-  SUPABASE_ANON_KEY: '<ใส่ Publishable Key ใน config.js>'
-};
+```text
+supabase/AREWARIN_FULL_SETUP_V14.sql
 ```
 
-> Publishable/Anon key เป็น key สำหรับ frontend ได้ แต่ห้ามใส่ `service_role` key ใน GitHub หรือ browser
+Do **not** run both Full Setup and V14 Upgrade on a fresh database unless you specifically want to rerun the idempotent upgrade.
 
-## 5. Deploy Edge Functions
+## Edge Functions
 
-ติดตั้ง Supabase CLI แล้วรันจาก root ของ project:
+Tutor OS itself does not require a new Edge Function. Existing public forms still use:
 
 ```bash
-supabase login
 supabase link --project-ref ihmiqtwclnqrezsnswfz
 supabase functions deploy create-enrollment --no-verify-jwt
 supabase functions deploy get-receipt --no-verify-jwt
+supabase functions deploy submit-tutor-application --no-verify-jwt
 ```
 
-ระบบใช้ public Edge Functions เพราะหน้า Student ไม่ได้ login แต่ภายใน function ใช้ service role จาก Supabase environment และข้อมูลสำคัญยังถูกป้องกันด้วย receipt token / server-side logic
+The Tutor Application CORS fix is included in this package. `supabase/config.toml` has `verify_jwt = false` for all three public functions.
 
-## 6. ทดสอบ local
-
-อย่าเปิด `index.html` ด้วย `file://` โดยตรง ให้ใช้ local server:
-
-```bash
-python -m http.server 8080
-```
-
-แล้วเปิด:
+## Structure
 
 ```text
-http://localhost:8080/
-http://localhost:8080/manager/
-http://localhost:8080/reviews/
+arewarin-tutor-os-v14/
+├── index.html                  # Main enrollment / renewal site
+├── config.js                   # Shared Supabase config
+├── js/
+├── manager/                    # Main Manager + Tutor OS entry points
+├── reviews/
+├── tutor-apply/                # TH/EN tutor recruitment + CORS-safe submit
+├── tutor-os/                   # NEW unified staff subweb
+│   ├── index.html
+│   ├── styles.css
+│   ├── app.js
+│   └── staff/index.html
+├── templates/
+└── supabase/
+    ├── V14_EXISTING_PROJECT_UPGRADE.sql
+    ├── TUTOR_OS_V14_UPGRADE.sql
+    ├── AREWARIN_FULL_SETUP_V14.sql
+    ├── config.toml
+    └── functions/
 ```
 
-## 7. Deploy GitHub
+## Staff access
 
-นำ folder นี้ขึ้น GitHub และ deploy ด้วย GitHub Pages, Netlify หรือ Vercel ได้
+For the current Manager/Admin user, simply run the V14 SQL and sign in with the same Manager credentials.
 
-# Storage ที่ SQL สร้าง
+For a new Tutor/Teacher account:
+1. Supabase → Authentication → Add user.
+2. Copy that Auth user UID.
+3. Sign in as Tutor OS Admin.
+4. Team & เนื้อหา → Staff & สิทธิ์ → ให้สิทธิ์.
+5. Paste UID and choose `teacher`.
 
-- `payment-slips` — PRIVATE
-- `receipt-assets` — PRIVATE
-- `tutor-assets` — PUBLIC
-- `course-assets` — PUBLIC
-- `review-assets` — PUBLIC
-- `site-assets` — PUBLIC
-- `tutor-application-assets` — PRIVATE
+Do not put a Supabase service-role/secret key into any frontend file.
 
-# ตารางหลัก
+## Source-code adaptation note
 
-- `profiles`
-- `tutors`
-- `courses`
-- `course_prices`
-- `promotions`
-- `app_settings`
-- `enrollments`
-- `payments`
-- `receipt_settings`
-- `receipt_sequences`
-- `schedule_templates`
-- `tutor_schedules`
-- `schedule_reservations`
-- `speaker_requests`
-- `reviews`
-- `site_branding`
-- `home_banners`
-- `subject_categories`
-- `tutor_applications`
-- `tutor_application_sequences`
-
-# หมายเหตุด้านระบบ
-
-- Email notification ถูกตัดออกตาม requirement
-- สลิปไม่ถูกเปิด public
-- Logo/Signature ของใบเสร็จเป็น private asset และใช้ signed URL ชั่วคราว
-- ราคา Student ใหม่คำนวณซ้ำใน Edge Function ไม่เชื่อยอดจาก browser
-- การ reserve ตารางใช้ database function + row lock เพื่อป้องกัน capacity ชน
-- เบอร์โทรสำหรับเช็คสถานะส่งผ่าน RPC ที่คืนเฉพาะข้อมูลจำเป็น
-- Student reviews Excel template อยู่ใน `/templates/`
-
-
----
-
-## Tutor Application System
-เพิ่ม subweb `/tutor-apply/` สำหรับสมัครร่วมทีมติวเตอร์ พร้อม Manager review, private document storage และ status tracking
-
-- Existing Supabase project: run `supabase/TUTOR_APPLICATION_UPGRADE.sql`
-- New project: `supabase/AREWARIN_FULL_SETUP.sql` รวมฟีเจอร์นี้แล้ว
-- Deploy: `supabase functions deploy submit-tutor-application --no-verify-jwt`
-
-ดูรายละเอียดใน `TUTOR_APPLICATION_SETUP.md`
-
-
----
-
-## Manager: ลบติวเตอร์อย่างปลอดภัย
-
-หน้า `Manager > ติวเตอร์` เพิ่มปุ่มลบแล้ว
-
-- ถ้าติเตอร์ยังมี reservation ที่สถานะ `reserved/confirmed` ระบบ **ไม่ลบถาวร** และเสนอให้ปิดการใช้งานแทน
-- ถ้าไม่มี reservation ที่ใช้งานอยู่ สามารถลบถาวรได้หลังยืนยัน `DELETE`
-- เนื่องจาก schema เดิมใช้ `ON DELETE CASCADE` คอร์สและตารางที่ผูกกับติวเตอร์จะถูกลบตามเมื่อเลือกลบถาวร
-- จึงแนะนำใช้ `ปิดใช้งาน` เป็นหลัก หากต้องการเก็บประวัติ
-
-## Existing Student Renewal V11
-
-นักเรียนเดิมเริ่มจากกรอก **เบอร์โทรที่เคยสมัครไว้** ก่อน ระบบจึงดึง:
-
-- ข้อมูลนักเรียนล่าสุด
-- คอร์สและติวเตอร์ล่าสุด
-- ประวัติสมัครย้อนหลังสูงสุด 6 รายการ
-- รูปแบบเรียนเดิม
-
-จากนั้นเลือกได้:
-
-1. `ต่อคอร์สเดิม`
-2. `แก้ไข / เพิ่มคอร์ส`
-
-ข้อมูลส่วนตัวสามารถแก้ไขก่อนสมัครรอบใหม่ และระบบใช้ **ราคา/โปรโมชั่น/ตารางว่างปัจจุบัน** ไม่ใช้ยอดเงินจากใบสมัครเก่า
-
-### Existing Supabase Project
-
-รัน SQL 1 ครั้ง:
-
-```text
-supabase/EXISTING_STUDENT_RENEWAL_UPGRADE.sql
-```
-
-แล้ว redeploy Edge Function:
-
-```bash
-supabase functions deploy create-enrollment --no-verify-jwt
-```
-
-### New Supabase Project
-
-`supabase/AREWARIN_FULL_SETUP.sql` รวม `lookup_existing_student()` ไว้แล้ว ไม่ต้องรัน upgrade แยก
-
-
----
-
-# V13 — International Tutor Application + Editable Policy CMS
-
-เวอร์ชันนี้เพิ่มหน้า Welcome และ Policy ก่อนฟอร์มสมัครติวเตอร์ พร้อมระบบ TH/EN สำหรับผู้สมัครต่างชาติ
-
-Manager → **นโยบาย & กติกา** สามารถแก้ Policy ของทั้ง:
-- สมัครเรียนหลัก
-- สมัครติวเตอร์
-
-รองรับข้อความภาษาไทยและภาษาอังกฤษ, เพิ่ม/ลบ/ซ่อน/เรียงหัวข้อ และเพิ่ม Revision อัตโนมัติทุกครั้งที่แก้
-
-Tutor Application รองรับ `preferred_language`, `nationality`, `country_residence` และเบอร์โทรระหว่างประเทศ 8–15 หลัก
-
-ดูขั้นตอนติดตั้งใน `V13_SETUP.md`.
+The supplied Tutor OS source combined multiple generations/modules in one large HTML application. V14 keeps its functional areas, but remaps them to the current AreWarin schema instead of connecting the old source directly to its former database. This avoids maintaining duplicate student/course/tutor records and makes Manager + Enrollment + Tutor OS operate against one Supabase project.

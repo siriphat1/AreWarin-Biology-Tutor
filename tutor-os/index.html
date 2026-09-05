@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบเชื่อมกับระบบหลัก">
+  <title>AreWarin Biology · Tutor OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="./styles.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../config.js"></script>
+</head>
+<body>
+  <section id="loginView">
+    <div class="aw-card login-shell">
+      <div class="login-visual">
+        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM</small></div></div>
+        <div class="login-copy">
+          <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Secure staff workspace</span>
+          <h1>จัดการงานสอนทั้งหมด<br><span>จากศูนย์กลางเดียว</span></h1>
+          <p>นักเรียน คอร์ส รอบเรียน การเช็กชื่อ Learning Portal งานทีม การเงิน CRM และรายงาน เชื่อมข้อมูลกับ AreWarin Manager และ Supabase Project เดียวกัน</p>
+        </div>
+        <div class="login-chips"><span class="login-chip"><i class="fa-solid fa-database"></i> Supabase</span><span class="login-chip"><i class="fa-solid fa-user-shield"></i> Auth + RLS</span><span class="login-chip"><i class="fa-solid fa-arrows-rotate"></i> Shared Data</span></div>
+      </div>
+      <div class="login-panel">
+        <div class="brand-mark" style="margin-bottom:18px">AW</div>
+        <h2>เข้าสู่ Tutor OS</h2>
+        <p>ใช้บัญชี Manager / Admin เดียวกับระบบหลังบ้าน หรือบัญชี Tutor ที่ได้รับสิทธิ์แล้ว</p>
+        <form id="loginForm">
+          <label class="aw-label">อีเมล<input id="loginEmail" type="email" class="aw-input" autocomplete="email" required placeholder="name@example.com"></label>
+          <label class="aw-label">รหัสผ่าน<input id="loginPassword" type="password" class="aw-input" autocomplete="current-password" required placeholder="••••••••"></label>
+          <button class="aw-btn primary" style="min-height:45px;margin-top:3px"><i class="fa-solid fa-arrow-right-to-bracket"></i> เข้าสู่ระบบ</button>
+        </form>
+        <div id="loginHint" class="section-note" style="margin-top:15px">บัญชีต้องมีสิทธิ์ใน <b>os_staff_profiles</b> หรือเป็น Manager/Admin ในระบบหลัก</div>
+      </div>
+    </div>
+  </section>
+
+  <div id="appView" class="hidden">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="top-brand"><div class="brand-mark" id="topLogo">AW</div><div style="min-width:0"><b>AreWarin Tutor OS</b><small id="userLabel">กำลังเชื่อมต่อ...</small></div></div>
+        <div class="top-actions">
+          <span class="aw-tag"><span class="aw-dot" id="connectionDot"></span><span id="connectionText">Connected</span></span>
+          <a class="top-link" href="../manager/"><i class="fa-solid fa-table-cells-large"></i><span>Manager</span></a>
+          <a class="top-link" href="../"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>เว็บสมัคร</span></a>
+          <a class="top-link" href="../tutor-apply/"><i class="fa-solid fa-user-plus"></i><span>สมัครติวเตอร์</span></a>
+          <a class="top-link" href="../reviews/"><i class="fa-regular fa-comment-dots"></i><span>รีวิว</span></a>
+          <button id="logoutBtn" class="top-link" type="button"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>ออกจากระบบ</span></button>
+        </div>
+      </div>
+    </header>
+
+    <div class="os-shell">
+      <aside class="sidebar">
+        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations</small></div></div>
+        <nav>
+          <div class="nav-label">Overview</div>
+          <button class="nav-btn active" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button>
+          <div class="nav-label">Core</div>
+          <button class="nav-btn" data-section="students"><i class="fa-solid fa-user-graduate"></i><span>นักเรียน & CRM</span></button>
+          <button class="nav-btn" data-section="courses"><i class="fa-solid fa-book-open"></i><span>คอร์ส & สมัคร</span></button>
+          <button class="nav-btn" data-section="teaching"><i class="fa-solid fa-chalkboard-user"></i><span>การสอน</span></button>
+          <button class="nav-btn admin-only" data-section="finance"><i class="fa-solid fa-wallet"></i><span>การเงิน</span></button>
+          <div class="nav-label">Team</div>
+          <button class="nav-btn" data-section="team"><i class="fa-solid fa-users"></i><span>ทีม & เนื้อหา</span></button>
+          <button class="nav-btn" data-section="reports"><i class="fa-solid fa-chart-line"></i><span>รายงาน</span></button>
+          <div class="nav-label">System</div>
+          <button class="nav-btn" data-section="settings"><i class="fa-solid fa-sliders"></i><span>ตั้งค่า & เครื่องมือ</span></button>
+        </nav>
+        <div class="side-foot"><b>ข้อมูลเชื่อมระบบหลัก</b><p>Enrollment / Payment / Course / Tutor ใช้ข้อมูลชุดเดียวกับ Manager ส่วนงานสอนและ CRM เก็บใน Tutor OS extension</p></div>
+      </aside>
+
+      <main class="main">
+        <section id="section-overview" class="section active"></section>
+        <section id="section-students" class="section"></section>
+        <section id="section-courses" class="section"></section>
+        <section id="section-teaching" class="section"></section>
+        <section id="section-finance" class="section"></section>
+        <section id="section-team" class="section"></section>
+        <section id="section-reports" class="section"></section>
+        <section id="section-settings" class="section"></section>
+      </main>
+    </div>
+  </div>
+
+  <div id="modalRoot"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

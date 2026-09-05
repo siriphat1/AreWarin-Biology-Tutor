@@ -1,13 +1,2 @@
-AreWarin Biology Complete System
-Version: 2026-09-05 V13 International Tutor Application + Policy CMS
-Supabase Project: ihmiqtwclnqrezsnswfz
-
-New in V13:
-- Tutor Application welcome page before form
-- Editable policy/rules CMS for main student enrollment and tutor recruitment
-- Policy revision tracking stored on student enrollments and tutor applications
-- Thai / English language switch for Tutor Application
-- English policy content editable from Manager
-- International tutor support: nationality, country of residence, international phone 8–15 digits
-- Manager shows applicant language/nationality/country
-- Existing V11 features preserved: returning-student renewal, safe tutor delete, tutor-specific schedules, reviews, branding, banners, receipts, payments
+AreWarin Biology V14 — Tutor OS Integration
+Built from V13 International Policy + Tutor Application CORS fix + unified Tutor OS subweb
