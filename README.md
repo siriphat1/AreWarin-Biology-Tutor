@@ -118,8 +118,8 @@ SQL นี้ใช้สำหรับ Fresh Project และรวมทุ�
 
 ```js
 window.AREWARIN_CONFIG = {
-  SUPABASE_URL: 'https://YOUR_PROJECT_REF.supabase.co',
-  SUPABASE_ANON_KEY: 'YOUR_PUBLISHABLE_OR_ANON_KEY'
+  SUPABASE_URL: 'https://ihmiqtwclnqrezsnswfz.supabase.co',
+  SUPABASE_ANON_KEY: '<ใส่ Publishable Key ใน config.js>'
 };
 ```
 
@@ -131,7 +131,7 @@ window.AREWARIN_CONFIG = {
 
 ```bash
 supabase login
-supabase link --project-ref YOUR_PROJECT_REF
+supabase link --project-ref ihmiqtwclnqrezsnswfz
 supabase functions deploy create-enrollment --no-verify-jwt
 supabase functions deploy get-receipt --no-verify-jwt
 ```
@@ -198,3 +198,14 @@ http://localhost:8080/reviews/
 - เบอร์โทรสำหรับเช็คสถานะส่งผ่าน RPC ที่คืนเฉพาะข้อมูลจำเป็น
 - Student reviews Excel template อยู่ใน `/templates/`
 
+
+---
+
+## Tutor Application System
+เพิ่ม subweb `/tutor-apply/` สำหรับสมัครร่วมทีมติวเตอร์ พร้อม Manager review, private document storage และ status tracking
+
+- Existing Supabase project: run `supabase/TUTOR_APPLICATION_UPGRADE.sql`
+- New project: `supabase/AREWARIN_FULL_SETUP.sql` รวมฟีเจอร์นี้แล้ว
+- Deploy: `supabase functions deploy submit-tutor-application --no-verify-jwt`
+
+ดูรายละเอียดใน `TUTOR_APPLICATION_SETUP.md`

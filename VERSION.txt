@@ -1,5 +1,3 @@
-AreWarin Biology Complete System
-Build: 2026-09-05
-Backend: Supabase
-Email notifications: disabled
-Includes: Student web, Reviews subweb, Manager, Dynamic Tutor Schedule, Payments, Receipts, Speaker Requests, Branding/Banners/Categories, Excel Review Import
+AreWarin Complete System — Tutor Recruitment Edition
+Version: 2026.09.05-tutor-application
+Includes: configured Supabase project, Manager role diagnostics, dynamic tutor schedules, CMS, reviews, enrollment, receipt, tutor recruitment subweb.
