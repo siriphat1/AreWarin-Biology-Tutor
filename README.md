@@ -1,13 +1,21 @@
-# AreWarin Enrollment Rescue V15.2.3
+# AreWarin Student Course Sync V15.4.1
 
-ใช้เมื่อหน้า Public Enrollment เรียก `create-enrollment` ได้แล้ว แต่ได้รับ HTTP 400 และ UI แสดง `[object Object]`.
+แก้กรณี Student Portal มี Student ID และยอดชำระแล้ว แต่หน้า “คอร์สของฉัน” ว่าง
+
+## สาเหตุ
+Edge Function รุ่น rescue บันทึก `enrollments` และ `payments` ได้ แต่ไม่ได้สร้าง `enrollment_items` ทำให้ trigger กลางไม่มีข้อมูลสำหรับสร้าง `os_student_course_enrollments` ซึ่งเป็นแหล่งข้อมูลคอร์สของ Student Portal/Tutor OS
 
 ## ทำตอนนี้
-1. Supabase > Edge Functions > create-enrollment > Code
-2. เปิด `index.ts` แล้วแทนที่ทั้งหมดด้วย `supabase/functions/create-enrollment/index.ts` ชุดนี้
-3. Deploy function และตรวจ Settings > Verify JWT with legacy secret = OFF
-4. เปิด endpoint ด้วย GET ต้องเห็น `version: v15.2.3-rescue`
-5. อัป `js/supabase-bridge.js` ชุดนี้ทับ GitHub เพื่อให้ error ในอนาคตแสดงรายละเอียดจริง
-6. Ctrl+Shift+R แล้วส่งใบสมัครใหม่
+1. Supabase > SQL Editor > New query
+2. วาง `supabase/V15_4_1_COURSE_SYNC_FIX.sql` ทั้งไฟล์ แล้ว Run 1 ครั้ง
+3. Supabase > Edge Functions > create-enrollment > Code > `index.ts`
+4. วาง `supabase/functions/create-enrollment/index.ts` แล้ว Deploy
+5. เปิด endpoint ต้องเห็น version `v15.4.1-course-sync`
+6. อัป `student/index.html` และ `student/theme-v15.4.css` ไป GitHub
+7. Student Portal กด Refresh หรือ Ctrl+Shift+R
 
-Rescue mode เขียน Enrollment ก่อนเป็นอันดับแรก และทำ Receipt/Slip/Payment เป็น best-effort เพื่อไม่ให้การรับสมัครล้มเพราะโมดูลเสริมชั่วคราวไม่พร้อม. รายการที่ fallback จะถูกเก็บใน `raw_payload.rescueWarnings` เพื่อให้ Manager ตรวจสอบภายหลัง.
+## พฤติกรรมใหม่
+- ใบสมัครใหม่สร้าง course line item ทันที
+- คอร์สที่ยังรอตรวจการชำระจะเห็นใน Student Portal เป็น “รอเปิดใช้งาน”
+- เมื่อ Manager ยืนยันและ enrollment เป็น `confirmed` คอร์สจะเปลี่ยนเป็น active และเปิดชั่วโมง/บทเรียน
+- SQL จะ backfill ใบสมัครเดิมที่มี `raw_payload.courseItems` โดยอัตโนมัติ
