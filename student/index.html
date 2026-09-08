@@ -628,7 +628,7 @@ function authHtml(){
 }
 function quickHoursFields(){const r=S.quickResult;if(r?.ok){const cs=r.courses||[],gs=r.groups||[];return `<div class="message success"><b>${esc(r.display_name||'นักเรียน')}</b><br>${esc(r.student_code||'')}</div><div class="quick-hour-grid">${cs.map(c=>`<article class="quick-hour-card"><div><b>${esc(c.course_name||'คอร์ส')}</b><span>${c.unlimited?'แพ็กเกจไม่จำกัด':`ใช้แล้ว ${n(c.used_hours).toFixed(2)} / ${n(c.total_hours).toFixed(2)} ชม.`}</span></div><strong>${c.unlimited?'∞':n(c.remaining_hours).toFixed(2)}</strong><small>${c.unlimited?'ไม่จำกัดชั่วโมง':'ชม. คงเหลือ'}</small></article>`).join('')||'<div class="message">ยังไม่มีคอร์ส Active</div>'}</div>${gs.length?`<div class="message" style="margin-top:10px"><b>กลุ่มเรียน</b><br>${gs.map(g=>`${esc(g.group_code)} · ${esc(g.name)}`).join('<br>')}</div>`:''}<button class="btn primary wide" type="button" id="quickAgain">เช็กอีกรหัส</button><button class="btn wide" type="button" data-mode="login" style="margin-top:8px">เข้าสู่ Student Portal</button>`}return `<div class="field"><label>Student Code</label><input class="input" name="student_code" required placeholder="เช่น AWS-2026-000001" autocomplete="off"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" name="pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"></div><button class="btn primary wide">ตรวจสอบชั่วโมง</button><div class="sub" style="margin-top:10px;line-height:1.6">ระบบจะแสดงเฉพาะคอร์ส ชั่วโมงคงเหลือ และกลุ่มเรียน ไม่แสดงเบอร์โทร อีเมล หรือที่อยู่</div>`}
 function signupFields(){if(!S.signupMatch)return `<div class="field"><label>เบอร์โทรนักเรียน</label><div class="lookup"><input class="input" id="phone" inputmode="tel" value="${esc(S.signupPhone)}" placeholder="เช่น 0812345678"><button class="btn primary" type="button" id="lookup">ตรวจสอบ</button></div></div>`;const m=S.signupMatch;return `<div class="match"><div class="name">พบข้อมูล: ${esc(m.display_name||m.name||'นักเรียน')}</div><div class="sub">${esc(m.student_code||'')} · ${esc(m.school||'')} · ${esc(m.education_level||'')}</div></div><div class="field"><label>อีเมล</label><input class="input" type="email" name="email" required></div><div class="field"><label>ยืนยันอีเมล</label><input class="input" type="email" name="confirm_email" required></div><div class="field"><label>รหัสผ่าน</label><input class="input" id="password" type="password" name="password" required></div><div class="strength"><i id="strength" style="width:0"></i></div><div class="sub" id="strength-label" style="margin:5px 0 12px">ยังไม่กรอก</div><div class="field"><label>ยืนยันรหัสผ่าน</label><input class="input" type="password" name="confirm_password" required></div><div class="field"><label>PIN 4 หลัก สำหรับกู้รหัส</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required></div><div class="field"><label>ยืนยัน PIN</label><input class="input" inputmode="numeric" maxlength="4" name="confirm_pin" required></div><button class="btn primary wide">สมัครสมาชิก</button><button class="btn wide" type="button" id="change-phone" style="margin-top:8px">เปลี่ยนเบอร์</button>`}
-function shell(content){const s=S.data.student,nav=[['dashboard','⌂','ภาพรวม'],['schedule','◫','ตารางเรียน'],['courses','▤','คอร์สของฉัน'],['wallet','◷','Course Wallet'],['learning','▶','บทเรียน'],['assignments','✓','การบ้าน'],['attendance','◷','เวลาเรียน'],['requests','↗','คำขอของฉัน'],['payments','฿','การชำระเงิน'],['catalog','＋','ลงคอร์สเพิ่ม'],['documents','▧','เอกสาร'],['support','?','ช่วยเหลือ'],['parent','♧','ผู้ปกครอง'],['notifications','✦','แจ้งเตือน'],['security','⌾','ความปลอดภัย'],['profile','◎','บัญชีของฉัน']];return `<div class="portal"><aside class="side"><div class="brand"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Student OS · V17</small></div></div><div class="student-mini"><div class="student-avatar">${esc((s.nickname||s.first_name||'A').slice(0,1))}</div><div><b>${esc(s.nickname||full(s))}</b><span>${esc(s.student_code||'')} · ${esc(s.education_level||s.grade||'นักเรียน')}</span></div></div><nav class="nav">${nav.map((x,i)=>`${[0,5,8,11].includes(i)?`<div class="student-nav-label">${i===0?'LEARNING':i===5?'ACTIVITY':i===8?'SERVICES':'ACCOUNT'}</div>`:''}<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><span>${x[1]}</span><em>${x[2]}</em>${x[0]==='notifications'&&unread()?`<span class="badge">${unread()}</span>`:''}</button>`).join('')}</nav><div class="side-foot"><a class="btn side-home" href="../">หน้าสมัครเรียน</a><button class="btn" data-logout>ออกจากระบบ</button></div></aside><main class="main"><header class="top"><div><div class="top-eyebrow">AREWARIN BIOLOGY · STUDENT OS</div><h1>${nav.find(x=>x[0]===S.tab)?.[2]||'Student'}</h1><p>เรียน · ตาราง · การบ้าน · ชั่วโมง · เอกสาร · ผู้ปกครอง · Support เชื่อมข้อมูลชุดเดียวกัน</p></div><div class="aw-top-actions"><button class="btn" id="installPwa" style="display:none">ติดตั้งแอป</button><a class="btn aw-top-home" href="../"><span>⌂</span><span>หน้าสมัครเรียน</span></a><button class="btn" data-refresh>↻</button></div></header><div class="content">${content}</div></main></div>`}
+function shell(content){const s=S.data.student,nav=[['dashboard','⌂','ภาพรวม'],['schedule','◫','ตารางเรียน'],['courses','▤','คอร์สของฉัน'],['wallet','◷','ชั่วโมงคอร์ส'],['learning','▶','บทเรียน'],['assignments','✓','การบ้าน'],['attendance','◷','เวลาเรียน'],['requests','↗','คำขอของฉัน'],['payments','฿','การชำระเงิน'],['catalog','＋','ลงคอร์สเพิ่ม'],['documents','▧','เอกสาร'],['support','?','ช่วยเหลือ'],['parent','♧','ผู้ปกครอง'],['notifications','✦','แจ้งเตือน'],['security','⌾','ความปลอดภัย'],['profile','◎','บัญชีของฉัน']];return `<div class="portal"><aside class="side"><div class="brand"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Student OS · V17</small></div></div><div class="student-mini"><div class="student-avatar">${esc((s.nickname||s.first_name||'A').slice(0,1))}</div><div><b>${esc(s.nickname||full(s))}</b><span>${esc(s.student_code||'')} · ${esc(s.education_level||s.grade||'นักเรียน')}</span></div></div><nav class="nav">${nav.map((x,i)=>`${[0,5,8,11].includes(i)?`<div class="student-nav-label">${i===0?'การเรียน':i===5?'กิจกรรม':i===8?'บริการ':'บัญชี'}</div>`:''}<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><span>${x[1]}</span><em>${x[2]}</em>${x[0]==='notifications'&&unread()?`<span class="badge">${unread()}</span>`:''}</button>`).join('')}</nav><div class="side-foot"><a class="btn side-home" href="../">หน้าสมัครเรียน</a><button class="btn" data-logout>ออกจากระบบ</button></div></aside><main class="main"><header class="top"><div><div class="top-eyebrow">AREWARIN BIOLOGY · STUDENT OS</div><h1>${nav.find(x=>x[0]===S.tab)?.[2]||'Student'}</h1><p>เรียน · ตาราง · การบ้าน · ชั่วโมง · เอกสาร · ผู้ปกครอง · Support เชื่อมข้อมูลชุดเดียวกัน</p></div><div class="aw-top-actions"><button class="btn" id="installPwa" style="display:none">ติดตั้งแอป</button><a class="btn aw-top-home" href="../"><span>⌂</span><span>หน้าสมัครเรียน</span></a><button class="btn" data-refresh>↻</button></div></header><div class="content">${content}</div></main></div>`}
 function activeEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused'].includes(e.status))}
 function visibleEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused','pending','completed'].includes(e.status))}
 function resolvedEnrollmentIds(){return new Set((S.data?.enrollments||[]).filter(e=>['active','paused','completed'].includes(e.status)&&e.source_enrollment_id).map(e=>String(e.source_enrollment_id)))}
@@ -1073,4 +1073,170 @@ body[data-student-build="16.0.0-student-os"] .activity-panel{margin-top:18px!imp
 .today-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 17px;margin-top:14px;border-radius:20px;background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bfdbfe}.today-strip b{display:block;margin-top:4px;font-size:14px}.today-strip p{margin:3px 0 0;color:#64748b;font-size:9px}.recommendation-shelf{margin-top:16px;padding:18px;border-radius:24px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95)}.recommendation-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.recommendation-row article{display:grid;grid-template-columns:66px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:17px;background:#fff;border:1px solid #e3edf9}.rec-cover{width:66px;height:60px;border-radius:13px;background:linear-gradient(135deg,#0ea5e9,#4f46e5);background-size:cover;background-position:center}.recommendation-row b{display:block;font-size:10px}.recommendation-row span,.recommendation-row small{display:block;font-size:8px;color:#64748b;margin-top:2px}@media(max-width:950px){.recommendation-row{grid-template-columns:1fr}}@media(max-width:650px){.today-strip{align-items:flex-start;flex-direction:column}.recommendation-row article{grid-template-columns:58px 1fr}.recommendation-row article>.btn{grid-column:2}.rec-cover{width:58px;height:54px}}
 </style>
 <style id="student-v17-wallet-request">.wallet-grid,.request-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}.wallet-card{background:#fff;border:1px solid #e3edf9;border-radius:24px;padding:18px;box-shadow:0 20px 50px -38px rgba(15,23,42,.35)}.wallet-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.wallet-head small{display:block;color:#64748b;font-size:9px}.wallet-head h3{margin:5px 0 0;font-size:23px;color:#172033}.wallet-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.wallet-stats>div{padding:10px;border-radius:14px;background:#f8fbff;border:1px solid #e3edf9}.wallet-stats small{display:block;color:#94a3b8;font-size:8px}.wallet-stats b{display:block;font-size:17px;margin-top:3px}.wallet-ledger{border-top:1px solid #edf2f7;margin:5px 0 12px}.wallet-ledger>div{display:grid;grid-template-columns:90px 80px auto 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7;align-items:center}.wallet-ledger time,.wallet-ledger span,.wallet-ledger small{font-size:8px;color:#64748b}.wallet-ledger b{font-size:9px}.request-row{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border:0;border-top:1px solid #edf2f7;background:transparent;text-align:left}.request-row:first-of-type{border-top:0}.request-row b{font-size:10px;color:#172033}.request-row p{margin:3px 0 0;font-size:8px;color:#94a3b8}.request-row.ticket{cursor:pointer}@media(max-width:820px){.wallet-grid,.request-grid{grid-template-columns:1fr}.wallet-ledger>div{grid-template-columns:1fr auto}.wallet-ledger span,.wallet-ledger small{grid-column:1}}</style>
+
+<style id="arewarin-v17-0-1-sidebar-fix">
+/* V17.0.1 — Sidebar layout hardening
+   Keeps brand/student card/footer visible and makes only the nav list scroll.
+*/
+@media (min-width:821px){
+  .portal{
+    grid-template-columns:286px minmax(0,1fr)!important;
+  }
+  .side{
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    padding:16px 14px 14px!important;
+  }
+  .side .brand{
+    flex:0 0 auto!important;
+    margin-bottom:12px!important;
+    padding:6px 7px 14px!important;
+  }
+  .side .brand .logo{
+    width:48px!important;
+    height:48px!important;
+    border-radius:16px!important;
+    font-size:22px!important;
+  }
+  .side .brand strong{
+    font-size:18px!important;
+    line-height:1.15!important;
+  }
+  .side .brand small{
+    margin-top:3px!important;
+    font-size:10px!important;
+  }
+
+  .student-mini{
+    flex:0 0 auto!important;
+    min-height:74px!important;
+    margin:0 0 10px!important;
+    padding:11px 12px!important;
+    border-radius:18px!important;
+    overflow:hidden!important;
+  }
+  .student-avatar{
+    width:40px!important;
+    height:40px!important;
+    border-radius:13px!important;
+    font-size:16px!important;
+  }
+  .student-mini b{
+    font-size:13px!important;
+    line-height:1.25!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .student-mini span{
+    margin-top:3px!important;
+    font-size:9px!important;
+    line-height:1.35!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .nav{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    align-content:start!important;
+    gap:4px!important;
+    padding:2px 4px 10px 2px!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:#cbd5e1 transparent!important;
+    overscroll-behavior:contain!important;
+  }
+  .nav::-webkit-scrollbar{width:5px!important}
+  .nav::-webkit-scrollbar-track{background:transparent!important}
+  .nav::-webkit-scrollbar-thumb{
+    background:#cbd5e1!important;
+    border-radius:999px!important;
+  }
+
+  .student-nav-label{
+    padding:10px 8px 3px!important;
+    font-size:7px!important;
+    line-height:1!important;
+    letter-spacing:.13em!important;
+    color:#94a3b8!important;
+    text-transform:uppercase!important;
+  }
+  .nav .student-nav-label:first-child{
+    padding-top:4px!important;
+  }
+
+  .nav button{
+    min-height:46px!important;
+    padding:6px 9px!important;
+    border-radius:15px!important;
+    grid-template-columns:36px minmax(0,1fr) auto!important;
+    gap:9px!important;
+    font-size:11px!important;
+  }
+  .nav button>span:first-child{
+    width:36px!important;
+    height:36px!important;
+    border-radius:12px!important;
+    font-size:13px!important;
+  }
+  .nav button em{
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  .nav button.active{
+    box-shadow:0 14px 28px -22px rgba(79,70,229,.75)!important;
+  }
+
+  .side-foot{
+    flex:0 0 auto!important;
+    margin-top:8px!important;
+    padding-top:10px!important;
+    gap:7px!important;
+  }
+  .side-foot .btn,.side-home{
+    min-height:38px!important;
+    border-radius:13px!important;
+    font-size:10px!important;
+    padding:8px 10px!important;
+  }
+}
+
+/* Mid-size desktop / tablet landscape */
+@media (min-width:821px) and (max-width:1180px){
+  .portal{grid-template-columns:246px minmax(0,1fr)!important}
+  .side{padding-left:10px!important;padding-right:10px!important}
+  .side .brand strong{font-size:16px!important}
+  .nav button{
+    min-height:44px!important;
+    grid-template-columns:34px minmax(0,1fr) auto!important;
+    font-size:10px!important;
+  }
+  .nav button>span:first-child{
+    width:34px!important;height:34px!important;
+  }
+}
+
+/* Mobile: keep the current bottom-nav behavior, but remove section-label artefacts. */
+@media (max-width:820px){
+  .student-nav-label{display:none!important}
+  .nav{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+  }
+  .nav::-webkit-scrollbar{display:none!important}
+}
+</style>
+<script>
+console.info("[AreWarin Student] V17.0.1 sidebar fix loaded");
+</script>
+
 </body></html>
