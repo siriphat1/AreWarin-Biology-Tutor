@@ -1,5 +1,6 @@
 const sb = window.AreWarinAPI.sb;
 let state = { tutors: [], courses: [], reviews: [], prices: [], promotions: [], enrollments: [], payments: [], speakers: [], tutorApplications: [], receipt: null, settings: {}, scheduleTemplates: [], schedules: [], scheduleReservations: [], branding: null, banners: [], categories: [], policyPages: [], policySections: [] };
+window.state = state;
 let activeScheduleTutorId = null;
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -106,6 +107,7 @@ async function loadAll() {
   $('statEnrollments').textContent=state.enrollments.length;
   if($('statReviews')) $('statReviews').textContent=state.reviews.filter(x=>x.active).length;
   renderHomepage(); renderTutors(); renderTutorApplications(); renderCourses(); renderReviews(); renderEnrollments(); renderSpeakers(); renderPrices(); renderPromos(); renderPayments(); renderPolicyCMS(); renderReceipt(); renderSystem(); fillTutorSelect(); renderScheduleManager();
+  window.dispatchEvent(new CustomEvent('arewarin-manager-loaded'));
 }
 
 async function uploadPublic(bucket,file,prefix) {

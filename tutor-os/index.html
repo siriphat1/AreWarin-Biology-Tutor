@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบเชื่อมกับระบบหลัก">
-  <title>AreWarin Biology · Tutor OS</title>
+  <title>AreWarin Biology · Tutor OS V17</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -61,12 +61,13 @@
         <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations</small></div></div>
         <nav>
           <div class="nav-label">Overview</div>
-          <button class="nav-btn active" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button>
+          <button class="nav-btn" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button><button class="nav-btn active" data-section="today"><i class="fa-solid fa-calendar-day"></i><span>Today Teaching</span></button>
           <div class="nav-label">Core</div>
           <button class="nav-btn" data-section="students"><i class="fa-solid fa-user-graduate"></i><span>นักเรียน & CRM</span></button>
           <button class="nav-btn" data-section="courses"><i class="fa-solid fa-book-open"></i><span>คอร์ส & สมัคร</span></button>
           <button class="nav-btn" data-section="groups"><i class="fa-solid fa-people-group"></i><span>กลุ่มเรียน · Locker</span></button>
           <button class="nav-btn" data-section="teaching"><i class="fa-solid fa-chalkboard-user"></i><span>การสอน</span></button>
+          <button class="nav-btn" data-section="services"><i class="fa-solid fa-graduation-cap"></i><span>Student Services</span></button>
           <button class="nav-btn admin-only" data-section="finance"><i class="fa-solid fa-wallet"></i><span>การเงิน</span></button>
           <div class="nav-label">Team</div>
           <button class="nav-btn" data-section="team"><i class="fa-solid fa-users"></i><span>ทีม & เนื้อหา</span></button>
@@ -78,7 +79,9 @@
       </aside>
 
       <main class="main">
-        <section id="section-overview" class="section active"></section>
+        <section id="section-overview" class="section"></section>
+        <section id="section-today" class="section active"></section>
+        <section id="section-services" class="section"></section>
         <section id="section-students" class="section"></section>
         <section id="section-courses" class="section"></section>
         <section id="section-groups" class="section"></section>
