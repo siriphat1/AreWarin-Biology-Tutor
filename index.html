@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v13 · 2026-09-16 · BEAUTIFUL DISCOUNT SUMMARY -->
+  <!-- AREWARIN READY REPLACE v14 · 2026-09-16 · PROMOTION IMAGE -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -2832,7 +2832,15 @@
                             </div>
                             <p id="discountMsg" class="text-[10px] mt-1.5 h-3 font-medium transition-all"></p>
 
-                            <div id="discountSummaryCard" class="hidden mt-3 rounded-[1.25rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-3.5 shadow-sm">
+                            <div id="discountSummaryCard" class="hidden mt-3 overflow-hidden rounded-[1.35rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 shadow-sm">
+                                <div id="discountSummaryImageWrap" class="hidden relative h-[145px] bg-slate-100 overflow-hidden">
+                                    <img id="discountSummaryImage" src="" alt="ภาพโปรโมชั่น" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent"></div>
+                                    <div class="absolute left-3 bottom-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[9px] font-extrabold text-emerald-700 shadow-sm">
+                                        <i class="fas fa-sparkles"></i> PROMOTION
+                                    </div>
+                                </div>
+                                <div class="p-3.5">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex items-start gap-3 min-w-0">
                                         <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0">
@@ -2865,6 +2873,7 @@
                                         <div class="text-[9px] text-slate-400 font-bold">สุทธิ</div>
                                         <div id="discountSummaryFinal" class="mt-0.5 text-[11px] font-extrabold text-sky-600">0 บาท</div>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -5315,6 +5324,27 @@
             if(typeEl) typeEl.innerText = currentDiscountMeta.typeLabel || 'ส่วนลด';
             if(originalEl) originalEl.innerText = formatBaht(currentDiscountMeta.original);
             if(finalEl) finalEl.innerText = formatBaht(currentDiscountMeta.final);
+
+            const imageWrap = document.getElementById('discountSummaryImageWrap');
+            const imageEl = document.getElementById('discountSummaryImage');
+            const imageUrl = String(currentDiscountMeta.imageUrl || '').trim();
+
+            if(imageWrap && imageEl) {
+                if(imageUrl) {
+                    imageEl.onload = function() {
+                        imageWrap.classList.remove('hidden');
+                    };
+                    imageEl.onerror = function() {
+                        imageWrap.classList.add('hidden');
+                        imageEl.removeAttribute('src');
+                    };
+                    imageEl.src = imageUrl;
+                } else {
+                    imageWrap.classList.add('hidden');
+                    imageEl.removeAttribute('src');
+                }
+            }
+
             card.classList.remove('hidden');
         }
 
@@ -5673,7 +5703,56 @@
             }
         }
 
-        function checkDiscount() {
+        function getPromotionDb() {
+            try {
+                if (window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+            } catch(_) {}
+
+            try {
+                if (typeof sb !== 'undefined' && sb?.from) return sb;
+            } catch(_) {}
+
+            if (window.sb?.from) return window.sb;
+            if (window.awSupabase?.from) return window.awSupabase;
+            if (window.supabaseClient?.from) return window.supabaseClient;
+
+            const cfg = window.AREWARIN_CONFIG || {};
+            if (
+                window.supabase?.createClient &&
+                cfg.SUPABASE_URL &&
+                cfg.SUPABASE_ANON_KEY
+            ) {
+                if(!window.__awPromoPublicClient) {
+                    window.__awPromoPublicClient = window.supabase.createClient(
+                        cfg.SUPABASE_URL,
+                        cfg.SUPABASE_ANON_KEY
+                    );
+                }
+                return window.__awPromoPublicClient;
+            }
+
+            return null;
+        }
+
+        async function fetchPromotionByCode(code) {
+            const db = getPromotionDb();
+            if(!db) return null;
+
+            const { data, error } = await db
+                .from('promotions')
+                .select('code,name,discount_type,discount_value,description,image_url,starts_at,ends_at,active')
+                .eq('code', String(code || '').trim().toUpperCase())
+                .maybeSingle();
+
+            if(error) {
+                console.warn('[AW v14] promotion lookup failed:', error.message);
+                return null;
+            }
+
+            return data || null;
+        }
+
+        async function checkDiscount() {
             const input = document.getElementById('discountCode');
             const code = (input?.value || '').trim().toUpperCase();
             const btn = document.getElementById('btnCheckDiscount');
@@ -5691,72 +5770,136 @@
             }
 
             if(input) input.value = code;
-            if(btn) btn.innerText = 'ตรวจสอบ...';
+            if(btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>ตรวจสอบ';
+            }
             if(msg) {
                 msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-slate-400";
                 msg.innerText = "กำลังตรวจสอบโค้ด...";
             }
-            if (typeof google === 'undefined') return;
+
+            const finishButton = () => {
+                if(btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'ใช้โค้ด';
+                }
+            };
+
+            const applyPromotion = (promo) => {
+                const type = promo.discount_type || promo.type || 'fixed';
+                const rawValue =
+                    promo.discount_value !== undefined
+                        ? Number(promo.discount_value || 0)
+                        : (type === 'percent'
+                            ? Number(promo.percent || 0)
+                            : Number(promo.amount || 0));
+
+                const discountAmount =
+                    type === 'percent'
+                        ? Math.round(currentPrice * rawValue / 100)
+                        : rawValue;
+
+                finalPrice = Math.max(0, currentPrice - discountAmount);
+
+                currentDiscountMeta = {
+                    code: code,
+                    name: promo.name || promo.title || promo.promoName || promo.label || ('โค้ด ' + code),
+                    desc: promo.description || promo.note || promo.message || 'ใช้ส่วนลดสำเร็จสำหรับรายการนี้',
+                    amount: discountAmount,
+                    original: currentPrice,
+                    final: finalPrice,
+                    typeLabel:
+                        type === 'percent'
+                            ? ('ส่วนลด ' + rawValue + '%')
+                            : ('ส่วนลด ' + Number(discountAmount || 0).toLocaleString() + ' บาท'),
+                    imageUrl: promo.image_url || promo.imageUrl || promo.image || ''
+                };
+
+                updatePriceUI();
+                renderDiscountSummary();
+
+                if(msg) {
+                    msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-green-500";
+                    msg.innerText = 'ใช้ส่วนลดสำเร็จ';
+                }
+
+                if(badge) badge.classList.remove('hidden');
+                if(originalPriceEl) {
+                    originalPriceEl.innerText = currentPrice.toLocaleString();
+                    originalPriceEl.classList.remove('hidden');
+                }
+            };
 
             try {
-                google.script.run.withSuccessHandler(function(res) {
-                    if(btn) btn.innerText = 'ใช้โค้ด';
-                    if(res && res.valid) {
-                        const discountAmount = res.type === 'percent'
-                            ? Math.round(currentPrice * Number(res.percent || 0) / 100)
-                            : Number(res.amount || 0);
+                // V14: read promotion directly from Supabase so image/name/description
+                // always arrive together with the discount.
+                const promo = await fetchPromotionByCode(code);
 
-                        finalPrice = Math.max(0, currentPrice - discountAmount);
+                if(promo) {
+                    applyPromotion(promo);
+                    finishButton();
+                    return;
+                }
 
-                        const promoName = res.name || res.title || res.promoName || res.label || ('โค้ด ' + code);
-                        const typeLabel = res.type === 'percent'
-                            ? ('ส่วนลด ' + Number(res.percent || 0) + '%')
-                            : ('ส่วนลด ' + Number(discountAmount || 0).toLocaleString() + ' บาท');
+                // Compatibility fallback for older deployments that have not run V14 SQL.
+                if(typeof google !== 'undefined' && google?.script?.run) {
+                    google.script.run
+                        .withSuccessHandler(function(res) {
+                            finishButton();
 
-                        currentDiscountMeta = {
-                            code: code,
-                            name: promoName,
-                            desc: res.description || res.note || res.message || 'ใช้ส่วนลดสำเร็จสำหรับรายการนี้',
-                            amount: discountAmount,
-                            original: currentPrice,
-                            final: finalPrice,
-                            typeLabel: typeLabel
-                        };
+                            if(res && res.valid) {
+                                applyPromotion({
+                                    ...res,
+                                    discount_type: res.type || 'fixed',
+                                    discount_value:
+                                        res.type === 'percent'
+                                            ? Number(res.percent || 0)
+                                            : Number(res.amount || 0)
+                                });
+                            } else {
+                                clearDiscountState();
+                                updatePriceUI();
+                                if(msg) {
+                                    msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
+                                    msg.innerText = (res && res.message)
+                                        ? res.message
+                                        : 'ไม่พบโค้ด หรือโค้ดหมดอายุ';
+                                }
+                            }
+                        })
+                        .withFailureHandler(function() {
+                            finishButton();
+                            clearDiscountState();
+                            updatePriceUI();
+                            if(msg) {
+                                msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
+                                msg.innerText = "ระบบตรวจสอบส่วนลดมีปัญหา";
+                            }
+                        })
+                        .checkDiscountCode(code);
 
-                        updatePriceUI();
-                        renderDiscountSummary();
+                    return;
+                }
 
-                        if(msg) {
-                            msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-green-500";
-                            msg.innerText = 'ใช้ส่วนลดสำเร็จ';
-                        }
-                        if(badge) badge.classList.remove('hidden');
-                        if(originalPriceEl) {
-                            originalPriceEl.innerText = currentPrice.toLocaleString();
-                            originalPriceEl.classList.remove('hidden');
-                        }
-                    } else {
-                        clearDiscountState();
-                        updatePriceUI();
-                        if(msg) {
-                            msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
-                            msg.innerText = (res && res.message) ? res.message : 'ไม่พบโค้ดส่วนลด';
-                        }
-                    }
-                }).withFailureHandler(function(err){
-                    if(btn) btn.innerText = 'ใช้โค้ด';
-                    clearDiscountState();
-                    if(msg) {
-                        msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
-                        msg.innerText = "ระบบตรวจสอบมีปัญหา";
-                    }
-                }).checkDiscountCode(code);
-            } catch(e) {
-                if(btn) btn.innerText = 'ใช้โค้ด';
+                finishButton();
                 clearDiscountState();
+                updatePriceUI();
+
                 if(msg) {
                     msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
-                    msg.innerText = "ยังไม่ได้เชื่อมต่อระบบ";
+                    msg.innerText = "ไม่พบโค้ด หรือโค้ดหมดอายุ";
+                }
+
+            } catch(e) {
+                console.error('[AW v14] discount check failed:', e);
+                finishButton();
+                clearDiscountState();
+                updatePriceUI();
+
+                if(msg) {
+                    msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-red-500";
+                    msg.innerText = "ระบบตรวจสอบส่วนลดมีปัญหา";
                 }
             }
         }
