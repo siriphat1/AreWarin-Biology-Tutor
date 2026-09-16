@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v18 · 2026-09-16 · ENROLLMENT SLIP + REPAIR -->
+  <!-- AREWARIN READY REPLACE v19 · 2026-09-16 · ENROLLMENT 360 + PROMO COUNT -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AreWarin Manager · Unified V17</title>
@@ -1587,6 +1587,7 @@
   }[ch]));
 
   let promos = [];
+  let promoUsage = new Map();
   let rendering = false;
 
   function db() {
@@ -1706,23 +1707,54 @@
     const client = db();
     if(!client) return;
 
-    const {data,error} = await client
-      .from('promotions')
-      .select('id,code,name,description,image_url,discount_type,discount_value,starts_at,ends_at,active,created_at,updated_at')
-      .order('created_at',{ascending:false});
+    const [promoRes, usageRes] = await Promise.all([
+      client
+        .from('promotions')
+        .select('id,code,name,description,image_url,discount_type,discount_value,starts_at,ends_at,active,created_at,updated_at')
+        .order('created_at',{ascending:false}),
+      client.rpc('manager_promotion_usage_summary')
+    ]);
 
-    if(error) {
-      console.error('[AW v14] load promotions failed:', error);
+    if(promoRes.error) {
+      console.error('[AW v19] load promotions failed:', promoRes.error);
       toast(
-        error.message?.includes('image_url')
-          ? 'กรุณารัน AREWARIN_V14_PROMO_IMAGE.sql ใน Supabase ก่อน'
-          : 'โหลดโปรโมชั่นไม่สำเร็จ: ' + error.message,
+        promoRes.error.message?.includes('image_url')
+          ? 'กรุณารัน SQL ระบบโปรโมชั่นก่อน'
+          : 'โหลดโปรโมชั่นไม่สำเร็จ: ' + promoRes.error.message,
         'error'
       );
       return;
     }
 
-    promos = data || [];
+    promoUsage = new Map();
+
+    if(usageRes.error) {
+      console.warn('[AW v19] promotion usage summary unavailable:', usageRes.error);
+    } else {
+      (usageRes.data || []).forEach(row => {
+        promoUsage.set(String(row.code || '').toUpperCase(), {
+          unique_people: Number(row.unique_people || 0),
+          use_count: Number(row.use_count || 0),
+          confirmed_count: Number(row.confirmed_count || 0)
+        });
+      });
+    }
+
+    promos = (promoRes.data || []).map(p => {
+      const usage = promoUsage.get(String(p.code || '').toUpperCase()) || {
+        unique_people:0,
+        use_count:0,
+        confirmed_count:0
+      };
+
+      return {
+        ...p,
+        usage_count:usage.unique_people,
+        use_times:usage.use_count,
+        confirmed_usage:usage.confirmed_count
+      };
+    });
+
     renderPromos();
   }
 
@@ -1776,6 +1808,21 @@
                   </div>
                   <h3 class="mt-2 text-[13px] font-extrabold text-slate-800">${esc(p.name || 'ไม่มีชื่อโปรโมชั่น')}</h3>
                   <p class="mt-1 text-[9px] leading-4 text-slate-400">${esc(p.description || 'ยังไม่มีคำอธิบาย')}</p>
+
+                  <div class="mt-3 flex flex-wrap gap-1.5">
+                    <span class="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-[8px] font-extrabold text-sky-700">
+                      <i class="fas fa-users"></i>
+                      ใช้แล้ว ${Number(p.usage_count || 0).toLocaleString('th-TH')} คน
+                    </span>
+                    <span class="inline-flex items-center gap-1 rounded-full border border-slate-100 bg-slate-50 px-2.5 py-1 text-[8px] font-bold text-slate-500">
+                      <i class="fas fa-ticket"></i>
+                      ${Number(p.use_times || 0).toLocaleString('th-TH')} ครั้ง
+                    </span>
+                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[8px] font-bold text-emerald-600">
+                      <i class="fas fa-circle-check"></i>
+                      ยืนยันแล้ว ${Number(p.confirmed_usage || 0).toLocaleString('th-TH')}
+                    </span>
+                  </div>
                 </div>
 
                 <div class="text-right shrink-0">
@@ -3112,6 +3159,507 @@
   }
 
   window.AWV18RefreshEnrollmentSlips = loadPaymentMap;
+})();
+</script>
+
+
+<script>
+/* =========================================================
+   AREWARIN READY v19 — Enrollment Full Detail
+   Replaces the basic "ดูรายละเอียด" popup with a full record:
+   student + guardian + course items + package + schedule + payment + promotion + raw data
+========================================================= */
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+
+  function db() {
+    try { if(typeof sb !== 'undefined' && sb?.from) return sb; } catch(_) {}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+
+    const cfg = window.AREWARIN_CONFIG || {};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if(!window.__awV19DetailClient) {
+        window.__awV19DetailClient = window.supabase.createClient(
+          cfg.SUPABASE_URL,
+          cfg.SUPABASE_ANON_KEY,
+          {auth:{persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return window.__awV19DetailClient;
+    }
+    return null;
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[ch]));
+  }
+
+  function money(value) {
+    return Number(value || 0).toLocaleString('th-TH') + ' บาท';
+  }
+
+  function dateTime(value) {
+    if(!value) return '-';
+    const d = new Date(value);
+    if(Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString('th-TH',{
+      year:'numeric',month:'short',day:'numeric',
+      hour:'2-digit',minute:'2-digit'
+    });
+  }
+
+  function value(v) {
+    if(v === null || v === undefined || v === '') return '-';
+    if(typeof v === 'boolean') return v ? 'ใช่' : 'ไม่';
+    return String(v);
+  }
+
+  function statusLabel(s) {
+    return ({
+      pending_payment_verification:'รอตรวจสอบการชำระเงิน',
+      confirmed:'ยืนยันแล้ว',
+      rejected:'ไม่ผ่าน',
+      cancelled:'ยกเลิก',
+      pending:'รอตรวจสอบ',
+      paid:'ชำระแล้ว'
+    })[s] || s || '-';
+  }
+
+  function field(label, val, cls='') {
+    return `
+      <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 ${cls}">
+        <div class="text-[8px] font-bold tracking-wide text-slate-400">${esc(label)}</div>
+        <div class="mt-1 text-[11px] font-bold leading-5 text-slate-700 break-words">${esc(value(val))}</div>
+      </div>
+    `;
+  }
+
+  function section(title, icon, body) {
+    return `
+      <section class="rounded-[22px] border border-slate-200 bg-white p-4 sm:p-5">
+        <div class="mb-3 flex items-center gap-2">
+          <div class="grid h-8 w-8 place-items-center rounded-xl bg-sky-50 text-sky-600">
+            <i class="${esc(icon)}"></i>
+          </div>
+          <h3 class="text-[12px] font-extrabold text-slate-800">${esc(title)}</h3>
+        </div>
+        ${body}
+      </section>
+    `;
+  }
+
+  function renderCourseItems(detail) {
+    const e = detail.enrollment || {};
+    let items = Array.isArray(detail.items) ? detail.items : [];
+
+    if(!items.length && Array.isArray(e.raw_payload?.courseItems)) {
+      items = e.raw_payload.courseItems.map(x => ({
+        course_name_snapshot:x.courseName,
+        tutor_name_snapshot:x.tutorName,
+        package_code:e.raw_payload.selectedMode,
+        hours_allocated:e.raw_payload.hours,
+        amount_allocated:null
+      }));
+    }
+
+    if(!items.length) {
+      return `
+        <div class="rounded-2xl border border-sky-100 bg-sky-50/50 p-4">
+          <div class="text-[12px] font-extrabold text-slate-800">${esc(e.course_text || '-')}</div>
+          <div class="mt-1 text-[10px] text-slate-500">ติวเตอร์: ${esc(e.tutor_text || '-')}</div>
+        </div>
+      `;
+    }
+
+    return `<div class="space-y-2">${items.map((item,index) => `
+      <div class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-[10px] font-extrabold text-indigo-600">${index+1}</div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[11px] font-extrabold text-slate-800">
+              ${esc(item.course_name_snapshot || item.courseName || item.course_name || '-')}
+            </div>
+            <div class="mt-1 text-[9px] text-slate-400">
+              ติวเตอร์: ${esc(item.tutor_name_snapshot || item.tutorName || item.tutor_name || e.tutor_text || '-')}
+            </div>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              ${(item.package_code || e.mode_text) ? `<span class="rounded-full bg-slate-100 px-2 py-1 text-[8px] font-bold text-slate-600">${esc(item.package_code || e.mode_text)}</span>` : ''}
+              ${(item.hours_unlimited === true) ? `<span class="rounded-full bg-violet-50 px-2 py-1 text-[8px] font-bold text-violet-600">ไม่จำกัดชั่วโมง</span>` : ''}
+              ${(item.hours_allocated !== null && item.hours_allocated !== undefined) ? `<span class="rounded-full bg-sky-50 px-2 py-1 text-[8px] font-bold text-sky-600">${esc(item.hours_allocated)} ชม.</span>` : ''}
+              ${(item.amount_allocated !== null && item.amount_allocated !== undefined) ? `<span class="rounded-full bg-emerald-50 px-2 py-1 text-[8px] font-bold text-emerald-600">${money(item.amount_allocated)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  function renderAdditionalStudents(e) {
+    const students = Array.isArray(e.additional_students)
+      ? e.additional_students
+      : (Array.isArray(e.raw_payload?.additionalStudents) ? e.raw_payload.additionalStudents : []);
+
+    if(!students.length) return '<div class="text-[10px] text-slate-400">ไม่มีนักเรียนร่วมกลุ่มเพิ่มเติม</div>';
+
+    return `<div class="grid sm:grid-cols-2 gap-2">${students.map((s,i) =>
+      field('ผู้เรียนร่วม #' + (i+2), (s.name || '-') + (s.nick ? ' (' + s.nick + ')' : ''))
+    ).join('')}</div>`;
+  }
+
+  function renderSchedules(detail) {
+    const e = detail.enrollment || {};
+    const schedules = Array.isArray(detail.schedules) ? detail.schedules : [];
+
+    if(schedules.length) {
+      return `<div class="space-y-2">${schedules.map((s,i) => `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+          <div class="text-[10px] font-extrabold text-slate-700">ช่วงเวลา #${i+1}</div>
+          <div class="mt-1 text-[9px] leading-5 text-slate-500">
+            ${esc(
+              s.label ||
+              s.schedule_label ||
+              s.time_label ||
+              s.slot_label ||
+              [s.weekday,s.start_time,s.end_time].filter(Boolean).join(' · ') ||
+              JSON.stringify(s)
+            )}
+          </div>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    const selections = Array.isArray(e.raw_payload?.scheduleSelections)
+      ? e.raw_payload.scheduleSelections
+      : [];
+
+    if(selections.length) {
+      return `<div class="space-y-2">${selections.map((s,i) => `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-[10px] font-bold text-slate-600">
+          ${esc(s.label || [s.weekday,s.templateId].filter(Boolean).join(' · ') || ('เวลา #' + (i+1)))}
+        </div>
+      `).join('')}</div>`;
+    }
+
+    return field('เวลาที่สมัคร', e.time_text || e.raw_payload?.time || '-');
+  }
+
+  function renderPayment(detail) {
+    const e = detail.enrollment || {};
+    const payments = Array.isArray(detail.payments) ? detail.payments : [];
+    const p = payments[0] || null;
+    const promo = detail.promotion || null;
+
+    let slipButton = '';
+    if(p?.payment_method === 'transfer' && p?.slip_path) {
+      slipButton = `
+        <button type="button" data-v19-slip="${esc(p.id)}"
+          class="mt-3 w-full rounded-xl bg-sky-500 px-3 py-2.5 text-[10px] font-extrabold text-white hover:bg-sky-600">
+          <i class="fas fa-image mr-1.5"></i>ดูสลิปโอนเงิน
+        </button>
+      `;
+    }
+
+    const promoBlock = (e.promotion_code || promo)
+      ? `
+        <div class="mt-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-3.5">
+          <div class="text-[8px] font-bold text-violet-400">ส่วนลดที่ใช้</div>
+          <div class="mt-1 flex flex-wrap items-center gap-2">
+            <span class="rounded-full bg-violet-600 px-2.5 py-1 text-[9px] font-extrabold text-white">${esc(e.promotion_code || promo?.code || '-')}</span>
+            <span class="text-[10px] font-extrabold text-violet-800">${esc(promo?.name || 'Promotion')}</span>
+          </div>
+        </div>
+      `
+      : '';
+
+    return `
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        ${field('ยอดสมัคร', money(e.amount_quoted))}
+        ${field('วิธีชำระ', p?.payment_method === 'cash' ? 'เงินสด' : p?.payment_method === 'transfer' ? 'โอนเงิน' : '-')}
+        ${field('ยอดที่แจ้ง', p ? money(p.amount_submitted) : '-')}
+        ${field('ยอดตรวจสอบแล้ว', p?.verified_amount !== null && p?.verified_amount !== undefined ? money(p.verified_amount) : '-')}
+        ${field('สถานะชำระ', statusLabel(p?.status))}
+        ${field('ตรวจสอบเมื่อ', dateTime(p?.verified_at))}
+      </div>
+      ${promoBlock}
+      ${slipButton}
+    `;
+  }
+
+  function renderRaw(e) {
+    const raw = e.raw_payload || {};
+    return `
+      <details class="rounded-2xl border border-slate-200 bg-slate-50">
+        <summary class="cursor-pointer px-4 py-3 text-[10px] font-extrabold text-slate-600">
+          <i class="fas fa-code mr-1.5 text-slate-400"></i>ข้อมูลต้นฉบับจากใบสมัคร
+        </summary>
+        <div class="border-t border-slate-200 p-3">
+          <pre class="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-slate-900 p-3 text-[8px] leading-4 text-slate-200">${esc(JSON.stringify(raw,null,2))}</pre>
+        </div>
+      </details>
+    `;
+  }
+
+  async function saveStatus(enrollmentId) {
+    const select = $('awV19Status');
+    if(!select) return;
+
+    const client = db();
+    if(!client) return;
+
+    const btn = $('awV19SaveStatus');
+    if(btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>กำลังบันทึก';
+    }
+
+    const {error} = await client
+      .from('enrollments')
+      .update({
+        status:select.value,
+        updated_at:new Date().toISOString()
+      })
+      .eq('id',enrollmentId);
+
+    if(btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-floppy-disk mr-1"></i>บันทึกสถานะ';
+    }
+
+    if(error) {
+      if(window.AWAlert?.toast) window.AWAlert.toast(error.message,'error');
+      return;
+    }
+
+    if(window.AWAlert?.toast) window.AWAlert.toast('บันทึกสถานะแล้ว','success');
+    $('refreshEnrollments')?.click();
+  }
+
+  async function downloadReceipt(token, btn) {
+    if(!token || !window.AreWarinReceipt?.download) {
+      if(window.Swal?.fire) {
+        Swal.fire({icon:'info',title:'ยังดาวน์โหลดใบเสร็จไม่ได้',text:'ไม่พบ Receipt Token หรือระบบใบเสร็จยังไม่พร้อม'});
+      }
+      return;
+    }
+
+    const old = btn?.innerHTML || '';
+    try {
+      if(btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>กำลังสร้าง PDF';
+      }
+      await window.AreWarinReceipt.download(token);
+    } finally {
+      if(btn) {
+        btn.disabled = false;
+        btn.innerHTML = old;
+      }
+    }
+  }
+
+  async function openFullDetail(enrollmentId) {
+    const client = db();
+    if(!client) return;
+
+    if(window.Swal?.fire) {
+      Swal.fire({
+        title:'กำลังโหลดข้อมูลทั้งหมด...',
+        didOpen:() => Swal.showLoading(),
+        showConfirmButton:false,
+        allowOutsideClick:false
+      });
+    }
+
+    const {data,error} = await client.rpc(
+      'manager_enrollment_full_detail',
+      {p_enrollment_id:enrollmentId}
+    );
+
+    if(window.Swal?.close) Swal.close();
+
+    if(error || !data?.ok) {
+      if(window.Swal?.fire) {
+        Swal.fire({
+          icon:'error',
+          title:'โหลดข้อมูลไม่สำเร็จ',
+          text:error?.message || data?.message || 'กรุณารัน SQL v19 ก่อน'
+        });
+      }
+      return;
+    }
+
+    const e = data.enrollment || {};
+    const raw = e.raw_payload || {};
+
+    document.getElementById('awV19DetailModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'awV19DetailModal';
+    modal.className =
+      'fixed inset-0 z-[100001] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm p-2 sm:p-5';
+
+    modal.innerHTML = `
+      <div class="flex max-h-[96vh] w-full max-w-[1080px] flex-col overflow-hidden rounded-[28px] border border-white/30 bg-slate-50 shadow-2xl">
+        <header class="shrink-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-[9px] font-extrabold tracking-[.18em] text-sky-500">ENROLLMENT 360°</div>
+              <h2 class="mt-1 text-xl sm:text-2xl font-extrabold text-slate-900">${esc(e.fullname || '-')}</h2>
+              <div class="mt-1 flex flex-wrap items-center gap-2 text-[9px] text-slate-400">
+                <span class="font-mono">${esc(e.receipt_no || e.id || '-')}</span>
+                <span>•</span>
+                <span>${esc(dateTime(e.created_at))}</span>
+                <span class="rounded-full bg-slate-100 px-2 py-1 font-bold text-slate-600">${esc(statusLabel(e.status))}</span>
+              </div>
+            </div>
+            <button id="awV19Close" type="button" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50">
+              <i class="fas fa-xmark"></i>
+            </button>
+          </div>
+        </header>
+
+        <div class="flex-1 overflow-auto p-3 sm:p-5">
+          <div class="grid xl:grid-cols-[1fr_360px] gap-3">
+            <div class="space-y-3">
+              ${section('ข้อมูลผู้สมัคร','fas fa-user',`
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  ${field('ชื่อ-นามสกุล',e.fullname)}
+                  ${field('ชื่อเล่น',e.nickname)}
+                  ${field('เบอร์โทร',e.phone)}
+                  ${field('อีเมล',e.email)}
+                  ${field('LINE ID',e.line_id)}
+                  ${field('จังหวัด',e.province)}
+                  ${field('ระดับชั้น',e.grade)}
+                  ${field('โรงเรียน',e.school)}
+                  ${field('คณะ / สาขา',e.faculty)}
+                  ${field('นักเรียนใหม่/เก่า',e.student_type === 'old' ? 'นักเรียนเดิม' : 'นักเรียนใหม่')}
+                  ${field('รูปแบบเรียน',e.study_type)}
+                  ${field('จำนวนผู้เรียน',e.group_size + ' คน')}
+                </div>
+              `)}
+
+              ${section('ข้อมูลผู้ปกครอง','fas fa-people-roof',`
+                <div class="grid sm:grid-cols-3 gap-2">
+                  ${field('ชื่อผู้ปกครอง',e.parent_name)}
+                  ${field('ความสัมพันธ์',e.parent_relation)}
+                  ${field('เบอร์ผู้ปกครอง',e.parent_phone)}
+                </div>
+              `)}
+
+              ${section('คอร์สที่สมัคร','fas fa-book-open',renderCourseItems(data))}
+
+              ${section('แพ็กเกจและรูปแบบการเรียน','fas fa-layer-group',`
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  ${field('แพ็กเกจ',e.mode_text || raw.modeLabel || raw.selectedMode)}
+                  ${field('ชั่วโมง',e.hours_text || raw.hours)}
+                  ${field('แชร์แพ็กเกจ',raw.cartShareMode)}
+                  ${field('เรียน Onsite',raw.onsite ? 'ใช่' : 'ไม่')}
+                  ${field('จำนวนคอร์ส',raw.courseCount || (data.items?.length || 1))}
+                  ${field('มหาวิทยาลัย',raw.hasUniversity ? 'มีคอร์สระดับมหาวิทยาลัย' : 'ไม่')}
+                </div>
+              `)}
+
+              ${section('ตารางเรียนที่เลือก','fas fa-calendar-days',renderSchedules(data))}
+
+              ${section('ผู้เรียนร่วมกลุ่ม','fas fa-user-group',renderAdditionalStudents(e))}
+
+              ${section('ข้อมูลระบบ','fas fa-database',`
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
+                  ${field('Enrollment ID',e.id)}
+                  ${field('Receipt No.',e.receipt_no)}
+                  ${field('สร้างเมื่อ',dateTime(e.created_at))}
+                  ${field('แก้ไขล่าสุด',dateTime(e.updated_at))}
+                  ${field('Policy Version',e.policy_version_acknowledged || raw.policyVersion)}
+                  ${field('Promotion Code',e.promotion_code || raw.discountCode)}
+                </div>
+                ${renderRaw(e)}
+              `)}
+            </div>
+
+            <aside class="space-y-3">
+              ${section('การชำระเงิน','fas fa-wallet',renderPayment(data))}
+
+              ${section('จัดการสถานะ','fas fa-sliders',`
+                <label class="block text-[9px] font-bold text-slate-500 mb-1.5">สถานะใบสมัคร</label>
+                <select id="awV19Status" class="input w-full">
+                  <option value="pending_payment_verification" ${e.status==='pending_payment_verification'?'selected':''}>รอตรวจสอบ</option>
+                  <option value="confirmed" ${e.status==='confirmed'?'selected':''}>ยืนยันแล้ว</option>
+                  <option value="rejected" ${e.status==='rejected'?'selected':''}>ไม่ผ่าน</option>
+                  <option value="cancelled" ${e.status==='cancelled'?'selected':''}>ยกเลิก</option>
+                </select>
+                <button id="awV19SaveStatus" type="button"
+                  class="mt-2 w-full rounded-xl bg-sky-500 px-3 py-2.5 text-[10px] font-extrabold text-white hover:bg-sky-600">
+                  <i class="fas fa-floppy-disk mr-1"></i>บันทึกสถานะ
+                </button>
+              `)}
+
+              ${section('เอกสาร','fas fa-file-arrow-down',`
+                <button id="awV19Receipt" type="button"
+                  class="w-full rounded-xl bg-slate-900 px-3 py-2.5 text-[10px] font-extrabold text-white hover:bg-slate-800">
+                  <i class="fas fa-file-pdf mr-1.5"></i>ดาวน์โหลดใบเสร็จ
+                </button>
+              `)}
+            </aside>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    $('awV19Close')?.addEventListener('click',close);
+
+    modal.addEventListener('click',event => {
+      if(event.target === modal) close();
+    });
+
+    $('awV19SaveStatus')?.addEventListener('click',() => saveStatus(enrollmentId));
+
+    $('awV19Receipt')?.addEventListener('click',event => {
+      downloadReceipt(e.receipt_token,event.currentTarget);
+    });
+
+    modal.querySelectorAll('[data-v19-slip]').forEach(btn => {
+      btn.addEventListener('click',() => {
+        const paymentId = btn.dataset.v19Slip;
+        if(window.AWV17OpenSlip) {
+          window.AWV17OpenSlip(paymentId);
+        }
+      });
+    });
+  }
+
+  // Capture the existing blue "ดูรายละเอียด" button.
+  document.addEventListener('click',event => {
+    const body = event.target.closest?.('#enrollmentRows');
+    if(!body) return;
+
+    const btn = event.target.closest?.('button,a');
+    if(!btn) return;
+
+    const text = String(btn.innerText || btn.textContent || '').trim();
+    if(!text.includes('ดูรายละเอียด')) return;
+
+    const tr = btn.closest('tr');
+    const enrollmentId = tr?.dataset?.awV16EnrollmentId;
+    if(!enrollmentId) return; // let native detail work if v16 mapping has not attached yet
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    openFullDetail(enrollmentId);
+  },true);
+
+  window.AWV19OpenEnrollment = openFullDetail;
 })();
 </script>
 
