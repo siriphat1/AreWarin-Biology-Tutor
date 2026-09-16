@@ -2,585 +2,520 @@
   'use strict';
 
   const cfg = window.AREWARIN_CONFIG || {};
-  const $ = id => document.getElementById(id);
-  const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-  const esc = v => String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const num = v => Number(v || 0);
-  const money = v => new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:0}).format(num(v));
-  const date = v => v ? new Intl.DateTimeFormat('th-TH',{dateStyle:'medium'}).format(new Date(String(v).length===10?`${v}T00:00:00`:v)) : '—';
-  const dateTime = v => v ? new Intl.DateTimeFormat('th-TH',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v)) : '—';
-  const today = () => new Date().toISOString().slice(0,10);
-  const slugPhone = v => String(v||'').replace(/[^0-9+]/g,'');
-
-  if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY || !window.supabase) {
-    document.body.innerHTML = '<div style="font-family:Prompt,sans-serif;padding:40px"><h2>ไม่พบ Supabase configuration</h2><p>ตรวจสอบ ../config.js</p></div>';
-    return;
-  }
-
-  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
-    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}
-  });
-
-  const v171Style=document.createElement('style');
-  v171Style.id='arewarin-v171-tutor-clock';
-  v171Style.textContent=`
-    .v171-quick-clock{margin-bottom:14px!important;border:1px solid #bae6fd!important;background:linear-gradient(135deg,#fff,#f0f9ff,#eef2ff)!important}
-    .v171-kicker{display:block;color:#0284c7;font-size:8px;font-weight:900;letter-spacing:.14em;margin-bottom:4px}
-    .v171-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
-    .v171-quick-grid .wide{grid-column:span 2}
-    .v171-balance{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:11px 13px;border:1px solid #bfdbfe;border-radius:15px;background:rgba(255,255,255,.85)}
-    .v171-balance span{font-size:9px;color:#64748b}.v171-balance b{font-size:24px;color:#0369a1}.v171-balance small{grid-column:1/-1;color:#64748b;font-size:8px}.v171-balance.low{border-color:#fed7aa;background:#fff7ed}.v171-balance.low b{color:#c2410c}
-    .v171-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .v171-running{margin-top:14px;padding-top:12px;border-top:1px solid #dbeafe}.v171-running-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:10px}
-    .v171-running-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 11px;margin-top:6px;border:1px solid #dbeafe;border-radius:14px;background:#fff}
-    .v171-running-row b{display:block;font-size:10px}.v171-running-row small{display:block;margin-top:3px;color:#64748b;font-size:8px}
-    @media(max-width:1100px){.v171-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:680px){.v171-quick-grid{grid-template-columns:1fr}.v171-quick-grid .wide{grid-column:auto}.v171-running-row{align-items:flex-start;flex-direction:column}.v171-running-row .aw-btn{width:100%}}
-  `;
-  document.head.appendChild(v171Style);
+  const loginView = document.getElementById('loginView');
+  const appView = document.getElementById('appView');
+  const modalRoot = document.getElementById('modalRoot');
+  const $ = (id) => document.getElementById(id);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
   const state = {
-    session:null, staff:null, role:'teacher', section:'today', subtab:{students:'students',courses:'courses',teaching:'attendance',team:'tutors',settings:'health'},
-    systemReady:true, errors:[], loading:false,
-    tutors:[], courses:[], enrollments:[], payments:[], tutorApplications:[], speakers:[], schedules:[], scheduleTemplates:[], promotions:[], prices:[],
-    students:[], studentCourses:[], crm:[], attendanceSessions:[], attendance:[], teachingLogs:[], learningTopics:[], learningAssets:[], learningAssignments:[], tasks:[], announcements:[], financeEntries:[], paymentSlips:[], library:[], hr:[], courseRequests:[], quickReplies:[], osSettings:[], staffProfiles:[],
-    offerings:[], enrollmentItems:[], hourPools:[], hourLedger:[], studentGroups:[], groupMembers:[], portalNotifications:[], portalPaymentRequests:[], portalPaymentSubmissions:[], courseChangeRequests:[], moduleRegistry:[], systemEvents:[], unifiedHealth:null, studentSchedule:[], reschedules:[], v16Assignments:[], v16Submissions:[], supportTickets:[], supportMessages:[], groupBroadcasts:[]
+    sb: null,
+    data: null,
+    section: new URLSearchParams(location.search).get('section') || 'today',
+    signupPhone: '',
+    signupLookup: null,
+    realtime: null,
+    reloadTimer: null,
   };
-  let realtimeChannel=null, realtimeTimer=null;
 
-  function startRealtime(){
-    if(realtimeChannel) return;
-    const refresh=()=>{clearTimeout(realtimeTimer);realtimeTimer=setTimeout(()=>loadAll(false),450);};
-    realtimeChannel=sb.channel('arewarin-v15-ops')
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_system_events'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'course_offerings'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_hour_ledger'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_hour_pools'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_attendance_sessions'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_student_groups'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_student_group_members'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'os_student_attendance'},refresh)
-      .on('postgres_changes',{event:'*',schema:'public',table:'student_course_change_requests'},refresh)
-      .subscribe();
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+  const num = (v) => Number(v || 0);
+  const arr = (v) => Array.isArray(v) ? v : [];
+  const fmtMoney = (v) => `฿${num(v).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  const fmtDate = (v) => v ? new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium' }).format(new Date(v)) : '—';
+  const fmtDateTime = (v) => v ? new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(v)) : '—';
+  const toLocalInput = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return '';
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+  };
+  const fullName = (s = {}) => [s.first_name, s.last_name].filter(Boolean).join(' ') || s.name || s.display_name || 'ไม่ระบุชื่อ';
+  const statusLabel = (v) => ({
+    active: 'กำลังเรียน', paused: 'พักเรียน', completed: 'จบแล้ว', cancelled: 'ยกเลิก',
+    open: 'กำลังสอน', closed: 'จบคาบ', present: 'เข้าเรียน', late: 'สาย', absent: 'ขาด',
+    leave: 'ลา', makeup: 'ชดเชย', tutor: 'Tutor', manager: 'Manager', admin: 'Admin'
+  })[v] || v || '—';
+
+  function friendlyError(error) {
+    const m = String(error?.message || error || 'เกิดข้อผิดพลาด');
+    if (/Invalid login credentials/i.test(m)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+    if (/Email not confirmed/i.test(m)) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
+    if (/Tutor account is not linked/i.test(m)) return 'บัญชีนี้ยังไม่ได้เชื่อมกับติวเตอร์ กรุณาใช้เมนู “เปิดบัญชีด้วยเบอร์ที่ใช้สมัคร”';
+    if (/not accepted/i.test(m)) return 'ใบสมัครติวเตอร์ยังไม่ได้รับการอนุมัติ';
+    return m;
   }
 
-  function toast(message, type='success') {
-    const el = document.createElement('div');
-    el.className = `toast ${type}`;
-    el.textContent = message;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),3200);
-  }
-  function errorText(e){ return String(e?.message || e || 'Unknown error'); }
-  function swalError(title,e){ return Swal.fire({icon:'error',title,text:errorText(e),confirmButtonColor:'#0ea5e9',customClass:{popup:'rounded-3xl'}}); }
-  function isAdmin(){ return state.role === 'admin'; }
-  function tutor(id){ return state.tutors.find(x=>x.id===id); }
-  function course(id){ return state.courses.find(x=>x.id===id); }
-  function student(id){ return state.students.find(x=>x.id===id); }
-  function studentCourseRows(id){ return state.studentCourses.filter(x=>x.student_id===id); }
-  function offering(courseId){ return state.offerings.find(x=>x.course_id===courseId); }
-  function pool(id){ return state.hourPools.find(x=>x.id===id); }
-  function group(id){ return state.studentGroups.find(x=>x.id===id); }
-  function groupMembers(id){ return state.groupMembers.filter(x=>x.group_id===id&&x.is_active); }
-  function studentGroupRows(studentId){ return state.groupMembers.filter(x=>x.student_id===studentId&&x.is_active).map(m=>group(m.group_id)).filter(Boolean); }
-  function remainingHours(row){ const p=pool(row?.hour_pool_id); if(p?.unlimited)return Infinity; return Math.max(0,num(p?.total_hours ?? row?.hours_total)-num(p?.used_hours ?? row?.hours_used)); }
-  function initials(name){ return String(name||'AW').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase() || 'AW'; }
-  function studentStatusClass(s){ return s==='active'?'green':s==='pending'?'amber':s==='archived'||s==='inactive'?'red':'blue'; }
-  function paymentStatusClass(s){ return s==='paid'?'green':s==='pending'?'amber':s==='rejected'?'red':'blue'; }
-
-  async function ensureStaff(session){
-    if(!session?.user) return null;
-    let {data,error} = await sb.from('os_staff_profiles').select('user_id,display_name,role,is_active,tutor_id').eq('user_id',session.user.id).maybeSingle();
-    if(!error && data?.is_active && ['teacher','admin'].includes(data.role)) return data;
-    // Fallback keeps the subweb reachable immediately for an existing Manager/Admin.
-    const fallback = await sb.from('profiles').select('display_name,role').eq('id',session.user.id).maybeSingle();
-    if(!fallback.error && fallback.data && ['manager','admin'].includes(fallback.data.role)) {
-      state.systemReady = false;
-      state.errors.push('ยังไม่ได้รัน V15_UNIFIED_SYSTEM_UPGRADE.sql — ใช้งานได้เฉพาะข้อมูลระบบหลักจนกว่าจะอัปเกรดฐานข้อมูล');
-      return {user_id:session.user.id,display_name:fallback.data.display_name||session.user.email,role:'admin',is_active:true,fallback:true};
+  function alertToast(icon, title, text = '') {
+    if (window.Swal) {
+      return Swal.fire({
+        toast: true, position: 'top-end', timer: 3300, showConfirmButton: false,
+        icon, title, text
+      });
     }
-    return null;
+    console.log(title, text);
   }
 
-  async function boot(){
-    const {data:{session}} = await sb.auth.getSession();
-    if(session){
-      const profile = await ensureStaff(session);
-      if(profile) return enterApp(session,profile);
-      await sb.auth.signOut();
+  function loading(title = 'กำลังดำเนินการ...') {
+    if (!window.Swal) return;
+    Swal.fire({ title, allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+  }
+
+  async function rpc(name, args = {}) {
+    const { data, error } = await state.sb.rpc(name, args);
+    if (error) throw error;
+    return data;
+  }
+
+  function setConnection(ok, text = ok ? 'Connected' : 'Disconnected') {
+    const dot = $('connectionDot');
+    const label = $('connectionText');
+    if (dot) dot.style.background = ok ? '#22c55e' : '#ef4444';
+    if (label) label.textContent = text;
+  }
+
+  function showLogin() {
+    loginView.classList.remove('hidden');
+    appView.classList.add('hidden');
+  }
+
+  function showApp() {
+    loginView.classList.add('hidden');
+    appView.classList.remove('hidden');
+  }
+
+  function currentRole() { return state.data?.role || 'tutor'; }
+  function isAdmin() { return !!state.data?.is_admin; }
+  function currentTutorId() { return state.data?.tutor?.id || state.data?.profile?.tutor_id || null; }
+
+  function courseById(id) {
+    return arr(state.data?.courses).find((x) => String(x.id) === String(id));
+  }
+  function studentById(id) {
+    return arr(state.data?.students).find((x) => String(x.id) === String(id));
+  }
+  function enrollmentById(id) {
+    return arr(state.data?.enrollments).find((x) => String(x.id) === String(id));
+  }
+  function tutorById(id) {
+    const self = state.data?.tutor;
+    if (self && String(self.id) === String(id)) return self;
+    return arr(state.data?.team).find((x) => String(x.id) === String(id));
+  }
+
+  function scopedEnrollmentLabel(e) {
+    const s = studentById(e.student_id);
+    const c = courseById(e.course_id);
+    return `${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}`;
+  }
+
+  function sectionHeader(kicker, title, subtitle, right = '') {
+    return `<div class="page-head"><div><div class="page-kicker">${esc(kicker)}</div><h1 class="page-title">${esc(title)}</h1><p class="page-subtitle">${esc(subtitle)}</p></div>${right}</div>`;
+  }
+
+  function metric(icon, label, value, note = '') {
+    return `<article class="aw-card metric-card"><div class="metric-icon"><i class="fa-solid ${icon}"></i></div><div class="metric-value">${esc(value)}</div><div class="metric-label">${esc(label)}</div><div class="metric-note">${esc(note)}</div></article>`;
+  }
+
+  function overviewHtml() {
+    const students = arr(state.data?.students);
+    const enrollments = arr(state.data?.enrollments).filter((e) => ['active', 'paused'].includes(e.status));
+    const sessions = arr(state.data?.sessions);
+    const running = sessions.filter((s) => s.status === 'open' && !s.actual_end_at);
+    const used = arr(state.data?.hour_ledger).reduce((sum, x) => sum + Math.max(0, num(x.hours_delta)), 0);
+    return `${sectionHeader('OVERVIEW', 'ภาพรวม Tutor OS', isAdmin() ? 'มุมมองผู้ดูแลระบบ · เห็นข้อมูลทุกติวเตอร์' : 'ข้อมูลถูกจำกัดเฉพาะนักเรียนและคอร์สที่คุณรับผิดชอบ')}
+      <div class="metric-grid">
+        ${metric('fa-user-graduate', 'นักเรียนในความดูแล', students.length, isAdmin() ? 'ทุกคนในระบบ' : 'เฉพาะที่ได้รับมอบหมาย')}
+        ${metric('fa-book-open', 'Enrollment ที่ใช้งาน', enrollments.length, 'Active / Paused')}
+        ${metric('fa-stopwatch', 'คาบที่กำลังสอน', running.length, 'กำลังจับเวลา')}
+        ${metric('fa-clock-rotate-left', 'ชั่วโมงที่บันทึก', used.toFixed(1), 'รวมจาก Hour Ledger')}
+      </div>
+      <div class="grid-2" style="margin-top:14px">
+        <section class="aw-card content-card"><div class="card-head"><div><h2>สิทธิ์ข้อมูล</h2><p>ระบบตรวจสิทธิ์จากบัญชีที่ล็อกอินและ Tutor ID ฝั่งฐานข้อมูล</p></div><span class="aw-tag">${esc(statusLabel(currentRole()))}</span></div>
+          <div class="section-note"><b>${isAdmin() ? 'Admin access' : 'Tutor scoped access'}</b><br>${isAdmin() ? 'สามารถดูและจัดการข้อมูลทุกติวเตอร์ได้' : 'ไม่สามารถอ่านนักเรียนหรือคาบของติวเตอร์อื่นผ่าน RPC ของ Tutor OS ได้'}</div></section>
+        <section class="aw-card content-card"><div class="card-head"><div><h2>บัญชีผู้สอน</h2><p>เชื่อมจากใบสมัคร tutor-apply ที่ผ่านการพิจารณา</p></div></div>
+          <div class="detail-list"><div><span>ชื่อ</span><b>${esc(state.data?.profile?.display_name || state.data?.tutor?.display_name || '—')}</b></div><div><span>อีเมล</span><b>${esc(state.data?.identity?.email || '—')}</b></div><div><span>ติวเตอร์</span><b>${esc(state.data?.tutor?.display_name || (isAdmin() ? 'Admin' : '—'))}</b></div></div></section>
+      </div>`;
+  }
+
+  function todayHtml() {
+    const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Bangkok' });
+    const sessions = arr(state.data?.sessions).filter((s) => String(s.session_date || '').slice(0, 10) === today);
+    const enrollments = arr(state.data?.enrollments).filter((e) => ['active', 'paused'].includes(e.status));
+    const running = sessions.filter((s) => s.status === 'open' && !s.actual_end_at);
+    const startOptions = enrollments.map((e) => `<option value="${esc(e.id)}">${esc(scopedEnrollmentLabel(e))}</option>`).join('');
+    return `${sectionHeader('TODAY TEACHING', 'การสอนวันนี้', 'เริ่มจับเวลา จบคาบ ตัดชั่วโมง และแก้ไขบันทึกจากหน้าเดียว', `<button class="aw-btn primary" id="newPrivateLessonBtn"><i class="fa-solid fa-play"></i> เริ่มสอนรายบุคคล</button>`)}
+      ${running.length ? `<div class="grid-2">${running.map(sessionCard).join('')}</div>` : '<div class="aw-card empty-state"><i class="fa-regular fa-clock"></i><b>ยังไม่มีคาบที่กำลังจับเวลา</b><span>กด “เริ่มสอนรายบุคคล” เพื่อเริ่มบันทึกเวลา</span></div>'}
+      <section class="aw-card content-card" style="margin-top:14px"><div class="card-head"><div><h2>คาบวันนี้</h2><p>${sessions.length} รายการ</p></div></div>${sessionTable(sessions)}</section>
+      <template id="todayEnrollmentOptions">${startOptions}</template>`;
+  }
+
+  function sessionCard(s) {
+    const st = studentById(s.student_id);
+    const course = courseById(s.course_id);
+    const tutor = tutorById(s.tutor_id);
+    return `<article class="aw-card session-live"><div class="card-head"><div><span class="live-pill"><i></i> LIVE</span><h2>${esc(s.title || course?.title || course?.name || 'คาบเรียน')}</h2><p>${esc(fullName(st))} · ${esc(tutor?.display_name || state.data?.tutor?.display_name || 'Tutor')}</p></div><div class="timer-big">${esc(s.actual_start_at ? new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' }).format(new Date(s.actual_start_at)) : String(s.start_time || '').slice(0, 5))}</div></div><div class="toolbar"><button class="aw-btn primary" data-finish-session="${esc(s.id)}"><i class="fa-solid fa-stop"></i> จบคาบ</button><button class="aw-btn" data-edit-session="${esc(s.id)}"><i class="fa-solid fa-pen"></i> แก้ไขบันทึก</button></div></article>`;
+  }
+
+  function sessionTable(rows) {
+    if (!rows.length) return '<div class="empty-state compact">ยังไม่มีประวัติการสอน</div>';
+    return `<div class="table-wrap"><table class="aw-table"><thead><tr><th>วันที่</th><th>นักเรียน / คอร์ส</th><th>เวลา</th><th>ผู้สอน</th><th>สถานะ</th><th>ตัดชม.</th><th></th></tr></thead><tbody>${rows.map((s) => {
+      const st = studentById(s.student_id);
+      const c = courseById(s.course_id);
+      const t = tutorById(s.tutor_id);
+      const start = s.actual_start_at ? new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' }).format(new Date(s.actual_start_at)) : String(s.start_time || '').slice(0, 5);
+      const end = s.actual_end_at ? new Intl.DateTimeFormat('th-TH', { timeStyle: 'short' }).format(new Date(s.actual_end_at)) : String(s.end_time || '').slice(0, 5);
+      return `<tr><td>${esc(fmtDate(s.session_date))}</td><td><b>${esc(fullName(st))}</b><small>${esc(c?.title || c?.name || s.course_name || 'คอร์ส')} · ${esc(s.title || 'คาบเรียน')}</small></td><td>${esc(start || '—')}${end ? ` – ${esc(end)}` : ''}</td><td>${esc(t?.display_name || s.tutor_name || 'Tutor')}</td><td><span class="aw-tag">${esc(statusLabel(s.attendance_status || s.status))}</span></td><td><b>${num(s.deducted_hours).toFixed(2)}</b> ชม.</td><td><div class="table-actions">${s.status === 'open' && !s.actual_end_at ? `<button class="icon-btn success" data-finish-session="${esc(s.id)}" title="จบคาบ"><i class="fa-solid fa-stop"></i></button>` : ''}<button class="icon-btn" data-edit-session="${esc(s.id)}" title="แก้ไข"><i class="fa-solid fa-pen"></i></button></div></td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  }
+
+  function studentsHtml() {
+    const rows = arr(state.data?.students);
+    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course')}
+      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th></tr></thead><tbody>${rows.map((s) => {
+        const ens = arr(state.data?.enrollments).filter((e) => String(e.student_id) === String(s.id) && ['active', 'paused'].includes(e.status));
+        const remain = ens.reduce((sum, e) => sum + (e.hours_unlimited ? 0 : Math.max(0, num(e.hours_total) - num(e.hours_used))), 0);
+        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}</td><td>${ens.some((e) => e.hours_unlimited) ? '∞' : `${remain.toFixed(1)} ชม.`}</td></tr>`;
+      }).join('')}</tbody></table></div>` : '<div class="empty-state">ยังไม่มีนักเรียนในสิทธิ์ของบัญชีนี้</div>'}</section>`;
+  }
+
+  function coursesHtml() {
+    const courses = arr(state.data?.courses);
+    return `${sectionHeader('COURSES', 'คอร์ส & สมัคร', isAdmin() ? 'คอร์สทั้งหมดในระบบ' : 'เฉพาะคอร์สที่คุณเป็นผู้สอนหรือมี Enrollment ที่ได้รับมอบหมาย')}
+      <div class="grid-3">${courses.map((c) => {
+        const es = arr(state.data?.enrollments).filter((e) => String(e.course_id) === String(c.id) && ['active', 'paused'].includes(e.status));
+        return `<article class="aw-card course-card"><div class="course-card-icon"><i class="fa-solid fa-book-open"></i></div><h3>${esc(c.title || c.name || 'คอร์ส')}</h3><p>${esc(c.short_detail || c.description || '')}</p><div class="detail-list"><div><span>นักเรียน</span><b>${new Set(es.map((x) => String(x.student_id))).size} คน</b></div><div><span>สถานะ</span><b>${c.active === false || c.is_active === false ? 'ปิด' : 'เปิด'}</b></div></div></article>`;
+      }).join('') || '<div class="aw-card empty-state">ยังไม่มีคอร์สในสิทธิ์ของบัญชีนี้</div>'}</div>`;
+  }
+
+  function groupsHtml() {
+    const groups = arr(state.data?.groups);
+    return `${sectionHeader('GROUP LOCKER', 'กลุ่มเรียน · Locker', 'กลุ่มที่เกี่ยวข้องกับติวเตอร์และนักเรียนในสิทธิ์ของคุณ')}
+      <div class="locker-grid">${groups.map((g) => `<article class="aw-card locker-card"><div class="locker-icon"><i class="fa-solid fa-people-group"></i></div><h3>${esc(g.name || g.group_code || 'กลุ่มเรียน')}</h3><p>${esc(g.group_code || '')}</p><span class="aw-tag">${esc(courseById(g.course_id)?.title || courseById(g.course_id)?.name || 'คอร์ส')}</span></article>`).join('') || '<div class="aw-card empty-state">ยังไม่มีกลุ่มเรียนในสิทธิ์ของคุณ</div>'}</div>`;
+  }
+
+  function teachingHtml() {
+    const sessions = arr(state.data?.sessions);
+    return `${sectionHeader('TEACHING LOG', 'ประวัติการสอน', 'แก้ชื่อหัวข้อ หมายเหตุ เวลา สถานะเข้าเรียน และจำนวนชั่วโมงย้อนหลังได้')}
+      <section class="aw-card content-card">${sessionTable(sessions)}</section>`;
+  }
+
+  function servicesHtml() {
+    return `${sectionHeader('STUDENT SERVICES', 'Student Services', 'ข้อมูลบริการที่เกี่ยวข้องกับนักเรียนในสิทธิ์ของคุณ')}
+      <div class="grid-3">${metric('fa-id-card', 'นักเรียนที่เชื่อม Portal', arr(state.data?.students).filter((s) => s.auth_user_id).length, 'เชื่อมบัญชีแล้ว')}${metric('fa-wallet', 'Course Wallet', arr(state.data?.enrollments).length, 'Enrollment ที่มองเห็นได้')}${metric('fa-people-group', 'กลุ่มเรียน', arr(state.data?.groups).length, 'เฉพาะกลุ่มที่เกี่ยวข้อง')}</div>`;
+  }
+
+  function financeHtml() {
+    if (!isAdmin()) return '<div class="aw-card empty-state">เมนูนี้สำหรับ Admin เท่านั้น</div>';
+    return `${sectionHeader('FINANCE', 'การเงิน', 'ข้อมูลการเงินยังจัดการจาก Manager หลักเพื่อรักษา source of truth เดียวกัน')}
+      <div class="aw-card content-card"><div class="section-note">เปิด <b>AreWarin Manager → การชำระเงิน</b> เพื่อจัดการยอดและสลิป โดย Tutor OS V18 ไม่เปิดข้อมูลการเงินของนักเรียนให้ Tutor</div></div>`;
+  }
+
+  function teamHtml() {
+    if (!isAdmin()) return '<div class="aw-card empty-state">เมนูนี้สำหรับ Admin เท่านั้น</div>';
+    const team = arr(state.data?.team);
+    return `${sectionHeader('TEAM', 'ทีมติวเตอร์', 'Admin เห็นบัญชีติวเตอร์ทั้งหมด')}
+      <div class="grid-3">${team.map((t) => `<article class="aw-card course-card"><div class="course-card-icon"><i class="fa-solid fa-chalkboard-user"></i></div><h3>${esc(t.display_name || 'Tutor')}</h3><p>${esc(t.role_text || t.primary_subject || '')}</p><span class="aw-tag">${t.identity_status === 'active' ? 'เปิดบัญชีแล้ว' : 'ยังไม่เชื่อมบัญชี'}</span></article>`).join('') || '<div class="aw-card empty-state">ยังไม่มีติวเตอร์</div>'}</div>`;
+  }
+
+  function reportsHtml() {
+    const sessions = arr(state.data?.sessions);
+    const completed = sessions.filter((s) => s.actual_end_at || s.status === 'closed');
+    const hours = completed.reduce((sum, s) => sum + num(s.deducted_hours), 0);
+    return `${sectionHeader('REPORTS', 'รายงาน', isAdmin() ? 'รายงานรวมทุกติวเตอร์' : 'รายงานเฉพาะงานสอนของคุณ')}
+      <div class="metric-grid">${metric('fa-chalkboard-user', 'คาบทั้งหมด', sessions.length, 'ในขอบเขตสิทธิ์')}${metric('fa-circle-check', 'คาบที่จบแล้ว', completed.length, 'บันทึกเรียบร้อย')}${metric('fa-hourglass-half', 'ชั่วโมงสอน', hours.toFixed(2), 'จากจำนวนชั่วโมงที่ตัด')}</div>`;
+  }
+
+  function settingsHtml() {
+    return `${sectionHeader('SETTINGS', 'ตั้งค่า & เครื่องมือ', 'ข้อมูลบัญชีและสถานะการเชื่อมต่อ')}
+      <div class="grid-2"><section class="aw-card content-card"><div class="card-head"><div><h2>Account</h2><p>Supabase Auth + Tutor identity</p></div></div><div class="detail-list"><div><span>Role</span><b>${esc(statusLabel(currentRole()))}</b></div><div><span>Tutor ID</span><b class="mono-small">${esc(currentTutorId() || 'Admin')}</b></div><div><span>Application</span><b>${esc(state.data?.identity?.application_ref || '—')}</b></div></div></section><section class="aw-card content-card"><div class="card-head"><div><h2>Security</h2><p>Data isolation enforced server-side</p></div></div><div class="section-note"><b>RLS + Security Definer RPC</b><br>Frontend ไม่ส่ง Tutor ID เพื่อกำหนดสิทธิ์เอง ฟังก์ชันฝั่งฐานข้อมูลอ่านผู้ใช้จาก <span class="mono-small">auth.uid()</span> ทุกครั้ง</div></section></div>`;
+  }
+
+  function render() {
+    if (!state.data) return;
+    const map = {
+      overview: overviewHtml, today: todayHtml, students: studentsHtml, courses: coursesHtml,
+      groups: groupsHtml, teaching: teachingHtml, services: servicesHtml, finance: financeHtml,
+      team: teamHtml, reports: reportsHtml, settings: settingsHtml
+    };
+    if (!map[state.section]) state.section = 'today';
+
+    $$('.section').forEach((s) => { s.classList.remove('active'); s.innerHTML = ''; });
+    const target = $(`section-${state.section}`);
+    if (target) {
+      target.classList.add('active');
+      target.innerHTML = map[state.section]();
     }
+
+    $$('.nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.section === state.section));
+    $$('.admin-only').forEach((el) => el.classList.toggle('hidden', !isAdmin()));
+    const mgr = $('managerTopLink');
+    if (mgr) mgr.classList.toggle('hidden', !isAdmin());
+
+    $('userLabel').textContent = `${state.data?.profile?.display_name || state.data?.tutor?.display_name || 'Tutor'} · ${statusLabel(currentRole())}`;
+    bindRendered();
+  }
+
+  function bindRendered() {
+    $('newPrivateLessonBtn')?.addEventListener('click', openStartLesson);
+    $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
+    $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
+  }
+
+  function openStartLesson() {
+    const rows = arr(state.data?.enrollments).filter((e) => ['active', 'paused'].includes(e.status));
+    if (!rows.length) return alertToast('warning', 'ยังไม่มี Enrollment ที่พร้อมสอน');
+    showModal('เริ่มสอนรายบุคคล', `<form id="startLessonForm"><div class="form-grid"><label class="aw-label wide">นักเรียน / คอร์ส<select class="aw-input" name="enrollment_id" required>${rows.map((e) => `<option value="${esc(e.id)}">${esc(scopedEnrollmentLabel(e))}</option>`).join('')}</select></label><label class="aw-label wide">หัวข้อ<input class="aw-input" name="title" placeholder="เช่น Cell biology · ครั้งที่ 1"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="3" placeholder="เป้าหมายหรือเนื้อหาที่จะสอน"></textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="confirmStartLesson"><i class="fa-solid fa-play"></i> เริ่มจับเวลา</button>`);
+    $('confirmStartLesson').onclick = async () => {
+      const fd = new FormData($('startLessonForm'));
+      try {
+        loading('กำลังเริ่มจับเวลา...');
+        await rpc('os_v18_start_private_lesson', {
+          p_student_course_enrollment_id: fd.get('enrollment_id'),
+          p_title: String(fd.get('title') || '').trim() || null,
+          p_note: String(fd.get('note') || '').trim() || null
+        });
+        Swal.close(); closeModal();
+        alertToast('success', 'เริ่มจับเวลาแล้ว');
+        await loadData(false);
+      } catch (e) { Swal.close(); alertToast('error', 'เริ่มจับเวลาไม่สำเร็จ', friendlyError(e)); }
+    };
+  }
+
+  async function finishLesson(sessionId) {
+    const result = await Swal.fire({
+      title: 'จบคาบและตัดชั่วโมง?',
+      text: 'ระบบจะคำนวณเวลาจริง ปัดเป็นช่วงละ 15 นาที และอัปเดต Course Wallet',
+      icon: 'question', showCancelButton: true, confirmButtonText: 'จบคาบ', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#0f766e'
+    });
+    if (!result.isConfirmed) return;
+    try {
+      loading('กำลังบันทึกคาบ...');
+      const r = await rpc('os_v18_finish_private_lesson', { p_session_id: sessionId, p_attendance_status: 'present', p_note: null });
+      Swal.close();
+      alertToast('success', 'บันทึกการสอนแล้ว', r?.deducted_hours != null ? `ตัด ${num(r.deducted_hours).toFixed(2)} ชั่วโมง` : '');
+      await loadData(false);
+    } catch (e) { Swal.close(); alertToast('error', 'จบคาบไม่สำเร็จ', friendlyError(e)); }
+  }
+
+  function openEditLesson(sessionId) {
+    const s = arr(state.data?.sessions).find((x) => String(x.id) === String(sessionId));
+    if (!s) return;
+    showModal('แก้ไขบันทึกการสอน', `<form id="editLessonForm"><div class="form-grid"><label class="aw-label wide">หัวข้อ<input class="aw-input" name="title" value="${esc(s.title || '')}"></label><label class="aw-label">เวลาเริ่ม<input class="aw-input" type="datetime-local" name="start" value="${esc(toLocalInput(s.actual_start_at))}"></label><label class="aw-label">เวลาสิ้นสุด<input class="aw-input" type="datetime-local" name="end" value="${esc(toLocalInput(s.actual_end_at))}"></label><label class="aw-label">สถานะเข้าเรียน<select class="aw-input" name="attendance_status">${[['present','เข้าเรียน'],['late','สาย'],['leave','ลา'],['absent','ขาด'],['makeup','ชดเชย']].map(([v,l]) => `<option value="${v}" ${String(s.attendance_status || 'present') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label><label class="aw-label">ชั่วโมงที่ตัด<input class="aw-input" type="number" min="0" step="0.25" name="deducted_hours" value="${num(s.deducted_hours).toFixed(2)}"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="4">${esc(s.attendance_note || s.note || '')}</textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveLessonEdit"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button>`);
+    $('saveLessonEdit').onclick = async () => {
+      const fd = new FormData($('editLessonForm'));
+      const start = fd.get('start') ? new Date(fd.get('start')).toISOString() : null;
+      const end = fd.get('end') ? new Date(fd.get('end')).toISOString() : null;
+      try {
+        loading('กำลังปรับบันทึกและชั่วโมง...');
+        await rpc('os_v18_update_lesson_record', {
+          p_session_id: sessionId,
+          p_title: String(fd.get('title') || '').trim() || null,
+          p_note: String(fd.get('note') || '').trim() || null,
+          p_actual_start_at: start,
+          p_actual_end_at: end,
+          p_attendance_status: fd.get('attendance_status'),
+          p_deducted_hours: num(fd.get('deducted_hours'))
+        });
+        Swal.close(); closeModal();
+        alertToast('success', 'แก้ไขบันทึกการสอนแล้ว');
+        await loadData(false);
+      } catch (e) { Swal.close(); alertToast('error', 'แก้ไขไม่สำเร็จ', friendlyError(e)); }
+    };
+  }
+
+  function showModal(title, body, actions = '') {
+    modalRoot.innerHTML = `<div class="modal-backdrop"><section class="modal-card"><header class="modal-head"><div><span class="page-kicker">TUTOR OS</span><h3>${esc(title)}</h3></div><button class="icon-btn" data-modal-close><i class="fa-solid fa-xmark"></i></button></header><div class="modal-body">${body}</div><footer class="modal-actions">${actions}</footer></section></div>`;
+    $$('[data-modal-close]', modalRoot).forEach((b) => b.onclick = closeModal);
+    modalRoot.querySelector('.modal-backdrop')?.addEventListener('click', (e) => { if (e.target.classList.contains('modal-backdrop')) closeModal(); });
+  }
+  function closeModal() { modalRoot.innerHTML = ''; }
+
+  async function loadData(showLoader = true) {
+    if (showLoader) {
+      showApp();
+      $('section-today').classList.add('active');
+      $('section-today').innerHTML = '<div class="aw-card empty-state"><div class="spinner"></div><b>กำลังโหลดข้อมูลตามสิทธิ์...</b></div>';
+    }
+    try {
+      state.data = await rpc('tutor_os_bootstrap_v18');
+      showApp();
+      setConnection(true);
+      render();
+      setupRealtime();
+    } catch (e) {
+      setConnection(false, 'Access denied');
+      const pendingPhone = localStorage.getItem('arewarin_tutor_pending_phone');
+      if (pendingPhone && /not linked|Tutor account/i.test(String(e.message || e))) {
+        try {
+          await rpc('tutor_os_claim_accepted_application', { p_phone: pendingPhone });
+          localStorage.removeItem('arewarin_tutor_pending_phone');
+          state.data = await rpc('tutor_os_bootstrap_v18');
+          showApp(); render(); setupRealtime(); return;
+        } catch (_) {}
+      }
+      await state.sb.auth.signOut({ scope: 'local' }).catch(() => {});
+      showLogin();
+      $('loginHint').innerHTML = `<b>เปิด Tutor OS ไม่สำเร็จ</b><br>${esc(friendlyError(e))}`;
+    }
+  }
+
+  function setupRealtime() {
+    if (state.realtime) return;
+    let ch = state.sb.channel('tutor-os-v18');
+    ['os_student_course_enrollments', 'os_attendance_sessions', 'os_student_attendance', 'os_hour_ledger', 'os_hour_pools', 'os_student_groups'].forEach((table) => {
+      ch = ch.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+        clearTimeout(state.reloadTimer);
+        state.reloadTimer = setTimeout(() => loadData(false), 500);
+      });
+    });
+    state.realtime = ch.subscribe();
+  }
+
+  async function login(e) {
+    e.preventDefault();
+    const email = $('loginEmail').value.trim().toLowerCase();
+    const password = $('loginPassword').value;
+    try {
+      loading('กำลังเข้าสู่ระบบ...');
+      const { data, error } = await state.sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      if (!data.session) throw new Error('ไม่พบ session');
+      const pending = localStorage.getItem('arewarin_tutor_pending_phone');
+      if (pending) {
+        try {
+          await rpc('tutor_os_claim_accepted_application', { p_phone: pending });
+          localStorage.removeItem('arewarin_tutor_pending_phone');
+        } catch (claimError) {
+          console.warn('Tutor claim pending:', claimError);
+        }
+      }
+      Swal.close();
+      await loadData();
+    } catch (e2) {
+      Swal.close();
+      alertToast('error', 'เข้าสู่ระบบไม่สำเร็จ', friendlyError(e2));
+    }
+  }
+
+  async function lookupTutorPhone(e) {
+    e.preventDefault();
+    const phone = $('tutorSignupPhone').value.trim();
+    if (!phone) return;
+    try {
+      loading('กำลังตรวจสอบใบสมัครติวเตอร์...');
+      const result = await rpc('tutor_os_lookup_accepted_application', { p_phone: phone });
+      Swal.close();
+      state.signupPhone = phone;
+      state.signupLookup = result;
+      const box = $('tutorLookupResult');
+      if (!result?.found) {
+        box.innerHTML = '<div class="section-note danger-note"><b>ไม่พบใบสมัคร</b><br>กรุณาใช้เบอร์เดียวกับที่ส่งผ่าน tutor-apply</div>';
+        $('tutorCreateAccountForm').classList.add('hidden');
+        return;
+      }
+      if (!result?.eligible) {
+        box.innerHTML = `<div class="section-note danger-note"><b>ยังเปิดบัญชีไม่ได้</b><br>สถานะใบสมัคร: ${esc(result.status || 'ยังไม่ผ่านการพิจารณา')}</div>`;
+        $('tutorCreateAccountForm').classList.add('hidden');
+        return;
+      }
+      box.innerHTML = `<div class="section-note"><b>${esc(result.display_name || 'Tutor')}</b><br>ใบสมัครผ่านการพิจารณาแล้ว · อีเมล ${esc(result.email_hint || 'ที่ใช้สมัคร')}</div>`;
+      $('tutorSignupEmail').value = '';
+      $('tutorCreateAccountForm').classList.remove('hidden');
+    } catch (err) {
+      Swal.close();
+      alertToast('error', 'ตรวจสอบเบอร์ไม่สำเร็จ', friendlyError(err));
+    }
+  }
+
+  async function createTutorAccount(e) {
+    e.preventDefault();
+    if (!state.signupLookup?.eligible || !state.signupPhone) return alertToast('warning', 'กรุณาตรวจสอบเบอร์ก่อน');
+    const email = $('tutorSignupEmail').value.trim().toLowerCase();
+    const password = $('tutorSignupPassword').value;
+    const confirm = $('tutorSignupPasswordConfirm').value;
+    if (password !== confirm) return alertToast('warning', 'รหัสผ่านไม่ตรงกัน');
+    if (password.length < 8) return alertToast('warning', 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร');
+    try {
+      loading('กำลังสร้างบัญชีติวเตอร์...');
+      localStorage.setItem('arewarin_tutor_pending_phone', state.signupPhone);
+      const { data, error } = await state.sb.auth.signUp({
+        email, password,
+        options: { data: { role: 'tutor', signup_source: 'tutor-apply' } }
+      });
+      if (error) throw error;
+      if (data.session) {
+        await rpc('tutor_os_claim_accepted_application', { p_phone: state.signupPhone });
+        localStorage.removeItem('arewarin_tutor_pending_phone');
+        Swal.close();
+        await Swal.fire({ icon: 'success', title: 'เปิดบัญชีติวเตอร์แล้ว', text: 'ข้อมูลบัญชีเชื่อมกับใบสมัคร tutor-apply เรียบร้อย' });
+        await loadData();
+      } else {
+        Swal.close();
+        await Swal.fire({ icon: 'success', title: 'สร้างบัญชีแล้ว', text: 'กรุณายืนยันอีเมล จากนั้นกลับมาเข้าสู่ระบบ ระบบจะเชื่อม Tutor ID ให้อัตโนมัติ' });
+        showSignup(false);
+        $('loginEmail').value = email;
+      }
+    } catch (err) {
+      Swal.close();
+      alertToast('error', 'สร้างบัญชีไม่สำเร็จ', friendlyError(err));
+    }
+  }
+
+  function showSignup(show) {
+    $('loginForm').classList.toggle('hidden', show);
+    $('openTutorSignup').classList.toggle('hidden', show);
+    $('tutorSignupPanel').classList.toggle('hidden', !show);
+    $('loginHint').classList.toggle('hidden', show);
+    if (!show) {
+      state.signupLookup = null;
+      state.signupPhone = '';
+      $('tutorCreateAccountForm').classList.add('hidden');
+      $('tutorLookupResult').innerHTML = '';
+    }
+  }
+
+  async function logout() {
+    if (state.realtime) { try { await state.sb.removeChannel(state.realtime); } catch (_) {} state.realtime = null; }
+    await state.sb.auth.signOut({ scope: 'local' });
+    state.data = null;
     showLogin();
   }
 
-  function showLogin(){ $('loginView').classList.remove('hidden'); $('appView').classList.add('hidden'); }
-  async function enterApp(session,staff){
-    state.session=session; state.staff=staff; state.role=staff.role;
-    $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden');
-    $('userLabel').textContent = `${staff.display_name || session.user.email} • ${staff.role}`;
-    $$('.admin-only').forEach(x=>x.classList.toggle('hidden',!isAdmin()));
-    if(!isAdmin() && state.section==='finance') state.section='overview';
-    await loadAll();
-    startRealtime();
-    routeFromUrl();
+  function bindStatic() {
+    $('loginForm').addEventListener('submit', login);
+    $('openTutorSignup').addEventListener('click', () => showSignup(true));
+    $('backTutorLogin').addEventListener('click', () => showSignup(false));
+    $('tutorPhoneForm').addEventListener('submit', lookupTutorPhone);
+    $('tutorCreateAccountForm').addEventListener('submit', createTutorAccount);
+    $('logoutBtn').addEventListener('click', logout);
+    $$('.nav-btn').forEach((b) => b.addEventListener('click', () => {
+      if ((b.dataset.section === 'finance' || b.dataset.section === 'team') && !isAdmin()) return;
+      state.section = b.dataset.section;
+      history.replaceState({}, '', `${location.pathname}?section=${encodeURIComponent(state.section)}`);
+      render();
+    }));
   }
 
-  $('loginForm').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const btn=e.currentTarget.querySelector('button'); btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...';
-    const {data,error}=await sb.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
-    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-arrow-right-to-bracket"></i> เข้าสู่ระบบ';
-    if(error) return swalError('เข้าสู่ระบบไม่สำเร็จ',error);
-    const profile=await ensureStaff(data.session);
-    if(!profile){ await sb.auth.signOut(); return Swal.fire({icon:'error',title:'ไม่มีสิทธิ์ Tutor OS',text:'บัญชีนี้ยังไม่ได้รับสิทธิ์ Staff / Manager / Admin',confirmButtonColor:'#0ea5e9'}); }
-    await enterApp(data.session,profile);
-  });
-  $('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};
-
-  async function safe(name,promise,def=[]){
-    try{
-      const {data,error}=await promise;
-      if(error) throw error;
-      return data ?? def;
-    }catch(e){
-      const msg=`${name}: ${errorText(e)}`;
-      state.errors.push(msg);
-      if(/^os_/.test(name) || /Tutor OS/i.test(msg)) state.systemReady=false;
-      console.warn('[Tutor OS]',msg);
-      return def;
-    }
-  }
-
-  async function loadAll(show=true){
-    if(state.loading) return;
-    state.loading=true; state.errors=[];
-    if(show) setConnection('syncing');
-    const queries = [
-      ['tutors',sb.from('tutors').select('*').order('sort_order')],
-      ['courses',sb.from('courses').select('*').order('sort_order')],
-      ['enrollments',isAdmin()?sb.from('enrollments').select('*').order('created_at',{ascending:false}).limit(1000):Promise.resolve({data:[],error:null})],
-      ['payments',isAdmin()?sb.from('payments').select('*').order('created_at',{ascending:false}).limit(1000):Promise.resolve({data:[],error:null})],
-      ['tutorApplications',isAdmin()?sb.from('tutor_applications').select('*').order('created_at',{ascending:false}).limit(300):Promise.resolve({data:[],error:null})],
-      ['speakers',isAdmin()?sb.from('speaker_requests').select('*').order('created_at',{ascending:false}).limit(300):Promise.resolve({data:[],error:null})],
-      ['schedules',sb.from('tutor_schedules').select('*')],
-      ['scheduleTemplates',sb.from('schedule_templates').select('*').order('sort_order')],
-      ['promotions',isAdmin()?sb.from('promotions').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null})],
-      ['prices',isAdmin()?sb.from('course_prices').select('*'):Promise.resolve({data:[],error:null})],
-      ['students',sb.from('os_students').select('*').order('updated_at',{ascending:false})],
-      ['studentCourses',sb.from('os_student_course_enrollments').select('*').order('created_at',{ascending:false})],
-      ['crm',sb.from('os_crm_contacts').select('*').order('updated_at',{ascending:false})],
-      ['attendanceSessions',sb.from('os_attendance_sessions').select('*').order('session_date',{ascending:false}).limit(500)],
-      ['attendance',sb.from('os_student_attendance').select('*').order('created_at',{ascending:false}).limit(3000)],
-      ['teachingLogs',sb.from('os_teaching_logs').select('*').order('lesson_date',{ascending:false}).limit(1000)],
-      ['learningTopics',sb.from('os_learning_topics').select('*').order('sort_order')],
-      ['learningAssets',sb.from('os_learning_assets').select('*').order('sort_order')],
-      ['learningAssignments',sb.from('os_learning_assignments').select('*')],
-      ['tasks',sb.from('os_tasks').select('*').order('created_at',{ascending:false})],
-      ['announcements',sb.from('os_announcements').select('*').order('publish_at',{ascending:false})],
-      ['financeEntries',isAdmin()?sb.from('os_finance_entries').select('*').order('transaction_date',{ascending:false}):Promise.resolve({data:[],error:null})],
-      ['paymentSlips',isAdmin()?sb.from('os_payment_slips').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null})],
-      ['library',sb.from('os_library_items').select('*').order('sort_order')],
-      ['hr',isAdmin()?sb.from('os_hr_entries').select('*').order('entry_date',{ascending:false}):Promise.resolve({data:[],error:null})],
-      ['courseRequests',sb.from('os_course_requests').select('*').order('created_at',{ascending:false})],
-      ['quickReplies',sb.from('os_quick_replies').select('*').order('sort_order')],
-      ['osSettings',sb.from('os_settings').select('*')],
-      ['staffProfiles',sb.from('os_staff_profiles').select('*').order('display_name')],
-      ['offerings',sb.from('course_offerings').select('*').order('updated_at',{ascending:false})],
-      ['enrollmentItems',isAdmin()?sb.from('enrollment_items').select('*').order('created_at',{ascending:false}).limit(3000):Promise.resolve({data:[],error:null})],
-      ['hourPools',sb.from('os_hour_pools').select('*').order('updated_at',{ascending:false})],
-      ['hourLedger',sb.from('os_hour_ledger').select('*').order('created_at',{ascending:false}).limit(3000)],
-      ['studentGroups',sb.from('os_student_groups').select('*').order('updated_at',{ascending:false})],
-      ['groupMembers',sb.from('os_student_group_members').select('*').order('joined_at',{ascending:true})],
-      ['portalNotifications',sb.from('portal_notifications').select('*').order('created_at',{ascending:false}).limit(1000)],
-      ['portalPaymentRequests',isAdmin()?sb.from('portal_payment_requests').select('*').order('created_at',{ascending:false}).limit(1000):Promise.resolve({data:[],error:null})],
-      ['portalPaymentSubmissions',isAdmin()?sb.from('portal_payment_submissions').select('*').order('created_at',{ascending:false}).limit(1000):Promise.resolve({data:[],error:null})],
-      ['courseChangeRequests',sb.from('student_course_change_requests').select('*').order('created_at',{ascending:false}).limit(1000)],
-      ['moduleRegistry',sb.from('os_module_registry').select('*').eq('is_active',true).order('sort_order')],
-      ['systemEvents',sb.from('os_system_events').select('*').order('created_at',{ascending:false}).limit(120)],
-      ['unifiedHealth',sb.rpc('os_unified_health')]
-    ];
-    const results=await Promise.all(queries.map(async ([key,q])=>[key,await safe(key,q,[])]));
-    results.forEach(([key,val])=>state[key]=val);
-    state.systemReady = !state.errors.some(x=>x.includes('os_')&&/does not exist|schema cache|permission denied/i.test(x));
-    state.loading=false; setConnection(state.systemReady?'connected':'warning'); render();
-  }
-
-  function setConnection(mode){
-    const dot=$('connectionDot'),txt=$('connectionText');
-    const map={connected:['#10b981','Connected'],syncing:['#f59e0b','Syncing…'],warning:['#f59e0b','Core only'],error:['#f43f5e','Disconnected']};
-    const [c,t]=map[mode]||map.connected; dot.style.background=c; txt.textContent=t;
-  }
-
-  function routeFromUrl(){
-    const q=new URLSearchParams(location.search); const section=q.get('section');
-    if(section && $(`section-${section}`) && !(section==='finance'&&!isAdmin())) state.section=section;
-    activateSection(state.section,false);
-  }
-  function activateSection(section,push=true){
-    state.section=section;
-    $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.section===section));
-    $$('.section').forEach(s=>s.classList.toggle('active',s.id===`section-${section}`));
-    if(push){const u=new URL(location.href);u.searchParams.set('section',section);history.replaceState(null,'',u);}
-    renderSection(section);
-  }
-  $$('.nav-btn').forEach(b=>b.onclick=()=>activateSection(b.dataset.section));
-
-  function pageHead(kicker,title,sub,actions=''){
-    return `<div class="page-head"><div><div class="page-kicker">${esc(kicker)}</div><h1 class="page-title">${esc(title)}</h1><p class="page-sub">${esc(sub)}</p></div><div class="toolbar">${actions}</div></div>`;
-  }
-  function metric(icon,label,value,note,tone='#eff6ff'){
-    return `<article class="aw-card metric" style="--glow:${tone}"><div class="metric-icon"><i class="${icon}"></i></div><div><div class="metric-value">${esc(value)}</div><div class="metric-label">${esc(label)}</div><div class="metric-note">${esc(note)}</div></div></article>`;
-  }
-  function connectedCard(icon,title,desc,href,label='เปิดระบบ'){
-    return `<article class="aw-card module-card"><div class="module-icon"><i class="${icon}"></i></div><h3>${esc(title)}</h3><p>${esc(desc)}</p><div class="module-actions"><a class="aw-btn small" href="${href}">${esc(label)} <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></article>`;
-  }
-  function tabs(section,items){
-    const active=state.subtab[section];
-    return `<div class="tabs">${items.map(([id,label,icon])=>`<button class="tab-btn ${active===id?'active':''}" data-subtab-section="${section}" data-subtab="${id}">${icon?`<i class="${icon}" style="margin-right:5px"></i>`:''}${esc(label)}</button>`).join('')}</div>`;
-  }
-  function bindTabs(root){
-    $$('[data-subtab]',root).forEach(b=>b.onclick=()=>{state.subtab[b.dataset.subtabSection]=b.dataset.subtab;renderSection(b.dataset.subtabSection);});
-  }
-
-  function render(){ renderSection(state.section); }
-  function renderSection(section){
-    const el=$(`section-${section}`); if(!el)return;
-    ({overview:renderOverview,today:renderToday,services:renderServicesV17,students:renderStudents,courses:renderCourses,groups:renderGroups,teaching:renderTeaching,finance:renderFinance,team:renderTeam,reports:renderReports,settings:renderSettings}[section]||renderToday)(el);
-  }
-
-  function renderToday(el){const now=new Date(),todayStr=today(),sessions=state.studentSchedule.filter(x=>String(x.start_at||'').slice(0,10)===todayStr&&x.status!=='cancelled').sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),pending=state.reschedules.filter(x=>x.status==='pending'),grade=state.v16Submissions.filter(x=>x.status==='submitted'),tickets=state.supportTickets.filter(x=>!['resolved','closed'].includes(x.status));el.innerHTML=pageHead('Teaching Today','วันนี้ของผู้สอน','คาบเรียน เช็กชื่อ ตัดชั่วโมง บันทึกหลังสอน และงานที่ต้องตอบจาก Student OS',`<button class="aw-btn" id="refreshToday"><i class="fa-solid fa-rotate"></i> รีเฟรช</button>`)+`<div class="metric-grid">${metric('fa-solid fa-calendar-day','คาบวันนี้',sessions.length,'Schedule','#e0f2fe')}${metric('fa-solid fa-clock-rotate-left','ขอเลื่อน',pending.length,'รอดำเนินการ','#fef3c7')}${metric('fa-solid fa-file-pen','งานรอตรวจ',grade.length,'Homework','#ede9fe')}${metric('fa-solid fa-headset','Support',tickets.length,'เปิดอยู่','#ffe4e6')}</div><div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>ตารางวันนี้</h3><p>เข้า Flow การสอนเดิมได้ทันที</p></div></div><div class="list">${sessions.map(s=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(s.title||'คาบเรียน')}</h4><p>${dateTime(s.start_at)} · ${esc(s.mode||'')}</p></div><button class="aw-btn sky small" data-go-teaching>เปิดการสอน</button></div></div>`).join('')||'<div class="empty">วันนี้ไม่มีคาบใน Student Schedule</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>After-class checklist</h3><p>ลดงานตกหล่นหลังจบคาบ</p></div></div><div class="section-note"><b>Flow แนะนำ</b><br>1. เช็กชื่อ → 2. ลงเวลาเริ่ม/จบ → 3. ตัดชั่วโมง → 4. Teaching Note → 5. การบ้าน/Feedback</div><div class="module-actions" style="margin-top:12px"><button class="aw-btn" data-go-teaching>Attendance & Hours</button><button class="aw-btn" data-go-services>Homework & Support</button></div></div></div>`;$('refreshToday').onclick=()=>loadAll();$$('[data-go-teaching]',el).forEach(b=>b.onclick=()=>activateSection('teaching'));$$('[data-go-services]',el).forEach(b=>b.onclick=()=>activateSection('services'))}
-function renderServicesV17(el){const pending=state.reschedules.filter(x=>x.status==='pending'),grade=state.v16Submissions.filter(x=>x.status==='submitted'),tickets=state.supportTickets.filter(x=>!['resolved','closed'].includes(x.status));el.innerHTML=pageHead('Student Services','Student Services','รวม Schedule request, Homework และ Support ไว้ใน Tutor OS หลัก ไม่ต้องเปิด subweb แยก')+`<div class="grid-3">${metric('fa-solid fa-calendar','ขอเลื่อนเรียน',pending.length,'Pending','#fef3c7')}${metric('fa-solid fa-file-circle-check','งานรอตรวจ',grade.length,'Submissions','#ede9fe')}${metric('fa-solid fa-headset','Support Ticket',tickets.length,'Open','#ffe4e6')}</div><div class="grid-2" style="margin-top:12px"><div class="aw-card panel"><div class="panel-head"><div><h3>คำขอเลื่อนเรียน</h3><p>Manager หรือ Tutor ที่มีสิทธิ์จัดการได้</p></div></div><div class="list">${pending.slice(0,15).map(r=>`<div class="list-item"><h4>${dateTime(r.requested_start_at)}</h4><p>${esc(r.reason||'')}</p></div>`).join('')||'<div class="empty">ไม่มีคำขอ</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Homework / Support</h3><p>งานรอตรวจและปัญหาจากนักเรียน</p></div></div>${grade.slice(0,6).map(x=>`<div class="list-item"><h4>Submission</h4><p>${dateTime(x.submitted_at)} · ${esc(x.submission_text||'')}</p></div>`).join('')}${tickets.slice(0,6).map(x=>`<div class="list-item"><h4>${esc(x.ticket_no||'Ticket')} · ${esc(x.subject)}</h4><p>${esc(x.status)} · ${esc(x.category)}</p></div>`).join('')||'<div class="empty">ไม่มีงานค้าง</div>'}</div></div>`}
-
-  function renderOverview(el){
-    const pending=state.payments.filter(x=>x.status==='pending').length;
-    const activeStudents=state.students.filter(x=>!x.archived&&x.status==='active').length;
-    const openTasks=state.tasks.filter(x=>!x.completed).length;
-    const todaySessions=state.attendanceSessions.filter(x=>x.session_date===today()&&x.status!=='cancelled').length;
-    const pendingApps=state.tutorApplications.filter(x=>['new','reviewing'].includes(x.status)).length;
-    el.innerHTML = pageHead('Tutor Operations','Tutor OS','ศูนย์กลางการทำงานสำหรับนักเรียน คอร์ส การสอน การเงิน และทีมงาน',`<button class="aw-btn" id="refreshAll"><i class="fa-solid fa-rotate"></i> รีเฟรช</button>`) +
-    `<article class="aw-card hero"><div class="hero-inner"><div><span class="hero-chip"><i class="fa-solid fa-wand-magic-sparkles"></i> Unified AreWarin Workspace</span><h2>งานทุกส่วนเชื่อมกัน<br><span>โดยไม่สร้างข้อมูลซ้ำ</span></h2><p>ข้อมูลสมัครเรียนและชำระเงินมาจากระบบหลัก ส่วน Attendance, Learning, CRM, Tasks, Library และ HR ถูกต่อยอดใน Tutor OS โดยยังอ้างอิง Course / Tutor / Student เดิม</p></div><div class="hero-health"><div class="health-box"><small>Role</small><b>${esc(state.role)}</b><span>${isAdmin()?'Full operations':'Teaching workspace'}</span></div><div class="health-box"><small>Database</small><b>${state.systemReady?'Ready':'Upgrade'}</b><span>${state.systemReady?'Tutor OS schema':'Run V15 SQL'}</span></div><div class="health-box"><small>วันนี้</small><b>${todaySessions}</b><span>คาบเรียน</span></div><div class="health-box"><small>งานค้าง</small><b>${openTasks}</b><span>Tasks</span></div></div></div></article>
-    <div class="metric-grid">
-      ${metric('fa-solid fa-user-graduate','นักเรียน Active',activeStudents,'Operational records','#e0f2fe')}
-      ${metric('fa-solid fa-book-open','คอร์สเปิดสอน',state.courses.filter(x=>x.active).length,'จาก Manager','#ede9fe')}
-      ${metric('fa-solid fa-user-tie','ติวเตอร์',state.tutors.filter(x=>x.active).length,'ทีมผู้สอน','#dcfce7')}
-      ${metric('fa-solid fa-wallet','รอตรวจชำระ',isAdmin()?pending:'—','จากระบบสมัคร','#fef3c7')}
-      ${metric('fa-solid fa-user-plus','ใบสมัครติวเตอร์',isAdmin()?pendingApps:'—','รอตรวจ','#fae8ff')}
-      ${metric('fa-solid fa-people-group','Group Lockers',state.studentGroups.filter(x=>x.status==='active').length,'กลุ่มเรียน Active','#e0e7ff')}
-    </div>
-    <div class="grid-2" style="margin-top:12px">
-      <div class="aw-card panel"><div class="panel-head"><div><h3>Connected lifecycle</h3><p>ข้อมูลหนึ่งชุดเดินต่อกันตั้งแต่สมัครจนถึงการสอน</p></div><span class="aw-tag">Shared source</span></div><div class="workflow">
-        ${[['01','สมัคร','Enrollment'],['02','ชำระ','Payment'],['03','จัดคอร์ส','Course'],['04','เข้าเรียน','Attendance'],['05','ติดตาม','Learning / CRM']].map(x=>`<div class="workflow-step"><div class="no">${x[0]}</div><b>${x[1]}</b><small>${x[2]}</small></div>`).join('')}
-      </div></div>
-      <div class="aw-card panel"><div class="panel-head"><div><h3>งานล่าสุด</h3><p>คาบเรียน งาน และรายการที่ต้องติดตาม</p></div></div><div class="list">${recentActivity().slice(0,6).map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div><span class="aw-tag">${esc(x.when)}</span></div></div>`).join('')||'<div class="empty">ยังไม่มี activity</div>'}</div></div>
-    </div>
-    <div style="margin-top:12px" class="grid-4">
-      ${connectedCard('fa-solid fa-file-signature','Admissions','ตรวจใบสมัครและสถานะการลงทะเบียนจากระบบ Manager','../manager/?section=enrollments','เปิด Enrollment')}
-      ${connectedCard('fa-regular fa-calendar','Schedule & Capacity','จัดตารางรายติวเตอร์ ช่วงเวลา และ Capacity','../manager/?section=schedule','เปิดตาราง')}
-      ${connectedCard('fa-solid fa-tags','Pricing & Promotion','ราคาแพ็กเกจและโค้ดส่วนลด','../manager/?section=prices','จัดราคา')}
-      ${connectedCard('fa-solid fa-microphone','Speaker Requests','คำขอจ้างวิทยากรจากเว็บไซต์','../manager/?section=speakers','เปิดคำขอ')}
-    </div>`;
-    $('refreshAll').onclick=()=>loadAll();
-  }
-
-  function recentActivity(){
-    const a=[];
-    state.tasks.filter(x=>!x.completed).slice(0,4).forEach(x=>a.push({title:`Task: ${x.task_text}`,detail:x.note||'งานทีม',when:x.due_date?date(x.due_date):'Open'}));
-    state.attendanceSessions.slice(0,4).forEach(x=>a.push({title:`คาบเรียน: ${x.title||course(x.course_id)?.name||'Session'}`,detail:`${date(x.session_date)} ${x.start_time?String(x.start_time).slice(0,5):''}`,when:x.status}));
-    return a;
-  }
-
-  function renderStudents(el){
-    const tab=state.subtab.students;
-    el.innerHTML=pageHead('Students','นักเรียน & CRM','ดูข้อมูลที่เชื่อมจากการสมัคร พร้อมบันทึกงานติดตามและ Student Portal',`<button class="aw-btn sky" id="addStudent"><i class="fa-solid fa-plus"></i> เพิ่มนักเรียน</button><button class="aw-btn" id="refreshStudents"><i class="fa-solid fa-rotate"></i></button>`) + tabs('students',[
-      ['students','นักเรียน','fa-solid fa-user-graduate'],['crm','CRM & ผู้ปกครอง','fa-solid fa-address-book'],['portal','Portal Preview','fa-solid fa-display']
-    ]) + `<div id="studentsBody"></div>`;
-    bindTabs(el); $('addStudent').onclick=()=>openStudentModal(); $('refreshStudents').onclick=()=>loadAll();
-    const body=$('studentsBody');
-    if(tab==='crm') renderCRM(body); else if(tab==='portal') renderPortal(body); else renderStudentList(body);
-  }
-
-  function renderStudentList(root){
-    root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>Student records</h3><p>ระบบหลักจะ Sync ผู้สมัครตามเบอร์โทรเข้ามาอัตโนมัติ</p></div><div class="toolbar"><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="studentSearch" class="aw-input" placeholder="ค้นหาชื่อ เบอร์ โรงเรียน คอร์ส"></div><select id="studentFilter" class="aw-input" style="width:auto"><option value="all">ทุกสถานะ</option><option value="active">Active</option><option value="pending">Pending</option><option value="archived">Archived</option></select></div></div><div class="table-wrap"><table class="table"><thead><tr><th>นักเรียน</th><th>ติดต่อ</th><th>คอร์ส</th><th>สถานะ</th><th>อัปเดต</th><th></th></tr></thead><tbody id="studentRows"></tbody></table></div></div>`;
-    const renderRows=()=>{
-      const q=$('studentSearch').value.trim().toLowerCase(),f=$('studentFilter').value;
-      const rows=state.students.filter(s=>(f==='all'||(f==='archived'?s.archived:s.status===f))&&(!q||[s.display_name,s.nickname,s.phone,s.email,s.school,s.course_summary].join(' ').toLowerCase().includes(q)));
-      $('studentRows').innerHTML=rows.map(s=>{const cs=studentCourseRows(s.id).filter(x=>x.status!=='cancelled');return `<tr><td><div class="person"><div class="avatar">${esc(initials(s.display_name))}</div><div><div class="row-title">${esc(s.display_name)}</div><div class="row-sub">${esc(s.nickname||'')} ${s.school?'• '+esc(s.school):''}</div></div></div></td><td>${esc(s.phone||'—')}<div class="row-sub">${esc(s.email||'')}</div></td><td>${cs.slice(0,2).map(x=>`<div>${esc(x.course_label||course(x.course_id)?.name||'คอร์ส')}</div>`).join('')||esc(s.course_summary||'—')}</td><td><span class="status ${studentStatusClass(s.status)}">${esc(s.archived?'archived':s.status)}</span></td><td>${date(s.updated_at)}</td><td><button class="aw-btn small" data-edit-student="${s.id}">เปิด</button></td></tr>`}).join('')||'<tr><td colspan="6"><div class="empty">ยังไม่มีข้อมูลนักเรียน — ระบบจะ Sync จาก Enrollment หลังรัน SQL V14</div></td></tr>';
-      $$('[data-edit-student]',root).forEach(b=>b.onclick=()=>openStudentModal(b.dataset.editStudent));
-    };
-    $('studentSearch').oninput=renderRows;$('studentFilter').onchange=renderRows;renderRows();
-  }
-
-  function openStudentModal(id=null){
-    const s=id?student(id):null;
-    openModal(s?'ข้อมูลนักเรียน':'เพิ่มนักเรียนใน Tutor OS',`<form id="studentForm" class="form-grid">
-      <label class="aw-label wide">ชื่อที่แสดง *<input class="aw-input" name="display_name" required value="${esc(s?.display_name||'')}"></label>
-      <label class="aw-label">ชื่อเล่น<input class="aw-input" name="nickname" value="${esc(s?.nickname||'')}"></label>
-      <label class="aw-label">สถานะ<select class="aw-input" name="status"><option value="active" ${s?.status==='active'?'selected':''}>active</option><option value="pending" ${s?.status==='pending'?'selected':''}>pending</option><option value="inactive" ${s?.status==='inactive'?'selected':''}>inactive</option><option value="archived" ${s?.status==='archived'?'selected':''}>archived</option></select></label>
-      <label class="aw-label">เบอร์โทร<input class="aw-input" name="phone" value="${esc(s?.phone||'')}"></label>
-      <label class="aw-label">อีเมล<input class="aw-input" type="email" name="email" value="${esc(s?.email||'')}"></label>
-      <label class="aw-label">LINE<input class="aw-input" name="line_id" value="${esc(s?.line_id||'')}"></label>
-      <label class="aw-label">โรงเรียน<input class="aw-input" name="school" value="${esc(s?.school||'')}"></label>
-      <label class="aw-label">ระดับชั้น<input class="aw-input" name="grade" value="${esc(s?.grade||'')}"></label>
-      <label class="aw-label">ผู้ปกครอง<input class="aw-input" name="parent_name" value="${esc(s?.parent_name||'')}"></label>
-      <label class="aw-label">เบอร์ผู้ปกครอง<input class="aw-input" name="parent_phone" value="${esc(s?.parent_phone||'')}"></label>
-      <label class="aw-label wide">บันทึกภายใน<textarea class="aw-input" name="notes">${esc(s?.notes||'')}</textarea></label>
-    </form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button>${s&&isAdmin()?'<button class="aw-btn danger" id="archiveStudent">เก็บเข้าคลัง</button>':''}<button class="aw-btn primary" id="saveStudent">บันทึก</button>`);
-    $('saveStudent').onclick=async()=>{
-      const fd=new FormData($('studentForm'));const row=Object.fromEntries(fd.entries());row.phone_key=slugPhone(row.phone)||`manual:${s?.id||crypto.randomUUID()}`;row.archived=row.status==='archived';
-      try{let q=s?sb.from('os_students').update(row).eq('id',s.id):sb.from('os_students').insert(row);const{error}=await q;if(error)throw error;closeModal();await loadAll(false);toast('บันทึกนักเรียนแล้ว');}catch(e){swalError('บันทึกไม่สำเร็จ',e)}
-    };
-    if($('archiveStudent')) $('archiveStudent').onclick=async()=>{const r=await Swal.fire({icon:'warning',title:'เก็บนักเรียนเข้าคลัง?',showCancelButton:true,confirmButtonText:'เก็บเข้าคลัง'});if(!r.isConfirmed)return;const{data,error}=await sb.rpc('os_archive_student',{p_student_id:s.id,p_mode:'archive'});if(error)return swalError('ดำเนินการไม่สำเร็จ',error);closeModal();await loadAll(false);toast(data?.message||'เรียบร้อย');};
-  }
-
-  function renderCRM(root){
-    root.innerHTML=`<div class="grid-3"><div class="aw-card panel"><div class="panel-head"><div><h3>Pipeline</h3><p>ผู้สนใจและผู้ปกครองที่ต้องติดตาม</p></div><button class="aw-btn sky small" id="addCRM"><i class="fa-solid fa-plus"></i> เพิ่ม</button></div>${['lead','contacted','trial','ready','closed'].map(stage=>`<div class="list-item" style="margin-bottom:7px"><div class="list-item-head"><h4>${stage}</h4><b>${state.crm.filter(x=>x.stage===stage).length}</b></div></div>`).join('')}</div><div class="aw-card panel" style="grid-column:span 2"><div class="panel-head"><div><h3>CRM records</h3><p>คลิกเพื่อแก้ไขสถานะและนัดติดตาม</p></div></div><div class="list">${state.crm.map(x=>`<button class="list-item" style="text-align:left" data-crm="${x.id}"><div class="list-item-head"><div><h4>${esc(x.name)}</h4><p>${esc(x.phone||'')} ${x.guardian_name?'• ผู้ปกครอง '+esc(x.guardian_name):''}</p></div><span class="status blue">${esc(x.stage)}</span></div>${x.next_follow_up?`<p><i class="fa-regular fa-clock"></i> นัดติดตาม ${dateTime(x.next_follow_up)}</p>`:''}</button>`).join('')||'<div class="empty">ยังไม่มี CRM</div>'}</div></div></div>`;
-    $('addCRM').onclick=()=>openCRM();$$('[data-crm]',root).forEach(b=>b.onclick=()=>openCRM(b.dataset.crm));
-  }
-  function openCRM(id=null){const x=id?state.crm.find(v=>v.id===id):null;openModal(x?'แก้ไข CRM':'เพิ่มผู้สนใจ',`<form id="crmForm" class="form-grid"><label class="aw-label wide">ชื่อ *<input class="aw-input" name="name" required value="${esc(x?.name||'')}"></label><label class="aw-label">โทร<input class="aw-input" name="phone" value="${esc(x?.phone||'')}"></label><label class="aw-label">LINE<input class="aw-input" name="line_id" value="${esc(x?.line_id||'')}"></label><label class="aw-label">อีเมล<input class="aw-input" name="email" value="${esc(x?.email||'')}"></label><label class="aw-label">ผู้ปกครอง<input class="aw-input" name="guardian_name" value="${esc(x?.guardian_name||'')}"></label><label class="aw-label">เบอร์ผู้ปกครอง<input class="aw-input" name="guardian_phone" value="${esc(x?.guardian_phone||'')}"></label><label class="aw-label">Stage<select class="aw-input" name="stage">${['lead','contacted','trial','ready','closed'].map(s=>`<option ${x?.stage===s?'selected':''}>${s}</option>`).join('')}</select></label><label class="aw-label">นัดติดตาม<input type="datetime-local" class="aw-input" name="next_follow_up" value="${x?.next_follow_up?new Date(x.next_follow_up).toISOString().slice(0,16):''}"></label><label class="aw-label wide">Notes<textarea class="aw-input" name="notes">${esc(x?.notes||'')}</textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button>${x?'<button class="aw-btn danger" id="deleteCRM">ลบ</button>':''}<button class="aw-btn primary" id="saveCRM">บันทึก</button>`);$('saveCRM').onclick=async()=>{const fd=new FormData($('crmForm')),row=Object.fromEntries(fd.entries());row.next_follow_up=row.next_follow_up?new Date(row.next_follow_up).toISOString():null;try{const{error}=await(x?sb.from('os_crm_contacts').update(row).eq('id',x.id):sb.from('os_crm_contacts').insert(row));if(error)throw error;closeModal();await loadAll(false);toast('บันทึก CRM แล้ว')}catch(e){swalError('บันทึกไม่สำเร็จ',e)}};if($('deleteCRM'))$('deleteCRM').onclick=async()=>{if(!confirm('ลบ CRM นี้?'))return;const{error}=await sb.from('os_crm_contacts').delete().eq('id',x.id);if(error)return swalError('ลบไม่สำเร็จ',error);closeModal();await loadAll(false);toast('ลบแล้ว')};}
-
-  function renderPortal(root){
-    root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Student Portal Preview</h3><p>เลือกนักเรียนเพื่อดูข้อมูลที่ Portal ควรแสดง</p></div></div><select id="portalStudent" class="aw-input"><option value="">เลือกนักเรียน</option>${state.students.filter(x=>!x.archived).map(s=>`<option value="${s.id}">${esc(s.display_name)}</option>`).join('')}</select><div id="portalPreview" style="margin-top:12px"></div></div><div class="aw-card panel"><div class="panel-head"><div><h3>ประกาศที่กำลังแสดง</h3><p>ใช้กับ Student Experience</p></div></div><div class="list">${activeAnnouncements().map(a=>`<div class="list-item"><h4>${esc(a.title)}</h4><p>${esc(a.body)}</p></div>`).join('')||'<div class="empty">ไม่มีประกาศ</div>'}</div></div></div>`;
-    $('portalStudent').onchange=e=>{const s=student(e.target.value);if(!s){$('portalPreview').innerHTML='';return}const sc=studentCourseRows(s.id).filter(x=>['active','paused'].includes(x.status));const att=state.attendance.filter(a=>a.student_id===s.id);const present=att.filter(a=>['present','late'].includes(a.status)).length;const pools=[...new Map(sc.map(r=>[r.hour_pool_id,pool(r.hour_pool_id)]).filter(x=>x[0]&&x[1])).values()];const remaining=pools.some(p=>p.unlimited)?'รายปี / ไม่จำกัด':pools.reduce((a,p)=>a+Math.max(0,num(p.total_hours)-num(p.used_hours)),0).toFixed(1)+' ชม.';$('portalPreview').innerHTML=`<div class="aw-card" style="padding:15px;background:#f8fafc"><div class="person"><div class="avatar">${esc(initials(s.display_name))}</div><div><div class="row-title">${esc(s.display_name)}</div><div class="row-sub">${esc(s.student_code||('Student '+s.id.slice(0,8)))}</div></div></div><div class="grid-3" style="margin-top:12px"><div class="list-item"><h4>คอร์สที่ลง</h4><p>${sc.map(x=>esc(x.course_label||course(x.course_id)?.name||'คอร์ส')).join('<br>')||'—'}</p></div><div class="list-item"><h4>ชั่วโมงคงเหลือ</h4><p><b>${remaining}</b></p></div><div class="list-item"><h4>Attendance</h4><p>${present}/${att.length||0} ครั้ง</p></div></div><div class="module-actions" style="margin-top:12px"><a class="aw-btn primary" href="../student/" target="_blank"><i class="fa-solid fa-graduation-cap"></i> เปิด Student Portal</a></div></div>`;};
-  }
-
-  function activeAnnouncements(){const now=Date.now();return state.announcements.filter(a=>a.is_active!==false&&new Date(a.publish_at||0).getTime()<=now&&(!a.expires_at||new Date(a.expires_at).getTime()>now));}
-
-  function renderCourses(el){
-    const tab=state.subtab.courses;
-    el.innerHTML=pageHead('Courses','คอร์ส & สมัคร','Course UUID, Offering, Enrollment และ Student Portal ใช้ข้อมูลชุดเดียวกัน',`<a class="aw-btn sky" href="../manager/?section=courses"><i class="fa-solid fa-pen"></i> จัดรายละเอียดคอร์ส</a>`) + tabs('courses',[
-      ['courses','คอร์สหลัก','fa-solid fa-book'],['offerings','เปิดรับสมัคร','fa-solid fa-toggle-on'],['requests','คำขอเปิด/ต่อคอร์ส','fa-solid fa-file-circle-plus'],['admissions','Admissions & Pricing','fa-solid fa-diagram-project']
-    ]) + `<div id="coursesBody"></div>`;
-    bindTabs(el);const root=$('coursesBody');
-    if(tab==='offerings')renderOfferings(root);else if(tab==='requests')renderCourseRequests(root);else if(tab==='admissions')renderAdmissions(root);else renderCourseList(root);
-  }
-  function renderCourseList(root){
-    root.innerHTML=`<div class="grid-3">${state.courses.map(c=>{const t=tutor(c.tutor_id),o=offering(c.id),count=new Set(state.studentCourses.filter(x=>x.course_id===c.id&&x.status==='active').map(x=>x.student_id)).size,open=!!(c.active&&o?.enrollment_open&&o?.status==='open');return `<article class="aw-card module-card"><div class="module-icon"><i class="fa-solid fa-dna"></i></div><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(c.name)}</h3><span class="status ${open?'green':'red'}">${open?'OPEN':'CLOSED'}</span></div><p>${esc(c.short_detail||c.full_description||'')}<br><b>${esc(t?.display_name||'ไม่ระบุติวเตอร์')}</b> • ${count} นักเรียน</p><div class="list-item" style="margin-top:8px"><p><b>ระบบสมัคร:</b> ${open?'เปิดรับ':'ปิด'}<br><b>Student Portal:</b> ${o?.student_portal_open?'แสดง':'ซ่อน'}${o?.capacity?`<br><b>Capacity:</b> ${o.capacity}`:''}</p></div><div class="module-actions"><a class="aw-btn small" href="../manager/?section=courses">แก้รายละเอียด</a><button class="aw-btn small" data-course-students="${c.id}">นักเรียน</button>${isAdmin()?`<button class="aw-btn small ${open?'danger':'success'}" data-toggle-course="${c.id}:${open?'false':'true'}">${open?'ปิดรับสมัคร':'เปิดรับสมัคร'}</button>`:''}</div></article>`}).join('')||'<div class="empty">ยังไม่มีคอร์ส</div>'}</div>`;
-    $$('[data-course-students]',root).forEach(b=>b.onclick=()=>{const c=course(b.dataset.courseStudents);const rows=state.studentCourses.filter(x=>x.course_id===c.id&&['active','paused'].includes(x.status));openModal(`นักเรียน · ${c.name}`,`<div class="list">${rows.map(r=>{const s=student(r.student_id),rem=remainingHours(r);return `<div class="list-item"><h4>${esc(s?.display_name||'Unknown')}</h4><p>${esc(s?.phone||'')} • ${rem===Infinity?'แพ็กเกจรายปี':`เหลือ ${rem.toFixed(1)} ชม.`}</p></div>`}).join('')||'<div class="empty">ยังไม่มีนักเรียน</div>'}</div>`,`<button class="aw-btn primary" data-modal-close>ปิด</button>`);});
-    $$('[data-toggle-course]',root).forEach(b=>b.onclick=async()=>{const[id,val]=b.dataset.toggleCourse.split(':');const{error}=await sb.rpc('os_set_course_enrollment_state',{p_course_id:id,p_open:val==='true'});if(error)return swalError('อัปเดตการเปิดรับไม่สำเร็จ',error);await loadAll(false);toast(val==='true'?'เปิดรับสมัครแล้ว':'ปิดรับสมัครแล้ว')});
-  }
-  function renderOfferings(root){
-    root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>Course Offering · Single Publish Switch</h3><p>เปลี่ยนที่นี่ครั้งเดียว ระบบสมัครเรียนและ Student Portal เปลี่ยนตามพร้อมกัน</p></div><span class="aw-tag">V15 shared source</span></div><div class="table-wrap"><table class="table"><thead><tr><th>คอร์ส</th><th>ระบบสมัคร</th><th>Student Portal</th><th>ช่วงเปิด</th><th>Capacity</th><th></th></tr></thead><tbody>${state.courses.map(c=>{const o=offering(c.id);return `<tr><td><div class="row-title">${esc(c.name)}</div><div class="row-sub">${esc(tutor(c.tutor_id)?.display_name||'')}</div></td><td><span class="status ${o?.enrollment_open&&o?.status==='open'?'green':'red'}">${o?.enrollment_open&&o?.status==='open'?'OPEN':'CLOSED'}</span></td><td><span class="status ${o?.student_portal_open?'green':'red'}">${o?.student_portal_open?'VISIBLE':'HIDDEN'}</span></td><td>${o?.starts_on?date(o.starts_on):'ทันที'} → ${o?.ends_on?date(o.ends_on):'ไม่กำหนด'}</td><td>${o?.capacity||'—'}</td><td>${isAdmin()?`<button class="aw-btn small" data-edit-offering="${c.id}">ตั้งค่า</button>`:''}</td></tr>`}).join('')}</tbody></table></div></div>`;
-    $$('[data-edit-offering]',root).forEach(b=>b.onclick=()=>openOfferingModal(b.dataset.editOffering));
-  }
-  function openOfferingModal(courseId){
-    const c=course(courseId),o=offering(courseId)||{};
-    openModal(`เปิดรับสมัคร · ${c?.name||''}`,`<form id="offeringForm" class="form-grid"><label class="aw-label">สถานะ<select class="aw-input" name="status"><option value="open" ${o.status==='open'?'selected':''}>open</option><option value="paused" ${o.status==='paused'?'selected':''}>paused</option><option value="draft" ${o.status==='draft'?'selected':''}>draft</option><option value="closed" ${o.status==='closed'?'selected':''}>closed</option></select></label><label class="aw-label">ระบบสมัคร<select class="aw-input" name="enrollment_open"><option value="true" ${o.enrollment_open!==false?'selected':''}>เปิด</option><option value="false" ${o.enrollment_open===false?'selected':''}>ปิด</option></select></label><label class="aw-label">Student Portal<select class="aw-input" name="student_portal_open"><option value="true" ${o.student_portal_open!==false?'selected':''}>แสดง</option><option value="false" ${o.student_portal_open===false?'selected':''}>ซ่อน</option></select></label><label class="aw-label">Capacity<input type="number" min="1" class="aw-input" name="capacity" value="${esc(o.capacity||'')}"></label><label class="aw-label">เริ่มเปิด<input type="date" class="aw-input" name="starts_on" value="${esc(o.starts_on||'')}"></label><label class="aw-label">สิ้นสุด<input type="date" class="aw-input" name="ends_on" value="${esc(o.ends_on||'')}"></label><label class="aw-label">ชั่วโมงแนะนำ<input type="number" step="0.5" class="aw-input" name="default_hours" value="${esc(o.default_hours||'')}"></label><label class="aw-label">ราคาแสดงใน Portal<input type="number" step="1" class="aw-input" name="display_price" value="${esc(o.display_price||'')}"></label><label class="aw-label wide">ข้อความสาธารณะ<textarea class="aw-input" name="public_note">${esc(o.public_note||'')}</textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveOffering">บันทึกและ Sync</button>`);
-    $('saveOffering').onclick=async()=>{const fd=new FormData($('offeringForm')),row={course_id:courseId,status:fd.get('status'),enrollment_open:fd.get('enrollment_open')==='true',student_portal_open:fd.get('student_portal_open')==='true',capacity:fd.get('capacity')?num(fd.get('capacity')):null,starts_on:fd.get('starts_on')||null,ends_on:fd.get('ends_on')||null,default_hours:fd.get('default_hours')?num(fd.get('default_hours')):null,display_price:fd.get('display_price')?num(fd.get('display_price')):null,public_note:String(fd.get('public_note')||'')||null,updated_at:new Date().toISOString()};const{error}=await sb.from('course_offerings').upsert(row,{onConflict:'course_id'});if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('Sync ระบบสมัครเรียนและ Student Portal แล้ว')};
-  }
-  function renderCourseRequests(root){
-    root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>คำขอเปิดคอร์สจากทีม</h3><p>อนุมัติแล้วสร้าง Course + Offering จริงได้ทันที</p></div><button id="newCourseRequest" class="aw-btn sky small"><i class="fa-solid fa-plus"></i> ส่งคำขอ</button></div><div class="list">${state.courseRequests.map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.title)}</h4><p>${esc(x.description||'')}</p></div><span class="status ${x.status==='approved'?'green':x.status==='rejected'?'red':'amber'}">${esc(x.status)}</span></div><p>${num(x.proposed_hours)||0} ชม. • ${money(x.proposed_price||0)}</p>${isAdmin()&&x.status==='pending'?`<div class="module-actions" style="margin-top:8px"><button class="aw-btn success small" data-create-course="${x.id}">อนุมัติ & สร้างคอร์ส</button><button class="aw-btn danger small" data-reject-course="${x.id}">ไม่อนุมัติ</button></div>`:''}${x.created_course_id?`<div class="row-sub">Course UUID: ${esc(x.created_course_id)}</div>`:''}</div>`).join('')||'<div class="empty">ไม่มีคำขอ</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>คำขอจากนักเรียน</h3><p>ต่อคอร์ส เพิ่มคอร์ส หรือเปลี่ยนคอร์สจาก Student Portal</p></div><span class="aw-tag">${state.courseChangeRequests.filter(x=>x.status==='pending').length} pending</span></div><div class="list">${state.courseChangeRequests.slice(0,30).map(x=>{const st=student(x.student_id),c=course(x.course_id);return `<div class="list-item"><div class="list-item-head"><div><h4>${esc(st?.display_name||'นักเรียน')} · ${esc(c?.name||'คอร์ส')}</h4><p>${esc(x.request_type)} • ${date(x.created_at)}</p></div><span class="status ${x.status==='completed'?'green':'amber'}">${esc(x.status)}</span></div><p>${esc(x.note||'')}</p>${isAdmin()&&x.status==='pending'?`<div class="module-actions"><button class="aw-btn small" data-contact-request="${x.id}">รับเรื่อง</button><a class="aw-btn primary small" href="../?student=old&course=${encodeURIComponent(x.course_id)}&source=tutor-os">เปิดระบบสมัคร</a></div>`:''}</div>`}).join('')||'<div class="empty">ไม่มีคำขอจากนักเรียน</div>'}</div></div></div>`;
-    $('newCourseRequest').onclick=openCourseRequest;
-    $$('[data-create-course]',root).forEach(b=>b.onclick=()=>openApproveCourseRequest(b.dataset.createCourse));
-    $$('[data-reject-course]',root).forEach(b=>b.onclick=async()=>{const note=prompt('เหตุผล/หมายเหตุ','')||'';const{error}=await sb.from('os_course_requests').update({status:'rejected',admin_note:note,reviewed_by:state.session.user.id,reviewed_at:new Date().toISOString()}).eq('id',b.dataset.rejectCourse);if(error)return swalError('อัปเดตไม่สำเร็จ',error);await loadAll(false);toast('อัปเดตคำขอแล้ว')});
-    $$('[data-contact-request]',root).forEach(b=>b.onclick=async()=>{const{error}=await sb.from('student_course_change_requests').update({status:'contacted',updated_at:new Date().toISOString()}).eq('id',b.dataset.contactRequest);if(error)return swalError('อัปเดตไม่สำเร็จ',error);await loadAll(false);toast('รับเรื่องแล้ว')});
-  }
-  function openApproveCourseRequest(id){
-    const r=state.courseRequests.find(x=>x.id===id);if(!r)return;
-    openModal(`สร้างคอร์ส · ${r.title}`,`<form id="approveCourseForm" class="form-grid"><label class="aw-label wide">ติวเตอร์ *<select class="aw-input" name="tutor_id" required><option value="">เลือกติวเตอร์</option>${state.tutors.filter(x=>x.active).map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">ประเภท<select class="aw-input" name="course_type"><option value="content">เนื้อหา</option><option value="exam">ตะลุยโจทย์</option></select></label><label class="aw-label">เปิดรับสมัครทันที<select class="aw-input" name="open"><option value="true">เปิด</option><option value="false">สร้างเป็น Draft</option></select></label><label class="aw-label">Capacity<input type="number" min="1" class="aw-input" name="capacity"></label><div class="section-note wide">เมื่อกดยืนยัน ระบบจะสร้าง <b>Course UUID + Course Offering</b> และหน้าเว็บสมัครเรียน/Student Portal จะอ้างอิงข้อมูลเดียวกันทันที</div></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="approveAndCreate">อนุมัติ & สร้าง</button>`);
-    $('approveAndCreate').onclick=async()=>{const fd=new FormData($('approveCourseForm'));if(!fd.get('tutor_id'))return toast('กรุณาเลือกติวเตอร์','error');const{data,error}=await sb.rpc('os_approve_course_request',{p_request_id:id,p_tutor_id:fd.get('tutor_id'),p_course_type:fd.get('course_type'),p_open_enrollment:fd.get('open')==='true',p_capacity:fd.get('capacity')?num(fd.get('capacity')):null});if(error)return swalError('สร้างคอร์สไม่สำเร็จ',error);closeModal();await loadAll(false);toast('สร้างคอร์สและเชื่อมทุกระบบแล้ว')};
-  }
-  function openCourseRequest(){openModal('ส่งคำขอเปิดคอร์ส',`<form id="courseRequestForm" class="form-grid"><label class="aw-label wide">ชื่อคอร์ส *<input class="aw-input" name="title" required></label><label class="aw-label wide">รายละเอียด<textarea class="aw-input" name="description"></textarea></label><label class="aw-label">ระดับผู้เรียน (คั่นด้วย ,)<input class="aw-input" name="levels"></label><label class="aw-label">ชั่วโมงที่เสนอ<input type="number" step="0.5" class="aw-input" name="hours"></label><label class="aw-label">ราคาที่เสนอ<input type="number" step="1" class="aw-input" name="price"></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveCourseRequest">ส่งคำขอ</button>`);$('saveCourseRequest').onclick=async()=>{const fd=new FormData($('courseRequestForm'));const row={requested_by:state.session.user.id,title:fd.get('title'),description:fd.get('description'),target_levels:String(fd.get('levels')||'').split(',').map(x=>x.trim()).filter(Boolean),proposed_hours:num(fd.get('hours')),proposed_price:num(fd.get('price'))};const{error}=await sb.from('os_course_requests').insert(row);if(error)return swalError('ส่งคำขอไม่สำเร็จ',error);closeModal();await loadAll(false);toast('ส่งคำขอแล้ว')};}
-  function renderAdmissions(root){root.innerHTML=`<div class="grid-3">${connectedCard('fa-solid fa-file-signature','ใบสมัคร & Enrollment','ตรวจผู้สมัครเดิม/ใหม่ เปลี่ยนสถานะ และดูใบเสร็จ','../manager/?section=enrollments','เปิดใบสมัคร')}${connectedCard('fa-regular fa-calendar-days','Schedule & Capacity','ช่วงเวลาสอนราย Tutor และจำนวนที่รับพร้อมกัน','../manager/?section=schedule','จัดตาราง')}${connectedCard('fa-solid fa-ticket','Promotion','โค้ดส่วนลด ช่วงเวลา และสถานะการใช้งาน','../manager/?section=promotions','จัดโปรโมชั่น')}${connectedCard('fa-solid fa-tags','Course Pricing','แพ็กเกจรายปี 30/20/10 ชั่วโมง และรายชั่วโมง','../manager/?section=prices','จัดราคา')}${connectedCard('fa-solid fa-wallet','Payment Review','ตรวจสลิปและยืนยันยอดก่อนออกใบเสร็จ','../manager/?section=payments','ตรวจการชำระ')}${connectedCard('fa-solid fa-receipt','Receipt Settings','Logo ลายเซ็น ข้อมูลธุรกิจ และเลขใบเสร็จ','../manager/?section=receipt','ตั้งค่าใบเสร็จ')}</div>`;}
-
-  function renderGroups(el){
-    const active=state.studentGroups.filter(g=>g.status==='active');
-    const todayGroupSessions=state.attendanceSessions.filter(x=>x.group_id&&x.session_date===today()&&x.status!=='cancelled');
-    const memberCount=state.groupMembers.filter(x=>x.is_active).length;
-    el.innerHTML=pageHead('Group Lockers','กลุ่มเรียน','จัดนักเรียนเป็น Locker ประจำกลุ่ม เพื่อเปิดคาบ เช็กชื่อ และตัดชั่วโมงรายคนได้เร็วขึ้น',`<button class="aw-btn sky" id="newGroup"><i class="fa-solid fa-plus"></i> สร้างกลุ่ม</button><button class="aw-btn" id="refreshGroups"><i class="fa-solid fa-rotate"></i></button>`)+
-      `<div class="grid-4" style="margin-bottom:12px">
-        ${metric('fa-solid fa-people-group','กลุ่ม Active',active.length,'Group Lockers','#e0f2fe')}
-        ${metric('fa-solid fa-user-group','สมาชิกในกลุ่ม',memberCount,'สมาชิก active','#ede9fe')}
-        ${metric('fa-regular fa-calendar-check','คาบกลุ่มวันนี้',todayGroupSessions.length,'พร้อมเช็กชื่อ','#dcfce7')}
-        ${metric('fa-solid fa-scissors','ตัดรายคน','พร้อม','Hour Ledger','#fef3c7')}
-      </div>
-      <div class="aw-card panel"><div class="panel-head"><div><h3>Locker ทั้งหมด</h3><p>แต่ละ Locker ผูก Course UUID + Tutor + สมาชิก โดยนักเรียนยังคงมี Student Code และชั่วโมงส่วนตัวของตนเอง</p></div><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="groupSearch" class="aw-input" placeholder="ค้นหาชื่อกลุ่ม รหัส คอร์ส ติวเตอร์"></div></div><div id="groupGrid" class="locker-grid"></div></div>`;
-    $('newGroup').onclick=()=>openGroupEditor();$('refreshGroups').onclick=()=>loadAll();
-    const draw=()=>{const q=$('groupSearch').value.trim().toLowerCase();const rows=state.studentGroups.filter(g=>{const c=course(g.course_id),t=tutor(g.tutor_id);return !q||[g.group_code,g.name,c?.name,t?.display_name,g.status].join(' ').toLowerCase().includes(q)});$('groupGrid').innerHTML=rows.map(g=>{const c=course(g.course_id),t=tutor(g.tutor_id),members=groupMembers(g.id),sessions=state.attendanceSessions.filter(x=>x.group_id===g.id);return `<article class="locker-card ${g.status!=='active'?'locker-muted':''}"><div class="locker-top"><div class="locker-mark"><i class="fa-solid fa-box-archive"></i></div><div><span class="locker-code">${esc(g.group_code)}</span><h3>${esc(g.name)}</h3><p>${esc(c?.name||'ไม่พบคอร์ส')} ${t?'• '+esc(t.display_name):''}</p></div><span class="status ${g.status==='active'?'green':g.status==='paused'?'amber':'red'}">${esc(g.status)}</span></div><div class="locker-stats"><div><b>${members.length}</b><span>สมาชิก</span></div><div><b>${num(g.default_billable_hours).toFixed(2)}</b><span>ชม./คาบ</span></div><div><b>${sessions.length}</b><span>คาบทั้งหมด</span></div></div><div class="locker-actions"><button class="aw-btn primary small" data-open-locker="${g.id}"><i class="fa-solid fa-door-open"></i> เปิด Locker</button><button class="aw-btn small" data-open-group-session="${g.id}"><i class="fa-solid fa-play"></i> เปิดคาบ</button><button class="aw-btn small" data-edit-group="${g.id}"><i class="fa-solid fa-pen"></i></button></div></article>`}).join('')||'<div class="empty">ยังไม่มีกลุ่มเรียน</div>';$$('[data-open-locker]',el).forEach(b=>b.onclick=()=>openGroupLocker(b.dataset.openLocker));$$('[data-open-group-session]',el).forEach(b=>b.onclick=()=>openGroupSession(b.dataset.openGroupSession));$$('[data-edit-group]',el).forEach(b=>b.onclick=()=>openGroupEditor(b.dataset.editGroup));};
-    $('groupSearch').oninput=draw;draw();
-  }
-
-  function openGroupEditor(id=null){
-    const g=id?group(id):null;
-    openModal(g?'แก้ไข Group Locker':'สร้าง Group Locker',`<form id="groupForm" class="form-grid"><label class="aw-label wide">ชื่อกลุ่ม *<input class="aw-input" name="name" required value="${esc(g?.name||'')}" placeholder="เช่น A-Level Bio · Sat AM"></label><label class="aw-label wide">คอร์ส *<select class="aw-input" name="course_id" required><option value="">เลือกคอร์ส</option>${state.courses.filter(x=>x.active||x.id===g?.course_id).map(c=>`<option value="${c.id}" ${g?.course_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label class="aw-label">ติวเตอร์<select class="aw-input" name="tutor_id"><option value="">ไม่ระบุ</option>${state.tutors.filter(x=>x.active||x.id===g?.tutor_id).map(t=>`<option value="${t.id}" ${g?.tutor_id===t.id?'selected':''}>${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">ชั่วโมงเริ่มต้น/คาบ<input type="number" step="0.25" min="0" class="aw-input" name="default_billable_hours" value="${esc(g?.default_billable_hours??1.5)}"></label><label class="aw-label">รูปแบบ<select class="aw-input" name="mode"><option value="online" ${g?.mode==='online'?'selected':''}>Online</option><option value="onsite" ${g?.mode==='onsite'?'selected':''}>Onsite</option><option value="hybrid" ${g?.mode==='hybrid'?'selected':''}>Hybrid</option></select></label><label class="aw-label">สถานที่<input class="aw-input" name="location" value="${esc(g?.location||'')}"></label><label class="aw-label">สถานะ<select class="aw-input" name="status"><option value="active" ${g?.status==='active'?'selected':''}>Active</option><option value="paused" ${g?.status==='paused'?'selected':''}>Paused</option><option value="archived" ${g?.status==='archived'?'selected':''}>Archived</option></select></label><label class="aw-label">สี Locker<select class="aw-input" name="color_key"><option value="sky">Sky</option><option value="indigo" ${g?.color_key==='indigo'?'selected':''}>Indigo</option><option value="emerald" ${g?.color_key==='emerald'?'selected':''}>Emerald</option><option value="amber" ${g?.color_key==='amber'?'selected':''}>Amber</option></select></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-input" name="note">${esc(g?.note||'')}</textarea></label>${g?`<div class="section-note wide"><b>Locker Code:</b> ${esc(g.group_code)} · รหัสนี้เป็นรหัสกลุ่มสำหรับผู้สอน ไม่แทน Student Code ส่วนตัวของนักเรียน</div>`:''}</form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveGroup">บันทึก Locker</button>`);
-    $('saveGroup').onclick=async()=>{const fd=new FormData($('groupForm'));const row={name:String(fd.get('name')||'').trim(),course_id:fd.get('course_id'),tutor_id:fd.get('tutor_id')||null,default_billable_hours:num(fd.get('default_billable_hours')||1.5),mode:fd.get('mode'),location:String(fd.get('location')||'')||null,status:fd.get('status'),color_key:fd.get('color_key'),note:String(fd.get('note')||'')||null,updated_at:new Date().toISOString()};if(!g)row.created_by=state.session.user.id;const{data,error}=await(g?sb.from('os_student_groups').update(row).eq('id',g.id).select().single():sb.from('os_student_groups').insert(row).select().single());if(error)return swalError('บันทึกกลุ่มไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึก Group Locker แล้ว');if(data?.id)openGroupLocker(data.id)};
-  }
-
-  function openGroupLocker(id){
-    const g=group(id);if(!g)return;const c=course(g.course_id),t=tutor(g.tutor_id);const members=groupMembers(id);const eligibleMap=new Map();state.studentCourses.filter(r=>r.course_id===g.course_id&&['active','paused'].includes(r.status)).forEach(r=>{if(!members.some(m=>m.student_id===r.student_id)&&!eligibleMap.has(r.student_id))eligibleMap.set(r.student_id,r)});const sessionRows=state.attendanceSessions.filter(x=>x.group_id===id).sort((a,b)=>String(b.session_date).localeCompare(String(a.session_date)));
-    openModal(`Locker · ${g.name}`,`<div class="locker-hero"><div><span class="locker-code">${esc(g.group_code)}</span><h2>${esc(g.name)}</h2><p>${esc(c?.name||'')} ${t?'• '+esc(t.display_name):''} • ${esc(g.mode)} ${g.location?'• '+esc(g.location):''}</p></div><button class="aw-btn" id="copyGroupCode"><i class="fa-regular fa-copy"></i> คัดลอกรหัส</button></div><div class="grid-3" style="margin:12px 0"><div class="list-item"><h4>สมาชิก</h4><p><b>${members.length}</b> คน</p></div><div class="list-item"><h4>ชั่วโมงเริ่มต้น</h4><p><b>${num(g.default_billable_hours).toFixed(2)}</b> ชม./คาบ</p></div><div class="list-item"><h4>คาบย้อนหลัง</h4><p><b>${sessionRows.length}</b> คาบ</p></div></div><div class="grid-2"><div class="aw-card panel" style="box-shadow:none"><div class="panel-head"><div><h3>สมาชิกใน Locker</h3><p>แต่ละคนยังใช้ Hour Pool และ Student Code ของตนเอง</p></div></div><div class="list">${members.map(m=>{const st=student(m.student_id),r=state.studentCourses.find(x=>x.id===m.student_course_enrollment_id)||state.studentCourses.find(x=>x.student_id===m.student_id&&x.course_id===g.course_id&&['active','paused'].includes(x.status)),rem=remainingHours(r);return `<div class="list-item"><div class="list-item-head"><div><h4>${esc(st?.display_name||'นักเรียน')}</h4><p>${esc(st?.student_code||'')} • ${rem===Infinity?'รายปี / ไม่จำกัด':`เหลือ ${rem.toFixed(2)} ชม.`}</p></div><button class="aw-btn danger small" data-remove-group-member="${m.student_id}"><i class="fa-solid fa-xmark"></i></button></div></div>`}).join('')||'<div class="empty">ยังไม่มีสมาชิก</div>'}</div><div class="section-note" style="margin-top:10px"><b>เพิ่มสมาชิก:</b> จะแสดงเฉพาะนักเรียนที่มีคอร์สนี้ Active/Paused และยังไม่อยู่ใน Locker</div><div class="form-grid" style="margin-top:9px"><label class="aw-label wide">นักเรียน<select id="groupMemberStudent" class="aw-input"><option value="">เลือกนักเรียน</option>${[...eligibleMap.entries()].map(([sid,r])=>{const st=student(sid),rem=remainingHours(r);return `<option value="${sid}">${esc(st?.display_name||sid)} · ${esc(st?.student_code||'')} · ${rem===Infinity?'รายปี':rem.toFixed(1)+' ชม.'}</option>`}).join('')}</select></label><label class="aw-label">ชม. เริ่มต้นเฉพาะคน<input id="memberDefaultHours" type="number" step="0.25" min="0" class="aw-input" placeholder="ใช้ค่า Locker"></label><label class="aw-label">Seat / Tag<input id="memberSeat" class="aw-input" placeholder="เช่น A1"></label></div><div class="module-actions" style="margin-top:8px"><button class="aw-btn sky small" id="addGroupMember"><i class="fa-solid fa-user-plus"></i> เพิ่ม 1 คน</button><button class="aw-btn small" id="bulkGroupMembers"><i class="fa-solid fa-users"></i> เพิ่มหลายคน</button></div></div><div class="aw-card panel" style="box-shadow:none"><div class="panel-head"><div><h3>คาบของกลุ่ม</h3><p>เปิดคาบแล้วระบบสร้าง roster รอเช็กชื่ออัตโนมัติ</p></div><button class="aw-btn primary small" id="openLockerSession"><i class="fa-solid fa-play"></i> เปิดคาบ</button></div><div class="list">${sessionRows.slice(0,12).map(s=>`<button class="list-item" style="text-align:left" data-locker-session="${s.id}"><div class="list-item-head"><div><h4>${esc(s.title||g.name)}</h4><p>${date(s.session_date)} ${String(s.start_time||'').slice(0,5)}${s.end_time?'–'+String(s.end_time).slice(0,5):''}</p></div><span class="status ${s.deduction_status==='deducted'?'green':s.status==='completed'?'blue':'amber'}">${s.deduction_status==='deducted'?'DEDUCTED':esc(s.status)}</span></div></button>`).join('')||'<div class="empty">ยังไม่มีคาบกลุ่ม</div>'}</div></div></div>`,`<button class="aw-btn" data-modal-close>ปิด</button><button class="aw-btn" id="editLocker"><i class="fa-solid fa-pen"></i> แก้ไข Locker</button><button class="aw-btn primary" id="openLockerSessionBottom"><i class="fa-solid fa-play"></i> เปิดคาบใหม่</button>`);
-    $('copyGroupCode').onclick=async()=>{try{await navigator.clipboard.writeText(g.group_code);toast('คัดลอกรหัสกลุ่มแล้ว')}catch{toast(g.group_code)}};$('editLocker').onclick=()=>openGroupEditor(id);$('openLockerSession').onclick=$('openLockerSessionBottom').onclick=()=>openGroupSession(id);$('bulkGroupMembers').onclick=()=>openBulkGroupMembers(id);$('addGroupMember').onclick=async()=>{const sid=$('groupMemberStudent').value;if(!sid)return toast('กรุณาเลือกนักเรียน','error');const h=$('memberDefaultHours').value;const{error}=await sb.rpc('os_group_add_member',{p_group_id:id,p_student_id:sid,p_default_deduct_hours:h?num(h):null,p_seat_label:$('memberSeat').value||null,p_note:null});if(error)return swalError('เพิ่มสมาชิกไม่สำเร็จ',error);await loadAll(false);openGroupLocker(id);toast('เพิ่มสมาชิกเข้า Locker แล้ว')};$$('[data-remove-group-member]',$('modalRoot')).forEach(b=>b.onclick=async()=>{if(!confirm('นำสมาชิกออกจาก Locker? ประวัติการเรียนเดิมจะไม่ถูกลบ'))return;const{error}=await sb.rpc('os_group_remove_member',{p_group_id:id,p_student_id:b.dataset.removeGroupMember,p_note:'นำออกจาก Locker'});if(error)return swalError('นำสมาชิกออกไม่สำเร็จ',error);await loadAll(false);openGroupLocker(id);toast('นำสมาชิกออกแล้ว')});$$('[data-locker-session]',$('modalRoot')).forEach(b=>b.onclick=()=>openRoster(b.dataset.lockerSession));
-  }
-
-  function openBulkGroupMembers(groupId){
-    const g=group(groupId);if(!g)return;const current=new Set(groupMembers(groupId).map(x=>x.student_id));const eligibleMap=new Map();state.studentCourses.filter(r=>r.course_id===g.course_id&&['active','paused'].includes(r.status)&&!current.has(r.student_id)).forEach(r=>{if(!eligibleMap.has(r.student_id))eligibleMap.set(r.student_id,r)});const rows=[...eligibleMap.entries()];
-    openModal(`เพิ่มสมาชิกหลายคน · ${g.name}`,`<div class="section-note" style="margin-bottom:10px">เลือกนักเรียนจากคอร์ส <b>${esc(course(g.course_id)?.name||'')}</b> แล้วเพิ่มเข้า Locker พร้อมกัน</div><label class="aw-label">ชั่วโมงเริ่มต้นเฉพาะชุดนี้<input id="bulkDefaultHours" type="number" step="0.25" min="0" class="aw-input" placeholder="เว้นว่าง = ใช้ค่า Locker"></label><div class="list" style="margin-top:10px;max-height:52vh;overflow:auto">${rows.map(([sid,r])=>{const st=student(sid),rem=remainingHours(r);return `<label class="list-item" style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" data-bulk-student value="${sid}"><div style="flex:1"><h4>${esc(st?.display_name||sid)}</h4><p>${esc(st?.student_code||'')} • ${rem===Infinity?'รายปี / ไม่จำกัด':`เหลือ ${rem.toFixed(2)} ชม.`}</p></div></label>`}).join('')||'<div class="empty">ไม่มีนักเรียนที่เพิ่มได้</div>'}</div>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveBulkGroup"><i class="fa-solid fa-user-plus"></i> เพิ่มที่เลือก</button>`);
-    $('saveBulkGroup').onclick=async()=>{const ids=$$('[data-bulk-student]:checked',$('modalRoot')).map(x=>x.value);if(!ids.length)return toast('กรุณาเลือกอย่างน้อย 1 คน','error');const h=$('bulkDefaultHours').value;const{data,error}=await sb.rpc('os_group_add_members',{p_group_id:groupId,p_student_ids:ids,p_default_deduct_hours:h?num(h):null});if(error)return swalError('เพิ่มสมาชิกไม่สำเร็จ',error);await loadAll(false);openGroupLocker(groupId);toast(`เพิ่มสมาชิกแล้ว ${data?.added||ids.length} คน`)};
-  }
-
-  function openGroupSession(groupId){
-    const g=group(groupId);if(!g)return;
-    openModal(`เปิดคาบ · ${g.name}`,`<form id="groupSessionForm" class="form-grid"><label class="aw-label">วันที่<input type="date" class="aw-input" name="session_date" value="${today()}" required></label><label class="aw-label">ชั่วโมงคิดเริ่มต้น<input type="number" step="0.25" min="0" class="aw-input" name="billable_hours" value="${num(g.default_billable_hours).toFixed(2)}"></label><label class="aw-label">เริ่มตามแผน<input type="time" class="aw-input" name="start_time"></label><label class="aw-label">จบตามแผน<input type="time" class="aw-input" name="end_time"></label><label class="aw-label wide">ชื่อคาบ<input class="aw-input" name="title" value="${esc(g.name)}" placeholder="หัวข้อคาบวันนี้"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-input" name="note"></textarea></label><div class="section-note wide"><b>${esc(g.group_code)}</b> · เมื่อเปิดคาบ ระบบจะดึงสมาชิก Active ทั้งหมดเข้ารายชื่อเป็น “รอเช็กชื่อ” โดยยังไม่ตัดชั่วโมง</div></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="createGroupSession"><i class="fa-solid fa-play"></i> สร้างคาบ & เปิดรายชื่อ</button>`);
-    $('createGroupSession').onclick=async()=>{const fd=new FormData($('groupSessionForm'));const{data,error}=await sb.rpc('os_group_open_session',{p_group_id:groupId,p_session_date:fd.get('session_date'),p_start_time:fd.get('start_time')||null,p_end_time:fd.get('end_time')||null,p_title:fd.get('title')||null,p_billable_hours:fd.get('billable_hours')?num(fd.get('billable_hours')):null,p_note:fd.get('note')||null});if(error)return swalError('เปิดคาบกลุ่มไม่สำเร็จ',error);await loadAll(false);const sid=data?.session?.id;toast(`เปิดคาบแล้ว · roster ${data?.roster_count||0} คน`);if(sid)openRoster(sid);else closeModal()};
-  }
-
-  function renderTeaching(el){
-    const tab=state.subtab.teaching;
-    el.innerHTML=pageHead('Teaching','การสอน','ลงเวลาเรียน ตัดชั่วโมง Attendance และ Learning Portal เชื่อม Student Portal แบบเรียลไทม์',`<button class="aw-btn" id="refreshTeaching"><i class="fa-solid fa-rotate"></i> รีเฟรช</button>`) + tabs('teaching',[['attendance','ลงเวลา & ตัดชม.','fa-regular fa-clock'],['logs','บันทึกหลังสอน','fa-solid fa-pen-to-square'],['learning','เรียนย้อนหลัง','fa-solid fa-circle-play'],['tasks','Tasks','fa-solid fa-list-check'],['announcements','ประกาศ','fa-solid fa-bullhorn'],['schedule','ตารางรวม','fa-regular fa-calendar']]) + `<div id="teachingBody"></div>`;
-    bindTabs(el);$('refreshTeaching').onclick=()=>loadAll();const root=$('teachingBody');({attendance:renderAttendance,logs:renderTeachingLogs,learning:renderLearning,tasks:renderTasks,announcements:renderAnnouncements,schedule:renderSchedule}[tab]||renderAttendance)(root);
-  }
-
-  function sessionPlannedHours(s){
-    if(num(s.billable_hours)>0)return num(s.billable_hours);
-    if(s.start_time&&s.end_time){const [sh,sm]=String(s.start_time).slice(0,5).split(':').map(Number),[eh,em]=String(s.end_time).slice(0,5).split(':').map(Number);return Math.max(0,((eh*60+em)-(sh*60+sm))/60)}
-    return 0;
-  }
-  function defaultTutorId(){return state.staff?.tutor_id||state.tutors.find(t=>String(t.display_name||'').trim().toLowerCase()===String(state.staff?.display_name||'').trim().toLowerCase())?.id||''}
-  function quickCourseRows(studentId){return state.studentCourses.filter(x=>x.student_id===studentId&&['active','paused'].includes(x.status)&&x.course_id)}
-  function quickBalance(row){if(!row)return {text:'เลือกคอร์ส',remain:0,unlimited:false,total:0,used:0};const p=pool(row.hour_pool_id),unlimited=!!(p?.unlimited||row.hours_unlimited),total=num(p?.total_hours??row.hours_total),used=num(p?.used_hours??row.hours_used),remain=Math.max(0,total-used);return {text:unlimited?'ไม่จำกัดชั่วโมง':`เหลือ ${remain.toFixed(2)} / ${total.toFixed(2)} ชม.`,remain,unlimited,total,used}}
-  function quickLessonMarkup(){const running=state.attendanceSessions.filter(s=>s.session_kind==='private'&&s.private_student_id&&s.actual_start_at&&!s.actual_end_at&&s.status!=='cancelled').slice(0,6),defTutor=defaultTutorId();return `<section class="aw-card panel v171-quick-clock"><div class="panel-head"><div><span class="v171-kicker">PRIVATE LESSON CLOCK</span><h3>ลงเวลาเรียนรายบุคคล</h3><p>เลือกติวเตอร์ → นักเรียน → คอร์ส → เวลาเริ่ม/จบ ระบบคำนวณชั่วโมงและตัดจาก Course Wallet ให้ทันที</p></div><span class="status green"><i class="fa-solid fa-bolt"></i> Realtime</span></div><form id="v171QuickForm" class="v171-quick-grid"><label class="aw-label">ติวเตอร์<select class="aw-input" name="tutor_id" id="v171Tutor"><option value="">เลือกติวเตอร์</option>${state.tutors.filter(x=>x.active).map(t=>`<option value="${t.id}" ${defTutor===t.id?'selected':''}>${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">นักเรียน<select class="aw-input" name="student_id" id="v171Student" required><option value="">เลือกนักเรียน</option>${state.students.filter(x=>!x.archived&&x.status!=='inactive').map(s=>`<option value="${s.id}">${esc(s.display_name)}${s.student_code?' · '+esc(s.student_code):''}</option>`).join('')}</select></label><label class="aw-label wide">คอร์ส / กระเป๋าชั่วโมง<select class="aw-input" name="student_course_enrollment_id" id="v171Course" required><option value="">เลือกนักเรียนก่อน</option></select></label><div class="v171-balance wide" id="v171Balance"><span>ชั่วโมงคงเหลือ</span><b>—</b><small>เลือกนักเรียนและคอร์ส</small></div><label class="aw-label">วันที่<input class="aw-input" type="date" name="session_date" id="v171Date" value="${today()}" required></label><label class="aw-label">เริ่ม<input class="aw-input" type="time" name="start_time" id="v171Start"></label><label class="aw-label">ถึง<input class="aw-input" type="time" name="end_time" id="v171End"></label><label class="aw-label">รวมชั่วโมง<input class="aw-input" type="number" min="0.01" step="0.01" name="hours" id="v171Hours" placeholder="Auto"></label><label class="aw-label wide">หัวข้อ / หมายเหตุ<input class="aw-input" name="title" id="v171Title" placeholder="เช่น Genetics: Mendelian inheritance"></label></form><div class="v171-quick-actions"><button class="aw-btn success" id="v171StartNow"><i class="fa-solid fa-play"></i> เริ่มสอนตอนนี้</button><button class="aw-btn primary" id="v171SaveLesson"><i class="fa-solid fa-clock"></i> บันทึกเวลาที่สอนแล้ว & ตัดชั่วโมง</button></div>${running.length?`<div class="v171-running"><div class="v171-running-head"><b>กำลังจับเวลาอยู่</b><span>${running.length} คาบ</span></div>${running.map(s=>{const st=student(s.private_student_id),r=state.studentCourses.find(x=>x.id===s.student_course_enrollment_id),bal=quickBalance(r);return `<div class="v171-running-row"><div><b>${esc(st?.display_name||'นักเรียน')}</b><small>${esc(course(s.course_id)?.name||'')} · เริ่ม ${dateTime(s.actual_start_at)} · ${bal.text}</small></div><button class="aw-btn warn small" data-v171-finish="${s.id}"><i class="fa-solid fa-stop"></i> จบคาบ & ตัดชม.</button></div>`}).join('')}</div>`:''}</section>`}
-  function bindQuickLesson(root){
-    const form=$('v171QuickForm');if(!form)return;const stSel=$('v171Student'),courseSel=$('v171Course'),bal=$('v171Balance'),start=$('v171Start'),end=$('v171End'),hours=$('v171Hours');
-    const refreshBalance=()=>{const row=state.studentCourses.find(x=>x.id===courseSel.value),b=quickBalance(row);bal.innerHTML=`<span>ชั่วโมงคงเหลือ</span><b>${b.unlimited?'∞':b.remain.toFixed(2)}</b><small>${b.unlimited?'แพ็กเกจไม่จำกัดชั่วโมง':`ใช้แล้ว ${b.used.toFixed(2)} จาก ${b.total.toFixed(2)} ชม.`}</small>`;bal.classList.toggle('low',!b.unlimited&&b.remain<=3)};
-    const refreshCourses=()=>{const sid=stSel.value,rows=quickCourseRows(sid);courseSel.innerHTML='<option value="">เลือกคอร์ส</option>'+rows.map(r=>`<option value="${r.id}">${esc(r.course_label||course(r.course_id)?.name||'คอร์ส')} · ${quickBalance(r).text}</option>`).join('');if(rows.length===1){courseSel.value=rows[0].id}refreshBalance()};
-    const calc=()=>{if(!start.value||!end.value)return;let [sh,sm]=start.value.split(':').map(Number),[eh,em]=end.value.split(':').map(Number),mins=(eh*60+em)-(sh*60+sm);if(mins<0)mins+=1440;hours.value=(mins/60).toFixed(2)};
-    stSel.onchange=refreshCourses;courseSel.onchange=refreshBalance;start.onchange=calc;end.onchange=calc;
-    $('v171SaveLesson').onclick=async()=>{const fd=new FormData(form),sid=fd.get('student_id'),sce=fd.get('student_course_enrollment_id'),h=num(fd.get('hours'));if(!sid||!sce||!fd.get('start_time')||!fd.get('end_time'))return toast('กรุณาเลือกนักเรียน คอร์ส และเวลาเริ่ม–จบ','error');const b=quickBalance(state.studentCourses.find(x=>x.id===sce));if(!b.unlimited&&h>b.remain+0.001)return Swal.fire({icon:'warning',title:'ชั่วโมงคงเหลือไม่พอ',text:`เหลือ ${b.remain.toFixed(2)} ชม. แต่คาบนี้ ${h.toFixed(2)} ชม.`,confirmButtonColor:'#0ea5e9'});const{data,error}=await sb.rpc('os_v171_log_private_lesson',{p_student_id:sid,p_student_course_enrollment_id:sce,p_tutor_id:fd.get('tutor_id')||null,p_session_date:fd.get('session_date'),p_start_time:fd.get('start_time'),p_end_time:fd.get('end_time'),p_hours:h||null,p_title:fd.get('title')||null,p_note:'Tutor OS · Private Lesson'});if(error)return swalError('บันทึกเวลาเรียนไม่สำเร็จ',error);await loadAll(false);toast(`บันทึก ${num(data?.hours).toFixed(2)} ชม. · เหลือ ${data?.unlimited?'∞':num(data?.remaining_hours).toFixed(2)} ชม.`)};
-    $('v171StartNow').onclick=async()=>{const fd=new FormData(form),sid=fd.get('student_id'),sce=fd.get('student_course_enrollment_id');if(!sid||!sce)return toast('กรุณาเลือกนักเรียนและคอร์ส','error');const{error}=await sb.rpc('os_v171_start_private_lesson',{p_student_id:sid,p_student_course_enrollment_id:sce,p_tutor_id:fd.get('tutor_id')||null,p_title:fd.get('title')||null,p_note:'Tutor OS · Live Clock'});if(error)return swalError('เริ่มจับเวลาไม่สำเร็จ',error);await loadAll(false);toast('เริ่มจับเวลาแล้ว')};
-    $$('[data-v171-finish]',root).forEach(b=>b.onclick=async()=>{const sess=state.attendanceSessions.find(x=>x.id===b.dataset.v171Finish),r=state.studentCourses.find(x=>x.id===sess?.student_course_enrollment_id),balance=quickBalance(r),elapsed=sess?.actual_start_at?Math.max(.01,(Date.now()-new Date(sess.actual_start_at).getTime())/36e5):0;let manual=null;if(!balance.unlimited&&elapsed>balance.remain+.01){const ask=prompt(`ชั่วโมงคงเหลือ ${balance.remain.toFixed(2)} ชม.\\nกรอกชั่วโมงที่จะตัด`,balance.remain.toFixed(2));if(ask===null)return;manual=num(ask)}const{data,error}=await sb.rpc('os_v171_finish_private_lesson',{p_session_id:b.dataset.v171Finish,p_hours:manual,p_note:'Tutor OS · จบคาบรายบุคคล'});if(error)return swalError('จบคาบไม่สำเร็จ',error);await loadAll(false);toast(`จบคาบ ${num(data?.hours).toFixed(2)} ชม. · เหลือ ${data?.unlimited?'∞':num(data?.remaining_hours).toFixed(2)} ชม.`)});
-  }
-
-  function renderAttendance(root){
-    const sessions=state.attendanceSessions;
-    const todayRows=sessions.filter(x=>x.session_date===today()&&x.status!=='cancelled');
-    const deducted=sessions.filter(x=>x.deduction_status==='deducted').length;
-    const hoursToday=todayRows.reduce((a,x)=>a+sessionPlannedHours(x),0);
-    root.innerHTML=quickLessonMarkup()+`<div class="grid-4" style="margin-bottom:12px">${metric('fa-solid fa-play','คาบวันนี้',todayRows.length,'Scheduled / actual','#e0f2fe')}${metric('fa-regular fa-clock','ชั่วโมงวันนี้',hoursToday.toFixed(1),'ก่อนตัดชั่วโมง','#ede9fe')}${metric('fa-solid fa-scissors','ตัดชั่วโมงแล้ว',deducted,'มี Hour Ledger','#dcfce7')}${metric('fa-solid fa-bolt','Realtime','ON','Student Portal sync','#fef3c7')}</div><div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>ลงเวลาเรียน & ตัดชั่วโมง</h3><p>กำหนดวัน/เวลา → เช็กชื่อ → เริ่ม/จบจริง → ตรวจชั่วโมง → กดตัดชั่วโมง</p></div><button class="aw-btn sky small" id="newSession"><i class="fa-solid fa-plus"></i> เปิดคาบ</button></div><div class="list">${sessions.slice(0,60).map(s=>{const c=course(s.course_id),t=tutor(s.tutor_id),count=state.attendance.filter(a=>a.session_id===s.id&&['present','late'].includes(a.status)).length,hrs=sessionPlannedHours(s),running=s.actual_start_at&&!s.actual_end_at;return `<button class="list-item" style="text-align:left" data-session="${s.id}"><div class="list-item-head"><div><h4>${esc(s.title||c?.name||'Session')}</h4><p>${date(s.session_date)} ${s.start_time?String(s.start_time).slice(0,5):''}${s.end_time?'–'+String(s.end_time).slice(0,5):''} • ${esc(t?.display_name||'')}</p></div><span class="status ${s.deduction_status==='deducted'?'green':running?'amber':s.status==='completed'?'blue':'violet'}">${s.deduction_status==='deducted'?'DEDUCTED':running?'RUNNING':esc(s.status)}</span></div><p>${count} คน • ${hrs?hrs.toFixed(2)+' ชม.':'ยังไม่กำหนดชั่วโมง'}${s.actual_start_at?` • เริ่มจริง ${dateTime(s.actual_start_at)}`:''}</p></button>`}).join('')||'<div class="empty">ยังไม่มีคาบเรียน</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>วันนี้</h3><p>สถานะคาบและชั่วโมงแบบสด</p></div><span class="aw-tag">${today()}</span></div>${todayRows.map(s=>`<div class="list-item" style="margin-bottom:7px"><div class="list-item-head"><div><h4>${esc(s.title||course(s.course_id)?.name||'Session')}</h4><p>${String(s.start_time||'').slice(0,5)}–${String(s.end_time||'').slice(0,5)} • ${esc(tutor(s.tutor_id)?.display_name||'')}</p></div><b>${sessionPlannedHours(s).toFixed(2)} ชม.</b></div><p>${s.actual_start_at?'เริ่มจริง '+dateTime(s.actual_start_at):'ยังไม่เริ่ม'}${s.actual_end_at?' • จบ '+dateTime(s.actual_end_at):''}</p></div>`).join('')||'<div class="empty">วันนี้ยังไม่มีคาบ</div>'}<div class="section-note" style="margin-top:10px"><b>หลักการ V15:</b> ชั่วโมงจะไม่ถูกหักเพียงเพราะปิดคาบ ต้องกด “ตัดชั่วโมง” หลังตรวจรายชื่อและเวลาจริง เพื่อให้แก้ไขได้ก่อนลง Hour Ledger</div></div></div>`;
-    bindQuickLesson(root);$('newSession').onclick=openSessionModal;$$('[data-session]',root).forEach(b=>b.onclick=()=>openRoster(b.dataset.session));
-  }
-  function openSessionModal(){
-    openModal('เปิดคาบเรียน',`<form id="sessionForm" class="form-grid"><label class="aw-label wide">คอร์ส<select class="aw-input" name="course_id" required><option value="">เลือกคอร์ส</option>${state.courses.filter(x=>x.active&&offering(x.id)?.enrollment_open!==false).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label><label class="aw-label">ติวเตอร์<select class="aw-input" name="tutor_id"><option value="">ไม่ระบุ</option>${state.tutors.filter(x=>x.active).map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">วันที่<input type="date" class="aw-input" name="session_date" value="${today()}" required></label><label class="aw-label">เริ่มตามแผน<input type="time" class="aw-input" name="start_time" id="sessionStart"></label><label class="aw-label">จบตามแผน<input type="time" class="aw-input" name="end_time" id="sessionEnd"></label><label class="aw-label">ชั่วโมงคิดจริง<input type="number" step="0.25" min="0" class="aw-input" name="billable_hours" id="sessionBillable" placeholder="คำนวณจากเวลาอัตโนมัติ"></label><label class="aw-label wide">ชื่อคาบ<input class="aw-input" name="title" placeholder="เช่น Chapter 3: Cell Biology"></label><label class="aw-label">รูปแบบ<select class="aw-input" name="mode"><option value="online">Online</option><option value="onsite">Onsite</option><option value="hybrid">Hybrid</option></select></label><label class="aw-label">สถานที่<input class="aw-input" name="location"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-input" name="note"></textarea></label><div class="section-note wide" id="sessionCalc">กรอกเวลาเริ่มและจบ ระบบจะคำนวณชั่วโมงให้</div></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveSession">เปิดคาบ</button>`);
-    const calc=()=>{const a=$('sessionStart').value,b=$('sessionEnd').value;if(!a||!b)return;$('sessionBillable').value=Math.max(0,(new Date(`2000-01-01T${b}:00`)-new Date(`2000-01-01T${a}:00`))/36e5).toFixed(2);$('sessionCalc').innerHTML=`รวม <b>${$('sessionBillable').value} ชั่วโมง</b> — แก้ค่าชั่วโมงคิดจริงได้ก่อนบันทึก`;};$('sessionStart').onchange=calc;$('sessionEnd').onchange=calc;
-    $('saveSession').onclick=async()=>{const row=Object.fromEntries(new FormData($('sessionForm')).entries());row.tutor_id=row.tutor_id||null;row.billable_hours=row.billable_hours?num(row.billable_hours):null;row.duration_source=row.billable_hours?'manual':'scheduled';row.created_by=state.session.user.id;const{error}=await sb.from('os_attendance_sessions').insert(row);if(error)return swalError('เปิดคาบไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เปิดคาบเรียนแล้ว')};
-  }
-  function openRoster(id){
-    const sess=state.attendanceSessions.find(x=>x.id===id);if(!sess)return;
-    const g=sess.group_id?group(sess.group_id):null;
-    let courseStudents=[];
-    if(sess.group_id){
-      const rosterAttendance=state.attendance.filter(a=>a.session_id===id);
-      courseStudents=rosterAttendance.map(a=>{const st=student(a.student_id),m=state.groupMembers.find(x=>x.group_id===sess.group_id&&x.student_id===a.student_id),r=(m?.student_course_enrollment_id?state.studentCourses.find(x=>x.id===m.student_course_enrollment_id):null)||state.studentCourses.find(x=>x.student_id===a.student_id&&x.course_id===sess.course_id&&['active','paused'].includes(x.status));return {row:r,student:st,member:m,attendance:a}}).filter(x=>x.student);
-    }else{
-      courseStudents=state.studentCourses.filter(x=>x.course_id===sess.course_id&&['active','paused'].includes(x.status)).map(x=>({row:x,student:student(x.student_id),member:null,attendance:state.attendance.find(a=>a.session_id===id&&a.student_id===x.student_id)})).filter(x=>x.student);
-    }
-    const hrs=sessionPlannedHours(sess);
-    const groupBadge=g?`<span class="locker-code">${esc(g.group_code)}</span> `:'';
-    openModal(`คาบเรียน · ${sess.title||course(sess.course_id)?.name||''}`,`<div class="grid-4" style="margin-bottom:10px"><div class="list-item"><h4>วันที่</h4><p>${date(sess.session_date)}</p></div><div class="list-item"><h4>ตามแผน</h4><p>${String(sess.start_time||'—').slice(0,5)}–${String(sess.end_time||'—').slice(0,5)}</p></div><div class="list-item"><h4>เวลาจริง</h4><p>${sess.actual_start_at?dateTime(sess.actual_start_at):'ยังไม่เริ่ม'}${sess.actual_end_at?'<br>ถึง '+dateTime(sess.actual_end_at):''}</p></div><div class="list-item"><h4>Locker / ชั่วโมง</h4><p>${groupBadge}<b>${hrs.toFixed(2)} ชม.</b></p></div></div><div class="module-actions" style="margin-bottom:12px">${!sess.actual_start_at?`<button class="aw-btn success" id="startNow"><i class="fa-solid fa-play"></i> เริ่มสอนตอนนี้</button>`:''}${sess.actual_start_at&&!sess.actual_end_at?`<button class="aw-btn warn" id="stopNow"><i class="fa-solid fa-stop"></i> จบสอน & คำนวณ</button>`:''}<label class="aw-label" style="min-width:150px">ค่าเริ่มต้นชม.<input id="deductHours" type="number" step="0.25" min="0" class="aw-input" value="${hrs?hrs.toFixed(2):''}"></label><button class="aw-btn" id="applyHoursAll"><i class="fa-solid fa-arrow-down"></i> ใช้กับทุกคน</button></div><div class="section-note" style="margin-bottom:10px">${g?`<b>Group Locker ${esc(g.group_code)}:</b> รายชื่อถูกดึงจาก Locker นี้เท่านั้น · `:''}เช็กชื่อก่อนตัดชั่วโมง ระบบหักเฉพาะ <b>มาเรียน / สาย</b> และสามารถกำหนดชั่วโมง <b>รายคน</b> ได้ ข้อมูลจะเข้า Hour Ledger และ Student Portal แบบเรียลไทม์</div><div class="list" id="rosterList">${courseStudents.map(({row:r,student:s,member:m,attendance:a})=>{const rem=r?remainingHours(r):0;const target=num(a?.deducted_hours)>0?num(a.deducted_hours):num(m?.default_deduct_hours??hrs);const status=a?.status||'pending';return `<div class="list-item roster-person"><div class="list-item-head"><div><h4>${esc(s.display_name)}</h4><p>${esc(s.student_code||'')} ${s.phone?'• '+esc(s.phone):''} • ${rem===Infinity?'รายปี / ไม่จำกัด':`เหลือ ${rem.toFixed(2)} ชม.`}${m?.seat_label?' • '+esc(m.seat_label):''}</p></div><span class="status ${status==='present'?'green':status==='late'?'amber':status==='absent'?'red':status==='leave'?'violet':'blue'}">${status==='pending'?'รอเช็ก':esc(status)}</span></div><div class="roster-controls"><div class="module-actions">${[['present','มาเรียน','success'],['late','สาย','warn'],['absent','ขาด','danger'],['leave','ลา','']].map(x=>`<button class="aw-btn small ${x[2]}" data-attend="${s.id}:${x[0]}">${x[1]}</button>`).join('')}</div><label class="aw-label roster-hours">ตัดชม.<input data-student-hours="${s.id}" type="number" step="0.25" min="0" class="aw-input" value="${target?target.toFixed(2):'0.00'}" ${!['present','late'].includes(status)?'disabled':''}></label><button class="aw-btn primary small" data-deduct-one="${s.id}" ${!['present','late'].includes(status)?'disabled':''}><i class="fa-solid fa-scissors"></i> คนนี้</button>${isAdmin()&&num(a?.deducted_hours)>0?`<button class="aw-btn danger small" data-restore-one="${s.id}"><i class="fa-solid fa-rotate-left"></i></button>`:''}</div></div>`}).join('')||'<div class="empty">ยังไม่มีนักเรียนในคาบนี้</div>'}</div>`,`<button class="aw-btn" data-modal-close>ปิด</button>${sess.deduction_status==='deducted'&&isAdmin()?`<button class="aw-btn danger" id="restoreHours">คืนทั้งคาบ</button>`:''}<button class="aw-btn primary" id="deductSession"><i class="fa-solid fa-scissors"></i> บันทึกตัดชั่วโมงทั้งหมด</button>`);
-
-    const saveDeduction=async(rows,label='บันทึกชั่วโมง')=>{if(!rows.length)return toast('ไม่มีนักเรียนสถานะมาเรียน/สาย','error');const total=rows.reduce((a,x)=>a+num(x.hours),0);if(!confirm(`${label}: ${rows.length} คน · รวม ${total.toFixed(2)} ชั่วโมง?\nStudent Portal จะอัปเดตทันที`))return;const{data,error}=await sb.rpc('os_deduct_session_hours_v2',{p_session_id:id,p_rows:rows,p_note:g?`Group Locker ${g.group_code}`:'Tutor OS V15.1'});if(error)return swalError('ตัดชั่วโมงไม่สำเร็จ',error);await loadAll(false);openRoster(id);toast(`อัปเดต Hour Ledger แล้ว ${data?.processed||rows.length} คน`)};
-    $$('[data-attend]',$('modalRoot')).forEach(b=>b.onclick=async()=>{const[sid,status]=b.dataset.attend.split(':');const row={session_id:id,student_id:sid,status,checked_in_at:['present','late'].includes(status)?new Date().toISOString():null,source:g?'group-locker':'tutor-os',billable:['present','late'].includes(status)};const{error}=await sb.from('os_student_attendance').upsert(row,{onConflict:'session_id,student_id'});if(error)return swalError('เช็กชื่อไม่สำเร็จ',error);await loadAll(false);openRoster(id)});
-    $('applyHoursAll')?.addEventListener('click',()=>{const h=num($('deductHours')?.value);$$('[data-student-hours]',$('modalRoot')).forEach(inp=>{if(!inp.disabled)inp.value=h.toFixed(2)})});
-    $('startNow')?.addEventListener('click',async()=>{const{error}=await sb.rpc('os_start_session',{p_session_id:id});if(error)return swalError('เริ่มคาบไม่สำเร็จ',error);await loadAll(false);openRoster(id);toast('เริ่มจับเวลาสอนแล้ว')});
-    $('stopNow')?.addEventListener('click',async()=>{const manual=$('deductHours')?.value;const{error}=await sb.rpc('os_stop_session',{p_session_id:id,p_manual_hours:manual?num(manual):null});if(error)return swalError('จบคาบไม่สำเร็จ',error);await loadAll(false);openRoster(id);toast('คำนวณเวลาสอนแล้ว')});
-    $$('[data-deduct-one]',$('modalRoot')).forEach(b=>b.onclick=()=>{const sid=b.dataset.deductOne,inp=$(`[data-student-hours="${sid}"]`,$('modalRoot'));saveDeduction([{student_id:sid,hours:num(inp?.value)}],'ตัดชั่วโมงรายคน')});
-    $('deductSession')?.addEventListener('click',()=>{const rows=courseStudents.map(({student:s})=>{const a=state.attendance.find(x=>x.session_id===id&&x.student_id===s.id),inp=$(`[data-student-hours="${s.id}"]`,$('modalRoot'));return a&&['present','late'].includes(a.status)&&a.billable!==false?{student_id:s.id,hours:num(inp?.value)}:null}).filter(Boolean);saveDeduction(rows,'บันทึกตัดชั่วโมงทั้งคาบ')});
-    $$('[data-restore-one]',$('modalRoot')).forEach(b=>b.onclick=async()=>{if(!confirm('คืนชั่วโมงของนักเรียนคนนี้สำหรับคาบนี้?'))return;const{error}=await sb.rpc('os_restore_student_session_hours',{p_session_id:id,p_student_id:b.dataset.restoreOne,p_note:'คืนชั่วโมงรายคนโดย Admin'});if(error)return swalError('คืนชั่วโมงไม่สำเร็จ',error);await loadAll(false);openRoster(id);toast('คืนชั่วโมงรายคนแล้ว')});
-    $('restoreHours')?.addEventListener('click',async()=>{if(!confirm('คืนชั่วโมงของคาบนี้ทั้งหมด?'))return;const{error}=await sb.rpc('os_restore_session_hours',{p_session_id:id,p_note:'แก้ไขโดย Admin'});if(error)return swalError('คืนชั่วโมงไม่สำเร็จ',error);await loadAll(false);openRoster(id);toast('คืนชั่วโมงทั้งคาบแล้ว')});
-  }
-
-  function renderTeachingLogs(root){root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>บันทึกหลังสอน</h3><p>หัวข้อ ชั่วโมง และผลการเรียนของแต่ละคาบ</p></div><button id="newTeachingLog" class="aw-btn sky small"><i class="fa-solid fa-plus"></i> เพิ่มบันทึก</button></div><div class="table-wrap"><table class="table"><thead><tr><th>วันที่</th><th>นักเรียน</th><th>คอร์ส</th><th>หัวข้อ</th><th>ชั่วโมง</th><th>ผู้สอน</th></tr></thead><tbody>${state.teachingLogs.map(x=>`<tr><td>${date(x.lesson_date)}</td><td>${esc(student(x.student_id)?.display_name||'—')}</td><td>${esc(course(x.course_id)?.name||'—')}</td><td><div class="row-title">${esc(x.topic)}</div><div class="row-sub">${esc(x.notes||'')}</div></td><td>${num(x.hours)}</td><td>${esc(tutor(x.tutor_id)?.display_name||'—')}</td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">ยังไม่มีบันทึก</div></td></tr>'}</tbody></table></div></div>`;$('newTeachingLog').onclick=openTeachingLog;}
-  function openTeachingLog(){openModal('บันทึกหลังสอน',`<form id="logForm" class="form-grid"><label class="aw-label">นักเรียน<select class="aw-input" name="student_id"><option value="">ไม่ระบุ</option>${state.students.filter(x=>!x.archived).map(s=>`<option value="${s.id}">${esc(s.display_name)}</option>`).join('')}</select></label><label class="aw-label">คอร์ส<select class="aw-input" name="course_id"><option value="">ไม่ระบุ</option>${state.courses.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label><label class="aw-label">ติวเตอร์<select class="aw-input" name="tutor_id"><option value="">ไม่ระบุ</option>${state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">วันที่<input type="date" class="aw-input" name="lesson_date" value="${today()}"></label><label class="aw-label wide">หัวข้อ *<input class="aw-input" name="topic" required></label><label class="aw-label">ชั่วโมง<input type="number" min="0" step="0.25" class="aw-input" name="hours" value="1.5"></label><label class="aw-label wide">Notes<textarea class="aw-input" name="notes"></textarea></label><label class="aw-label wide">Outcome<textarea class="aw-input" name="outcome"></textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveLog">บันทึก</button>`);$('saveLog').onclick=async()=>{const row=Object.fromEntries(new FormData($('logForm')).entries());['student_id','course_id','tutor_id'].forEach(k=>row[k]=row[k]||null);row.hours=num(row.hours);row.created_by=state.session.user.id;const{error}=await sb.from('os_teaching_logs').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึกหลังสอนแล้ว')};}
-
-  function renderLearning(root){root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Learning topics</h3><p>บทเรียนย้อนหลังตามคอร์ส</p></div><button class="aw-btn sky small" id="newTopic"><i class="fa-solid fa-plus"></i> หัวข้อ</button></div><div class="list">${state.learningTopics.map(t=>{const assets=state.learningAssets.filter(a=>a.topic_id===t.id);return `<button class="list-item" style="text-align:left" data-topic="${t.id}"><div class="list-item-head"><div><h4>${esc(t.title)}</h4><p>${esc(course(t.course_id)?.name||'')} • ${assets.length} resources</p></div><span class="status ${t.is_active?'green':'red'}">${t.is_active?'active':'hidden'}</span></div></button>`}).join('')||'<div class="empty">ยังไม่มีหัวข้อ</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Portal Content</h3><p>วิดีโอ ชีท ไฟล์ และลิงก์</p></div></div><div class="section-note"><b>การเชื่อมข้อมูล:</b> Topic อ้างอิง Course UUID จากระบบหลัก จึงสามารถกำหนดสิทธิ์เป็นทั้งคอร์สหรือเฉพาะนักเรียนได้ โดยไม่สร้าง Course ซ้ำ</div><div class="module-actions" style="margin-top:12px"><button class="aw-btn" id="newAsset"><i class="fa-solid fa-paperclip"></i> เพิ่ม Resource</button><a class="aw-btn" href="?section=students">Portal Preview</a></div></div></div>`;$('newTopic').onclick=()=>openTopic();$('newAsset').onclick=()=>openAsset();$$('[data-topic]',root).forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));}
-  function openTopic(id=null){const t=id?state.learningTopics.find(x=>x.id===id):null;openModal(t?'แก้ไข Learning Topic':'เพิ่ม Learning Topic',`<form id="topicForm" class="form-grid"><label class="aw-label wide">คอร์ส<select class="aw-input" name="course_id" required><option value="">เลือก</option>${state.courses.map(c=>`<option value="${c.id}" ${t?.course_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label class="aw-label wide">ชื่อหัวข้อ *<input class="aw-input" name="title" required value="${esc(t?.title||'')}"></label><label class="aw-label wide">รายละเอียด<textarea class="aw-input" name="description">${esc(t?.description||'')}</textarea></label><label class="aw-label">ลำดับ<input type="number" class="aw-input" name="sort_order" value="${t?.sort_order??100}"></label><label class="checkbox-row"><input type="checkbox" name="is_active" ${t?.is_active===false?'':'checked'}> เปิดใช้งาน</label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button>${t?'<button class="aw-btn danger" id="deleteTopic">ลบ</button>':''}<button class="aw-btn primary" id="saveTopic">บันทึก</button>`);$('saveTopic').onclick=async()=>{const fd=new FormData($('topicForm')),row=Object.fromEntries(fd.entries());row.sort_order=num(row.sort_order);row.is_active=fd.get('is_active')==='on';row.created_by=t?t.created_by:state.session.user.id;const{error}=await(t?sb.from('os_learning_topics').update(row).eq('id',t.id):sb.from('os_learning_topics').insert(row));if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึกหัวข้อแล้ว')};if($('deleteTopic'))$('deleteTopic').onclick=async()=>{if(!confirm('ลบหัวข้อและ Resources ทั้งหมด?'))return;const{error}=await sb.from('os_learning_topics').delete().eq('id',t.id);if(error)return swalError('ลบไม่สำเร็จ',error);closeModal();await loadAll(false);toast('ลบแล้ว')};}
-  function openAsset(){openModal('เพิ่ม Learning Resource',`<form id="assetForm" class="form-grid"><label class="aw-label wide">Topic<select class="aw-input" name="topic_id" required><option value="">เลือก</option>${state.learningTopics.map(t=>`<option value="${t.id}">${esc(course(t.course_id)?.name||'')} · ${esc(t.title)}</option>`).join('')}</select></label><label class="aw-label">ประเภท<select class="aw-input" name="asset_type"><option value="video">Video</option><option value="sheet">Sheet</option><option value="link">Link</option><option value="file">File URL</option></select></label><label class="aw-label">ลำดับ<input type="number" class="aw-input" name="sort_order" value="100"></label><label class="aw-label wide">ชื่อ *<input class="aw-input" name="title" required></label><label class="aw-label wide">URL<input class="aw-input" name="url" placeholder="https://..."></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveAsset">บันทึก</button>`);$('saveAsset').onclick=async()=>{const row=Object.fromEntries(new FormData($('assetForm')).entries());row.sort_order=num(row.sort_order);const{error}=await sb.from('os_learning_assets').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เพิ่ม Resource แล้ว')};}
-
-  function renderTasks(root){const open=state.tasks.filter(x=>!x.completed);root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>งานที่ต้องทำ</h3><p>${open.length} งานยังไม่เสร็จ</p></div><button class="aw-btn sky small" id="newTask"><i class="fa-solid fa-plus"></i> เพิ่มงาน</button></div><div class="list">${state.tasks.map(t=>`<div class="list-item"><div class="list-item-head"><div><h4 style="${t.completed?'text-decoration:line-through;color:#94a3b8':''}">${esc(t.task_text)}</h4><p>${t.assigned_student_id?esc(student(t.assigned_student_id)?.display_name||''):''} ${t.due_date?'• due '+date(t.due_date):''}</p></div><span class="status ${t.priority==='urgent'?'red':t.priority==='high'?'amber':'blue'}">${esc(t.priority)}</span></div><div class="module-actions" style="margin-top:8px"><button class="aw-btn small ${t.completed?'':'success'}" data-toggle-task="${t.id}:${!t.completed}">${t.completed?'เปิดใหม่':'เสร็จแล้ว'}</button><button class="aw-btn small danger" data-delete-task="${t.id}">ลบ</button></div></div>`).join('')||'<div class="empty">ไม่มีงาน</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Focus</h3><p>งานเร่งด่วนและกำหนดส่งใกล้ที่สุด</p></div></div>${open.slice().sort((a,b)=>(a.due_date||'9999').localeCompare(b.due_date||'9999')).slice(0,6).map(t=>`<div class="list-item" style="margin-bottom:7px"><h4>${esc(t.task_text)}</h4><p>${t.due_date?date(t.due_date):'ไม่กำหนดวัน'} • ${esc(t.priority)}</p></div>`).join('')||'<div class="empty">เคลียร์หมดแล้ว 🎉</div>'}</div></div>`;$('newTask').onclick=openTask;$$('[data-toggle-task]',root).forEach(b=>b.onclick=async()=>{const[id,val]=b.dataset.toggleTask.split(':');const completed=val==='true';const{error}=await sb.from('os_tasks').update({completed,completed_at:completed?new Date().toISOString():null}).eq('id',id);if(error)return swalError('อัปเดตไม่สำเร็จ',error);await loadAll(false);toast('อัปเดต Task แล้ว')});$$('[data-delete-task]',root).forEach(b=>b.onclick=async()=>{if(!confirm('ลบ Task?'))return;const{error}=await sb.from('os_tasks').delete().eq('id',b.dataset.deleteTask);if(error)return swalError('ลบไม่สำเร็จ',error);await loadAll(false);toast('ลบแล้ว')});}
-  function openTask(){openModal('เพิ่ม Task',`<form id="taskForm" class="form-grid"><label class="aw-label wide">งาน *<input class="aw-input" name="task_text" required></label><label class="aw-label">Priority<select class="aw-input" name="priority"><option>normal</option><option>high</option><option>urgent</option><option>low</option></select></label><label class="aw-label">Due date<input type="date" class="aw-input" name="due_date"></label><label class="aw-label wide">นักเรียน<select class="aw-input" name="assigned_student_id"><option value="">ไม่ผูกนักเรียน</option>${state.students.map(s=>`<option value="${s.id}">${esc(s.display_name)}</option>`).join('')}</select></label><label class="aw-label wide">Note<textarea class="aw-input" name="note"></textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveTask">เพิ่มงาน</button>`);$('saveTask').onclick=async()=>{const row=Object.fromEntries(new FormData($('taskForm')).entries());row.assigned_student_id=row.assigned_student_id||null;row.due_date=row.due_date||null;row.created_by=state.session.user.id;const{error}=await sb.from('os_tasks').insert(row);if(error)return swalError('เพิ่มงานไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เพิ่ม Task แล้ว')};}
-
-  function renderAnnouncements(root){root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>Student Portal Announcements</h3><p>ประกาศสำหรับผู้เรียนและผู้ปกครอง</p></div><button class="aw-btn sky small" id="newAnnouncement"><i class="fa-solid fa-plus"></i> ประกาศ</button></div><div class="grid-3">${state.announcements.map(a=>`<article class="list-item"><div class="list-item-head"><h4>${esc(a.title)}</h4><span class="status ${a.is_active?'green':'red'}">${a.is_active?'active':'off'}</span></div><p>${esc(a.body)}</p><p>เผยแพร่ ${dateTime(a.publish_at)}</p><div class="module-actions"><button class="aw-btn small danger" data-delete-announcement="${a.id}">ลบ</button></div></article>`).join('')||'<div class="empty">ไม่มีประกาศ</div>'}</div></div>`;$('newAnnouncement').onclick=openAnnouncement;$$('[data-delete-announcement]',root).forEach(b=>b.onclick=async()=>{if(!confirm('ลบประกาศ?'))return;const{error}=await sb.from('os_announcements').delete().eq('id',b.dataset.deleteAnnouncement);if(error)return swalError('ลบไม่สำเร็จ',error);await loadAll(false);toast('ลบประกาศแล้ว')});}
-  function openAnnouncement(){openModal('เพิ่มประกาศ',`<form id="annForm" class="form-grid"><label class="aw-label wide">หัวข้อ *<input class="aw-input" name="title" required></label><label class="aw-label wide">เนื้อหา *<textarea class="aw-input" name="body" required></textarea></label><label class="aw-label">เริ่มเผยแพร่<input type="datetime-local" class="aw-input" name="publish_at" value="${new Date().toISOString().slice(0,16)}"></label><label class="aw-label">หมดอายุ<input type="datetime-local" class="aw-input" name="expires_at"></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveAnn">เผยแพร่</button>`);$('saveAnn').onclick=async()=>{const row=Object.fromEntries(new FormData($('annForm')).entries());row.publish_at=row.publish_at?new Date(row.publish_at).toISOString():new Date().toISOString();row.expires_at=row.expires_at?new Date(row.expires_at).toISOString():null;row.created_by=state.session.user.id;const{error}=await sb.from('os_announcements').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เผยแพร่ประกาศแล้ว')};}
-
-  function renderSchedule(root){const dayNames=['จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์','อาทิตย์'];root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>ตารางประจำ Tutor</h3><p>อ่านข้อมูลจาก Dynamic Schedule ของระบบ Manager</p></div><a class="aw-btn sky small" href="../manager/?section=schedule"><i class="fa-solid fa-pen"></i> แก้ไขตาราง</a></div><div style="overflow:auto"><div class="calendar-grid">${dayNames.map((d,i)=>{const rows=state.schedules.filter(x=>Number(x.weekday)===i+1&&x.status==='available');return `<div class="day-col"><div class="day-head">${d} · ${rows.length} ช่วง</div>${rows.slice(0,8).map(x=>{const st=state.scheduleTemplates.find(t=>t.id===x.time_template_id);return `<div class="session-chip"><b>${String(st?.start_time||'').slice(0,5)}–${String(st?.end_time||'').slice(0,5)}</b><small>${esc(tutor(x.tutor_id)?.display_name||'')} • cap ${x.capacity}</small></div>`}).join('')}</div>`}).join('')}</div></div></div>`;}
-
-  function renderFinance(el){
-    if(!isAdmin()){el.innerHTML=pageHead('Finance','ไม่มีสิทธิ์','ส่วนการเงินเปิดเฉพาะ Admin')+'<div class="section-note danger-note">บัญชี Tutor จะไม่เห็น Payment และ Finance ตามหลัก least privilege</div>';return;}
-    const paid=state.payments.filter(x=>x.status==='paid'),pending=state.payments.filter(x=>x.status==='pending'),portalPending=state.portalPaymentSubmissions.filter(x=>x.status==='pending'),revenue=state.financeEntries.filter(x=>x.entry_type==='income').reduce((s,x)=>s+num(x.amount),0),expenses=state.financeEntries.filter(x=>x.entry_type==='expense').reduce((s,x)=>s+num(x.amount),0);
-    el.innerHTML=pageHead('Finance','การเงิน','Core Payment + Student Portal + Finance Ledger อยู่ในหน้าเดียว',`<button class="aw-btn sky" id="newFinance"><i class="fa-solid fa-plus"></i> รายการ Manual</button><a class="aw-btn" href="../manager/?section=payments">ตรวจ Core Slip</a>`) + `<div class="grid-4">${metric('fa-solid fa-sack-dollar','รายรับรวม',money(revenue),'Tutor OS finance','#dcfce7')}${metric('fa-solid fa-receipt','ชำระแล้ว',paid.length,'Core payments','#e0f2fe')}${metric('fa-solid fa-hourglass-half','Core รอตรวจ',pending.length,'Manager queue','#fef3c7')}${metric('fa-solid fa-mobile-screen','Portal Slip',portalPending.length,'Student Portal queue','#ede9fe')}</div><div class="grid-3" style="margin-top:12px"><div class="aw-card panel"><div class="panel-head"><div><h3>Core Payments</h3><p>ข้อมูลเดียวกับ Manager</p></div></div><div class="list">${state.payments.slice(0,18).map(p=>{const e=state.enrollments.find(x=>x.id===p.enrollment_id);return `<div class="list-item"><div class="list-item-head"><div><h4>${esc(e?.fullname||'ผู้เรียน')}</h4><p>${esc(e?.course_text||'')} • ${money(p.verified_amount||p.amount_submitted)}</p></div><span class="status ${paymentStatusClass(p.status)}">${esc(p.status)}</span></div></div>`}).join('')||'<div class="empty">ไม่มี Payment</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Student Portal Slip</h3><p>สลิปที่นักเรียนส่งจาก Portal</p></div><span class="aw-tag">${portalPending.length} pending</span></div><div class="list">${state.portalPaymentSubmissions.slice(0,18).map(x=>{const st=student(x.student_id),req=state.portalPaymentRequests.find(r=>r.id===x.payment_request_id);return `<div class="list-item"><div class="list-item-head"><div><h4>${esc(st?.display_name||'นักเรียน')}</h4><p>${esc(req?.title||'Payment')} • ${money(x.amount||req?.amount)}</p></div><span class="status ${x.status==='approved'?'green':x.status==='rejected'?'red':'amber'}">${esc(x.status)}</span></div><div class="module-actions" style="margin-top:8px"><button class="aw-btn small" data-portal-slip="${x.id}"><i class="fa-regular fa-image"></i> ดูสลิป</button>${x.status==='pending'?`<button class="aw-btn success small" data-portal-pay="${x.id}:approved">อนุมัติ</button><button class="aw-btn danger small" data-portal-pay="${x.id}:rejected">ไม่ผ่าน</button>`:''}</div></div>`}).join('')||'<div class="empty">ยังไม่มีสลิปจาก Portal</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Finance Ledger</h3><p>Sync + Manual</p></div></div><div class="list">${state.financeEntries.slice(0,24).map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.description)}</h4><p>${date(x.transaction_date)} ${x.note?'• '+esc(x.note):''}</p></div><b style="color:${x.entry_type==='expense'?'#be123c':'#047857'}">${x.entry_type==='expense'?'-':'+'}${money(x.amount)}</b></div></div>`).join('')||'<div class="empty">ไม่มีรายการ</div>'}</div></div></div>`;
-    $('newFinance').onclick=openFinance;
-    $$('[data-portal-pay]',el).forEach(b=>b.onclick=async()=>{const[id,status]=b.dataset.portalPay.split(':');const label=status==='approved'?'อนุมัติ':'ปฏิเสธ';if(!confirm(`${label}สลิปรายการนี้? ระบบจะอัปเดตยอดผ่อน Finance และ Student Portal พร้อมกัน`))return;const{data,error}=await sb.rpc('os_review_portal_payment_submission',{p_submission_id:id,p_status:status,p_note:`Reviewed in Tutor OS V15 by ${state.staff?.display_name||state.session.user.email}`});if(error)return swalError('ตรวจสลิปไม่สำเร็จ',error);await loadAll(false);toast(status==='approved'?`ยืนยันแล้ว ${money(data?.amount||0)} · ทุกระบบซิงก์แล้ว`:'ปฏิเสธแล้ว · นักเรียนได้รับแจ้งเตือน')});
-    $$('[data-portal-slip]',el).forEach(b=>b.onclick=()=>openPortalSlip(b.dataset.portalSlip));
-  }
-  async function openPortalSlip(submissionId){
-    const sub=state.portalPaymentSubmissions.find(x=>x.id===submissionId);
-    if(!sub?.storage_path)return toast('ไม่พบไฟล์สลิป','error');
-    const{data,error}=await sb.storage.from('portal-slips').createSignedUrl(sub.storage_path,900);
-    if(error)return swalError('เปิดสลิปไม่สำเร็จ',error);
-    window.open(data.signedUrl,'_blank','noopener');
-  }
-  function openFinance(){openModal('เพิ่มรายการการเงิน',`<form id="financeForm" class="form-grid"><label class="aw-label">ประเภท<select class="aw-input" name="entry_type"><option value="income">รายรับ</option><option value="expense">รายจ่าย</option><option value="refund">คืนเงิน</option><option value="adjustment">ปรับยอด</option></select></label><label class="aw-label">วันที่<input type="date" class="aw-input" name="transaction_date" value="${today()}"></label><label class="aw-label wide">รายละเอียด *<input class="aw-input" name="description" required></label><label class="aw-label">จำนวนเงิน<input type="number" min="0" step="0.01" class="aw-input" name="amount" required></label><label class="aw-label">นักเรียน<select class="aw-input" name="student_id"><option value="">ไม่ผูก</option>${state.students.map(s=>`<option value="${s.id}">${esc(s.display_name)}</option>`).join('')}</select></label><label class="aw-label wide">Note<textarea class="aw-input" name="note"></textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveFinance">บันทึก</button>`);$('saveFinance').onclick=async()=>{const row=Object.fromEntries(new FormData($('financeForm')).entries());row.student_id=row.student_id||null;row.amount=num(row.amount);row.created_by=state.session.user.id;const{error}=await sb.from('os_finance_entries').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึกรายการแล้ว')};}
-
-  function renderTeam(el){
-    const tab=state.subtab.team;
-    el.innerHTML=pageHead('People & Content','ทีม & เนื้อหา','ติวเตอร์ สิทธิ์ทีม สมัครงาน Library HR และคำขอวิทยากรเชื่อมกับระบบหลัก',`<a class="aw-btn sky" href="../manager/?section=tutors"><i class="fa-solid fa-users-gear"></i> Manager Tutor</a>`) + tabs('team',[['tutors','ติวเตอร์','fa-solid fa-user-tie'],['staff','Staff & สิทธิ์','fa-solid fa-user-shield'],['library','Library','fa-solid fa-book'],['hr','HR & งานครู','fa-solid fa-briefcase'],['recruitment','Recruitment','fa-solid fa-user-plus']]) + `<div id="teamBody"></div>`;bindTabs(el);const root=$('teamBody');({tutors:renderTutors,staff:renderStaff,library:renderLibrary,hr:renderHR,recruitment:renderRecruitment}[tab]||renderTutors)(root);
-  }
-  function renderTutors(root){root.innerHTML=`<div class="grid-3">${state.tutors.map(t=>{const courseCount=state.courses.filter(c=>c.tutor_id===t.id).length,studentCount=new Set(state.studentCourses.filter(x=>x.tutor_id===t.id&&x.status==='active').map(x=>x.student_id)).size;return `<article class="aw-card module-card"><div class="person"><div class="avatar">${t.image_url?`<img src="${esc(t.image_url)}" alt="">`:esc(initials(t.display_name))}</div><div><h3>${esc(t.display_name)}</h3><p>${esc(t.role_text||t.full_name||'Tutor')}</p></div></div><p>${courseCount} คอร์ส • ${studentCount} นักเรียน<br>${esc((t.levels||[]).slice(0,3).join(' · '))}</p><div class="module-actions"><a class="aw-btn small" href="../manager/?section=tutors">จัดการ</a><button class="aw-btn small" data-tutor-summary="${t.id}">สรุปงาน</button></div></article>`}).join('')||'<div class="empty">ยังไม่มีติวเตอร์</div>'}</div>`;$$('[data-tutor-summary]',root).forEach(b=>b.onclick=()=>{const t=tutor(b.dataset.tutorSummary),logs=state.teachingLogs.filter(x=>x.tutor_id===t.id),hrs=logs.reduce((s,x)=>s+num(x.hours),0);openModal(t.display_name,`<div class="grid-2"><div class="list-item"><h4>คอร์ส</h4><p>${state.courses.filter(c=>c.tutor_id===t.id).length}</p></div><div class="list-item"><h4>ชั่วโมงบันทึก</h4><p>${hrs} ชม.</p></div></div><div class="list" style="margin-top:10px">${logs.slice(0,10).map(x=>`<div class="list-item"><h4>${esc(x.topic)}</h4><p>${date(x.lesson_date)} • ${num(x.hours)} ชม.</p></div>`).join('')}</div>`,`<button class="aw-btn primary" data-modal-close>ปิด</button>`);});}
-  function renderStaff(root){
-    if(!isAdmin()){
-      const me=state.staffProfiles.find(x=>x.user_id===state.session.user.id)||state.staff;
-      root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>สิทธิ์ของฉัน</h3><p>Tutor OS staff profile</p></div><span class="status blue">${esc(me?.role||'teacher')}</span></div><div class="list-item"><h4>${esc(me?.display_name||state.session.user.email)}</h4><p>${esc(state.session.user.email||'')}</p></div></div><div class="section-note"><b>การจัดสิทธิ์</b> เปิดเฉพาะ Admin เพื่อป้องกันการยกระดับสิทธิ์โดยไม่ได้รับอนุญาต</div></div>`;
+  async function boot() {
+    if (!window.supabase?.createClient || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+      $('loginHint').innerHTML = '<b>ยังไม่ได้ตั้งค่า Supabase</b><br>ตรวจสอบ ../config.js';
       return;
     }
-    root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Staff Directory</h3><p>บัญชีที่เข้า Tutor OS ได้</p></div><button class="aw-btn sky small" id="grantStaff"><i class="fa-solid fa-user-plus"></i> ให้สิทธิ์</button></div><div class="list">${state.staffProfiles.map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.display_name||x.user_id)}</h4><p class="mono-small">${esc(x.user_id)}</p></div><span class="status ${x.is_active?(x.role==='admin'?'violet':'green'):'red'}">${x.is_active?esc(x.role):'disabled'}</span></div><div class="module-actions" style="margin-top:8px"><button class="aw-btn small" data-staff-edit="${x.user_id}">แก้ไข</button>${x.user_id!==state.session.user.id?`<button class="aw-btn small ${x.is_active?'danger':'success'}" data-staff-toggle="${x.user_id}:${!x.is_active}">${x.is_active?'ปิดสิทธิ์':'เปิดสิทธิ์'}</button>`:''}</div></div>`).join('')||'<div class="empty">ยังไม่มี Staff</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Auth → Tutor OS</h3><p>วิธีเพิ่มบัญชีติวเตอร์</p></div></div><div class="section-note"><b>1.</b> สร้าง User ใน Supabase Authentication ก่อน<br><b>2.</b> คัดลอก User UID<br><b>3.</b> กด “ให้สิทธิ์” และเลือก role = teacher/admin<br><br>Manager/Admin ของระบบหลักจะถูก Sync เป็น Tutor OS admin อัตโนมัติ</div><div class="list-item" style="margin-top:10px"><h4>Security</h4><p>Finance, HR และการจัด Staff ถูกบังคับด้วย RLS ฝั่งฐานข้อมูล ไม่ได้อาศัยแค่การซ่อนเมนู</p></div></div></div>`;
-    $('grantStaff').onclick=()=>openStaff();
-    $$('[data-staff-edit]',root).forEach(b=>b.onclick=()=>openStaff(b.dataset.staffEdit));
-    $$('[data-staff-toggle]',root).forEach(b=>b.onclick=async()=>{const[id,val]=b.dataset.staffToggle.split(':');const{error}=await sb.from('os_staff_profiles').update({is_active:val==='true'}).eq('user_id',id);if(error)return swalError('อัปเดตสิทธิ์ไม่สำเร็จ',error);await loadAll(false);toast('อัปเดตสิทธิ์แล้ว')});
+    state.sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    window.awTutorSupabase = state.sb;
+    bindStatic();
+    const { data } = await state.sb.auth.getSession();
+    if (data.session) await loadData(); else showLogin();
+    state.sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) showLogin();
+    });
   }
-  function openStaff(userId=null){
-    const x=userId?state.staffProfiles.find(v=>v.user_id===userId):null;
-    openModal(x?'แก้ไขสิทธิ์ Staff':'ให้สิทธิ์ Tutor OS',`<form id="staffForm" class="form-grid"><label class="aw-label wide">Supabase Auth User UID *<input class="aw-input" name="user_id" required ${x?'readonly':''} value="${esc(x?.user_id||'')}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label><label class="aw-label wide">ชื่อที่แสดง<input class="aw-input" name="display_name" value="${esc(x?.display_name||'')}"></label><label class="aw-label">Role<select class="aw-input" name="role"><option value="teacher" ${x?.role==='teacher'?'selected':''}>teacher</option><option value="admin" ${x?.role==='admin'?'selected':''}>admin</option></select></label><label class="aw-label"><span>สถานะ</span><select class="aw-input" name="is_active"><option value="true" ${x?.is_active!==false?'selected':''}>เปิดใช้งาน</option><option value="false" ${x?.is_active===false?'selected':''}>ปิดใช้งาน</option></select></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveStaff">บันทึกสิทธิ์</button>`);
-    $('saveStaff').onclick=async()=>{const fd=new FormData($('staffForm'));const row={user_id:String(fd.get('user_id')||'').trim(),display_name:String(fd.get('display_name')||'').trim()||null,role:fd.get('role'),is_active:fd.get('is_active')==='true'};if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.user_id))return toast('UID ไม่ถูกต้อง','error');const{error}=await sb.from('os_staff_profiles').upsert(row,{onConflict:'user_id'});if(error)return swalError('บันทึกสิทธิ์ไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึกสิทธิ์ Staff แล้ว')};
-  }
-  function renderLibrary(root){root.innerHTML=`<div class="aw-card panel"><div class="panel-head"><div><h3>Team Library</h3><p>หนังสือ วิดีโอ ชีท ลิงก์ และทรัพยากรสำหรับทีม</p></div><button class="aw-btn sky small" id="addLibrary"><i class="fa-solid fa-plus"></i> เพิ่ม</button></div><div class="grid-3">${state.library.map(x=>`<article class="list-item"><div class="list-item-head"><div><h4>${esc(x.title)}</h4><p>${esc(x.category||'')} • ${esc(x.item_type)} • ${x.audience==='student'?'นักเรียน':x.audience==='both'?'นักเรียน + ทีม':'ทีมเท่านั้น'}</p></div><span class="status blue">${esc(x.subject_key||'general')}</span></div><p>${esc(x.description||'')}</p><div class="module-actions">${x.url?`<a class="aw-btn small" target="_blank" rel="noopener" href="${esc(x.url)}">เปิด</a>`:''}<button class="aw-btn danger small" data-delete-library="${x.id}">ลบ</button></div></article>`).join('')||'<div class="empty">Library ยังว่าง</div>'}</div></div>`;$('addLibrary').onclick=openLibrary;$$('[data-delete-library]',root).forEach(b=>b.onclick=async()=>{if(!confirm('ลบรายการนี้?'))return;const{error}=await sb.from('os_library_items').delete().eq('id',b.dataset.deleteLibrary);if(error)return swalError('ลบไม่สำเร็จ',error);await loadAll(false);toast('ลบแล้ว')});}
-  function openLibrary(){openModal('เพิ่ม Library item',`<form id="libForm" class="form-grid"><label class="aw-label wide">ชื่อ *<input class="aw-input" name="title" required></label><label class="aw-label">หมวด<input class="aw-input" name="category" placeholder="Biology / Teaching"></label><label class="aw-label">Subject key<input class="aw-input" name="subject_key" placeholder="bio"></label><label class="aw-label">ประเภท<select class="aw-input" name="item_type"><option>book</option><option>video</option><option>worksheet</option><option>link</option><option>file</option><option>other</option></select></label><label class="aw-label">เผยแพร่ให้<select class="aw-input" name="audience"><option value="staff">ทีมงานเท่านั้น</option><option value="student">นักเรียน</option><option value="both">นักเรียน + ทีมงาน</option></select></label><label class="aw-label wide">URL<input class="aw-input" name="url"></label><label class="aw-label wide">รายละเอียด<textarea class="aw-input" name="description"></textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveLib">บันทึก</button>`);$('saveLib').onclick=async()=>{const row=Object.fromEntries(new FormData($('libForm')).entries());row.created_by=state.session.user.id;const{error}=await sb.from('os_library_items').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เพิ่ม Library แล้ว')};}
-  function renderHR(root){if(!isAdmin()){root.innerHTML='<div class="section-note">HR detail เปิดเฉพาะ Admin ส่วน Tutor ใช้หน้าทีมและ Tasks ได้ตามปกติ</div>';return}root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>HR entries</h3><p>ค่าตอบแทน ประเมิน Training และบันทึกภายใน</p></div><button class="aw-btn sky small" id="addHR"><i class="fa-solid fa-plus"></i> เพิ่ม</button></div><div class="list">${state.hr.map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.title)}</h4><p>${esc(tutor(x.tutor_id)?.display_name||'')} • ${date(x.entry_date)}</p></div><span class="status violet">${esc(x.entry_type)}</span></div>${x.amount?`<p>${money(x.amount)}</p>`:''}<p>${esc(x.note||'')}</p></div>`).join('')||'<div class="empty">ยังไม่มี HR entry</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Recruitment</h3><p>ใบสมัครติวเตอร์จาก Subweb</p></div></div><div class="metric-value">${state.tutorApplications.length}</div><div class="metric-label">ใบสมัครทั้งหมด</div><div class="module-actions" style="margin-top:12px"><a class="aw-btn" href="../manager/?section=tutorapplications">เปิดระบบรับสมัคร</a><a class="aw-btn" href="../tutor-apply/" target="_blank">ดูหน้าสมัคร</a></div></div></div>`;$('addHR').onclick=openHR;}
-  function openHR(){openModal('เพิ่ม HR entry',`<form id="hrForm" class="form-grid"><label class="aw-label wide">ติวเตอร์<select class="aw-input" name="tutor_id"><option value="">เลือก</option>${state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join('')}</select></label><label class="aw-label">ประเภท<select class="aw-input" name="entry_type"><option>note</option><option>compensation</option><option>evaluation</option><option>training</option></select></label><label class="aw-label">วันที่<input type="date" class="aw-input" name="entry_date" value="${today()}"></label><label class="aw-label wide">หัวข้อ *<input class="aw-input" name="title" required></label><label class="aw-label">จำนวนเงิน<input type="number" class="aw-input" name="amount"></label><label class="aw-label wide">Note<textarea class="aw-input" name="note"></textarea></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveHR">บันทึก</button>`);$('saveHR').onclick=async()=>{const row=Object.fromEntries(new FormData($('hrForm')).entries());row.tutor_id=row.tutor_id||null;row.amount=row.amount?num(row.amount):null;row.created_by=state.session.user.id;const{error}=await sb.from('os_hr_entries').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('บันทึก HR แล้ว')};}
-  function renderRecruitment(root){root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Tutor Applications</h3><p>เชื่อมกับระบบรับสมัครติวเตอร์ TH/EN</p></div><a class="aw-btn sky small" href="../manager/?section=tutorapplications">จัดการ</a></div><div class="list">${state.tutorApplications.slice(0,15).map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(`${x.first_name||''} ${x.last_name||''}`.trim())}</h4><p>${esc(x.nickname||'')} • ${esc(x.email||'')}</p></div><span class="status ${x.status==='accepted'?'green':x.status==='rejected'?'red':'amber'}">${esc(x.status)}</span></div></div>`).join('')||'<div class="empty">ไม่มีใบสมัคร</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Speaker Requests</h3><p>คำขอจ้างวิทยากรจากเว็บไซต์หลัก</p></div><a class="aw-btn small" href="../manager/?section=speakers">จัดการ</a></div><div class="list">${state.speakers.slice(0,10).map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.organization)}</h4><p>${esc(x.subject)} • ${esc(x.event_datetime_text)}</p></div><span class="status blue">${esc(x.status)}</span></div></div>`).join('')||'<div class="empty">ไม่มีคำขอ</div>'}</div></div></div>`;}
-
-  function renderReports(el){
-    const attTotal=state.attendance.length,attPresent=state.attendance.filter(x=>['present','late'].includes(x.status)).length,attRate=attTotal?Math.round(attPresent/attTotal*100):0;
-    const revenue=state.financeEntries.filter(x=>x.entry_type==='income').reduce((s,x)=>s+num(x.amount),0);
-    const courseCounts=state.courses.map(c=>({name:c.name,count:new Set(state.studentCourses.filter(x=>x.course_id===c.id&&x.status==='active').map(x=>x.student_id)).size})).sort((a,b)=>b.count-a.count);
-    const max=Math.max(1,...courseCounts.map(x=>x.count));
-    el.innerHTML=pageHead('Analytics','รายงาน','Executive view จากข้อมูลสมัครเรียน การสอน Attendance และ Finance',`<button class="aw-btn" id="exportReport"><i class="fa-solid fa-file-csv"></i> Export CSV</button>`) + `<div class="grid-4">${metric('fa-solid fa-users','นักเรียน',state.students.filter(x=>!x.archived).length,'ทั้งหมด','#e0f2fe')}${metric('fa-solid fa-percent','Attendance',attRate+'%','มาเรียน + สาย','#dcfce7')}${metric('fa-solid fa-coins','Revenue',isAdmin()?money(revenue):'—','Finance ledger','#fef3c7')}${metric('fa-solid fa-book','Active Courses',state.courses.filter(x=>x.active).length,'Catalog','#ede9fe')}</div><div class="grid-2" style="margin-top:12px"><div class="aw-card panel"><div class="panel-head"><div><h3>นักเรียนต่อคอร์ส</h3><p>อ้างอิง Course UUID เดียวกับ Manager</p></div></div><div class="report-bars">${courseCounts.slice(0,12).map(x=>`<div class="bar-row"><span>${esc(x.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(x.count/max*100)}%"></div></div><b>${x.count}</b></div>`).join('')||'<div class="empty">ไม่มีข้อมูล</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Attendance breakdown</h3><p>${attTotal} attendance records</p></div></div>${['present','late','absent','leave'].map(s=>{const n=state.attendance.filter(x=>x.status===s).length,p=attTotal?Math.round(n/attTotal*100):0;return `<div class="bar-row" style="margin-bottom:10px"><span>${s}</span><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><b>${p}%</b></div>`}).join('')}</div></div>`;
-    $('exportReport').onclick=exportReport;
-  }
-  function exportReport(){const rows=[['metric','value'],['students',state.students.length],['active_courses',state.courses.filter(x=>x.active).length],['attendance_records',state.attendance.length],['finance_entries',state.financeEntries.length],['tasks_open',state.tasks.filter(x=>!x.completed).length],[],['course','active_students'],...state.courses.map(c=>[c.name,new Set(state.studentCourses.filter(x=>x.course_id===c.id&&x.status==='active').map(x=>x.student_id)).size])];downloadCSV('arewarin-tutor-os-report.csv',rows);}
-
-  function renderSettings(el){
-    const tab=state.subtab.settings;
-    el.innerHTML=pageHead('System','ตั้งค่า & เครื่องมือ','Connection health, Quick Replies, Import และทางลัดไปยังระบบที่เชื่อมกัน',`<button class="aw-btn" id="refreshSettings"><i class="fa-solid fa-rotate"></i> ตรวจอีกครั้ง</button>`) + tabs('settings',[['health','System Health','fa-solid fa-heart-pulse'],['quick','Quick Replies','fa-solid fa-message'],['import','Import CSV','fa-solid fa-file-import'],['links','Connected Apps','fa-solid fa-link']]) + `<div id="settingsBody"></div>`;bindTabs(el);$('refreshSettings').onclick=()=>loadAll();const root=$('settingsBody');({health:renderHealth,quick:renderQuick,import:renderImport,links:renderLinks}[tab]||renderHealth)(root);
-  }
-  function renderHealth(root){const h=state.unifiedHealth||{};const issues=num(h.courses_without_offering)+num(h.enrollment_items_missing_course)+num(h.active_student_courses_without_pool)+num(h.groups_without_members)+num(h.group_members_missing_enrollment);root.innerHTML=`<div class="grid-4" style="margin-bottom:12px">${metric('fa-solid fa-cubes','Modules',h.modules??state.moduleRegistry.length,'Module Registry','#e0f2fe')}${metric('fa-solid fa-door-open','คอร์สเปิดรับ',h.open_courses??state.offerings.filter(x=>x.enrollment_open&&x.status==='open').length,'Shared Offering','#dcfce7')}${metric('fa-solid fa-people-group','Group Lockers',h.active_groups??state.studentGroups.filter(x=>x.status==='active').length,'Active groups','#ede9fe')}${metric('fa-solid fa-triangle-exclamation','Link Issues',issues,'ควรเป็น 0','#fef3c7')}</div><div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Unified Core</h3><p>${esc(cfg.SUPABASE_URL)}</p></div><span class="status ${state.systemReady&&issues===0?'green':'amber'}">${state.systemReady?'V15.1 CONNECTED':'UPGRADE'}</span></div><div class="list-item"><h4>Authentication</h4><p>${esc(state.session?.user?.email||'')}</p></div><div class="list-item"><h4>Tutor OS Role</h4><p>${esc(state.staff?.role||'')}</p></div><div class="list-item"><h4>Single Source of Truth</h4><p>Course UUID · Student UUID · Enrollment UUID · Group Locker · Hour Pool · Payment</p></div><div class="list-item"><h4>คาบจบแต่ยังไม่ตัดชม.</h4><p>${num(h.undeducted_completed_sessions)} คาบ</p></div><div class="list-item"><h4>คาบกลุ่มวันนี้</h4><p>${num(h.group_sessions_today)} คาบ</p></div><div class="list-item"><h4>Portal slips รอตรวจ</h4><p>${num(h.pending_portal_slips)} รายการ</p></div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Integration Diagnostics</h3><p>ตรวจความเชื่อมโยงข้ามระบบ</p></div><span class="aw-tag">Events 24h ${num(h.events_24h??state.systemEvents.length)}</span></div><div class="list"><div class="list-item"><h4>คอร์สไม่มี Offering</h4><p>${num(h.courses_without_offering)}</p></div><div class="list-item"><h4>Enrollment Item ไม่มี Course UUID</h4><p>${num(h.enrollment_items_missing_course)}</p></div><div class="list-item"><h4>คอร์สนักเรียนไม่มี Hour Pool</h4><p>${num(h.active_student_courses_without_pool)}</p></div><div class="list-item"><h4>Locker ไม่มีสมาชิก</h4><p>${num(h.groups_without_members)}</p></div><div class="list-item"><h4>สมาชิก Locker link คอร์สผิด/หาย</h4><p>${num(h.group_members_missing_enrollment)}</p></div>${state.errors.map(e=>`<div class="list-item"><p>${esc(e)}</p></div>`).join('')||'<div class="section-note"><b>ฐานข้อมูลตอบกลับปกติ</b> — Event Bus, Realtime และ Group Locker พร้อมเชื่อม subweb ใหม่</div>'}</div></div></div>`;}
-  function renderQuick(root){root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Quick Replies</h3><p>ข้อความที่ทีมใช้บ่อย</p></div><button class="aw-btn sky small" id="addQuick"><i class="fa-solid fa-plus"></i> เพิ่ม</button></div><div class="list">${state.quickReplies.map(x=>`<div class="list-item"><div class="list-item-head"><div><h4>${esc(x.title)}</h4><p>${esc(x.message_text)}</p></div><button class="aw-btn small" data-copy-quick="${x.id}">คัดลอก</button></div></div>`).join('')||'<div class="empty">ยังไม่มี Quick Reply</div>'}</div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Tips</h3><p>ใช้ Quick Replies สำหรับ LINE / โทรติดตาม / นัดเรียน</p></div></div><div class="section-note">ข้อความเก็บใน Supabase และใช้ร่วมกันได้ทุกบัญชี Staff ที่มีสิทธิ์ Tutor OS</div></div></div>`;$('addQuick').onclick=openQuick;$$('[data-copy-quick]',root).forEach(b=>b.onclick=async()=>{const x=state.quickReplies.find(v=>v.id===b.dataset.copyQuick);await navigator.clipboard.writeText(x.message_text);toast('คัดลอกแล้ว')});}
-  function openQuick(){openModal('เพิ่ม Quick Reply',`<form id="quickForm" class="form-grid"><label class="aw-label wide">ชื่อ *<input class="aw-input" name="title" required></label><label class="aw-label wide">ข้อความ *<textarea class="aw-input" name="message_text" required></textarea></label><label class="aw-label">ลำดับ<input type="number" class="aw-input" name="sort_order" value="100"></label></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveQuick">บันทึก</button>`);$('saveQuick').onclick=async()=>{const row=Object.fromEntries(new FormData($('quickForm')).entries());row.sort_order=num(row.sort_order);const{error}=await sb.from('os_quick_replies').insert(row);if(error)return swalError('บันทึกไม่สำเร็จ',error);closeModal();await loadAll(false);toast('เพิ่ม Quick Reply แล้ว')};}
-  function renderImport(root){root.innerHTML=`<div class="grid-2"><div class="aw-card panel"><div class="panel-head"><div><h3>Import CRM CSV</h3><p>รองรับ name, phone, email, line_id, guardian_name, guardian_phone, stage, source, notes</p></div></div><div class="file-card"><input id="crmCsv" type="file" accept=".csv,text/csv" class="aw-input"><div class="module-actions" style="margin-top:10px"><button class="aw-btn sky" id="importCrmCsv"><i class="fa-solid fa-file-import"></i> นำเข้า</button><button class="aw-btn" id="downloadCrmTemplate">Template CSV</button></div></div></div><div class="aw-card panel"><div class="panel-head"><div><h3>Advanced Tools</h3><p>ข้อมูล Course / Tutor / Enrollment ให้จัดการผ่าน Manager เพื่อรักษา single source of truth</p></div></div><div class="section-note"><b>หลักการ:</b> Tutor OS นำเข้าข้อมูลเฉพาะ Operational/CRM ส่วนข้อมูลธุรกรรมหลักไม่สร้างซ้ำ</div><div class="module-actions" style="margin-top:12px"><a class="aw-btn" href="../manager/?section=enrollments">Enrollment</a><a class="aw-btn" href="../manager/?section=tutors">Tutors</a><a class="aw-btn" href="../manager/?section=courses">Courses</a></div></div></div>`;$('downloadCrmTemplate').onclick=()=>downloadCSV('arewarin-crm-template.csv',[['name','phone','email','line_id','guardian_name','guardian_phone','stage','source','notes'],['น้องตัวอย่าง','08xxxxxxxx','student@example.com','lineid','คุณแม่','08xxxxxxxx','lead','Facebook','สนใจ A-Level Biology']]);$('importCrmCsv').onclick=importCRMCSV;}
-  async function importCRMCSV(){const f=$('crmCsv').files[0];if(!f)return toast('กรุณาเลือกไฟล์','error');const rows=parseCSV(await f.text());if(!rows.length)return toast('ไม่พบข้อมูล','error');const allowed=['name','phone','email','line_id','guardian_name','guardian_phone','stage','source','notes'];const data=rows.map(r=>Object.fromEntries(allowed.map(k=>[k,r[k]??null]))).filter(r=>r.name);const{error}=await sb.from('os_crm_contacts').insert(data);if(error)return swalError('นำเข้าไม่สำเร็จ',error);await loadAll(false);toast(`นำเข้า ${data.length} รายการแล้ว`);}
-  function renderLinks(root){const registered=state.moduleRegistry.map(m=>connectedCard(m.icon||'fa-solid fa-link',m.title,m.description||m.area,m.path,'เปิดระบบ')).join('');root.innerHTML=`<div class="aw-card panel" style="margin-bottom:12px"><div class="panel-head"><div><h3>V15 Module Registry</h3><p>Subweb ใหม่ควรลงทะเบียนที่นี่ เพื่อให้ทุกระบบค้นหาและ Deep-link ถึงกันได้</p></div><span class="aw-tag">${state.moduleRegistry.length} modules</span></div><div class="section-note"><b>Integration Contract:</b> ใช้ Course UUID / Tutor UUID / Student UUID / Enrollment UUID ชุดเดียวกัน และส่งเหตุการณ์ผ่าน os_system_events แทนการสร้างข้อมูลซ้ำ</div></div><div class="grid-3">${registered||connectedCard('fa-solid fa-graduation-cap','Student Portal','คอร์ส ชั่วโมง Attendance และการชำระ','../student/','เปิด Portal')}</div>`;}
-
-  function openModal(title,body,actions='<button class="aw-btn primary" data-modal-close>ปิด</button>'){
-    $('modalRoot').innerHTML=`<div class="modal-backdrop" id="modalBackdrop"><section class="modal"><header class="modal-head"><h3>${esc(title)}</h3><button class="aw-btn small" data-modal-close><i class="fa-solid fa-xmark"></i></button></header><div class="modal-body">${body}</div><footer class="modal-actions">${actions}</footer></section></div>`;
-    $$('[data-modal-close]',$('modalRoot')).forEach(b=>b.onclick=closeModal);$('modalBackdrop').onclick=e=>{if(e.target.id==='modalBackdrop')closeModal()};
-  }
-  function closeModal(){ $('modalRoot').innerHTML=''; }
-
-  function parseCSV(text){
-    const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean);if(lines.length<2)return[];
-    const parseLine=line=>{const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(ch===','&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out};
-    const head=parseLine(lines[0]).map(x=>x.trim());return lines.slice(1).map(line=>{const vals=parseLine(line);return Object.fromEntries(head.map((h,i)=>[h,vals[i]?.trim()??'']))});
-  }
-  function downloadCSV(filename,rows){const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=filename;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0);}
-
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalBackdrop'))closeModal();if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();activateSection('students');setTimeout(()=>$('studentSearch')?.focus(),50)}});
-  sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){state.session=null;showLogin();}});
 
   boot();
 })();
