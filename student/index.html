@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0ea5e9"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="16.0.0-student-os">
+<meta name="arewarin-student-build" content="17.2.0-auth-repair">
 <title>AreWarin Biology · Student Portal</title><link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -610,7 +610,113 @@ button:active,.btn:active{transform:translateY(0) scale(.98)}
 .auth-security b{color:#334155!important}
 @media(max-width:620px){.login-row{align-items:flex-start!important;flex-direction:column!important;gap:2px!important}.login-row>.text-btn{padding-left:0!important}}
 </style>
-<link rel="manifest" href="./manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"></head><body class="aw-student-v156 aw-student-v1564" data-student-build="16.0.0-student-os"><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+<link rel="manifest" href="./manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style id="arewarin-student-v172-auth-polish">
+/* Student Portal v17.2 — Auth Repair + Mobile polish */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overflow-x:hidden}
+.auth-v2 .auth-panel{padding-top:max(24px,env(safe-area-inset-top))!important;padding-bottom:max(24px,env(safe-area-inset-bottom))!important}
+.auth-card-v2{overflow:visible!important}
+.auth-card-head{align-items:center!important}
+.auth-card-head>div{min-width:0}
+.auth-card-head h2{overflow-wrap:anywhere}
+#auth-form #msg:empty{display:none}
+#auth-form .message{margin-bottom:14px!important}
+
+.signup-intro,.signup-section-head{
+  display:flex;align-items:center;gap:10px;margin:4px 0 12px;
+}
+.signup-intro{padding:12px 13px;border:1px solid #dbeafe;border-radius:17px;background:linear-gradient(135deg,#f0f9ff,#eef2ff)}
+.signup-intro b,.signup-section-head b{display:block;color:#172033;font-size:11px;font-weight:800}
+.signup-intro span:not(.signup-step-no),.signup-section-head small{display:block;margin-top:2px;color:#7b879e;font-size:8.5px;line-height:1.5}
+.signup-step-no,.signup-section-head>span{
+  flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:10px;
+  background:linear-gradient(135deg,#0ea5e9,#4f46e5);color:#fff;font-size:10px;font-weight:900;
+  box-shadow:0 10px 20px -14px rgba(37,99,235,.8)
+}
+.signup-section-head{margin-top:16px}
+.signup-section-head>span{background:#eff6ff;color:#0284c7;border:1px solid #bae6fd;box-shadow:none}
+.signup-help{display:grid;grid-template-columns:26px 1fr;gap:9px;align-items:start;padding:10px 11px;border-radius:14px;background:#f8fafc;border:1px solid #edf2f7;margin-top:4px}
+.signup-help>span{width:26px;height:26px;display:grid;place-items:center;border-radius:9px;background:#fff;border:1px solid #e2e8f0;color:#0284c7;font-size:10px;font-weight:900}
+.signup-help p{margin:0;color:#64748b;font-size:9px;line-height:1.6}
+.signup-match-card{
+  position:relative;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center;
+  padding:13px;border:1px solid #bae6fd;border-radius:19px;
+  background:linear-gradient(135deg,#f0f9ff 0%,#f8fbff 55%,#eef2ff 100%);
+  box-shadow:0 16px 32px -28px rgba(2,132,199,.5)
+}
+.signup-match-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0;color:#059669;font-size:16px;font-weight:900}
+.signup-match-copy{min-width:0}
+.signup-match-copy>span{display:block;color:#0284c7;font-size:8px;font-weight:800;letter-spacing:.08em}
+.signup-match-copy strong{display:block;margin-top:2px;color:#172033;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.signup-match-copy p{margin:3px 0 0;color:#64748b;font-size:8.5px;line-height:1.5;overflow-wrap:anywhere}
+.signup-change{white-space:nowrap}
+.signup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.signup-grid .field{margin-bottom:0!important}
+.signup-grid+.signup-section-head{margin-top:18px}
+.signup-strength{margin-top:10px!important}
+.signup-strength-row{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:#94a3b8;font-size:8px;line-height:1.45}
+.signup-strength-row span:first-child{color:#475569;font-weight:800}
+.pin-input{text-align:center!important;letter-spacing:.45em!important;font-size:18px!important;font-weight:800!important}
+.signup-submit{margin-top:16px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:50px!important;padding-left:18px!important;padding-right:18px!important}
+.signup-submit:disabled,.auth-main-btn:disabled{opacity:.72;cursor:wait;transform:none!important}
+.signup-privacy{margin-top:10px;padding:10px 12px;text-align:center;border-radius:13px;background:#f8fafc;border:1px solid #edf2f7;color:#64748b;font-size:8.5px;line-height:1.55}
+.auth-btn-spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:awAuthSpin .7s linear infinite}
+@keyframes awAuthSpin{to{transform:rotate(360deg)}}
+.auth-error-code{margin-top:7px;padding-top:7px;border-top:1px solid rgba(190,24,93,.12);font:700 8px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:#9f1239}
+.password-wrap{position:relative}
+.password-wrap .input{padding-right:66px!important}
+.password-toggle{position:absolute!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;border:0!important;background:#fff!important;color:#0284c7!important;border-radius:10px!important;padding:7px 9px!important;font-size:8.5px!important;font-weight:800!important;box-shadow:0 4px 12px rgba(15,23,42,.06)!important}
+.password-toggle:hover{transform:translateY(-50%)!important;background:#f0f9ff!important}
+
+@media(max-width:900px){
+  .auth-v2{
+    display:block!important;min-height:100dvh!important;
+    background:
+      radial-gradient(circle at 10% 0%,rgba(56,189,248,.16),transparent 28%),
+      radial-gradient(circle at 100% 0%,rgba(99,102,241,.12),transparent 28%),
+      linear-gradient(180deg,#f8fbff,#f1f6ff)!important
+  }
+  .auth-v2>.auth-hero{display:none!important}
+  .auth-v2 .auth-panel{
+    display:block!important;min-height:100dvh!important;
+    padding:max(14px,env(safe-area-inset-top)) 10px max(20px,env(safe-area-inset-bottom))!important;
+    background:transparent!important
+  }
+  .auth-card-v2{
+    width:min(620px,100%)!important;margin:0 auto!important;padding:18px!important;
+    border-radius:24px!important;background:rgba(255,255,255,.94)!important;
+    box-shadow:0 20px 55px -32px rgba(15,23,42,.32)!important
+  }
+  .auth-card-head{margin-bottom:14px!important}
+  .auth-card-head h2{font-size:25px!important;margin-top:2px!important}
+  .auth-card-head p{font-size:9.5px!important}
+  .auth-tabs{margin:12px 0 14px!important;position:relative!important}
+  .auth-tabs button{min-height:48px!important}
+  .auth-tabs button span{font-size:10px!important}
+  .auth-tabs button small{display:none!important}
+}
+@media(max-width:560px){
+  .auth-v2 .auth-panel{padding-left:8px!important;padding-right:8px!important}
+  .auth-card-v2{padding:15px!important;border-radius:22px!important}
+  .auth-icon{width:40px!important;height:40px!important;flex-basis:40px!important;border-radius:13px!important}
+  .auth-card-head h2{font-size:22px!important}
+  .auth-kicker{font-size:7.5px!important}
+  .signup-grid{grid-template-columns:1fr}
+  .signup-match-card{grid-template-columns:38px minmax(0,1fr);padding:11px}
+  .signup-match-icon{width:38px;height:38px}
+  .signup-change{grid-column:2;justify-self:start;padding:0!important}
+  .signup-strength-row{display:grid;gap:2px}
+  .lookup{grid-template-columns:1fr!important}
+  .lookup .btn{width:100%!important}
+  .tabs.auth-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .tabs.auth-tabs button{padding:8px 4px!important;font-size:9px!important}
+  .field label{font-size:10px!important}
+  .auth-input,.auth-card-v2 .input{min-height:47px!important;font-size:13px!important}
+}
+</style>
+
+</head><body class="aw-student-v156 aw-student-v1564" data-student-build="17.2.0-auth-repair"><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -618,8 +724,60 @@ const sb=createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefre
 const S={mode:'login',session:null,data:null,tab:'dashboard',courseId:null,lessonId:null,signupPhone:'',signupMatch:null,signupResult:null,quickResult:null,signed:{},timer:null,poll:null,deviceKey:null};const $=(q,r=document)=>r.querySelector(q),$$=(q,r=document)=>[...r.querySelectorAll(q)];const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));const n=v=>Number(v||0);const date=v=>v?new Intl.DateTimeFormat('th-TH',{dateStyle:'medium'}).format(new Date(String(v).length===10?v+'T00:00:00':v)):'—';const dateTime=v=>v?new Intl.DateTimeFormat('th-TH',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v)):'—';const money=v=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(n(v));const normalizePhone=v=>{let d=String(v||'').replace(/\D/g,'');if(d.startsWith('66'))d='0'+d.slice(2);return d};
 function toast(m,e=false){if(window.AWAlert){window.AWAlert.toast(String(m),e?'error':'success');return}const x=document.createElement('div');x.className='toast'+(e?' error':'');x.textContent=m;document.body.append(x);setTimeout(()=>x.remove(),3500)}async function rpc(name,args={}){const {data,error}=await sb.rpc(name,args);if(error)throw error;return data}async function query(p){const {data,error}=await p;if(error)throw error;return data||[]}function full(s){return [s?.first_name,s?.last_name].filter(Boolean).join(' ')||s?.display_name||s?.nickname||s?.name||'นักเรียน'}function appProfile(){return S.data?.application_profile||{} }function latestCorePayment(){return (S.data?.core_payments||[])[0]||null}function course(id){return [...(S.data?.courses||[]),...(S.data?.open_courses||[])].find(x=>String(x.id)===String(id))}function enrollment(courseId){return S.data?.enrollments?.find(e=>String(e.course_id)===String(courseId)&&['active','paused','completed'].includes(e.status))}function topics(courseId){return (S.data?.topics||[]).filter(t=>String(t.course_id)===String(courseId)).sort((a,b)=>n(a.sort_order)-n(b.sort_order)||String(a.id).localeCompare(String(b.id)))}function assets(topicId){return (S.data?.assets||[]).filter(a=>String(a.topic_id)===String(topicId)).sort((a,b)=>n(a.sort_order)-n(b.sort_order)||String(a.id).localeCompare(String(b.id)))}function progress(topicId){return S.data?.progress?.find(p=>String(p.topic_id)===String(topicId))}function courseProgress(courseId){const ts=topics(courseId),done=ts.filter(t=>progress(t.id)?.status==='completed').length;return ts.length?Math.round(done/ts.length*100):0}function isNewTopic(t){const p=progress(t.id),as=assets(t.id);return !p||as.some(a=>new Date(a.created_at)>new Date(p.last_opened_at||0))}function unread(){return (S.data?.notifications||[]).filter(x=>!x.is_read).length}function statusThai(s){return ({pending:'รอเช็กชื่อ',present:'ตรงเวลา',late:'มาสาย',leave:'ลา',absent:'ขาด',makeup:'ชดเชย',pending:'รอชำระ',slip_submitted:'ส่งสลิปแล้ว',paid:'ชำระแล้ว',rejected:'ปฏิเสธ',expired:'หมดเวลา',payment_pending:'รอชำระ',pending_review:'รอตรวจ',approved:'อนุมัติ'})[s]||s||'—'}
 function passwordInfo(p,email='',phone=''){p=String(p||'');const checks={len:p.length>=8,number:/\d/.test(p),letter:/[A-Za-z]/.test(p),nospace:! /\s/.test(p),mixed:/[a-z]/.test(p)&&/[A-Z]/.test(p),symbol:/[^A-Za-z0-9]/.test(p)};let score=[checks.len,checks.number,checks.letter,checks.mixed,checks.symbol].filter(Boolean).length;if(!checks.nospace)score=0;const local=String(email).split('@')[0].toLowerCase(),digits=normalizePhone(phone);if((local.length>2&&p.toLowerCase().includes(local))||(digits.length>3&&p.includes(digits.slice(-4))))score=Math.max(1,score-1);return{checks,score,pct:Math.min(100,score*20),label:['ยังไม่กรอก','อ่อน','พอใช้','ปานกลาง','รัดกุม','รัดกุมมาก'][score]}}
-async function callStudentAuth(action,payload){let r;try{r=await fetch(`${CONFIG.url}/functions/v1/student-auth`,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({action,...payload})})}catch(err){const e=new Error('เชื่อมต่อระบบบัญชีนักเรียนไม่ได้ กรุณาตรวจว่า Edge Function student-auth ถูก Deploy และ Verify JWT = OFF');e.code='student_auth_unreachable';throw e}const raw=await r.text();let d={};try{d=raw?JSON.parse(raw):{}}catch{d={message:raw||'ระบบสมัครสมาชิกตอบกลับไม่ถูกต้อง'}}if(!r.ok||!d.ok){const e=new Error(d.message||`student-auth HTTP ${r.status}`);e.code=d.code;e.status=r.status;throw e}return d}
-function friendly(e){const c=String(e?.code||'').toLowerCase(),m=String(e?.message||'');if(c==='invalid_credentials'||/invalid login credentials/i.test(m))return'อีเมลหรือรหัสผ่านไม่ถูกต้อง หากลืมให้ใช้ PIN 4 หลัก';if(c==='account_exists')return'บัญชีนี้สมัครแล้ว กรุณาเข้าสู่ระบบ';if(c==='invalid_pin'||c==='pin_locked')return m;if(e?.status===500)return'ระบบสมัครสมาชิกมีปัญหาภายใน กรุณาแจ้งผู้ดูแล';return m||'เกิดข้อผิดพลาด'}
+async function callStudentAuth(action,payload){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),20000);
+  let r;
+  try{
+    r=await fetch(`${CONFIG.url}/functions/v1/student-auth`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':CONFIG.key,
+        'Authorization':`Bearer ${CONFIG.key}`,
+        'x-client-info':'arewarin-student-v17.2'
+      },
+      body:JSON.stringify({action,...payload}),
+      signal:controller.signal
+    });
+  }catch(err){
+    const aborted=err?.name==='AbortError';
+    const e=new Error(aborted
+      ?'ระบบบัญชีนักเรียนตอบช้าเกิน 20 วินาที กรุณาลองใหม่'
+      :'เชื่อมต่อระบบบัญชีนักเรียนไม่ได้ กรุณาตรวจว่า Edge Function student-auth ถูก Deploy แล้ว');
+    e.code=aborted?'student_auth_timeout':'student_auth_unreachable';
+    throw e;
+  }finally{
+    clearTimeout(timer);
+  }
+  const raw=await r.text();
+  let d={};
+  try{d=raw?JSON.parse(raw):{}}
+  catch{d={message:raw||'ระบบสมัครสมาชิกตอบกลับไม่ถูกต้อง'}}
+  if(!r.ok||!d.ok){
+    const e=new Error(d.message||`student-auth HTTP ${r.status}`);
+    e.code=d.code||`http_${r.status}`;
+    e.status=r.status;
+    e.details=d.details||null;
+    throw e;
+  }
+  return d;
+}
+function friendly(e){
+  const c=String(e?.code||'').toLowerCase(),m=String(e?.message||'');
+  if(c==='invalid_credentials'||/invalid login credentials/i.test(m))return'อีเมลหรือรหัสผ่านไม่ถูกต้อง หากลืมรหัสให้ใช้ PIN 4 หลัก';
+  if(c==='account_exists')return'บัญชีนี้สมัครแล้ว กรุณาใช้แท็บ “เข้าสู่ระบบ”';
+  if(c==='email_mismatch')return m||'อีเมลไม่ตรงกับข้อมูลนักเรียนที่สถาบันบันทึกไว้';
+  if(c==='student_not_found')return m||'ไม่พบข้อมูลนักเรียนจากเบอร์นี้';
+  if(c==='invalid_pin'||c==='pin_locked'||c==='pin_not_set')return m;
+  if(c==='student_auth_schema')return'ฐานข้อมูล Student Portal ยังติดตั้งไม่ครบ กรุณารัน STUDENT_PORTAL_AUTH_V17_REPAIR.sql';
+  if(c==='student_auth_unreachable')return m;
+  if(c==='student_auth_timeout')return m;
+  if(e?.status===404)return'ไม่พบ Edge Function student-auth กรุณา Deploy ฟังก์ชันจากชุดติดตั้งนี้';
+  if(e?.status===401||e?.status===403)return'Edge Function ปฏิเสธสิทธิ์ กรุณา Deploy student-auth แบบ --no-verify-jwt';
+  if(e?.status===500)return m&&m!=='Internal Server Error'?`ระบบสมัครสมาชิก: ${m}`:'ระบบสมัครสมาชิกมีปัญหาภายใน กรุณาตรวจ Edge Function log';
+  return m||'เกิดข้อผิดพลาด';
+}
 function authHtml(){
   if(S.signupResult)return `<div class="auth auth-v2"><section class="auth-hero auth-hero-success"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>บัญชีนักเรียนเชื่อมสำเร็จ</small></div></div><div class="auth-copy"><span class="auth-kicker">WELCOME TO AREWARIN</span><h1>พร้อมเริ่มเรียนแล้ว</h1><p>บัญชีของคุณเชื่อมกับข้อมูลนักเรียน คอร์ส ชั่วโมงเรียน และการชำระเงินเรียบร้อยแล้ว</p><div class="auth-feature-grid"><div><b>คอร์ส</b><span>ดูสิทธิ์และบทเรียน</span></div><div><b>ชั่วโมง</b><span>อัปเดตจาก Tutor OS</span></div><div><b>ชำระเงิน</b><span>ติดตามสถานะได้ทันที</span></div></div></div><div class="auth-footnote">AreWarin Biology · Student Experience</div></section><section class="auth-panel"><div class="auth-card auth-card-v2"><div class="auth-card-head"><span class="auth-icon success">✓</span><div><span class="auth-kicker">ACCOUNT READY</span><h2>สมัครสำเร็จ</h2><p>ยินดีต้อนรับเข้าสู่ระบบนักเรียน</p></div></div><div class="message success"><b>${esc(S.signupResult.display_name)}</b><br>Student ID: ${esc(S.signupResult.student_code||'—')}<br>อีเมล: ${esc(S.signupResult.email)}</div><button class="btn primary wide auth-main-btn" id="enter">เข้าสู่ระบบนักเรียน</button><button class="btn wide" id="later" style="margin-top:8px">กลับหน้าเข้าสู่ระบบ</button></div></section></div>`;
   if(S.mode==='recovery')return `<div class="auth auth-v2"><section class="auth-hero"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Account Recovery</small></div></div><div class="auth-copy"><span class="auth-kicker">SECURE RECOVERY</span><h1>ตั้งรหัสใหม่ด้วย PIN ส่วนตัว</h1><p>ใช้เบอร์โทร อีเมล และ PIN 4 หลักที่ตั้งไว้ตอนสมัคร เพื่อสร้างรหัสผ่านใหม่โดยไม่ต้องเปิดอีเมล</p><div class="auth-feature-grid"><div><b>ปลอดภัย</b><span>ยืนยันด้วยข้อมูลส่วนตัว</span></div><div><b>รวดเร็ว</b><span>ไม่ต้องรอลิงก์อีเมล</span></div><div><b>เชื่อมบัญชีเดิม</b><span>ข้อมูลคอร์สไม่หาย</span></div></div></div><div class="auth-footnote">ข้อมูลนักเรียนได้รับการเชื่อมกับระบบหลัก</div></section><section class="auth-panel"><form class="auth-card auth-card-v2" id="recovery"><div class="auth-card-head"><span class="auth-icon">↺</span><div><span class="auth-kicker">RECOVER ACCOUNT</span><h2>เปลี่ยนรหัสผ่าน</h2><p>กรอกข้อมูลให้ตรงกับบัญชีนักเรียน</p></div></div><div id="msg"></div><div class="field"><label>เบอร์โทรที่ใช้สมัครเรียน</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" required placeholder="เช่น 0812345678"></div><div class="field"><label>อีเมลบัญชีนักเรียน</label><input class="input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required placeholder="••••"></div><div class="field"><label>รหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="password" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><div class="field"><label>ยืนยันรหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="confirm" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><button class="btn primary wide auth-main-btn">เปลี่ยนรหัสและเข้าสู่ระบบ</button><button type="button" class="btn wide" id="back" style="margin-top:8px">กลับหน้าเข้าสู่ระบบ</button></form></section></div>`;
@@ -627,7 +785,81 @@ function authHtml(){
   return `<div class="auth auth-v2"><section class="auth-hero"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Biology Learning Hub</small></div></div><div class="auth-copy"><span class="auth-kicker">AREWARIN BIOLOGY</span><h1>${quick?'เช็กชั่วโมงได้ทันที':'พื้นที่การเรียนของคุณ ในระบบเดียว'}</h1><p>${quick?'ใช้ Student Code และ PIN 4 หลัก เพื่อดูชั่วโมงคงเหลือและกลุ่มเรียนโดยไม่เปิดข้อมูลส่วนตัว':'ดูคอร์ส ชั่วโมงเรียน บทเรียนย้อนหลัง การชำระเงิน การต่อคอร์ส และข้อมูลนักเรียนที่เชื่อมกับระบบหลักแบบต่อเนื่อง'}</p><div class="auth-feature-grid"><div><b>Realtime Hours</b><span>ชั่วโมงอัปเดตหลังตัดคาบ</span></div><div><b>Course Center</b><span>ต่อคอร์สและสมัครเพิ่ม</span></div><div><b>Payment Status</b><span>ดูสถานะหลัง Manager ตรวจ</span></div></div></div><div class="auth-trust"><span>✓ ใช้ข้อมูลเดียวกับระบบสมัครเรียน</span><span>✓ Student Code ส่วนตัว</span><span>✓ เชื่อมกับ Tutor OS</span></div></section><section class="auth-panel"><form class="auth-card auth-card-v2" id="auth-form"><div class="auth-card-head"><span class="auth-icon">${quick?'◷':signup?'＋':'→'}</span><div><span class="auth-kicker">STUDENT ACCESS</span><h2>${quick?'เช็กชั่วโมงเรียน':signup?'สร้างบัญชีนักเรียน':'เข้าสู่ระบบ'}</h2><p>${quick?'สำหรับนักเรียนที่มี Student Code และ PIN แล้ว':signup?'ใช้เบอร์ที่สมัครเรียนเพื่อเชื่อมข้อมูลเดิม':'เข้าสู่ระบบเพื่อดูคอร์ส ชั่วโมง และการชำระเงินของคุณ'}</p></div></div><div class="tabs auth-tabs"><button type="button" data-mode="login" class="${!signup&&!quick?'active':''}"><span>เข้าสู่ระบบ</span><small>บัญชีเดิม</small></button><button type="button" data-mode="signup" class="${signup?'active':''}"><span>สมัครบัญชี</span><small>นักเรียนใหม่ใน Portal</small></button><button type="button" data-mode="quick" class="${quick?'active':''}"><span>เช็กชั่วโมง</span><small>ไม่ต้อง Login</small></button></div><div id="msg"></div>${quick?quickHoursFields():signup?signupFields():`<div class="field"><label>อีเมล</label><input class="input auth-input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div><div class="field"><label>รหัสผ่าน</label><div class="password-wrap"><input class="input auth-input" type="password" name="password" autocomplete="current-password" required placeholder="กรอกรหัสผ่าน"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><div class="login-row"><label class="login-hint"><span class="status-dot"></span>บัญชีนี้ใช้ข้อมูลเดียวกับที่สมัครเรียน</label><button class="text-btn" type="button" id="forgot">ลืมรหัส / ใช้ PIN</button></div><button class="btn primary wide auth-main-btn">เข้าสู่ระบบนักเรียน</button><div class="auth-divider"><span>หรือ</span></div><button class="btn wide" type="button" data-mode="quick">เช็กชั่วโมงด้วย Student Code</button>`}<a class="auth-home-link" href="../">← กลับหน้าสมัครเรียนหลัก</a><div class="auth-security"><span>🔒</span><p><b>ข้อมูลเชื่อมจากระบบหลักของ AreWarin</b><br>คอร์ส ชั่วโมง และสถานะชำระเงินจะอัปเดตตามข้อมูลที่สถาบันยืนยัน</p></div></form></section></div>`;
 }
 function quickHoursFields(){const r=S.quickResult;if(r?.ok){const cs=r.courses||[],gs=r.groups||[];return `<div class="message success"><b>${esc(r.display_name||'นักเรียน')}</b><br>${esc(r.student_code||'')}</div><div class="quick-hour-grid">${cs.map(c=>`<article class="quick-hour-card"><div><b>${esc(c.course_name||'คอร์ส')}</b><span>${c.unlimited?'แพ็กเกจไม่จำกัด':`ใช้แล้ว ${n(c.used_hours).toFixed(2)} / ${n(c.total_hours).toFixed(2)} ชม.`}</span></div><strong>${c.unlimited?'∞':n(c.remaining_hours).toFixed(2)}</strong><small>${c.unlimited?'ไม่จำกัดชั่วโมง':'ชม. คงเหลือ'}</small></article>`).join('')||'<div class="message">ยังไม่มีคอร์ส Active</div>'}</div>${gs.length?`<div class="message" style="margin-top:10px"><b>กลุ่มเรียน</b><br>${gs.map(g=>`${esc(g.group_code)} · ${esc(g.name)}`).join('<br>')}</div>`:''}<button class="btn primary wide" type="button" id="quickAgain">เช็กอีกรหัส</button><button class="btn wide" type="button" data-mode="login" style="margin-top:8px">เข้าสู่ Student Portal</button>`}return `<div class="field"><label>Student Code</label><input class="input" name="student_code" required placeholder="เช่น AWS-2026-000001" autocomplete="off"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" name="pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"></div><button class="btn primary wide">ตรวจสอบชั่วโมง</button><div class="sub" style="margin-top:10px;line-height:1.6">ระบบจะแสดงเฉพาะคอร์ส ชั่วโมงคงเหลือ และกลุ่มเรียน ไม่แสดงเบอร์โทร อีเมล หรือที่อยู่</div>`}
-function signupFields(){if(!S.signupMatch)return `<div class="field"><label>เบอร์โทรนักเรียน</label><div class="lookup"><input class="input" id="phone" inputmode="tel" value="${esc(S.signupPhone)}" placeholder="เช่น 0812345678"><button class="btn primary" type="button" id="lookup">ตรวจสอบ</button></div></div>`;const m=S.signupMatch;return `<div class="match"><div class="name">พบข้อมูล: ${esc(m.display_name||m.name||'นักเรียน')}</div><div class="sub">${esc(m.student_code||'')} · ${esc(m.school||'')} · ${esc(m.education_level||'')}</div></div><div class="field"><label>อีเมล</label><input class="input" type="email" name="email" required></div><div class="field"><label>ยืนยันอีเมล</label><input class="input" type="email" name="confirm_email" required></div><div class="field"><label>รหัสผ่าน</label><input class="input" id="password" type="password" name="password" required></div><div class="strength"><i id="strength" style="width:0"></i></div><div class="sub" id="strength-label" style="margin:5px 0 12px">ยังไม่กรอก</div><div class="field"><label>ยืนยันรหัสผ่าน</label><input class="input" type="password" name="confirm_password" required></div><div class="field"><label>PIN 4 หลัก สำหรับกู้รหัส</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required></div><div class="field"><label>ยืนยัน PIN</label><input class="input" inputmode="numeric" maxlength="4" name="confirm_pin" required></div><button class="btn primary wide">สมัครสมาชิก</button><button class="btn wide" type="button" id="change-phone" style="margin-top:8px">เปลี่ยนเบอร์</button>`}
+function signupFields(){
+  if(!S.signupMatch)return `
+    <div class="signup-intro">
+      <span class="signup-step-no">1</span>
+      <div><b>ยืนยันว่าเป็นนักเรียนในระบบ</b><span>ใช้เบอร์เดียวกับที่กรอกตอนสมัครเรียน</span></div>
+    </div>
+    <div class="field signup-phone-field">
+      <label>เบอร์โทรนักเรียน</label>
+      <div class="lookup">
+        <input class="input" id="phone" inputmode="tel" autocomplete="tel" value="${esc(S.signupPhone)}" placeholder="เช่น 0812345678">
+        <button class="btn primary" type="button" id="lookup">ตรวจสอบข้อมูล</button>
+      </div>
+    </div>
+    <div class="signup-help"><span>i</span><p>ระบบจะค้นหาเฉพาะข้อมูลนักเรียนที่มีอยู่แล้ว นักเรียนไม่ต้องกรอกประวัติซ้ำ</p></div>`;
+  const m=S.signupMatch;
+  return `
+    <div class="signup-match-card">
+      <div class="signup-match-icon">✓</div>
+      <div class="signup-match-copy">
+        <span>ตรวจพบข้อมูลนักเรียน</span>
+        <strong>${esc(m.display_name||m.name||'นักเรียน')}</strong>
+        <p>${esc(m.student_code||'')} ${m.school?`· ${esc(m.school)}`:''} ${m.education_level?`· ${esc(m.education_level)}`:''}</p>
+      </div>
+      <button type="button" class="text-btn signup-change" id="change-phone">เปลี่ยนเบอร์</button>
+    </div>
+
+    <div class="signup-section-head"><span>2</span><div><b>สร้างบัญชีเข้าสู่ระบบ</b><small>อีเมลต้องตรงกับข้อมูลที่สถาบันบันทึกไว้</small></div></div>
+    <div class="signup-grid">
+      <div class="field">
+        <label>อีเมล</label>
+        <input class="input" type="email" name="email" autocomplete="email" required placeholder="name@example.com">
+      </div>
+      <div class="field">
+        <label>ยืนยันอีเมล</label>
+        <input class="input" type="email" name="confirm_email" autocomplete="email" required placeholder="กรอกอีเมลอีกครั้ง">
+      </div>
+    </div>
+
+    <div class="signup-section-head"><span>3</span><div><b>ตั้งรหัสผ่าน</b><small>อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข</small></div></div>
+    <div class="signup-grid">
+      <div class="field">
+        <label>รหัสผ่าน</label>
+        <div class="password-wrap">
+          <input class="input" id="password" type="password" name="password" autocomplete="new-password" minlength="8" required placeholder="อย่างน้อย 8 ตัว">
+          <button class="password-toggle" type="button" data-toggle-password>แสดง</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>ยืนยันรหัสผ่าน</label>
+        <div class="password-wrap">
+          <input class="input" type="password" name="confirm_password" autocomplete="new-password" minlength="8" required placeholder="กรอกอีกครั้ง">
+          <button class="password-toggle" type="button" data-toggle-password>แสดง</button>
+        </div>
+      </div>
+    </div>
+    <div class="strength signup-strength"><i id="strength" style="width:0"></i></div>
+    <div class="signup-strength-row"><span id="strength-label">ยังไม่กรอก</span><span>หลีกเลี่ยงชื่อ อีเมล และเลขท้ายเบอร์โทร</span></div>
+
+    <div class="signup-section-head"><span>4</span><div><b>ตั้ง PIN สำหรับกู้บัญชี</b><small>เลข 4 หลัก ห้ามใช้ 0000, 1111, 1234 หรือ 4321</small></div></div>
+    <div class="signup-grid">
+      <div class="field">
+        <label>PIN 4 หลัก</label>
+        <input class="input pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" pattern="[0-9]{4}" name="pin" required placeholder="••••">
+      </div>
+      <div class="field">
+        <label>ยืนยัน PIN</label>
+        <input class="input pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" pattern="[0-9]{4}" name="confirm_pin" required placeholder="••••">
+      </div>
+    </div>
+
+    <button class="btn primary wide auth-main-btn signup-submit" type="submit">
+      <span>สร้างบัญชีนักเรียน</span><span aria-hidden="true">→</span>
+    </button>
+    <div class="signup-privacy">🔒 บัญชีจะเชื่อมกับ Student ID นี้เท่านั้น และไม่เปลี่ยนข้อมูลคอร์สเดิม</div>`;
+}
 function shell(content){const s=S.data.student,nav=[['dashboard','⌂','ภาพรวม'],['schedule','◫','ตารางเรียน'],['courses','▤','คอร์สของฉัน'],['wallet','◷','ชั่วโมงคอร์ส'],['learning','▶','บทเรียน'],['assignments','✓','การบ้าน'],['attendance','◷','เวลาเรียน'],['requests','↗','คำขอของฉัน'],['payments','฿','การชำระเงิน'],['catalog','＋','ลงคอร์สเพิ่ม'],['documents','▧','เอกสาร'],['support','?','ช่วยเหลือ'],['parent','♧','ผู้ปกครอง'],['notifications','✦','แจ้งเตือน'],['security','⌾','ความปลอดภัย'],['profile','◎','บัญชีของฉัน']];return `<div class="portal"><aside class="side"><div class="brand"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Student OS · V17</small></div></div><div class="student-mini"><div class="student-avatar">${esc((s.nickname||s.first_name||'A').slice(0,1))}</div><div><b>${esc(s.nickname||full(s))}</b><span>${esc(s.student_code||'')} · ${esc(s.education_level||s.grade||'นักเรียน')}</span></div></div><nav class="nav">${nav.map((x,i)=>`${[0,5,8,11].includes(i)?`<div class="student-nav-label">${i===0?'การเรียน':i===5?'กิจกรรม':i===8?'บริการ':'บัญชี'}</div>`:''}<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><span>${x[1]}</span><em>${x[2]}</em>${x[0]==='notifications'&&unread()?`<span class="badge">${unread()}</span>`:''}</button>`).join('')}</nav><div class="side-foot"><a class="btn side-home" href="../">หน้าสมัครเรียน</a><button class="btn" data-logout>ออกจากระบบ</button></div></aside><main class="main"><header class="top"><div><div class="top-eyebrow">AREWARIN BIOLOGY · STUDENT OS</div><h1>${nav.find(x=>x[0]===S.tab)?.[2]||'Student'}</h1><p>เรียน · ตาราง · การบ้าน · ชั่วโมง · เอกสาร · ผู้ปกครอง · Support เชื่อมข้อมูลชุดเดียวกัน</p></div><div class="aw-top-actions"><button class="btn" id="installPwa" style="display:none">ติดตั้งแอป</button><a class="btn aw-top-home" href="../"><span>⌂</span><span>หน้าสมัครเรียน</span></a><button class="btn" data-refresh>↻</button></div></header><div class="content">${content}</div></main></div>`}
 function activeEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused'].includes(e.status))}
 function visibleEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused','pending','completed'].includes(e.status))}
@@ -693,9 +925,89 @@ async function registerDevice(){if(!S.session?.user)return;let key=localStorage.
 async function load(renderNow=true){if(renderNow)app.innerHTML='<div class="loading"><div><div class="spinner"></div><b>กำลังโหลดคอร์สและความคืบหน้า...</b></div></div>';try{try{S.data=await rpc('student_v171_bootstrap')}catch(v171err){try{S.data=await rpc('student_v17_bootstrap')}catch(v17err){try{S.data=await rpc('student_v16_bootstrap')}catch(v16err){try{S.data=await rpc('student_v12_bootstrap')}catch(v12err){if(/student_v12_bootstrap|does not exist|schema cache/i.test(String(v12err?.message||v12err)))S.data=await rpc('student_v11_bootstrap');else throw v12err}}}}if(renderNow)S.signed={};try{await registerDevice()}catch{}if(renderNow||S.tab!=='learning')render()}catch(e){app.innerHTML=`<div class="loading"><div class="auth-card"><h2>เปิด Student Portal ไม่สำเร็จ</h2><div class="message error">${esc(e.message)}</div><form id="claim"><div class="field"><label>เบอร์โทรเพื่อเชื่อมบัญชี</label><input class="input" name="phone" required></div><button class="btn primary wide">เชื่อมบัญชี</button></form><button class="btn wide" data-logout style="margin-top:8px">ออกจากระบบ</button></div></div>`;$('#claim').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.rpc('claim_student_account_by_phone',{p_phone:normalizePhone(new FormData(ev.currentTarget).get('phone'))});if(error)return toast(error.message,true);await load()};$('[data-logout]').onclick=logout}}
 
 function bindAuth(){if(S.signupResult){$('#enter').onclick=()=>{S.signupResult=null;load()};$('#later').onclick=()=>{S.signupResult=null;S.mode='login';app.innerHTML=authHtml();bindAuth()};return}if(S.mode==='recovery'){const f=$('#recovery');f.onsubmit=async e=>{e.preventDefault();const fd=new FormData(f),box=$('#msg'),phone=normalizePhone(fd.get('phone')),email=String(fd.get('email')).trim().toLowerCase(),pin=String(fd.get('pin')),password=String(fd.get('password'));if(password!==fd.get('confirm'))return box.innerHTML='<div class="message error">รหัสผ่านไม่ตรงกัน</div>';box.innerHTML='<div class="message">กำลังเปลี่ยนรหัส...</div>';try{await callStudentAuth('reset_password',{phone,email,pin,new_password:password});const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;S.session=data.session;await load()}catch(x){box.innerHTML=`<div class="message error">${esc(friendly(x))}</div>`}};$('#back').onclick=()=>{S.mode='login';app.innerHTML=authHtml();bindAuth()};return}$$('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;S.signupMatch=null;if(S.mode!=='quick')S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#quickAgain')?.addEventListener('click',()=>{S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#forgot')?.addEventListener('click',()=>{S.mode='recovery';app.innerHTML=authHtml();bindAuth()});$('#lookup')?.addEventListener('click',lookup);$('#change-phone')?.addEventListener('click',()=>{S.signupMatch=null;app.innerHTML=authHtml();bindAuth()});$('#password')?.addEventListener('input',e=>{const i=passwordInfo(e.target.value,$('input[name=email]')?.value,S.signupPhone);$('#strength').style.width=i.pct+'%';$('#strength-label').textContent=i.label});$$('[data-toggle-password]').forEach(btn=>btn.onclick=()=>{const input=btn.closest('.password-wrap')?.querySelector('input');if(!input)return;const show=input.type==='password';input.type=show?'text':'password';btn.textContent=show?'ซ่อน':'แสดง'});$('#auth-form').onsubmit=S.mode==='quick'?submitQuickHours:submitAuth}
-async function submitQuickHours(e){e.preventDefault();const fd=new FormData(e.currentTarget),box=$('#msg'),studentCode=String(fd.get('student_code')||'').trim().toUpperCase(),pin=String(fd.get('pin')||'');box.innerHTML='<div class="message">กำลังตรวจสอบชั่วโมงล่าสุด...</div>';try{const {data,error}=await sb.rpc('student_quick_hours',{p_student_code:studentCode,p_pin:pin});if(error)throw error;if(!data?.ok)throw new Error(data?.message||'ตรวจสอบไม่สำเร็จ');S.quickResult=data;app.innerHTML=authHtml();bindAuth()}catch(x){box.innerHTML=`<div class="message error">${esc(x.message||'ตรวจสอบไม่สำเร็จ')}</div>`}}
+async function submitQuickHours(e){
+  e.preventDefault();
+  const fd=new FormData(e.currentTarget),box=$('#msg'),
+        studentCode=String(fd.get('student_code')||'').trim().toUpperCase(),
+        pin=String(fd.get('pin')||'');
+  box.innerHTML='<div class="message">กำลังตรวจสอบชั่วโมงล่าสุด...</div>';
+  try{
+    let res=await sb.rpc('student_portal_quick_hours',{p_student_code:studentCode,p_pin:pin});
+    if(res.error||res.data?.code==='pin_not_set'){
+      const legacy=await sb.rpc('student_quick_hours',{p_student_code:studentCode,p_pin:pin});
+      if(!legacy.error)res=legacy;
+    }
+    if(res.error)throw res.error;
+    if(!res.data?.ok)throw new Error(res.data?.message||'ตรวจสอบไม่สำเร็จ');
+    S.quickResult=res.data;
+    app.innerHTML=authHtml();
+    bindAuth();
+  }catch(x){
+    box.innerHTML=`<div class="message error">${esc(x.message||'ตรวจสอบไม่สำเร็จ')}</div>`;
+  }
+}
 async function lookup(){const phone=normalizePhone($('#phone').value),box=$('#msg');S.signupPhone=phone;if(phone.length<9)return box.innerHTML='<div class="message error">กรุณากรอกเบอร์ให้ครบ</div>';box.innerHTML='<div class="message">กำลังค้นหา...</div>';try{const {data,error}=await sb.rpc('lookup_student_by_phone',{p_phone:phone});if(error)throw error;if(!data?.found)throw new Error(data?.message||'ไม่พบข้อมูล');S.signupMatch={...data,phone};app.innerHTML=authHtml();bindAuth()}catch(e){box.innerHTML=`<div class="message error">${esc(e.message)}</div>`}}
-async function submitAuth(e){e.preventDefault();const fd=new FormData(e.currentTarget),box=$('#msg'),email=String(fd.get('email')||'').trim().toLowerCase(),password=String(fd.get('password')||'');box.innerHTML='<div class="message">กำลังดำเนินการ...</div>';try{if(S.mode==='login'){const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;S.session=data.session;await load();return}if(!S.signupMatch)throw new Error('กรุณาตรวจสอบเบอร์ก่อน');if(email!==String(fd.get('confirm_email')).trim().toLowerCase())throw new Error('อีเมลไม่ตรงกัน');if(password!==fd.get('confirm_password'))throw new Error('รหัสผ่านไม่ตรงกัน');const pin=String(fd.get('pin')),confirmPin=String(fd.get('confirm_pin'));if(!/^\d{4}$/.test(pin)||pin!==confirmPin)throw new Error('PIN ต้องเป็นเลข 4 หลักและตรงกัน');if(['0000','1111','1234','4321'].includes(pin))throw new Error('PIN เดาง่ายเกินไป');const info=passwordInfo(password,email,S.signupPhone);if(!info.checks.len||!info.checks.number||!info.checks.letter||!info.checks.nospace||info.score<3)throw new Error('รหัสผ่านยังไม่รัดกุมพอ');const r=await callStudentAuth('register',{phone:S.signupPhone,email,password,pin});const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;S.session=data.session;S.signupResult={display_name:r.display_name||S.signupMatch.display_name,email,student_code:r.student_code||S.signupMatch.student_code};app.innerHTML=authHtml();bindAuth()}catch(x){box.innerHTML=`<div class="message error">${esc(friendly(x))}</div>`}}
+async function submitAuth(e){
+  e.preventDefault();
+  const form=e.currentTarget,fd=new FormData(form),box=$('#msg'),
+        email=String(fd.get('email')||'').trim().toLowerCase(),
+        password=String(fd.get('password')||'');
+  const submit=form.querySelector('button[type="submit"],button:not([type])');
+  const oldSubmit=submit?.innerHTML||'';
+  if(submit){submit.disabled=true;submit.classList.add('is-loading');submit.innerHTML='<span class="auth-btn-spinner"></span><span>กำลังดำเนินการ...</span>'}
+  box.innerHTML='<div class="message">กำลังตรวจสอบและเชื่อมบัญชี...</div>';
+  try{
+    if(S.mode==='login'){
+      const {data,error}=await sb.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      S.session=data.session;
+      await load();
+      return;
+    }
+    if(!S.signupMatch)throw new Error('กรุณาตรวจสอบเบอร์ก่อน');
+    if(!/^\S+@\S+\.\S+$/.test(email))throw new Error('กรุณากรอกอีเมลให้ถูกต้อง');
+    if(email!==String(fd.get('confirm_email')||'').trim().toLowerCase())throw new Error('อีเมลและยืนยันอีเมลไม่ตรงกัน');
+    if(password!==String(fd.get('confirm_password')||''))throw new Error('รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+    const pin=String(fd.get('pin')||''),confirmPin=String(fd.get('confirm_pin')||'');
+    if(!/^\d{4}$/.test(pin)||pin!==confirmPin)throw new Error('PIN ต้องเป็นเลข 4 หลักและตรงกัน');
+    if(['0000','1111','1234','4321'].includes(pin))throw new Error('PIN เดาง่ายเกินไป กรุณาเลือกเลขอื่น');
+    const info=passwordInfo(password,email,S.signupPhone);
+    if(!info.checks.len||!info.checks.number||!info.checks.letter||!info.checks.nospace||info.score<3)
+      throw new Error('รหัสผ่านยังไม่รัดกุมพอ กรุณาใช้ 8 ตัวขึ้นไปและผสมตัวอักษรกับตัวเลข');
+
+    const r=await callStudentAuth('register',{
+      phone:S.signupPhone,
+      email,
+      password,
+      pin,
+      student_code:S.signupMatch.student_code||null
+    });
+
+    const signed=await sb.auth.signInWithPassword({email,password});
+    if(signed.error){
+      S.mode='login';
+      S.signupMatch=null;
+      throw new Error('สร้างบัญชีสำเร็จแล้ว แต่เข้าสู่ระบบอัตโนมัติไม่สำเร็จ กรุณาเลือก “เข้าสู่ระบบ” แล้วใช้อีเมลและรหัสผ่านที่เพิ่งตั้ง');
+    }
+
+    S.session=signed.data.session;
+    S.signupResult={
+      display_name:r.display_name||S.signupMatch.display_name||S.signupMatch.name,
+      email,
+      student_code:r.student_code||S.signupMatch.student_code
+    };
+    app.innerHTML=authHtml();
+    bindAuth();
+  }catch(x){
+    box.innerHTML=`<div class="message error"><b>ดำเนินการไม่สำเร็จ</b><br>${esc(friendly(x))}${x?.code?`<div class="auth-error-code">รหัส: ${esc(x.code)}</div>`:''}</div>`;
+  }finally{
+    if(submit&&submit.isConnected){
+      submit.disabled=false;
+      submit.classList.remove('is-loading');
+      submit.innerHTML=oldSubmit;
+    }
+  }
+}
 async function logout(){clearInterval(S.poll);clearInterval(S.timer);await sb.auth.signOut({scope:'local'});S.session=null;S.data=null;S.mode='login';S.signupMatch=null;S.signupResult=null;app.innerHTML=authHtml();bindAuth()}
 async function boot(){if(location.hash.includes('error=')||location.search.includes('recovery='))history.replaceState({},document.title,location.pathname);const {data}=await sb.auth.getSession();S.session=data.session;if(S.session){await load();S.poll=setInterval(()=>{if(S.tab!=='learning')load(false)},30000);sb.channel('student-v15').on('postgres_changes',{event:'*',schema:'public',table:'portal_notifications'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_hour_ledger'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_hour_pools'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_attendance_sessions'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_course_enrollments'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_attendance'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_groups'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_group_members'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'course_offerings'},()=>{if(S.tab==='catalog'||S.tab==='dashboard')load(false)}).subscribe()}else{app.innerHTML=authHtml();bindAuth()}sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT'){S.session=null;app.innerHTML=authHtml();bindAuth()}})}boot();
 </script><style id="awv9-student-pay-style">
@@ -732,14 +1044,14 @@ setInterval(detectPay,3500);detectPay();
 
 <style id="arewarin-v15-6-5-final-ui">
 /* FINAL UI HARDENING — deliberately last in the document */
-body[data-student-build="16.0.0-student-os"] .dashboard-split{
+body[data-student-build="17.2.0-auth-repair"] .dashboard-split{
   display:grid!important;
   grid-template-columns:minmax(0,1.08fr) minmax(380px,.92fr)!important;
   gap:18px!important;
   align-items:stretch!important;
   margin-top:18px!important;
 }
-body[data-student-build="16.0.0-student-os"] .student-pass{
+body[data-student-build="17.2.0-auth-repair"] .student-pass{
   position:relative!important;
   overflow:hidden!important;
   min-height:270px!important;
@@ -755,7 +1067,7 @@ body[data-student-build="16.0.0-student-os"] .student-pass{
   border-radius:28px!important;
   box-shadow:0 28px 54px -32px rgba(37,99,235,.72)!important;
 }
-body[data-student-build="16.0.0-student-os"] .student-pass::before{
+body[data-student-build="17.2.0-auth-repair"] .student-pass::before{
   content:""!important;
   position:absolute!important;
   width:330px!important;
@@ -765,7 +1077,7 @@ body[data-student-build="16.0.0-student-os"] .student-pass::before{
   border-radius:50%!important;
   border:46px solid rgba(255,255,255,.09)!important;
 }
-body[data-student-build="16.0.0-student-os"] .student-pass::after{
+body[data-student-build="17.2.0-auth-repair"] .student-pass::after{
   content:"AREWARIN"!important;
   position:absolute!important;
   right:18px!important;
@@ -776,37 +1088,37 @@ body[data-student-build="16.0.0-student-os"] .student-pass::after{
   letter-spacing:-.06em!important;
   color:rgba(255,255,255,.06)!important;
 }
-body[data-student-build="16.0.0-student-os"] .student-pass .pass-top,
-body[data-student-build="16.0.0-student-os"] .student-pass .pass-bottom{
+body[data-student-build="17.2.0-auth-repair"] .student-pass .pass-top,
+body[data-student-build="17.2.0-auth-repair"] .student-pass .pass-bottom{
   position:relative!important;
   z-index:2!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-top{
+body[data-student-build="17.2.0-auth-repair"] .pass-top{
   display:flex!important;
   justify-content:space-between!important;
   align-items:flex-start!important;
   gap:18px!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-top small{
+body[data-student-build="17.2.0-auth-repair"] .pass-top small{
   display:block!important;
   color:rgba(255,255,255,.72)!important;
   font-size:10px!important;
   font-weight:800!important;
   letter-spacing:.15em!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-top h2{
+body[data-student-build="17.2.0-auth-repair"] .pass-top h2{
   margin:10px 0 6px!important;
   color:#fff!important;
   font-size:30px!important;
   line-height:1.12!important;
   letter-spacing:-.035em!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-top p{
+body[data-student-build="17.2.0-auth-repair"] .pass-top p{
   margin:0!important;
   color:rgba(255,255,255,.78)!important;
   font-size:12px!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-mark{
+body[data-student-build="17.2.0-auth-repair"] .pass-mark{
   width:56px!important;
   height:56px!important;
   flex:0 0 56px!important;
@@ -819,17 +1131,17 @@ body[data-student-build="16.0.0-student-os"] .pass-mark{
   font-size:25px!important;
   font-weight:800!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-bottom{
+body[data-student-build="17.2.0-auth-repair"] .pass-bottom{
   display:flex!important;
   justify-content:space-between!important;
   align-items:center!important;
   gap:12px!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-bottom span{
+body[data-student-build="17.2.0-auth-repair"] .pass-bottom span{
   color:rgba(255,255,255,.9)!important;
   font-size:12px!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-bottom strong{
+body[data-student-build="17.2.0-auth-repair"] .pass-bottom strong{
   display:inline-flex!important;
   align-items:center!important;
   gap:7px!important;
@@ -841,7 +1153,7 @@ body[data-student-build="16.0.0-student-os"] .pass-bottom strong{
   font-size:10px!important;
   font-weight:800!important;
 }
-body[data-student-build="16.0.0-student-os"] .pass-bottom strong::before{
+body[data-student-build="17.2.0-auth-repair"] .pass-bottom strong::before{
   content:""!important;
   width:7px!important;
   height:7px!important;
@@ -849,7 +1161,7 @@ body[data-student-build="16.0.0-student-os"] .pass-bottom strong::before{
   background:#34d399!important;
 }
 
-body[data-student-build="16.0.0-student-os"] .quick-panel{
+body[data-student-build="17.2.0-auth-repair"] .quick-panel{
   min-height:270px!important;
   padding:24px!important;
   display:flex!important;
@@ -859,27 +1171,27 @@ body[data-student-build="16.0.0-student-os"] .quick-panel{
   border:1px solid rgba(255,255,255,.95)!important;
   box-shadow:0 24px 60px -36px rgba(15,23,42,.28)!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-panel .section-head{
+body[data-student-build="17.2.0-auth-repair"] .quick-panel .section-head{
   margin-bottom:16px!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-panel .section-head h2{
+body[data-student-build="17.2.0-auth-repair"] .quick-panel .section-head h2{
   margin:7px 0 4px!important;
   font-size:27px!important;
   line-height:1.1!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-panel .section-head p{
+body[data-student-build="17.2.0-auth-repair"] .quick-panel .section-head p{
   margin:0!important;
   color:#64748b!important;
   font-size:11px!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:11px!important;
   margin-top:auto!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions .aw-quick-btn,
-body[data-student-build="16.0.0-student-os"] .quick-actions button{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions .aw-quick-btn,
+body[data-student-build="17.2.0-auth-repair"] .quick-actions button{
   all:unset!important;
   box-sizing:border-box!important;
   width:100%!important;
@@ -897,14 +1209,14 @@ body[data-student-build="16.0.0-student-os"] .quick-actions button{
   box-shadow:0 12px 24px -24px rgba(15,23,42,.42)!important;
   font-family:"Prompt",sans-serif!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions .aw-quick-btn:hover,
-body[data-student-build="16.0.0-student-os"] .quick-actions button:hover{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions .aw-quick-btn:hover,
+body[data-student-build="17.2.0-auth-repair"] .quick-actions button:hover{
   border-color:#93c5fd!important;
   background:linear-gradient(180deg,#fff,#eff6ff)!important;
   box-shadow:0 18px 30px -24px rgba(37,99,235,.48)!important;
   transform:translateY(-2px)!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions button>b{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions button>b{
   width:42px!important;
   height:42px!important;
   display:grid!important;
@@ -916,7 +1228,7 @@ body[data-student-build="16.0.0-student-os"] .quick-actions button>b{
   font-size:17px!important;
   line-height:1!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions button>span{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions button>span{
   display:block!important;
   min-width:0!important;
   color:#172033!important;
@@ -924,7 +1236,7 @@ body[data-student-build="16.0.0-student-os"] .quick-actions button>span{
   font-weight:800!important;
   line-height:1.32!important;
 }
-body[data-student-build="16.0.0-student-os"] .quick-actions button>span>small{
+body[data-student-build="17.2.0-auth-repair"] .quick-actions button>span>small{
   display:block!important;
   margin-top:5px!important;
   color:#94a3b8!important;
@@ -933,17 +1245,17 @@ body[data-student-build="16.0.0-student-os"] .quick-actions button>span>small{
   line-height:1.4!important;
 }
 
-body[data-student-build="16.0.0-student-os"] .course-card{
+body[data-student-build="17.2.0-auth-repair"] .course-card{
   overflow:hidden!important;
   border-radius:25px!important;
 }
-body[data-student-build="16.0.0-student-os"] .course-cover-meta{
+body[data-student-build="17.2.0-auth-repair"] .course-cover-meta{
   position:absolute!important;
   left:14px!important;
   top:14px!important;
   z-index:5!important;
 }
-body[data-student-build="16.0.0-student-os"] .course-cover-meta span{
+body[data-student-build="17.2.0-auth-repair"] .course-cover-meta span{
   display:inline-flex!important;
   padding:6px 10px!important;
   border-radius:999px!important;
@@ -954,7 +1266,7 @@ body[data-student-build="16.0.0-student-os"] .course-cover-meta span{
   font-weight:700!important;
   backdrop-filter:blur(8px)!important;
 }
-body[data-student-build="16.0.0-student-os"] .pending-course-note{
+body[data-student-build="17.2.0-auth-repair"] .pending-course-note{
   display:grid!important;
   gap:4px!important;
   padding:12px!important;
@@ -962,18 +1274,18 @@ body[data-student-build="16.0.0-student-os"] .pending-course-note{
   background:#fff7ed!important;
   border:1px solid #fed7aa!important;
 }
-body[data-student-build="16.0.0-student-os"] .pending-course-note b{
+body[data-student-build="17.2.0-auth-repair"] .pending-course-note b{
   color:#9a3412!important;
   font-size:11px!important;
 }
-body[data-student-build="16.0.0-student-os"] .pending-course-note span{
+body[data-student-build="17.2.0-auth-repair"] .pending-course-note span{
   color:#b45309!important;
   font-size:9px!important;
   line-height:1.55!important;
 }
 
 /* Small, unobtrusive build indicator to diagnose GitHub Pages caching */
-body[data-student-build="16.0.0-student-os"]::after{
+body[data-student-build="17.2.0-auth-repair"]::after{
   content:"Student UI 16"!important;
   position:fixed!important;
   right:14px!important;
@@ -989,16 +1301,16 @@ body[data-student-build="16.0.0-student-os"]::after{
 }
 
 @media(max-width:1080px){
-  body[data-student-build="16.0.0-student-os"] .dashboard-split{
+  body[data-student-build="17.2.0-auth-repair"] .dashboard-split{
     grid-template-columns:1fr!important;
   }
 }
 @media(max-width:680px){
-  body[data-student-build="16.0.0-student-os"] .quick-actions{
+  body[data-student-build="17.2.0-auth-repair"] .quick-actions{
     grid-template-columns:1fr!important;
   }
-  body[data-student-build="16.0.0-student-os"] .student-pass,
-  body[data-student-build="16.0.0-student-os"] .quick-panel{
+  body[data-student-build="17.2.0-auth-repair"] .student-pass,
+  body[data-student-build="17.2.0-auth-repair"] .quick-panel{
     min-height:auto!important;
   }
 }
@@ -1010,10 +1322,10 @@ console.info("[AreWarin Student] build 16.0.0-student-os loaded");
 
 
 <style id="arewarin-v15-7-unified-ui">
-body[data-student-build="16.0.0-student-os"]::after{content:"Student UI 16"!important}
-body[data-student-build="16.0.0-student-os"] .renewal-dot{background:#fff7ed!important;color:#c2410c!important;border:1px solid #fed7aa!important}
-body[data-student-build="16.0.0-student-os"] .renew-btn{background:linear-gradient(135deg,#f59e0b,#f97316)!important;color:#fff!important;border-color:transparent!important}
-body[data-student-build="16.0.0-student-os"] .activity-panel{margin-top:18px!important}
+body[data-student-build="17.2.0-auth-repair"]::after{content:"Student UI 16"!important}
+body[data-student-build="17.2.0-auth-repair"] .renewal-dot{background:#fff7ed!important;color:#c2410c!important;border:1px solid #fed7aa!important}
+body[data-student-build="17.2.0-auth-repair"] .renew-btn{background:linear-gradient(135deg,#f59e0b,#f97316)!important;color:#fff!important;border-color:transparent!important}
+body[data-student-build="17.2.0-auth-repair"] .activity-panel{margin-top:18px!important}
 .activity-list{display:grid;gap:0}
 .activity-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 2px;border-top:1px solid #edf2f7}
 .activity-row:first-child{border-top:0}
