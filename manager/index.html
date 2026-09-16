@@ -32,6 +32,32 @@
     @media(max-width:1023px){.manager-shell{grid-template-columns:1fr;padding:12px}.manager-sidebar{position:sticky;top:68px;z-index:32;min-height:0;padding:8px;border-radius:16px;overflow:auto}.sidebar-mini,.nav-group-label{display:none}.manager-sidebar>div{display:flex!important;grid-template-columns:none!important;gap:5px;min-width:max-content}.nav{width:auto;white-space:nowrap;padding:9px 11px}.nav.active::after{display:none}.manager-content{padding-top:2px}}
     @media(max-width:767px){.manager-topbar .top-label{display:none}.top-action{width:38px;padding:0}.login-shell{grid-template-columns:1fr;min-height:auto;max-width:430px}.login-showcase{display:none}.login-panel{padding:34px 24px}.page-title{font-size:19px}.dashboard-hero{padding:22px;min-height:140px}.dashboard-hero h2{font-size:22px!important}.manager-shell{padding:10px}.card{border-radius:18px}main .card{padding:16px}}
   </style>
+
+<style id="aw-manager-tutor-v20-style">
+  .aw-tutor-check{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid #e5edf7;border-radius:12px;background:#fff;font-size:10px;font-weight:700;color:#475569;cursor:pointer;transition:.15s}
+  .aw-tutor-check:has(input:checked){border-color:#7dd3fc;background:#f0f9ff;color:#0369a1;box-shadow:0 0 0 2px rgba(14,165,233,.06)}
+  .aw-tutor-check input{accent-color:#0ea5e9}
+  .aw-tutor-card{border:1px solid #e8eef6;border-radius:18px;background:linear-gradient(180deg,#fff,#fbfdff);padding:14px;display:grid;grid-template-columns:58px 1fr;gap:12px;position:relative}
+  .aw-tutor-avatar{width:58px;height:58px;border-radius:16px;object-fit:cover;border:1px solid #e5e7eb;background:#f8fafc}
+  .aw-tutor-avatar-fallback{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#e0f2fe,#eef2ff);color:#0369a1;font-weight:900;font-size:20px}
+  .aw-tutor-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .aw-tutor-meta span{padding:4px 7px;border-radius:999px;background:#f8fafc;border:1px solid #edf2f7;color:#64748b;font-size:8px;font-weight:700}
+  .aw-tutor-actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #f1f5f9}
+  .aw-tutor-actions button{padding:7px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:9px;font-weight:800;color:#475569}
+  .aw-tutor-actions button:hover{border-color:#bae6fd;color:#0284c7}
+  .aw-tutor-actions .danger{color:#e11d48;border-color:#fecdd3;background:#fff1f2}
+  .aw-tutor-app{border:1px solid #e4eee8;border-radius:16px;padding:12px;background:linear-gradient(180deg,#fff,#f8fffb);display:grid;grid-template-columns:1fr auto;gap:10px}
+  .aw-tutor-app b{font-size:11px;color:#1e293b}
+  .aw-tutor-app p{font-size:9px;color:#64748b;line-height:1.6;margin-top:4px}
+  .aw-tutor-app button{align-self:center;padding:8px 10px;border-radius:11px;background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;font-size:9px;font-weight:800}
+  @media(max-width:767px){
+    #section-tutors .page-head{align-items:flex-start}
+    #tutorSearch{width:100%!important}
+    #tutorStatusFilter{width:125px!important}
+    #tutorForm{position:static!important}
+  }
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -137,22 +163,150 @@
           </div>
         </section>
 
-        <section id="section-tutors" class="section"><div class="page-head"><div><div class="page-kicker">People</div><h1 class="page-title">จัดการติวเตอร์</h1><p class="page-subtitle">เพิ่ม แก้ไข ปิดใช้งาน และลบติวเตอร์ พร้อมตรวจคอร์ส/ตารางที่ผูกอยู่ก่อนลบ</p></div></div>
-          <div class="grid xl:grid-cols-[380px_1fr] gap-5">
-            <form id="tutorForm" class="card p-5 space-y-3">
-              <div class="flex justify-between"><h2 class="font-bold text-lg">เพิ่ม/แก้ไขติวเตอร์</h2><button type="button" id="tutorReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div>
-              <input type="hidden" id="tutorId"><input id="tutorDisplay" class="input" placeholder="ชื่อที่แสดง เช่น พี่อาร์" required><input id="tutorFull" class="input" placeholder="ชื่อ-นามสกุล"><input id="tutorRole" class="input" placeholder="บทบาท/วิชาที่สอน">
-              <label class="text-xs font-bold">รูปติวเตอร์</label><input id="tutorImage" type="file" accept="image/*" class="input"><input id="tutorImageUrl" class="input" placeholder="หรือ URL รูปเดิม">
-              <textarea id="tutorEdu" class="input h-24" placeholder="การศึกษา: 1 บรรทัดต่อ 1 รายการ"></textarea><textarea id="tutorAwards" class="input h-20" placeholder="รางวัล: 1 บรรทัดต่อ 1 รายการ"></textarea>
-              <input id="tutorLevels" class="input" placeholder="levels: senior,university"><input id="tutorCategories" class="input" placeholder="categories: bio,chem,sci,math"><input id="tutorVideo" class="input" placeholder="YouTube Video ID">
-              <label class="flex gap-2 items-center text-sm"><input id="tutorActive" type="checkbox" checked> เปิดใช้งาน</label>
-              <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px]">บันทึกติวเตอร์</button>
+        
+        <section id="section-tutors" class="section space-y-5">
+          <div class="page-head">
+            <div>
+              <div class="page-kicker">People · Tutor Directory</div>
+              <h1 class="page-title">จัดการติวเตอร์</h1>
+              <p class="page-subtitle">เพิ่มติวเตอร์เอง หรือสร้างจากใบสมัครที่ผ่านแล้ว พร้อมแก้ไข เปิด/ปิด และเชื่อมกับ Tutor OS</p>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" id="tutorRefresh" class="top-action bg-white border-slate-200 text-slate-600 hover:text-sky-600">
+                <i class="fas fa-rotate"></i><span class="top-label">รีเฟรช</span>
+              </button>
+              <button type="button" id="tutorNew" class="top-action bg-slate-900 border-slate-900 text-white hover:bg-slate-800">
+                <i class="fas fa-user-plus"></i><span class="top-label">เพิ่มติวเตอร์</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="tutorApplicantPanel" class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[.16em] text-emerald-600 uppercase">Accepted Tutor Applications</div>
+                <h2 class="font-bold text-lg mt-1">สร้างติวเตอร์จากใบสมัครที่ผ่าน</h2>
+                <p class="text-xs text-slate-400 mt-1">ดึงชื่อ เบอร์ และอีเมลจาก tutor-apply แล้วสร้าง Tutor Profile โดยไม่ต้องพิมพ์ใหม่</p>
+              </div>
+              <span id="tutorApplicantCount" class="tag">0 รายการ</span>
+            </div>
+            <div id="tutorApplicantQueue" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div class="text-xs text-slate-400">กำลังโหลดใบสมัคร...</div>
+            </div>
+          </div>
+
+          <div class="grid xl:grid-cols-[410px_1fr] gap-5 items-start">
+            <form id="tutorForm" class="card p-5 space-y-3 xl:sticky xl:top-[86px]">
+              <div class="flex justify-between items-start gap-3">
+                <div>
+                  <div class="text-[9px] font-extrabold tracking-[.16em] text-sky-600 uppercase">Tutor Profile</div>
+                  <h2 id="tutorFormTitle" class="font-bold text-lg mt-1">เพิ่มติวเตอร์ใหม่</h2>
+                  <p id="tutorFormHint" class="text-[10px] text-slate-400 mt-1">ข้อมูลชุดนี้จะแสดงในหน้าเลือกติวเตอร์/คอร์ส</p>
+                </div>
+                <button type="button" id="tutorReset" class="text-xs font-semibold text-sky-600 hover:text-sky-700">ล้างฟอร์ม</button>
+              </div>
+
+              <input type="hidden" id="tutorId">
+              <input type="hidden" id="tutorApplicationId">
+
+              <div class="grid grid-cols-2 gap-2">
+                <label class="block col-span-2">
+                  <span class="text-[9px] font-bold text-slate-500">ชื่อที่แสดง *</span>
+                  <input id="tutorDisplay" class="input mt-1" placeholder="เช่น พี่อาร์" required>
+                </label>
+                <label class="block col-span-2">
+                  <span class="text-[9px] font-bold text-slate-500">ชื่อ-นามสกุล</span>
+                  <input id="tutorFull" class="input mt-1" placeholder="ชื่อจริง นามสกุล">
+                </label>
+                <label class="block col-span-2">
+                  <span class="text-[9px] font-bold text-slate-500">บทบาท / วิชาที่สอน</span>
+                  <input id="tutorRole" class="input mt-1" placeholder="เช่น ชีววิทยา ม.ปลาย / ชีวเคมี">
+                </label>
+              </div>
+
+              <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3 space-y-2">
+                <div class="flex items-center gap-2 text-[10px] font-bold text-slate-600"><i class="fas fa-image text-sky-500"></i> รูปติวเตอร์</div>
+                <input id="tutorImage" type="file" accept="image/*" class="input bg-white">
+                <input id="tutorImageUrl" class="input bg-white" placeholder="หรือวาง URL รูป">
+                <div id="tutorImagePreviewWrap" class="hidden items-center gap-3 rounded-xl border border-slate-100 bg-white p-2">
+                  <img id="tutorImagePreview" class="w-14 h-14 rounded-xl object-cover border" alt="">
+                  <span class="text-[9px] text-slate-400">ตัวอย่างรูปที่จะแสดง</span>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="text-[9px] font-bold text-slate-500">การศึกษา <span class="font-normal text-slate-400">1 บรรทัด / 1 รายการ</span></span>
+                <textarea id="tutorEdu" class="input h-24 mt-1" placeholder="วท.บ. ชีววิทยา&#10;กำลังศึกษา ป.โท ..."></textarea>
+              </label>
+              <label class="block">
+                <span class="text-[9px] font-bold text-slate-500">รางวัล / ประสบการณ์เด่น</span>
+                <textarea id="tutorAwards" class="input h-20 mt-1" placeholder="1 บรรทัด / 1 รายการ"></textarea>
+              </label>
+
+              <div>
+                <div class="text-[9px] font-bold text-slate-500 mb-2">ระดับที่เปิดสอน</div>
+                <div id="tutorLevelChoices" class="grid grid-cols-2 gap-2">
+                  <label class="aw-tutor-check"><input type="checkbox" value="primary"> ประถม</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="junior"> ม.ต้น</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="senior"> ม.ปลาย</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="university"> มหาวิทยาลัย</label>
+                </div>
+                <input id="tutorLevels" class="input mt-2 hidden" placeholder="levels">
+              </div>
+
+              <div>
+                <div class="text-[9px] font-bold text-slate-500 mb-2">หมวดวิชาที่สอน</div>
+                <div id="tutorCategoryChoices" class="grid grid-cols-2 gap-2">
+                  <label class="aw-tutor-check"><input type="checkbox" value="bio"> ชีววิทยา</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="chem"> เคมี</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="sci"> วิทยาศาสตร์</label>
+                  <label class="aw-tutor-check"><input type="checkbox" value="math"> คณิตศาสตร์</label>
+                </div>
+                <input id="tutorCategories" class="input mt-2 hidden" placeholder="categories">
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <label class="block">
+                  <span class="text-[9px] font-bold text-slate-500">YouTube Video ID</span>
+                  <input id="tutorVideo" class="input mt-1" placeholder="n7OmFntD-Ss">
+                </label>
+                <label class="block">
+                  <span class="text-[9px] font-bold text-slate-500">ลำดับแสดง</span>
+                  <input id="tutorSort" type="number" min="0" step="10" class="input mt-1" value="100">
+                </label>
+              </div>
+
+              <label class="flex gap-2 items-center rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm">
+                <input id="tutorActive" type="checkbox" checked>
+                <span><b class="text-[11px] text-slate-700">เปิดใช้งานติวเตอร์</b><small class="block text-[9px] text-slate-400">ปิดเมื่อยังไม่ต้องการให้แสดงบนหน้าเว็บ</small></span>
+              </label>
+
+              <button id="tutorSaveBtn" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px] flex items-center justify-center gap-2">
+                <i class="fas fa-floppy-disk"></i><span>บันทึกติวเตอร์</span>
+              </button>
             </form>
-            <div class="card p-5"><h2 class="font-bold text-lg mb-4">รายชื่อติวเตอร์</h2><div id="tutorList" class="grid md:grid-cols-2 gap-3"></div></div>
+
+            <div class="card p-5">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h2 class="font-bold text-lg">รายชื่อติวเตอร์</h2>
+                  <p class="text-xs text-slate-400 mt-1">แก้ไขสถานะ ดูคอร์สที่ผูก และจัดการ Tutor Profile</p>
+                </div>
+                <div class="flex gap-2">
+                  <input id="tutorSearch" class="input !w-[220px]" placeholder="ค้นหาชื่อติวเตอร์">
+                  <select id="tutorStatusFilter" class="input !w-[120px]">
+                    <option value="">ทุกสถานะ</option>
+                    <option value="active">เปิด</option>
+                    <option value="inactive">ปิด</option>
+                  </select>
+                </div>
+              </div>
+              <div id="tutorList" class="grid md:grid-cols-2 gap-3"></div>
+            </div>
           </div>
         </section>
 
-        <section id="section-tutorapplications" class="section space-y-5">
+<section id="section-tutorapplications" class="section space-y-5">
           <div class="page-head">
             <div>
               <div class="page-kicker">Recruitment</div>
@@ -573,7 +727,7 @@
       </main>
     </div>
   </div>
-  <script src="./app.js?v=20260916-3"></script>
+  <script src="./app.js?v=20260916-4"></script>
   <script src="./v17-control.js?v=17.0-20260916-3"></script>
 
   <!-- AW COURSE CATEGORY READY v2 -->
@@ -3660,6 +3814,407 @@
   },true);
 
   window.AWV19OpenEnrollment = openFullDetail;
+})();
+</script>
+
+
+<script id="aw-manager-tutor-v20">
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const STATE = { tutors:[], identities:new Map(), applications:[], loading:false };
+
+  function client(){
+    try{ if(typeof sb!=='undefined' && sb?.from) return sb; }catch(_){}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+    const cfg=window.AREWARIN_CONFIG||{};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY){
+      if(!window.__awTutorManagerClient) window.__awTutorManagerClient=window.supabase.createClient(
+        cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}}
+      );
+      return window.__awTutorManagerClient;
+    }
+    return null;
+  }
+
+  function toast(msg,type='success'){
+    if(window.AWAlert?.toast) return window.AWAlert.toast(String(msg),type);
+    if(window.Swal?.fire) return Swal.fire({toast:true,position:'top-end',timer:2600,showConfirmButton:false,icon:type==='error'?'error':type==='warning'?'warning':'success',title:String(msg)});
+    console.log('[Tutor Manager]',msg);
+  }
+
+  const lines = v => String(v||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const selected = root => [...document.querySelectorAll(root+' input[type="checkbox"]:checked')].map(x=>x.value);
+
+  function borderFor(categories){
+    if(categories.includes('chem')) return 'border-green-100 hover:border-green-500';
+    if(categories.includes('math')) return 'border-amber-100 hover:border-amber-500';
+    if(categories.includes('sci')) return 'border-violet-100 hover:border-violet-500';
+    if(categories.includes('bio')) return 'border-sky-100 hover:border-sky-500';
+    return 'border-slate-100 hover:border-sky-500';
+  }
+
+  function resetForm(){
+    $('tutorForm')?.reset();
+    if($('tutorId')) $('tutorId').value='';
+    if($('tutorApplicationId')) $('tutorApplicationId').value='';
+    if($('tutorActive')) $('tutorActive').checked=true;
+    if($('tutorSort')) $('tutorSort').value='100';
+    document.querySelectorAll('#tutorLevelChoices input,#tutorCategoryChoices input').forEach(x=>x.checked=false);
+    $('tutorImagePreviewWrap')?.classList.add('hidden');
+    $('tutorImagePreviewWrap')?.classList.remove('flex');
+    if($('tutorFormTitle')) $('tutorFormTitle').textContent='เพิ่มติวเตอร์ใหม่';
+    if($('tutorFormHint')) $('tutorFormHint').textContent='ข้อมูลชุดนี้จะแสดงในหน้าเลือกติวเตอร์/คอร์ส';
+  }
+
+  function setChecks(root,values){
+    const s=new Set(Array.isArray(values)?values:[]);
+    document.querySelectorAll(root+' input[type="checkbox"]').forEach(x=>x.checked=s.has(x.value));
+  }
+
+  function preview(url){
+    if(!$('tutorImagePreview')||!$('tutorImagePreviewWrap')) return;
+    if(!url){
+      $('tutorImagePreviewWrap').classList.add('hidden');
+      $('tutorImagePreviewWrap').classList.remove('flex');
+      return;
+    }
+    $('tutorImagePreview').src=url;
+    $('tutorImagePreviewWrap').classList.remove('hidden');
+    $('tutorImagePreviewWrap').classList.add('flex');
+  }
+
+  async function uploadImage(file){
+    if(!file) return null;
+    const c=client();
+    if(!c) throw new Error('Supabase client ยังไม่พร้อม');
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+    const path=`tutors/${Date.now()}-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}.${ext}`;
+    const up=await c.storage.from('tutor-assets').upload(path,file,{cacheControl:'3600',upsert:false});
+    if(up.error) throw up.error;
+    const pub=c.storage.from('tutor-assets').getPublicUrl(path);
+    return pub.data?.publicUrl||null;
+  }
+
+  async function saveTutor(event){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const c=client();
+    if(!c) return toast('Supabase ยังไม่พร้อม','error');
+
+    const btn=$('tutorSaveBtn');
+    const old=btn?.innerHTML;
+    if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i><span>กำลังบันทึก...</span>'}
+
+    try{
+      const id=($('tutorId')?.value||'').trim();
+      const display=($('tutorDisplay')?.value||'').trim();
+      if(!display) throw new Error('กรุณากรอกชื่อที่แสดง');
+
+      const levels=selected('#tutorLevelChoices');
+      const categories=selected('#tutorCategoryChoices');
+      if(!levels.length) throw new Error('กรุณาเลือกระดับที่เปิดสอนอย่างน้อย 1 ระดับ');
+      if(!categories.length) throw new Error('กรุณาเลือกหมวดวิชาที่สอนอย่างน้อย 1 หมวด');
+
+      let imageUrl=($('tutorImageUrl')?.value||'').trim()||null;
+      const file=$('tutorImage')?.files?.[0];
+      if(file) imageUrl=await uploadImage(file);
+
+      const payload={
+        display_name:display,
+        full_name:($('tutorFull')?.value||'').trim()||null,
+        role_text:($('tutorRole')?.value||'').trim()||null,
+        image_url:imageUrl,
+        video_id:($('tutorVideo')?.value||'').trim()||null,
+        education:lines($('tutorEdu')?.value),
+        awards:lines($('tutorAwards')?.value),
+        levels,
+        categories,
+        border_color:borderFor(categories),
+        active:$('tutorActive')?.checked!==false,
+        sort_order:Number($('tutorSort')?.value||100),
+        updated_at:new Date().toISOString()
+      };
+
+      let result;
+      if(id){
+        result=await c.from('tutors').update(payload).eq('id',id).select('*').single();
+      }else{
+        result=await c.from('tutors').insert(payload).select('*').single();
+      }
+      if(result.error) throw result.error;
+
+      const tutor=result.data;
+      const applicationId=($('tutorApplicationId')?.value||'').trim();
+
+      if(applicationId && tutor?.id){
+        try{
+          const linked=await c.rpc('tutor_os_admin_link_application',{
+            p_application_id:applicationId,
+            p_tutor_id:tutor.id
+          });
+          if(linked.error && !/does not exist|schema cache|PGRST202/i.test(String(linked.error.message||''))){
+            console.warn('[Tutor Manager] Tutor OS link failed:',linked.error);
+          }
+        }catch(linkErr){
+          console.warn('[Tutor Manager] optional application link:',linkErr);
+        }
+      }
+
+      toast(id?'แก้ไขติวเตอร์เรียบร้อย':'เพิ่มติวเตอร์เรียบร้อย');
+      resetForm();
+      await loadAll();
+    }catch(e){
+      console.error('[Tutor Manager] save failed',e);
+      toast(e?.message||String(e),'error');
+    }finally{
+      if(btn){btn.disabled=false;btn.innerHTML=old}
+    }
+  }
+
+  function editTutor(id){
+    const t=STATE.tutors.find(x=>String(x.id)===String(id));
+    if(!t) return;
+    $('tutorId').value=t.id||'';
+    $('tutorApplicationId').value='';
+    $('tutorDisplay').value=t.display_name||'';
+    $('tutorFull').value=t.full_name||'';
+    $('tutorRole').value=t.role_text||'';
+    $('tutorImageUrl').value=t.image_url||'';
+    $('tutorEdu').value=(t.education||[]).join('\n');
+    $('tutorAwards').value=(t.awards||[]).join('\n');
+    $('tutorVideo').value=t.video_id||'';
+    $('tutorSort').value=Number(t.sort_order??100);
+    $('tutorActive').checked=t.active!==false;
+    setChecks('#tutorLevelChoices',t.levels||[]);
+    setChecks('#tutorCategoryChoices',t.categories||[]);
+    preview(t.image_url||'');
+    $('tutorFormTitle').textContent='แก้ไข '+(t.display_name||'ติวเตอร์');
+    $('tutorFormHint').textContent='Tutor ID: '+t.id;
+    $('tutorForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function toggleTutor(id){
+    const c=client();
+    const t=STATE.tutors.find(x=>String(x.id)===String(id));
+    if(!c||!t) return;
+    const r=await c.from('tutors').update({active:!t.active,updated_at:new Date().toISOString()}).eq('id',id);
+    if(r.error) return toast(r.error.message,'error');
+    toast(!t.active?'เปิดใช้งานติวเตอร์แล้ว':'ปิดใช้งานติวเตอร์แล้ว');
+    await loadTutors();
+  }
+
+  async function safeDeleteTutor(id){
+    const c=client();
+    const t=STATE.tutors.find(x=>String(x.id)===String(id));
+    if(!c||!t) return;
+
+    const [courses,schedules,identity] = await Promise.all([
+      c.from('courses').select('id',{count:'exact',head:true}).eq('tutor_id',id),
+      c.from('tutor_schedules').select('id',{count:'exact',head:true}).eq('tutor_id',id),
+      c.from('tutor_os_identities').select('tutor_id',{count:'exact',head:true}).eq('tutor_id',id)
+    ]);
+
+    const used=(courses.count||0)+(schedules.count||0)+(identity.count||0);
+    if(used){
+      return Swal.fire({
+        icon:'warning',
+        title:'ยังลบติวเตอร์ไม่ได้',
+        html:`<div style="font-size:13px;line-height:1.8">ติวเตอร์นี้ยังมีข้อมูลที่ผูกอยู่<br><b>คอร์ส ${courses.count||0}</b> · <b>ตาราง ${schedules.count||0}</b> · <b>Tutor OS ${identity.count||0}</b><br>แนะนำให้ใช้ <b>ปิดใช้งาน</b> แทน</div>`
+      });
+    }
+
+    const ok=await Swal.fire({icon:'warning',title:'ลบ '+t.display_name+' ?',text:'การลบถาวรไม่สามารถย้อนกลับได้',showCancelButton:true,confirmButtonText:'ลบถาวร',cancelButtonText:'ยกเลิก',confirmButtonColor:'#e11d48'});
+    if(!ok.isConfirmed) return;
+
+    const del=await c.from('tutors').delete().eq('id',id);
+    if(del.error) return toast(del.error.message,'error');
+    toast('ลบติวเตอร์แล้ว');
+    await loadTutors();
+  }
+
+  function renderTutors(){
+    const list=$('tutorList');
+    if(!list) return;
+    const q=($('tutorSearch')?.value||'').trim().toLowerCase();
+    const st=$('tutorStatusFilter')?.value||'';
+    let rows=STATE.tutors.filter(t=>{
+      if(q && !`${t.display_name||''} ${t.full_name||''} ${t.role_text||''}`.toLowerCase().includes(q)) return false;
+      if(st==='active' && t.active===false) return false;
+      if(st==='inactive' && t.active!==false) return false;
+      return true;
+    });
+
+    if(!rows.length){
+      list.innerHTML='<div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-8 text-center text-xs text-slate-400">ยังไม่มีติวเตอร์ตามตัวกรองนี้</div>';
+      return;
+    }
+
+    list.innerHTML=rows.map(t=>{
+      const linked=STATE.identities.get(String(t.id));
+      const img=t.image_url
+        ? `<img class="aw-tutor-avatar" src="${esc(t.image_url)}" alt="">`
+        : `<div class="aw-tutor-avatar-fallback">${esc((t.display_name||'T').slice(0,1))}</div>`;
+      return `<article class="aw-tutor-card">
+        ${img}
+        <div class="min-w-0">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0"><b class="text-[12px] text-slate-800 block truncate">${esc(t.display_name)}</b><span class="text-[9px] text-slate-400 block truncate mt-0.5">${esc(t.full_name||'')}</span></div>
+            <span class="tag ${t.active!==false?'!bg-emerald-50 !text-emerald-600':'!bg-slate-100 !text-slate-500'}">${t.active!==false?'เปิด':'ปิด'}</span>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-2">${esc(t.role_text||'ยังไม่ระบุวิชา')}</div>
+          <div class="aw-tutor-meta">
+            ${(t.levels||[]).map(x=>`<span>${esc(x)}</span>`).join('')}
+            ${(t.categories||[]).map(x=>`<span>${esc(x)}</span>`).join('')}
+            ${linked?`<span class="!bg-violet-50 !text-violet-600">Tutor OS ${esc(linked.status||'linked')}</span>`:''}
+          </div>
+        </div>
+        <div class="aw-tutor-actions">
+          <button type="button" data-tutor-edit="${esc(t.id)}"><i class="fas fa-pen mr-1"></i>แก้ไข</button>
+          <button type="button" data-tutor-toggle="${esc(t.id)}"><i class="fas fa-power-off mr-1"></i>${t.active!==false?'ปิดใช้งาน':'เปิดใช้งาน'}</button>
+          <button type="button" class="danger" data-tutor-delete="${esc(t.id)}"><i class="fas fa-trash mr-1"></i>ลบ</button>
+        </div>
+      </article>`;
+    }).join('');
+
+    list.querySelectorAll('[data-tutor-edit]').forEach(b=>b.onclick=()=>editTutor(b.dataset.tutorEdit));
+    list.querySelectorAll('[data-tutor-toggle]').forEach(b=>b.onclick=()=>toggleTutor(b.dataset.tutorToggle));
+    list.querySelectorAll('[data-tutor-delete]').forEach(b=>b.onclick=()=>safeDeleteTutor(b.dataset.tutorDelete));
+  }
+
+  async function loadTutors(){
+    const c=client();
+    if(!c) return;
+    const q=await c.from('tutors').select('*').order('sort_order').order('display_name');
+    if(q.error){console.warn('[Tutor Manager] tutors:',q.error);return}
+    STATE.tutors=q.data||[];
+
+    STATE.identities=new Map();
+    try{
+      const i=await c.from('tutor_os_identities').select('tutor_id,status,application_ref,auth_user_id');
+      if(!i.error)(i.data||[]).forEach(x=>{if(x.tutor_id)STATE.identities.set(String(x.tutor_id),x)});
+    }catch(_){}
+
+    renderTutors();
+  }
+
+  function applicationName(a){
+    return [a.first_name,a.last_name].filter(Boolean).join(' ') || a.full_name || a.name || 'ผู้สมัครติวเตอร์';
+  }
+
+  function prefillApplication(id){
+    const a=STATE.applications.find(x=>String(x.id)===String(id));
+    if(!a) return;
+    resetForm();
+    $('tutorApplicationId').value=a.id||'';
+    const nick=String(a.nickname||'').trim();
+    $('tutorDisplay').value=nick ? (nick.startsWith('พี่')?nick:'พี่'+nick) : applicationName(a);
+    $('tutorFull').value=applicationName(a);
+    $('tutorRole').value=Array.isArray(a.subjects)?a.subjects.join(', '):(a.subject_text||a.subject||'Tutor');
+    if(a.education) $('tutorEdu').value=Array.isArray(a.education)?a.education.join('\n'):String(a.education);
+    $('tutorFormTitle').textContent='สร้าง Tutor Profile จากใบสมัคร';
+    $('tutorFormHint').textContent=`${a.application_no||''} · ${a.email||''} · ${a.phone||''}`;
+    $('tutorForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function renderApplications(){
+    const root=$('tutorApplicantQueue');
+    if(!root) return;
+    const linkedApps=new Set([...STATE.identities.values()].map(x=>String(x.application_ref||'')));
+    const rows=STATE.applications.filter(a=>{
+      if(a.status!=='accepted') return false;
+      const ref=String(a.application_no||a.id||'');
+      return !linkedApps.has(ref);
+    });
+    $('tutorApplicantCount').textContent=rows.length+' รายการ';
+
+    if(!rows.length){
+      root.innerHTML='<div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-5 text-center text-xs text-slate-400">ไม่มีใบสมัครที่ผ่านและรอสร้าง Tutor Profile</div>';
+      return;
+    }
+
+    root.innerHTML=rows.slice(0,9).map(a=>`<article class="aw-tutor-app">
+      <div><b>${esc(a.nickname?`พี่${String(a.nickname).replace(/^พี่/,'')}`:applicationName(a))}</b><p>${esc(applicationName(a))}<br>${esc(a.email||'')} · ${esc(a.phone||'')}</p></div>
+      <button type="button" data-app-create="${esc(a.id)}"><i class="fas fa-user-plus mr-1"></i>สร้างติวเตอร์</button>
+    </article>`).join('');
+
+    root.querySelectorAll('[data-app-create]').forEach(b=>b.onclick=()=>prefillApplication(b.dataset.appCreate));
+  }
+
+  async function loadApplications(){
+    const c=client();
+    if(!c) return;
+    try{
+      const q=await c.from('tutor_applications').select('*').eq('status','accepted').order('created_at',{ascending:false}).limit(30);
+      if(q.error) throw q.error;
+      STATE.applications=q.data||[];
+    }catch(e){
+      STATE.applications=[];
+      console.warn('[Tutor Manager] applications unavailable:',e);
+    }
+    renderApplications();
+  }
+
+  async function loadAll(){
+    if(STATE.loading) return;
+    STATE.loading=true;
+    try{
+      await loadTutors();
+      await loadApplications();
+      // Keep course tutor dropdown up to date.
+      const courseTutor=$('courseTutor');
+      if(courseTutor){
+        const cur=courseTutor.value;
+        courseTutor.innerHTML='<option value="">เลือกติวเตอร์</option>'+STATE.tutors.filter(x=>x.active!==false).map(t=>`<option value="${esc(t.id)}">${esc(t.display_name)}</option>`).join('');
+        if([...courseTutor.options].some(o=>o.value===cur)) courseTutor.value=cur;
+      }
+    }finally{STATE.loading=false}
+  }
+
+  function bind(){
+    const form=$('tutorForm');
+    if(!form) return;
+
+    // Capture phase prevents the native manager/app.js tutor submit handler
+    // from creating a duplicate row.
+    document.addEventListener('submit',event=>{
+      if(event.target?.id!=='tutorForm') return;
+      saveTutor(event);
+    },true);
+
+    $('tutorReset')?.addEventListener('click',resetForm);
+    $('tutorNew')?.addEventListener('click',()=>{resetForm();$('tutorForm')?.scrollIntoView({behavior:'smooth',block:'start'})});
+    $('tutorRefresh')?.addEventListener('click',loadAll);
+    $('tutorSearch')?.addEventListener('input',renderTutors);
+    $('tutorStatusFilter')?.addEventListener('change',renderTutors);
+
+    $('tutorImageUrl')?.addEventListener('input',e=>preview(e.target.value.trim()));
+    $('tutorImage')?.addEventListener('change',e=>{
+      const f=e.target.files?.[0];
+      if(f) preview(URL.createObjectURL(f));
+    });
+
+    document.querySelector('[data-section="tutors"]')?.addEventListener('click',()=>setTimeout(loadAll,120));
+
+    loadAll();
+    setTimeout(loadAll,900);
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind);
+  else bind();
+
+  window.AWManagerTutors={
+    refresh:loadAll,
+    newTutor:resetForm,
+    edit:editTutor
+  };
 })();
 </script>
 
