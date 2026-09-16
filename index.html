@@ -6119,5 +6119,197 @@
 })();
 
     </script>
+
+<script>
+/* AREWARIN READY v4 — Public per-course package availability + custom prices */
+(() => {
+  'use strict';
+
+  const CODES=['yearly','monthly','pack20','pack10','hourly'];
+  const LABEL_IDS={
+    yearly:'modeOption_yearly',
+    monthly:'modeOption_monthly',
+    pack20:'modeOption_20',
+    pack10:'modeOption_10',
+    hourly:'modeOption_hourly'
+  };
+  const GROUP_DISCOUNT={yearly:3000,monthly:700,pack20:500,pack10:200,hourly:20};
+  const R={loaded:false,map:new Map(),loading:null};
+
+  function db(){
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    try{ if(typeof sb!=='undefined' && sb?.from) return sb; }catch(_){}
+    if(window.sb?.from) return window.sb;
+    return null;
+  }
+
+  function rule(course,code){
+    const m=R.map.get(String(course?.courseId||course?.id||''));
+    return m?.get(code) || {enabled:true,custom_price:null};
+  }
+
+  function globalBase(course,code){
+    const uni=!!course?.isUni;
+    if(code==='yearly') return uni?PRICE_UNI_YEARLY:PRICE_STD_YEARLY;
+    if(code==='monthly') return uni?PRICE_UNI_30H:PRICE_STD_30H;
+    if(code==='pack20') return uni?PRICE_UNI_20H:PRICE_STD_20H;
+    if(code==='pack10') return uni?PRICE_UNI_10H:PRICE_STD_10H;
+    return uni?PRICE_UNI_HOURLY:PRICE_STD_HOURLY;
+  }
+
+  function onePrice(course,code){
+    const r=rule(course,code);
+    let p=(r.custom_price===null||r.custom_price===undefined)?globalBase(course,code):Number(r.custom_price);
+    if(selectedStudyType==='group') p=Math.max(0,p-GROUP_DISCOUNT[code]);
+    return p;
+  }
+
+  function aggregate(code){
+    if(!courseCart?.length) return 0;
+    const vals=courseCart.map(c=>onePrice(c,code));
+    return (courseCart.length>1 && cartShareMode==='separate')
+      ? vals.reduce((a,b)=>a+b,0)
+      : Math.max(...vals);
+  }
+
+  function allowed(code){
+    if(!courseCart?.length) return true;
+    return courseCart.every(c=>rule(c,code).enabled!==false);
+  }
+
+  function applyAvailability(){
+    if(!courseCart?.length) return;
+
+    const globalKey={
+      yearly:'COURSE_YEARLY',monthly:'COURSE_30H',pack20:'COURSE_20H',pack10:'COURSE_10H',hourly:'COURSE_HOURLY'
+    };
+
+    const enabled=[];
+    CODES.forEach(code=>{
+      const el=document.getElementById(LABEL_IDS[code]);
+      const globalOpen=!window.appConfig || appConfig[globalKey[code]]!=='CLOSE';
+      const show=globalOpen && allowed(code);
+      if(el) el.classList.toggle('hidden',!show);
+      const radio=el?.querySelector('input[name="studyMode"]');
+      if(!show && radio?.checked) radio.checked=false;
+      if(show) enabled.push(code);
+    });
+
+    if(enabled.length && !enabled.includes(selectedMode)){
+      selectedMode=enabled[0];
+      const el=document.getElementById(LABEL_IDS[selectedMode]);
+      const radio=el?.querySelector('input[name="studyMode"]');
+      if(radio) radio.checked=true;
+      const h=document.getElementById('hourlyInputSection');
+      if(h) h.classList.toggle('hidden',selectedMode!=='hourly');
+    }
+    return enabled;
+  }
+
+  function calcV4(){
+    if(!courseCart?.length){
+      return;
+    }
+    applyAvailability();
+
+    const pYearly=aggregate('yearly');
+    const p30=aggregate('monthly');
+    const p20=aggregate('pack20');
+    const p10=aggregate('pack10');
+    const pHourly=aggregate('hourly');
+
+    const suffix=selectedStudyType==='group'?' บ./คน':' บาท';
+    const separate=(courseCart.length>1 && cartShareMode==='separate');
+    const multi=separate?' <span class="text-[9px] text-pink-500">(รวมรายวิชา)</span>':'';
+
+    const set=(id,val,extra='')=>{const el=document.getElementById(id);if(el)el.innerHTML=Number(val).toLocaleString('th-TH')+extra;};
+    set('priceLabelYearly',pYearly,suffix+multi);
+    set('priceLabel30',p30,suffix+multi);
+    set('priceLabel20',p20,suffix+multi);
+    set('priceLabel10',p10,suffix+multi);
+    set('priceLabelHourly',pHourly,' บ./ชม.'+multi);
+
+    const hp=document.querySelector('#hourlyInputSection p');
+    if(hp) hp.innerText='ระบุจำนวนชั่วโมง ('+Number(pHourly).toLocaleString('th-TH')+' บ./ชม.)';
+
+    let unit=
+      selectedMode==='yearly'?pYearly:
+      selectedMode==='monthly'?p30:
+      selectedMode==='pack20'?p20:
+      selectedMode==='pack10'?p10:pHourly;
+
+    if(selectedMode==='hourly'){
+      const h=Math.max(1,parseInt(document.getElementById('inputHours')?.value||'1',10)||1);
+      unit*=h;
+    }
+    currentPrice=unit*groupSize;
+    const onsite=document.getElementById('onsiteCheck');
+    if(onsite?.checked) currentPrice+=150;
+    finalPrice=currentPrice;
+    if(typeof updatePriceUI==='function') updatePriceUI();
+  }
+
+  async function loadRules(){
+    if(R.loading) return R.loading;
+    R.loading=(async()=>{
+      const c=db();
+      if(!c) return false;
+      const {data,error}=await c.from('course_package_rules').select('course_id,package_code,enabled,custom_price');
+      if(error){
+        console.warn('[AW v4] custom course pricing disabled; using global prices:',error.message);
+        return false;
+      }
+      R.map=new Map();
+      (data||[]).forEach(x=>{
+        const k=String(x.course_id);
+        if(!R.map.has(k)) R.map.set(k,new Map());
+        R.map.get(k).set(x.package_code,x);
+      });
+      R.loaded=true;
+      try{applyAvailability();calcV4();}catch(e){console.warn(e);}
+      return true;
+    })();
+    const ok=await R.loading;
+    R.loading=null;
+    return ok;
+  }
+
+  function install(){
+    const oldCalc=window.calcPriceNew;
+    window.calcPriceNew=function(){
+      try{
+        if(R.loaded && courseCart?.length) return calcV4();
+      }catch(e){console.warn('[AW v4] calc fallback',e);}
+      if(typeof oldCalc==='function') return oldCalc();
+    };
+
+    const oldApply=window.applyConfigToStep5;
+    if(typeof oldApply==='function'){
+      window.applyConfigToStep5=function(){
+        const r=oldApply.apply(this,arguments);
+        try{applyAvailability();}catch(e){console.warn(e);}
+        return r;
+      };
+    }
+
+    // re-apply after cart UI changes
+    const oldRenderCart=window.renderCartItems;
+    if(typeof oldRenderCart==='function'){
+      window.renderCartItems=function(){
+        const r=oldRenderCart.apply(this,arguments);
+        setTimeout(()=>{try{applyAvailability();window.calcPriceNew();}catch(_){}},0);
+        return r;
+      };
+    }
+    loadRules();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));
+  else setTimeout(install,0);
+
+  window.AWCoursePackagePublic={reload:loadRules,apply:applyAvailability};
+})();
+</script>
+
 </body>
 </html>

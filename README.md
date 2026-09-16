@@ -1,60 +1,59 @@
-# AreWarin Ready Replace v3 — วางทับได้เลย
+# AreWarin Ready Replace v4 — Stable
 
-เวอร์ชันนี้แก้จาก v2 โดย **ฝังช่อง “หมวดที่เปิดสอน” ลงใน `manager/index.html` โดยตรง**
-ดังนั้นเมื่อเปิดหน้า Manager > คอร์ส คุณต้องเห็นกรอบหมวดทันที แม้ Supabase ยังโหลดไม่สำเร็จ
+เวอร์ชันนี้ต่อจาก v3 และเพิ่ม:
 
-## ใช้ไฟล์แค่ 3 ตัว
+- รายการคอร์สกรองตามติวเตอร์
+- ค้นหาคอร์ส
+- กรองเปิด/ปิด
+- เปิด/ปิดแพ็กเกจ **เฉพาะรายคอร์ส**
+- กำหนดราคา **เฉพาะรายคอร์ส**
+- ราคาเว้นว่าง = ใช้ราคากลาง
+- หน้าสมัครซ่อนแพ็กเกจที่คอร์สนั้นปิด
+- หน้าสมัครใช้ราคาที่กำหนดเฉพาะคอร์ส
+- Quick preset: **เฉพาะ 30 ชั่วโมง + รายชั่วโมง**
+
+ตัวอย่าง Biochemistry:
+1. Manager > คอร์ส
+2. หา Biochemistry
+3. กด `แพ็กเกจ / ราคา`
+4. กด `เฉพาะ 30 ชม. + รายชั่วโมง`
+5. ใส่ราคาเฉพาะถ้าต้องการ
+6. บันทึก
+
+## ติดตั้ง
+
+นำไปวางทับ:
 
 ```text
 YOUR-REPO/
-├─ index.html                         ← วางทับด้วยไฟล์นี้
-├─ manager/
-│  ├─ index.html                     ← วางทับด้วยไฟล์นี้
-│  ├─ app.js                         ← เก็บไฟล์เดิม
-│  └─ v17-control.js                 ← เก็บไฟล์เดิม
-└─ supabase/
-   └─ COURSE_CATEGORY_UPGRADE.sql     ← Run ใน Supabase SQL Editor 1 ครั้ง
+├─ index.html              <- v4/index.html
+└─ manager/
+   └─ index.html           <- v4/manager/index.html
 ```
 
-## ขั้นตอน
+เก็บไฟล์เดิมไว้:
+- manager/app.js
+- manager/v17-control.js
+- config.js
+- js/supabase-bridge.js
 
-1. เอา `index.html` จาก ZIP ไปวางทับ **index.html ที่ root**
-2. เอา `manager/index.html` จาก ZIP ไปวางทับ **manager/index.html**
-3. Commit + Push GitHub
-4. ไป Supabase > SQL Editor > New Query
-5. Copy `COURSE_CATEGORY_UPGRADE.sql` ทั้งไฟล์ แล้ว Run
-6. รอ GitHub Pages / Hosting deploy เสร็จ
-7. เปิด Manager แล้วกด Ctrl+F5
+จากนั้นเปิด Supabase > SQL Editor และ Run:
 
-## สิ่งที่ต้องเห็นใน Manager > คอร์ส
-
-หลังช่อง “ติวเตอร์” จะมีกรอบ:
-
-- หมวดที่เปิดสอน *
-- ค้นหาหมวด
-- รายการหมวดจาก `subject_categories`
-- ปุ่ม `สร้างหมวดใหม่`
-
-ถ้าเห็นกรอบ แต่ขึ้น “โหลดหมวดไม่สำเร็จ”:
-แปลว่า HTML ใหม่ทำงานแล้ว แต่ต้องตรวจ Supabase/RLS/SQL ต่อ
-
-ถ้า **ไม่เห็นกรอบหมวดเลย**:
-แปลว่า Hosting ยังไม่ได้ใช้ `manager/index.html` ไฟล์ใหม่นี้
-ให้ตรวจว่าอัปไฟล์ไว้ที่ `manager/index.html` จริง ไม่ใช่ `manager-index.html` ที่ root
-
-## ตรวจฐานข้อมูล
-
-Run:
-
-```sql
-select * from public.course_categories limit 20;
+```text
+supabase/AREWARIN_V4_UPGRADE.sql
 ```
 
-ต้องไม่ขึ้น `relation does not exist`
+แล้ว deploy + Ctrl+F5
 
-## หมายเหตุ
+## การคิดราคาเมื่อเลือกหลายคอร์ส
 
-- ไม่ต้องอัปไฟล์ add-on JavaScript เพิ่ม
-- โค้ดหมวดถูกฝังใน HTML แล้ว
-- ไม่ต้องแก้ `manager/app.js`
-- ระบบเดิมยังคงทำงานต่อ
+- แชร์แพ็กเกจ: ใช้ราคาที่สูงสุดของคอร์สที่เลือก
+- แยกแพ็กเกจ: รวมราคาของแต่ละคอร์ส
+- แพ็กเกจจะแสดงได้เมื่อคอร์สที่เลือกทั้งหมดเปิดแพ็กเกจนั้น
+
+## Recovery
+
+ถ้า Manager blank หรือรายการหาย:
+1. ใช้ไฟล์ v4 ทั้งไฟล์ อย่า copy เฉพาะบางส่วนของ script
+2. ตรวจ Console (F12) ก่อน
+3. v4 ถูกออกแบบให้ถ้า table ใหม่ยังไม่มี จะ fallback ระบบเดิม และไม่ควรทำหน้าหลักหาย

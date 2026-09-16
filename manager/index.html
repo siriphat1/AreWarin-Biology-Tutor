@@ -250,7 +250,38 @@
               <label class="text-xs font-bold">รูปคอร์ส</label><input id="courseImage" type="file" accept="image/*" class="input"><input id="courseImageUrl" class="input" placeholder="หรือ URL รูปเดิม"><label class="flex gap-2 items-center text-sm"><input id="courseUni" type="checkbox"> ราคา/เนื้อหาระดับมหาวิทยาลัย</label><label class="flex gap-2 items-center text-sm"><input id="courseActive" type="checkbox" checked> เปิดใช้งาน</label>
               <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px]">บันทึกคอร์ส</button>
             </form>
-            <div class="card p-5"><h2 class="font-bold text-lg mb-4">รายการคอร์ส</h2><div id="courseList" class="space-y-3"></div></div>
+            <div class="card p-5">
+              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+                <div>
+                  <h2 class="font-bold text-lg">รายการคอร์ส</h2>
+                  <p class="text-[10px] text-slate-400 mt-1">กรองตามติวเตอร์ และกำหนดแพ็กเกจ/ราคาเฉพาะรายคอร์ส</p>
+                </div>
+                <button id="awV4RefreshCourses" type="button"
+                  class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-600 hover:text-sky-600 hover:border-sky-200">
+                  <i class="fas fa-rotate mr-1"></i>รีเฟรช
+                </button>
+              </div>
+
+              <div class="grid md:grid-cols-[1fr_1fr_130px] gap-2 mb-3">
+                <select id="awV4TutorFilter" class="input !min-h-[42px] !text-[10px]">
+                  <option value="">ติวเตอร์ทั้งหมด</option>
+                </select>
+                <input id="awV4CourseSearch" class="input !min-h-[42px] !text-[10px]"
+                  placeholder="ค้นหาชื่อคอร์ส / ติวเตอร์">
+                <select id="awV4StatusFilter" class="input !min-h-[42px] !text-[10px]">
+                  <option value="">ทุกสถานะ</option>
+                  <option value="open">เปิด</option>
+                  <option value="closed">ปิด</option>
+                </select>
+              </div>
+
+              <div class="mb-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[9px] text-slate-500">
+                <i class="fas fa-circle-info text-sky-400 mr-1"></i>
+                ราคาเฉพาะคอร์สเว้นว่าง = ใช้ราคากลาง · ปิดแพ็กเกจใด แพ็กเกจนั้นจะไม่แสดงในหน้าสมัคร
+              </div>
+
+              <div id="courseList" class="space-y-3"></div>
+            </div>
           </div>
         </section>
 
@@ -1023,5 +1054,343 @@
 })();
 
   </script>
+
+<script>
+/* AREWARIN READY v4 — Manager course filter + per-course package/price */
+(() => {
+  'use strict';
+
+  const D = [
+    ['yearly','รายปี','fa-crown'],
+    ['monthly','30 ชั่วโมง','fa-bolt'],
+    ['pack20','20 ชั่วโมง','fa-book-open'],
+    ['pack10','10 ชั่วโมง','fa-stopwatch'],
+    ['hourly','รายชั่วโมง','fa-clock']
+  ];
+  const S = {
+    courses:[], tutors:[], prices:new Map(), rules:new Map(),
+    courseMap:new Map(), tutorMap:new Map(), ready:false
+  };
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money = v => Number(v || 0).toLocaleString('th-TH',{maximumFractionDigits:2});
+
+  function db(){
+    try{ if(typeof sb!=='undefined' && sb?.from) return sb; }catch(_){}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+    const cfg=window.AREWARIN_CONFIG||{};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY){
+      if(!window.__awV4ManagerClient) window.__awV4ManagerClient=window.supabase.createClient(
+        cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}}
+      );
+      return window.__awV4ManagerClient;
+    }
+    return null;
+  }
+
+  function toast(msg,type='success'){
+    if(window.AWAlert?.toast) return window.AWAlert.toast(String(msg),type);
+    if(window.Swal?.fire) return Swal.fire({
+      toast:true,position:'top-end',timer:2300,showConfirmButton:false,
+      icon:type==='error'?'error':type==='warning'?'warning':'success',title:String(msg)
+    });
+    console.log('[AW v4]',msg);
+  }
+
+  function ruleMap(courseId){
+    return S.rules.get(String(courseId)) || new Map();
+  }
+  function rule(courseId,code){
+    return ruleMap(courseId).get(code) || {enabled:true,custom_price:null};
+  }
+  function basePrice(course,code){
+    const tier=course?.is_university?'university':'standard';
+    return Number(S.prices.get(tier+':'+code) || 0);
+  }
+  function effective(course,code){
+    const r=rule(course.id,code);
+    return r.custom_price===null || r.custom_price===undefined ? basePrice(course,code) : Number(r.custom_price);
+  }
+
+  async function load(){
+    const c=db();
+    if(!c) return;
+    try{
+      const [cr,tr,pr,rr]=await Promise.all([
+        c.from('courses').select('id,tutor_id,name,is_university,active,sort_order').order('sort_order').order('name'),
+        c.from('tutors').select('id,display_name,active,sort_order').order('sort_order').order('display_name'),
+        c.from('course_prices').select('tier,package_code,amount,active'),
+        c.from('course_package_rules').select('course_id,package_code,enabled,custom_price')
+      ]);
+      if(cr.error) throw cr.error;
+      if(tr.error) throw tr.error;
+      if(pr.error) throw pr.error;
+
+      S.courses=cr.data||[];
+      S.tutors=tr.data||[];
+      S.courseMap=new Map(S.courses.map(x=>[String(x.id),x]));
+      S.tutorMap=new Map(S.tutors.map(x=>[String(x.id),x]));
+      S.prices=new Map((pr.data||[]).map(x=>[x.tier+':'+x.package_code,Number(x.amount||0)]));
+      S.rules=new Map();
+
+      if(rr.error){
+        console.warn('[AW v4] course_package_rules:',rr.error.message);
+        toast('ยังไม่พบตารางราคาเฉพาะคอร์ส — รัน COURSE_PACKAGE_PRICE_UPGRADE.sql ก่อน','warning');
+      }else{
+        (rr.data||[]).forEach(x=>{
+          const k=String(x.course_id);
+          if(!S.rules.has(k)) S.rules.set(k,new Map());
+          S.rules.get(k).set(x.package_code,x);
+        });
+      }
+
+      S.ready=true;
+      fillTutorFilter();
+      decorate();
+    }catch(e){
+      console.error('[AW v4] manager load failed',e);
+      toast('โหลดระบบแพ็กเกจเฉพาะคอร์สไม่สำเร็จ: '+(e?.message||e),'error');
+    }
+  }
+
+  function fillTutorFilter(){
+    const el=$('awV4TutorFilter');
+    if(!el) return;
+    const cur=el.value;
+    el.innerHTML='<option value="">ติวเตอร์ทั้งหมด</option>'+
+      S.tutors.map(t=>`<option value="${esc(t.id)}">${esc(t.display_name)}</option>`).join('');
+    el.value=cur;
+  }
+
+  function findCourse(card){
+    if(card.dataset.awV4CourseId) return S.courseMap.get(card.dataset.awV4CourseId)||null;
+    const text=(card.innerText||'').replace(/\s+/g,' ');
+    let rows=S.courses.filter(c=>c.name && text.includes(c.name));
+    if(!rows.length) return null;
+    if(rows.length>1){
+      const withTutor=rows.find(c=>{
+        const t=S.tutorMap.get(String(c.tutor_id));
+        return t?.display_name && text.includes(t.display_name);
+      });
+      if(withTutor) rows=[withTutor];
+    }
+    const course=rows[0]||null;
+    if(course) card.dataset.awV4CourseId=String(course.id);
+    return course;
+  }
+
+  function summary(course){
+    const enabled=D.filter(([code])=>rule(course.id,code).enabled!==false);
+    if(!enabled.length) return '<span class="text-[8px] font-bold text-rose-500">ปิดทุกแพ็กเกจ</span>';
+    return enabled.map(([code,label])=>{
+      const r=rule(course.id,code);
+      const custom=r.custom_price!==null && r.custom_price!==undefined;
+      return `<span class="inline-flex items-center px-2 py-1 rounded-full border text-[8px] font-bold ${custom?'bg-violet-50 text-violet-700 border-violet-100':'bg-slate-50 text-slate-600 border-slate-100'}">
+        ${esc(label)} ${money(effective(course,code))}${code==='hourly'?'/ชม.':''}
+      </span>`;
+    }).join(' ');
+  }
+
+  function decorate(){
+    const list=$('courseList');
+    if(!list || !S.ready) return;
+
+    [...list.children].forEach(card=>{
+      if(!(card instanceof HTMLElement)) return;
+      const course=findCourse(card);
+      if(!course) return;
+
+      let f=card.querySelector('[data-aw-v4-footer]');
+      if(!f){
+        f=document.createElement('div');
+        f.setAttribute('data-aw-v4-footer','1');
+        f.className='mt-3 pt-3 border-t border-slate-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2';
+        card.appendChild(f);
+      }
+      const tutor=S.tutorMap.get(String(course.tutor_id));
+      f.innerHTML=`
+        <div class="min-w-0">
+          <div class="text-[8px] uppercase tracking-[.08em] font-bold text-slate-400 mb-1">แพ็กเกจที่เปิด · ${esc(tutor?.display_name||'')}</div>
+          <div class="flex flex-wrap gap-1">${summary(course)}</div>
+        </div>
+        <button type="button" data-aw-v4-price="${esc(course.id)}"
+          class="shrink-0 px-3 py-2 rounded-xl bg-slate-900 text-white text-[9px] font-bold hover:bg-slate-800">
+          <i class="fas fa-tags mr-1"></i>แพ็กเกจ / ราคา
+        </button>`;
+      f.querySelector('[data-aw-v4-price]')?.addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();openDialog(course.id);
+      });
+    });
+
+    applyFilters();
+  }
+
+  function applyFilters(){
+    const list=$('courseList'); if(!list) return;
+    const tutorId=$('awV4TutorFilter')?.value||'';
+    const q=($('awV4CourseSearch')?.value||'').trim().toLowerCase();
+    const status=$('awV4StatusFilter')?.value||'';
+
+    [...list.children].forEach(card=>{
+      if(!(card instanceof HTMLElement)) return;
+      const course=findCourse(card);
+      const text=(card.innerText||'').toLowerCase();
+      let show=true;
+      if(q && !text.includes(q)) show=false;
+      if(tutorId && course && String(course.tutor_id)!==String(tutorId)) show=false;
+      if(status && course){
+        if(status==='open' && course.active===false) show=false;
+        if(status==='closed' && course.active!==false) show=false;
+      }
+      card.style.display=show?'':'none';
+    });
+  }
+
+  function closeDialog(){
+    $('awV4PriceModal')?.remove();
+  }
+
+  function openDialog(courseId){
+    const course=S.courseMap.get(String(courseId));
+    if(!course) return toast('ไม่พบข้อมูลคอร์ส','error');
+
+    closeDialog();
+    const tutor=S.tutorMap.get(String(course.tutor_id));
+    const m=document.createElement('div');
+    m.id='awV4PriceModal';
+    m.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.42);backdrop-filter:blur(3px);display:grid;place-items:center;padding:18px;';
+    m.innerHTML=`
+      <div style="width:min(720px,100%);max-height:92vh;overflow:auto;background:white;border-radius:24px;padding:20px;box-shadow:0 30px 90px rgba(15,23,42,.25)">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="text-[9px] uppercase tracking-[.12em] font-bold text-sky-500">Course package control</div>
+            <h3 class="text-lg font-bold text-slate-800 mt-1">${esc(course.name)}</h3>
+            <div class="text-[10px] text-slate-400 mt-1">${esc(tutor?.display_name||'')} · ${course.is_university?'เรทราคามหาวิทยาลัย':'เรทราคามาตรฐาน'}</div>
+          </div>
+          <button type="button" data-close class="w-9 h-9 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-700"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mt-4">
+          <button type="button" data-preset="all" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-[9px] font-bold">เปิดทั้งหมด</button>
+          <button type="button" data-preset="hour30" class="px-3 py-2 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 text-[9px] font-bold">
+            เฉพาะ 30 ชม. + รายชั่วโมง
+          </button>
+          <button type="button" data-preset="hourly" class="px-3 py-2 rounded-xl bg-violet-50 text-violet-700 border border-violet-100 text-[9px] font-bold">เฉพาะรายชั่วโมง</button>
+        </div>
+
+        <div class="mt-4 space-y-2">
+          ${D.map(([code,label,icon])=>{
+            const r=rule(course.id,code);
+            const def=basePrice(course,code);
+            return `<div data-row="${code}" class="grid sm:grid-cols-[36px_1fr_150px] gap-2 items-center rounded-2xl border border-slate-200 p-3">
+              <input data-enabled="${code}" type="checkbox" ${r.enabled!==false?'checked':''} class="w-4 h-4">
+              <div>
+                <div class="text-[10px] font-bold text-slate-700"><i class="fas ${icon} text-sky-400 mr-1"></i>${label}</div>
+                <div class="text-[8px] text-slate-400 mt-1">ราคากลาง ${money(def)}${code==='hourly'?' บาท/ชม.':' บาท'}</div>
+              </div>
+              <input data-price="${code}" type="number" min="0" step="0.01"
+                class="input !min-h-[40px] !text-[10px]"
+                placeholder="ใช้ราคากลาง"
+                value="${r.custom_price===null||r.custom_price===undefined?'':esc(r.custom_price)}">
+            </div>`;
+          }).join('')}
+        </div>
+
+        <div class="mt-3 rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-[9px] text-amber-700">
+          ตัวอย่าง Biochemistry: กด “เฉพาะ 30 ชม. + รายชั่วโมง” แล้วใส่ราคาเฉพาะที่ต้องการได้ทันที
+        </div>
+
+        <div class="flex justify-end gap-2 mt-5">
+          <button type="button" data-close class="px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-bold text-slate-600">ยกเลิก</button>
+          <button type="button" data-save class="px-4 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-bold">
+            <i class="fas fa-floppy-disk mr-1"></i>บันทึกแพ็กเกจ / ราคา
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+
+    m.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',closeDialog));
+    m.addEventListener('click',e=>{ if(e.target===m) closeDialog(); });
+
+    m.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
+      const p=b.dataset.preset;
+      D.forEach(([code])=>{
+        const el=m.querySelector(`[data-enabled="${code}"]`);
+        if(!el) return;
+        el.checked = p==='all' || (p==='hour30' && (code==='monthly'||code==='hourly')) || (p==='hourly' && code==='hourly');
+      });
+    }));
+
+    m.querySelector('[data-save]')?.addEventListener('click',()=>saveDialog(course,m));
+  }
+
+  async function saveDialog(course,m){
+    const c=db(); if(!c) return;
+    const btn=m.querySelector('[data-save]');
+    if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin mr-1"></i>กำลังบันทึก';}
+    const rows=D.map(([code])=>{
+      const priceEl=m.querySelector(`[data-price="${code}"]`);
+      const raw=(priceEl?.value||'').trim();
+      return {
+        course_id:course.id,
+        package_code:code,
+        enabled:!!m.querySelector(`[data-enabled="${code}"]`)?.checked,
+        custom_price:raw===''?null:Number(raw),
+        updated_at:new Date().toISOString()
+      };
+    });
+    if(rows.some(x=>x.custom_price!==null && (!Number.isFinite(x.custom_price)||x.custom_price<0))){
+      if(btn){btn.disabled=false;btn.textContent='บันทึกแพ็กเกจ / ราคา';}
+      return toast('ราคาต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป','warning');
+    }
+    try{
+      const res=await c.from('course_package_rules').upsert(rows,{onConflict:'course_id,package_code'});
+      if(res.error) throw res.error;
+
+      if(!S.rules.has(String(course.id))) S.rules.set(String(course.id),new Map());
+      rows.forEach(x=>S.rules.get(String(course.id)).set(x.package_code,x));
+      closeDialog(); decorate();
+      toast('บันทึกแพ็กเกจและราคาเฉพาะคอร์สแล้ว');
+    }catch(e){
+      console.error(e);
+      toast('บันทึกไม่สำเร็จ: '+(e?.message||e),'error');
+      if(btn){btn.disabled=false;btn.textContent='บันทึกแพ็กเกจ / ราคา';}
+    }
+  }
+
+  function bind(){
+    $('awV4TutorFilter')?.addEventListener('change',applyFilters);
+    $('awV4CourseSearch')?.addEventListener('input',applyFilters);
+    $('awV4StatusFilter')?.addEventListener('change',applyFilters);
+    $('awV4RefreshCourses')?.addEventListener('click',load);
+
+    const list=$('courseList');
+    if(list){
+      const ob=new MutationObserver(()=>{ if(S.ready) setTimeout(decorate,0); });
+      ob.observe(list,{childList:true,subtree:false});
+    }
+  }
+
+  function boot(){
+    let n=0;
+    const timer=setInterval(()=>{
+      n++;
+      if($('courseList') && $('awV4TutorFilter')){
+        clearInterval(timer);
+        bind();
+        load();
+      }else if(n>100) clearInterval(timer);
+    },100);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+  else boot();
+
+  window.AWCoursePackageManager={reload:load,filter:applyFilters};
+})();
+</script>
+
 </body>
 </html>
