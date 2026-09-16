@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v7 · 2026-09-16 · TUTOR NAVIGATION FIX -->
+  <!-- AREWARIN READY REPLACE v8 · 2026-09-16 · COURSE LIST HYDRATION FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -3585,6 +3585,16 @@
         window.onload = async function() {
             try {
                 await loadRemoteCatalog();
+
+                // V8: attach course_categories to the FINAL Supabase catalog.
+                if (window.AWCourseCategoryPublic?.reload) {
+                    try {
+                        await window.AWCourseCategoryPublic.reload();
+                    } catch (e) {
+                        console.warn('[AW v8] post-catalog relation reload failed:', e);
+                    }
+                }
+
                 initProvinces(); 
                 initTimeGrid(); 
                 updateMascot(1); 
@@ -6073,8 +6083,34 @@ if (typeof window.escapeHTML !== 'function') {
     if(!container) return;
 
     const allCourses = coursesByTutor?.[selectedTutor] || [];
-    const filteredCourses = allCourses.filter(function(c) {
-      if (!courseMatchesCategory(c, selectedCategory)) return false;
+    const profile = tutorProfiles?.[selectedTutor] || {};
+    const profileCategories = (profile.categories || []).map(String);
+    const wantedCategory = String(selectedCategory || '');
+
+    let categoryCourses = wantedCategory
+      ? allCourses.filter(c => courseMatchesCategory(c, wantedCategory))
+      : [...allCourses];
+
+    const mappedCount = allCourses.filter(c =>
+      Array.isArray(c?.categoryIds) && c.categoryIds.length
+    ).length;
+
+    const tutorBelongsToCategory =
+      !wantedCategory || profileCategories.includes(wantedCategory);
+
+    // Recovery path: tutor was valid on the previous screen, but the
+    // newly loaded course objects do not yet have categoryIds.
+    if (!categoryCourses.length && tutorBelongsToCategory && allCourses.length) {
+      console.info('[AW v8] course fallback:', {
+        tutor: selectedTutor,
+        category: wantedCategory,
+        allCourses: allCourses.length,
+        mappedCount: mappedCount
+      });
+      categoryCourses = [...allCourses];
+    }
+
+    const filteredCourses = categoryCourses.filter(function(c) {
       const typeOk = courseCatalogFilter === 'all' || c.type === courseCatalogFilter;
       if (!typeOk) return false;
       if (!courseCatalogSearch) return true;
@@ -6157,9 +6193,11 @@ if (typeof window.escapeHTML !== 'function') {
 
   window.AWCourseCategoryPublic = {
     reload: async () => {
+      relationLoading = null;
       relationReady = false;
       await hydrateRelations();
       window.renderCategories?.();
+      return relationReady;
     },
     isReady: () => relationReady
   };
@@ -6493,6 +6531,69 @@ if (typeof window.escapeHTML !== 'function') {
     event.preventDefault();
     openTutorStep(card.getAttribute('data-aw-category'));
   }, true);
+})();
+</script>
+
+
+<script>
+/* AREWARIN READY v8 — tutor -> course list hydration fix */
+(() => {
+  'use strict';
+
+  async function awV8SelectTutor(tutor) {
+    selectedTutor = tutor;
+
+    const subtitle = document.getElementById('tutorCourseSubtitle');
+    if (subtitle) {
+      subtitle.innerHTML =
+        'ติวเตอร์: <strong class="text-sky-600">' +
+        String(tutor || '') +
+        '</strong>';
+    }
+
+    // Navigate immediately, then refresh mapping and render.
+    if (typeof showStep === 'function') {
+      showStep('stepCourseCart');
+    }
+
+    try {
+      if (window.AWCourseCategoryPublic?.reload) {
+        await window.AWCourseCategoryPublic.reload();
+      }
+    } catch (e) {
+      console.warn('[AW v8] relation refresh on tutor select failed:', e);
+    }
+
+    if (typeof window.renderCourseCartList === 'function') {
+      window.renderCourseCartList();
+    } else if (typeof renderCourseCartList === 'function') {
+      renderCourseCartList();
+    }
+
+    if (typeof renderCartItems === 'function') {
+      renderCartItems();
+    }
+  }
+
+  window.selectTutor = awV8SelectTutor;
+  window.AWV8OpenTutorCourses = awV8SelectTutor;
+
+  window.AWV8DebugCatalog = function() {
+    const all = coursesByTutor?.[selectedTutor] || [];
+    const profile = tutorProfiles?.[selectedTutor] || {};
+    return {
+      selectedTutor: selectedTutor,
+      selectedCategory: selectedCategory,
+      tutorCategories: profile.categories || [],
+      allCourses: all.length,
+      courses: all.map(c => ({
+        id: c.id,
+        name: c.name,
+        type: c.type,
+        categoryIds: c.categoryIds || []
+      }))
+    };
+  };
 })();
 </script>
 

@@ -1,28 +1,31 @@
-# AreWarin Ready Replace v7 — Tutor Navigation Fix
+# AreWarin Ready Replace v8 — Course List Hydration Fix
 
 แก้ปัญหา:
-- หน้าเลือกหมวดแสดงแล้ว
-- แต่กดหมวดแล้วหน้าเลือกติวเตอร์ไม่เปิด หรือไม่เห็นติวเตอร์
+- หมวดขึ้น
+- เลือกติวเตอร์ได้
+- แต่หน้า Course Catalog ขึ้น `0 คอร์ส`
 
-สาเหตุหลักคือระบบใหม่ใช้หมวดระดับคอร์ส แต่หน้าติวเตอร์เดิมยังอ้าง
-`tutorProfiles[].categories`
+## สาเหตุ
+ระบบมีคอร์ส fallback อยู่ก่อน แล้ว `loadRemoteCatalog()` ค่อยแทนด้วยข้อมูลจริงจาก Supabase
+รุ่นก่อนอาจผูก `categoryIds` ให้ object fallback ก่อน พอ catalog จริงมาแทน คอร์สจริงไม่มี mapping จึงถูกกรองเหลือ 0
 
-v7 แก้โดย:
-- sync หมวดของคอร์สกลับเข้า tutor profile
-- ใช้ renderer หน้าติวเตอร์เดิมเป็นหลัก
-- บังคับ category click ให้เปิด `stepTutor` ก่อน render
-- มี capture-click fallback กัน onclick เดิมค้าง
-- เก็บระบบซ่อน package และราคาเฉพาะคอร์สจาก v6 ไว้ครบ
+## V8 แก้
+- หลังโหลด catalog จริง จะ reload `course_categories`
+- ตอนเลือกติวเตอร์ reload mapping อีกครั้ง
+- ถ้า mapping ยังไม่ครบ แต่ติวเตอร์อยู่ในหมวดนั้น จะ fallback แสดงคอร์สของติวเตอร์ แทนการขึ้น 0
+- เมื่อ mapping พร้อม ระบบจะกรองรายคอร์สตามหมวดตามปกติ
+- ระบบราคาเฉพาะคอร์ส / ซ่อนแพ็กเกจยังอยู่ครบ
 
 ## ติดตั้ง
 วางทับ:
 - `/index.html`
 - `/manager/index.html`
 
-ไม่ต้องรัน SQL ใหม่ ถ้า V5 Recovery เคยรันสำเร็จแล้ว
+ถ้า V5 Recovery SQL เคยรันสำเร็จแล้ว ไม่ต้องรัน SQL ใหม่
 
-หลัง Push:
-1. รอ GitHub Pages deploy
-2. Ctrl + Shift + R
-3. กดหมวด เช่น ชีววิทยา
-4. ต้องเปิดหน้าเลือกติวเตอร์ทันที
+## Debug
+ถ้ายังมีปัญหา เปิด Console แล้วพิมพ์:
+
+AWV8DebugCatalog()
+
+จะเห็น selectedTutor, selectedCategory, จำนวนคอร์ส และ categoryIds
