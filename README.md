@@ -1,31 +1,49 @@
-# AreWarin Ready Replace v8 — Course List Hydration Fix
+# AreWarin Ready Replace v9 — Strict Course Category
 
-แก้ปัญหา:
-- หมวดขึ้น
-- เลือกติวเตอร์ได้
-- แต่หน้า Course Catalog ขึ้น `0 คอร์ส`
+ตรงตาม rule ใหม่:
 
-## สาเหตุ
-ระบบมีคอร์ส fallback อยู่ก่อน แล้ว `loadRemoteCatalog()` ค่อยแทนด้วยข้อมูลจริงจาก Supabase
-รุ่นก่อนอาจผูก `categoryIds` ให้ object fallback ก่อน พอ catalog จริงมาแทน คอร์สจริงไม่มี mapping จึงถูกกรองเหลือ 0
+**เลือกหมวดไหน -> แสดงเฉพาะคอร์สที่ผูกกับหมวดนั้น**
 
-## V8 แก้
-- หลังโหลด catalog จริง จะ reload `course_categories`
-- ตอนเลือกติวเตอร์ reload mapping อีกครั้ง
-- ถ้า mapping ยังไม่ครบ แต่ติวเตอร์อยู่ในหมวดนั้น จะ fallback แสดงคอร์สของติวเตอร์ แทนการขึ้น 0
-- เมื่อ mapping พร้อม ระบบจะกรองรายคอร์สตามหมวดตามปกติ
-- ระบบราคาเฉพาะคอร์ส / ซ่อนแพ็กเกจยังอยู่ครบ
+ตัวอย่าง:
+- Biochemistry -> `medical-biochemistry`
+- A-Level Biology -> `biology`
+- General Chemistry -> `chemistry`
+
+เมื่อเลือก `medical-biochemistry`:
+- Biochemistry ✅
+- A-Level Biology ❌
+- General Chemistry ❌
+
+แม้เป็นติวเตอร์คนเดียวกัน คอร์สอื่นจะไม่ถูกดึงเข้ามา
+
+## สาเหตุที่ v8 แสดงทั้งหมด
+
+v8 มี recovery fallback:
+ถ้า mapping ของคอร์สไม่ครบ แต่ติวเตอร์อยู่ในหมวดที่เลือก
+ระบบจะแสดงคอร์สทั้งหมดของติวเตอร์ เพื่อป้องกันหน้า 0 คอร์ส
+
+v9 ลบ fallback นี้ออกทั้งหมด
+
+## Source of truth
+
+ใช้ `course_categories` เท่านั้น
+
+คอร์สไม่มี row ใน `course_categories`
+= ไม่อยู่ในหมวดใด
+= ไม่แสดงในหน้า category นั้น
 
 ## ติดตั้ง
+
 วางทับ:
 - `/index.html`
 - `/manager/index.html`
 
-ถ้า V5 Recovery SQL เคยรันสำเร็จแล้ว ไม่ต้องรัน SQL ใหม่
+ถ้า V5 Recovery SQL เคยรันสำเร็จแล้ว ไม่ต้อง run migration ใหม่
 
 ## Debug
-ถ้ายังมีปัญหา เปิด Console แล้วพิมพ์:
 
-AWV8DebugCatalog()
+เปิด Console:
 
-จะเห็น selectedTutor, selectedCategory, จำนวนคอร์ส และ categoryIds
+AWV9DebugCategory()
+
+ดู `matchedCourses` เทียบกับ `allTutorCourses`

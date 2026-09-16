@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v8 · 2026-09-16 · COURSE LIST HYDRATION FIX -->
+  <!-- AREWARIN READY REPLACE v9 · 2026-09-16 · STRICT COURSE CATEGORY -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -5941,20 +5941,17 @@ if (typeof window.escapeHTML !== 'function') {
         let fallbackCourseCount = 0;
 
         Object.entries(coursesByTutor || {}).forEach(([tutorName, list]) => {
-          const legacyCategories = (
-            tutorProfiles?.[tutorName]?.categories || []
-          ).map(String);
-
           (list || []).forEach(c => {
             const mapped = map.get(String(c.id));
 
-            // สำคัญ: ถ้าคอร์สยังไม่ถูกผูก course_categories
-            // ให้ใช้หมวดเดิมของติวเตอร์ชั่วคราว เพื่อไม่ให้หน้าเลือกหมวดว่าง
+            // V9 STRICT:
+            // คอร์สอยู่หมวดไหน ต้องมาจาก course_categories เท่านั้น
+            // ห้าม inherit จาก tutor เพราะจะทำให้คอร์สอื่นของติวเตอร์หลุดเข้าหมวดนี้
             if (Array.isArray(mapped) && mapped.length) {
               c.categoryIds = mapped.map(String);
               mappedCourseCount++;
             } else {
-              c.categoryIds = [...legacyCategories];
+              c.categoryIds = [];
               fallbackCourseCount++;
             }
           });
@@ -5971,10 +5968,7 @@ if (typeof window.escapeHTML !== 'function') {
             (c.categoryIds || []).forEach(id => union.add(String(id)));
           });
 
-          if (!union.size) {
-            (profile.categories || []).forEach(id => union.add(String(id)));
-          }
-
+          // V9 STRICT: derive tutor category visibility only from mapped courses.
           profile.categories = [...union];
         });
 
@@ -6019,11 +6013,8 @@ if (typeof window.escapeHTML !== 'function') {
     });
 
     if(!filteredCategories.length) {
-      console.warn('[Course Categories] no course-level category matches; using legacy tutor categories');
-      if (typeof legacyRenderCategories === 'function') {
-        return legacyRenderCategories();
-      }
-      container.innerHTML = '<div class="onb3-empty"><i class="fas fa-box-open mr-1"></i> ยังไม่พบหมวดวิชาที่เปิดสอนในขณะนี้</div>';
+      container.innerHTML =
+        '<div class="onb3-empty"><i class="fas fa-box-open mr-1"></i> ยังไม่มีคอร์สที่ผูกกับหมวดวิชา</div>';
       return;
     }
 
@@ -6058,19 +6049,93 @@ if (typeof window.escapeHTML !== 'function') {
   };
 
   window.renderTutors = function() {
-    if (typeof legacyRenderTutors === 'function') {
-      return legacyRenderTutors();
+    const container = document.getElementById('tutorGridContainer');
+    if(!container) return;
+
+    const filteredTutors = Object.entries(tutorProfiles || {}).filter(([key, profile]) => {
+      const hasMappedCourse = (coursesByTutor?.[key] || []).some(c =>
+        courseMatchesCategory(c, selectedCategory)
+      );
+
+      const levelMatch =
+        selectedLevel === 'all' ||
+        (profile.levels || []).includes(selectedLevel);
+
+      const open =
+        typeof isTutorOpen === 'function'
+          ? isTutorOpen(profile)
+          : profile.active !== false;
+
+      return hasMappedCourse && levelMatch && open;
+    });
+
+    const countEl = document.getElementById('tutorResultCount');
+    if (countEl) countEl.textContent = filteredTutors.length + ' คน';
+
+    if (!filteredTutors.length) {
+      container.innerHTML =
+        '<div class="tv4-empty">' +
+          '<div class="tv4-empty-icon"><i class="fas fa-user-slash"></i></div>' +
+          '<strong>ยังไม่มีติวเตอร์ที่มีคอร์สในหมวดนี้</strong>' +
+          '<span>กรุณาตรวจสอบการผูกหมวดของคอร์สใน Manager</span>' +
+        '</div>';
+      return;
     }
 
-    const container = document.getElementById('tutorGridContainer');
-    if (!container) return;
+    container.innerHTML = filteredTutors.map(([key,t]) => {
+      const levelLabels =
+        typeof getTutorLevelLabels === 'function'
+          ? getTutorLevelLabels(t)
+          : [];
 
-    container.innerHTML =
-      '<div class="tv4-empty">' +
-        '<div class="tv4-empty-icon"><i class="fas fa-user-slash"></i></div>' +
-        '<strong>โหลดรายชื่อติวเตอร์ไม่สำเร็จ</strong>' +
-        '<span>กรุณารีเฟรชหน้าเว็บอีกครั้ง</span>' +
-      '</div>';
+      const levelTags = levelLabels.slice(0,3).map(l =>
+        '<span class="tv4-tag"><i class="' + esc(l.icon) + '"></i>' + esc(l.name) + '</span>'
+      ).join('');
+
+      const courseCount = (coursesByTutor?.[key] || []).filter(c =>
+        courseMatchesCategory(c, selectedCategory)
+      ).length;
+
+      const edu =
+        t.edu && t.edu.length
+          ? t.edu[0]
+          : 'ดูรายละเอียดประวัติและความเชี่ยวชาญเพิ่มเติม';
+
+      const keyJson = JSON.stringify(key);
+
+      return '<article class="tv4-card">' +
+        '<div class="tv4-card-media">' +
+          '<span class="tv4-status">เปิดรับสมัคร</span>' +
+          '<img src="' + esc(t.img || '') + '" alt="' + esc(t.name || key) + '" loading="lazy">' +
+          '<span class="tv4-course-count"><i class="fas fa-book-open"></i>' + courseCount + ' คอร์ส</span>' +
+        '</div>' +
+        '<div class="tv4-card-body">' +
+          '<div class="tv4-name-row"><div class="min-w-0">' +
+            '<h3 class="tv4-name">' + esc(t.name || key) + '</h3>' +
+            '<p class="tv4-real-name">' + esc(t.realName || '') + '</p>' +
+          '</div></div>' +
+          '<p class="tv4-role">' + esc(t.role || 'ติวเตอร์') + '</p>' +
+          '<div class="tv4-tags">' + levelTags + '</div>' +
+          '<div class="tv4-edu-preview"><i class="fas fa-graduation-cap"></i><span>' + esc(edu) + '</span></div>' +
+          '<div class="tv4-actions">' +
+            '<button type="button" data-aw-profile="' + encodeURIComponent(key) + '" class="tv4-profile-btn"><i class="fas fa-user"></i> โปรไฟล์</button>' +
+            '<button type="button" data-aw-select-tutor="' + encodeURIComponent(key) + '" class="tv4-select-btn"><i class="fas fa-arrow-right"></i> เลือกติวเตอร์</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+
+    container.querySelectorAll('[data-aw-profile]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showTutorProfile(decodeURIComponent(btn.dataset.awProfile));
+      });
+    });
+
+    container.querySelectorAll('[data-aw-select-tutor]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectTutor(decodeURIComponent(btn.dataset.awSelectTutor));
+      });
+    });
   };
 
   window.renderCourseCartList = function() {
@@ -6083,8 +6148,6 @@ if (typeof window.escapeHTML !== 'function') {
     if(!container) return;
 
     const allCourses = coursesByTutor?.[selectedTutor] || [];
-    const profile = tutorProfiles?.[selectedTutor] || {};
-    const profileCategories = (profile.categories || []).map(String);
     const wantedCategory = String(selectedCategory || '');
 
     let categoryCourses = wantedCategory
@@ -6094,21 +6157,6 @@ if (typeof window.escapeHTML !== 'function') {
     const mappedCount = allCourses.filter(c =>
       Array.isArray(c?.categoryIds) && c.categoryIds.length
     ).length;
-
-    const tutorBelongsToCategory =
-      !wantedCategory || profileCategories.includes(wantedCategory);
-
-    // Recovery path: tutor was valid on the previous screen, but the
-    // newly loaded course objects do not yet have categoryIds.
-    if (!categoryCourses.length && tutorBelongsToCategory && allCourses.length) {
-      console.info('[AW v8] course fallback:', {
-        tutor: selectedTutor,
-        category: wantedCategory,
-        allCourses: allCourses.length,
-        mappedCount: mappedCount
-      });
-      categoryCourses = [...allCourses];
-    }
 
     const filteredCourses = categoryCourses.filter(function(c) {
       const typeOk = courseCatalogFilter === 'all' || c.type === courseCatalogFilter;
@@ -6162,7 +6210,7 @@ if (typeof window.escapeHTML !== 'function') {
       htmlContent += examCourses.map(renderCard).join('');
     }
     if (!filteredCourses.length) {
-      htmlContent = '<div class="col-span-full py-10 text-center bg-white border border-dashed border-slate-200 rounded-[1.5rem]"><div class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 grid place-items-center mx-auto mb-3 text-lg"><i class="fas fa-search"></i></div><p class="font-bold text-slate-600 text-sm">ไม่พบคอร์สในหมวดนี้</p><p class="text-[10px] text-slate-400 mt-1">ลองเปลี่ยนติวเตอร์ หมวด หรือประเภทคอร์ส</p></div>';
+      htmlContent = '<div class="col-span-full py-10 text-center bg-white border border-dashed border-slate-200 rounded-[1.5rem]"><div class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 grid place-items-center mx-auto mb-3 text-lg"><i class="fas fa-search"></i></div><p class="font-bold text-slate-600 text-sm">ไม่มีคอร์สที่ถูกผูกกับหมวดนี้</p><p class="text-[10px] text-slate-400 mt-1">คอร์สจะแสดงเฉพาะเมื่อเลือกหมวดให้คอร์สนั้นใน Manager เท่านั้น</p></div>';
     }
     container.innerHTML = htmlContent;
   };
@@ -6595,6 +6643,30 @@ if (typeof window.escapeHTML !== 'function') {
     };
   };
 })();
+</script>
+
+
+<script>
+/* AREWARIN READY v9 — strict category debug */
+window.AWV9DebugCategory = function() {
+  const tutor = selectedTutor || null;
+  const category = selectedCategory || null;
+  const all = tutor ? (coursesByTutor?.[tutor] || []) : [];
+
+  return {
+    selectedCategory: category,
+    selectedTutor: tutor,
+    totalTutorCourses: all.length,
+    matchedCourses: all
+      .filter(c => (c.categoryIds || []).map(String).includes(String(category)))
+      .map(c => ({ id:c.id, name:c.name, categoryIds:c.categoryIds || [] })),
+    allTutorCourses: all.map(c => ({
+      id:c.id,
+      name:c.name,
+      categoryIds:c.categoryIds || []
+    }))
+  };
+};
 </script>
 
 </body>
