@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v6 · 2026-09-16 · PACKAGE VISIBILITY FIX -->
+  <!-- AREWARIN READY REPLACE v7 · 2026-09-16 · TUTOR NAVIGATION FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -5950,6 +5950,24 @@ if (typeof window.escapeHTML !== 'function') {
           });
         });
 
+        // V7: original tutor screen still filters by profile.categories.
+        // Keep that legacy field synchronized with the course-level mappings.
+        Object.entries(coursesByTutor || {}).forEach(([tutorName, list]) => {
+          const profile = tutorProfiles?.[tutorName];
+          if (!profile) return;
+
+          const union = new Set();
+          (list || []).forEach(c => {
+            (c.categoryIds || []).forEach(id => union.add(String(id)));
+          });
+
+          if (!union.size) {
+            (profile.categories || []).forEach(id => union.add(String(id)));
+          }
+
+          profile.categories = [...union];
+        });
+
         relationReady = true;
 
         if (!map.size || fallbackCourseCount) {
@@ -6012,7 +6030,7 @@ if (typeof window.escapeHTML !== 'function') {
         }
       });
 
-      return '<div onclick="selectCategory(\'' + jsq(cat.id) + '\')" class="onb3-cat-card theme-' + esc(cat.theme || cat.id) + ' ' + esc(cat.id) + '" role="button" tabindex="0">' +
+      return '<div data-aw-category="' + esc(cat.id) + '" onclick="selectCategory(\'' + jsq(cat.id) + '\')" class="onb3-cat-card theme-' + esc(cat.theme || cat.id) + ' ' + esc(cat.id) + '" role="button" tabindex="0">' +
         '<span class="onb3-cat-glow"></span>' +
         '<div class="onb3-cat-top">' +
           '<div class="onb3-cat-icon"><i class="' + esc(cat.icon || 'fas fa-book-open') + '"></i></div>' +
@@ -6030,63 +6048,19 @@ if (typeof window.escapeHTML !== 'function') {
   };
 
   window.renderTutors = function() {
-    if (!relationReady) {
-      if (typeof legacyRenderTutors === 'function') return legacyRenderTutors();
-      return;
+    if (typeof legacyRenderTutors === 'function') {
+      return legacyRenderTutors();
     }
 
     const container = document.getElementById('tutorGridContainer');
-    if(!container) return;
+    if (!container) return;
 
-    const filteredTutors = Object.entries(tutorProfiles || {}).filter(([key, profile]) => {
-      const hasCourse = (coursesByTutor?.[key] || []).some(c =>
-        courseMatchesCategory(c, selectedCategory)
-      );
-      const levelMatch = selectedLevel === 'all' || (profile.levels || []).includes(selectedLevel);
-      return hasCourse && levelMatch;
-    });
-
-    const countEl = document.getElementById('tutorResultCount');
-    if (countEl) countEl.textContent = filteredTutors.length + ' คน';
-
-    if (!filteredTutors.length) {
-      container.innerHTML = '<div class="tv4-empty"><div class="tv4-empty-icon"><i class="fas fa-user-slash"></i></div><strong>ยังไม่พบติวเตอร์ในหมวด/ระดับนี้</strong><span>ลองเปลี่ยนระดับชั้น หรือกลับไปเลือกหมวดวิชาอื่น</span></div>';
-      return;
-    }
-
-    container.innerHTML = filteredTutors.map(([key,t]) => {
-      const levelLabels = typeof getTutorLevelLabels === 'function' ? getTutorLevelLabels(t) : [];
-      const levelTags = levelLabels.slice(0,3).map(l =>
-        '<span class="tv4-tag"><i class="' + esc(l.icon) + '"></i>' + esc(l.name) + '</span>'
-      ).join('');
-
-      const courseCount = (coursesByTutor?.[key] || []).filter(c =>
-        courseMatchesCategory(c, selectedCategory)
-      ).length;
-
-      const open = typeof isTutorOpen === 'function' ? isTutorOpen(t) : t.active !== false;
-      const status = open
-        ? '<span class="tv4-status">เปิดรับสมัคร</span>'
-        : '<span class="tv4-status closed">ปิดรับชั่วคราว</span>';
-
-      const edu = t.edu && t.edu.length ? t.edu[0] : 'ดูรายละเอียดประวัติและความเชี่ยวชาญเพิ่มเติม';
-      const selectButton = open
-        ? '<button type="button" onclick="selectTutor(\'' + jsq(key) + '\')" class="tv4-select-btn"><i class="fas fa-arrow-right"></i> เลือกติวเตอร์</button>'
-        : '<button type="button" class="tv4-select-btn" disabled><i class="fas fa-lock"></i> ยังไม่เปิดรับ</button>';
-
-      return '<article class="tv4-card">' +
-        '<div class="tv4-card-media">' + status +
-          '<img src="' + esc(t.img || '') + '" alt="' + esc(t.name || key) + '" loading="lazy">' +
-          '<span class="tv4-course-count"><i class="fas fa-book-open"></i>' + courseCount + ' คอร์ส</span>' +
-        '</div>' +
-        '<div class="tv4-card-body">' +
-          '<div class="tv4-name-row"><div class="min-w-0"><h3 class="tv4-name">' + esc(t.name || key) + '</h3><p class="tv4-real-name">' + esc(t.realName || '') + '</p></div></div>' +
-          '<p class="tv4-role">' + esc(t.role || 'ติวเตอร์') + '</p>' +
-          '<div class="tv4-tags">' + levelTags + '</div>' +
-          '<div class="tv4-edu-preview"><i class="fas fa-graduation-cap"></i><span>' + esc(edu) + '</span></div>' +
-          '<div class="tv4-actions"><button type="button" onclick="showTutorProfile(\'' + jsq(key) + '\')" class="tv4-profile-btn"><i class="fas fa-user"></i> โปรไฟล์</button>' + selectButton + '</div>' +
-        '</div></article>';
-    }).join('');
+    container.innerHTML =
+      '<div class="tv4-empty">' +
+        '<div class="tv4-empty-icon"><i class="fas fa-user-slash"></i></div>' +
+        '<strong>โหลดรายชื่อติวเตอร์ไม่สำเร็จ</strong>' +
+        '<span>กรุณารีเฟรชหน้าเว็บอีกครั้ง</span>' +
+      '</div>';
   };
 
   window.renderCourseCartList = function() {
@@ -6428,6 +6402,97 @@ if (typeof window.escapeHTML !== 'function') {
     },
     apply:applyAvailability
   };
+})();
+</script>
+
+
+<script>
+/* AREWARIN READY v7 — category -> tutor navigation recovery */
+(() => {
+  'use strict';
+
+  function openTutorStep(catId) {
+    if (!catId) return;
+
+    try {
+      selectedCategory = String(catId);
+      selectedLevel = 'all';
+
+      const cat = (categories || []).find(c => String(c.id) === String(catId));
+      const titleEl = document.getElementById('selectedCategoryTitle');
+
+      if (titleEl && cat) {
+        titleEl.innerHTML =
+          '<span class="tv4-category-chip">' +
+            '<i class="' + (cat.icon || 'fas fa-book-open') + '"></i> ' +
+            (cat.name || cat.id) +
+            '<span class="font-normal opacity-60">· ' + (cat.desc || '') + '</span>' +
+          '</span>';
+      }
+
+      // Open the tutor step FIRST so a renderer error can never leave the user
+      // visually stuck on the category screen.
+      if (typeof showStep === 'function') {
+        showStep('stepTutor');
+      } else {
+        const step = document.getElementById('stepTutor');
+        if (step) {
+          document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+          step.classList.add('active');
+        }
+      }
+
+      if (typeof renderLevelFilters === 'function') renderLevelFilters();
+      if (typeof window.renderTutors === 'function') window.renderTutors();
+
+      const step = document.getElementById('stepTutor');
+      if (step) {
+        setTimeout(() => step.scrollIntoView({behavior:'smooth', block:'start'}), 0);
+      }
+    } catch (e) {
+      console.error('[AW v7] category -> tutor failed:', e);
+
+      const step = document.getElementById('stepTutor');
+      if (step) {
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        step.classList.add('active');
+      }
+
+      const grid = document.getElementById('tutorGridContainer');
+      if (grid) {
+        grid.innerHTML =
+          '<div class="tv4-empty">' +
+            '<div class="tv4-empty-icon"><i class="fas fa-triangle-exclamation"></i></div>' +
+            '<strong>เปิดหน้าติวเตอร์ได้ แต่โหลดรายชื่อไม่สำเร็จ</strong>' +
+            '<span>กรุณารีเฟรชหน้าเว็บ หากยังพบปัญหาให้เปิด Console</span>' +
+          '</div>';
+      }
+    }
+  }
+
+  window.selectCategory = openTutorStep;
+  window.AWV7OpenCategory = openTutorStep;
+
+  document.addEventListener('click', function(event) {
+    const card = event.target.closest && event.target.closest('[data-aw-category]');
+    if (!card) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    openTutorStep(card.getAttribute('data-aw-category'));
+  }, true);
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+
+    const card = event.target.closest && event.target.closest('[data-aw-category]');
+    if (!card) return;
+
+    event.preventDefault();
+    openTutorStep(card.getAttribute('data-aw-category'));
+  }, true);
 })();
 </script>
 
