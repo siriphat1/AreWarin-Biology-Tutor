@@ -108,3 +108,10 @@ join public.subject_categories sc
 on conflict (course_id, category_id) do nothing;
 
 commit;
+
+
+-- =========================================================
+-- Verification view/query helper
+-- =========================================================
+-- หลัง Run สามารถทดสอบด้วย:
+-- select * from public.course_categories limit 20;

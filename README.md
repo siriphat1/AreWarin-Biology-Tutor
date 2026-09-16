@@ -1,140 +1,60 @@
-# AreWarin — Course Category Ready System
+# AreWarin Ready Replace v3 — วางทับได้เลย
 
-ชุดนี้เป็น **drop-in upgrade** สำหรับระบบ AreWarin เดิม เพื่อแก้ปัญหา:
+เวอร์ชันนี้แก้จาก v2 โดย **ฝังช่อง “หมวดที่เปิดสอน” ลงใน `manager/index.html` โดยตรง**
+ดังนั้นเมื่อเปิดหน้า Manager > คอร์ส คุณต้องเห็นกรอบหมวดทันที แม้ Supabase ยังโหลดไม่สำเร็จ
 
-- เพิ่มคอร์สใหม่แล้วไม่มีหมวด
-- คอร์สถูกแสดงตามหมวดของติวเตอร์ ทำให้คอร์สทั้งหมดของติวเตอร์ถูกเหมารวมอยู่หมวดเดียวกัน
-- ต้องการเลือกหมวดเดิมหลายหมวดต่อ 1 คอร์ส
-- ต้องการสร้างหมวดใหม่จากหน้า **Manager > เพิ่ม/แก้ไขคอร์ส** ได้ทันที
-
-## สิ่งที่ได้
-
-### Manager
-- เลือกหมวดเดิมได้หลายหมวด
-- Search หมวด
-- สร้างหมวดใหม่โดยไม่ออกจากหน้าเพิ่มคอร์ส
-- หมวดใหม่ถูกเลือกให้คอร์สอัตโนมัติ
-- Edit คอร์สเดิมแล้วโหลดหมวดเดิมกลับมา
-- ถ้าคอร์ส `เปิดใช้งาน` แต่ไม่มีหมวด ระบบจะไม่ให้ submit
-- ไม่ต้องแก้ `manager/app.js` เดิม
-
-### หน้าเว็บสมัคร
-- หมวดวิชาอิงจาก **course_categories** จริง
-- แสดงเฉพาะหมวดที่มีคอร์ส
-- จำนวนคอร์สต่อหมวดคำนวณจากคอร์สจริง
-- หน้าเลือกติวเตอร์แสดงเฉพาะติวเตอร์ที่มีคอร์สในหมวดนั้น
-- หลังเลือกติวเตอร์ แสดงเฉพาะคอร์สของหมวดที่ผู้ใช้เลือก
-- ถ้า migration ยังไม่ถูกติดตั้ง จะ fallback กลับระบบเดิมแทนที่จะทำเว็บพัง
-
-## ไฟล์
+## ใช้ไฟล์แค่ 3 ตัว
 
 ```text
-arewarin-course-category-ready/
-├─ install.py
+YOUR-REPO/
+├─ index.html                         ← วางทับด้วยไฟล์นี้
 ├─ manager/
-│  └─ course-category-addon.js
-├─ js/
-│  └─ course-category-public-addon.js
+│  ├─ index.html                     ← วางทับด้วยไฟล์นี้
+│  ├─ app.js                         ← เก็บไฟล์เดิม
+│  └─ v17-control.js                 ← เก็บไฟล์เดิม
 └─ supabase/
-   └─ COURSE_CATEGORY_UPGRADE.sql
+   └─ COURSE_CATEGORY_UPGRADE.sql     ← Run ใน Supabase SQL Editor 1 ครั้ง
 ```
 
-## ติดตั้ง
+## ขั้นตอน
 
-### 1) แตก ZIP
+1. เอา `index.html` จาก ZIP ไปวางทับ **index.html ที่ root**
+2. เอา `manager/index.html` จาก ZIP ไปวางทับ **manager/index.html**
+3. Commit + Push GitHub
+4. ไป Supabase > SQL Editor > New Query
+5. Copy `COURSE_CATEGORY_UPGRADE.sql` ทั้งไฟล์ แล้ว Run
+6. รอ GitHub Pages / Hosting deploy เสร็จ
+7. เปิด Manager แล้วกด Ctrl+F5
 
-สมมติ project เดิม:
+## สิ่งที่ต้องเห็นใน Manager > คอร์ส
 
-```text
-arewarin-complete-system/
-├─ index.html
-├─ manager/
-│  ├─ index.html
-│  └─ app.js
-├─ js/
-└─ supabase/
+หลังช่อง “ติวเตอร์” จะมีกรอบ:
+
+- หมวดที่เปิดสอน *
+- ค้นหาหมวด
+- รายการหมวดจาก `subject_categories`
+- ปุ่ม `สร้างหมวดใหม่`
+
+ถ้าเห็นกรอบ แต่ขึ้น “โหลดหมวดไม่สำเร็จ”:
+แปลว่า HTML ใหม่ทำงานแล้ว แต่ต้องตรวจ Supabase/RLS/SQL ต่อ
+
+ถ้า **ไม่เห็นกรอบหมวดเลย**:
+แปลว่า Hosting ยังไม่ได้ใช้ `manager/index.html` ไฟล์ใหม่นี้
+ให้ตรวจว่าอัปไฟล์ไว้ที่ `manager/index.html` จริง ไม่ใช่ `manager-index.html` ที่ root
+
+## ตรวจฐานข้อมูล
+
+Run:
+
+```sql
+select * from public.course_categories limit 20;
 ```
 
-### 2) รัน installer
+ต้องไม่ขึ้น `relation does not exist`
 
-Windows:
+## หมายเหตุ
 
-```bash
-python install.py C:\path\to\arewarin-complete-system
-```
-
-macOS / Linux:
-
-```bash
-python3 install.py /path/to/arewarin-complete-system
-```
-
-Installer จะ:
-- copy add-on เข้า project
-- patch `manager/index.html`
-- patch `index.html`
-- backup HTML เดิมเป็น `.bak-course-category`
-- ไม่แก้ `manager/app.js` เดิม
-
-### 3) Supabase
-
-เปิด:
-
-**Supabase Dashboard → SQL Editor → New query**
-
-แล้วรันไฟล์:
-
-```text
-supabase/COURSE_CATEGORY_UPGRADE.sql
-```
-
-SQL จะสร้าง:
-
-```text
-course_categories
-course_id -> courses.id
-category_id -> subject_categories.id
-```
-
-และ backfill คอร์สเดิมจาก `tutor.categories` เพื่อไม่ให้รายการเก่าหายทันที
-
-### 4) Refresh
-
-Deploy ขึ้น GitHub/Vercel/Netlify ตามเดิม แล้ว:
-
-```text
-Ctrl + F5
-```
-
-## Flow ใหม่
-
-```text
-Manager > คอร์ส
-   ↓
-เลือกติวเตอร์
-   ↓
-เลือกหมวดเดิม 1..N หมวด
-   หรือ + สร้างหมวดใหม่
-   ↓
-กรอกข้อมูลคอร์ส
-   ↓
-บันทึก
-   ↓
-courses + course_categories
-   ↓
-หน้าเว็บสมัคร
-   ↓
-หมวด → ติวเตอร์ที่มีคอร์สในหมวด → คอร์สในหมวดนั้นเท่านั้น
-```
-
-## ข้อควรทราบ
-
-ระบบนี้ออกแบบให้ทำงานกับโครงสร้างเดิมที่มี:
-
-- `courses`
-- `tutors`
-- `subject_categories`
-- `public.is_manager()`
-- Supabase Auth/RLS
-
-ถ้าโปรเจกต์ของคุณใช้ชื่อตาราง/คอลัมน์ต่างจากนี้ ให้ปรับ SQL ก่อน Run
+- ไม่ต้องอัปไฟล์ add-on JavaScript เพิ่ม
+- โค้ดหมวดถูกฝังใน HTML แล้ว
+- ไม่ต้องแก้ `manager/app.js`
+- ระบบเดิมยังคงทำงานต่อ
