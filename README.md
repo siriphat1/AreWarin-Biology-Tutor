@@ -1,59 +1,68 @@
-# AreWarin Ready Replace v4 — Stable
+# AreWarin Ready Replace v5 — Recovery
 
-เวอร์ชันนี้ต่อจาก v3 และเพิ่ม:
+เวอร์ชันนี้แก้ปัญหาจาก Console ที่พบจริง:
 
-- รายการคอร์สกรองตามติวเตอร์
-- ค้นหาคอร์ส
-- กรองเปิด/ปิด
-- เปิด/ปิดแพ็กเกจ **เฉพาะรายคอร์ส**
-- กำหนดราคา **เฉพาะรายคอร์ส**
-- ราคาเว้นว่าง = ใช้ราคากลาง
-- หน้าสมัครซ่อนแพ็กเกจที่คอร์สนั้นปิด
-- หน้าสมัครใช้ราคาที่กำหนดเฉพาะคอร์ส
-- Quick preset: **เฉพาะ 30 ชั่วโมง + รายชั่วโมง**
+1. `course_package_rules 404`
+   - เกิดจากยังไม่มี table ใน Supabase
+   - v5 จะไม่ query table นี้จนกว่า SQL migration จะติดตั้งสำเร็จ
+   - จึงไม่ทำให้ Console ยิง 404 ซ้ำ
 
-ตัวอย่าง Biochemistry:
-1. Manager > คอร์ส
-2. หา Biochemistry
-3. กด `แพ็กเกจ / ราคา`
-4. กด `เฉพาะ 30 ชม. + รายชั่วโมง`
-5. ใส่ราคาเฉพาะถ้าต้องการ
-6. บันทึก
+2. หน้าเลือกหมวดขึ้น `ยังไม่พบหมวดวิชา`
+   - สาเหตุคือ `course_categories` มี table แล้ว แต่บาง/ทั้งหมดของคอร์สยังไม่มี mapping
+   - v5 จะ fallback ไปใช้ `tutor.categories` สำหรับคอร์สที่ยังไม่ได้ map
+   - จึงไม่ทำให้หน้าสมัครว่างทั้งหน้าอีก
 
-## ติดตั้ง
+3. `escapeHTML is not defined`
+   - แก้ compatibility helper ให้ Policy CMS แล้ว
 
-นำไปวางทับ:
+## วางไฟล์
 
 ```text
 YOUR-REPO/
-├─ index.html              <- v4/index.html
+├─ index.html                 <- ใช้ index.html จากชุด v5
 └─ manager/
-   └─ index.html           <- v4/manager/index.html
+   └─ index.html              <- ใช้ manager/index.html จากชุด v5
 ```
 
-เก็บไฟล์เดิมไว้:
+เก็บไฟล์เดิม:
 - manager/app.js
 - manager/v17-control.js
 - config.js
 - js/supabase-bridge.js
 
-จากนั้นเปิด Supabase > SQL Editor และ Run:
+## Supabase
+
+เปิด Supabase > SQL Editor > New Query
+แล้ว Run ทั้งไฟล์:
 
 ```text
-supabase/AREWARIN_V4_UPGRADE.sql
+supabase/AREWARIN_V5_RECOVERY.sql
 ```
 
-แล้ว deploy + Ctrl+F5
+จากนั้นตรวจ:
 
-## การคิดราคาเมื่อเลือกหลายคอร์ส
+```sql
+select key,value
+from public.app_settings
+where key in ('COURSE_RULES_READY','COURSE_CATEGORY_RELATION_READY');
 
-- แชร์แพ็กเกจ: ใช้ราคาที่สูงสุดของคอร์สที่เลือก
-- แยกแพ็กเกจ: รวมราคาของแต่ละคอร์ส
-- แพ็กเกจจะแสดงได้เมื่อคอร์สที่เลือกทั้งหมดเปิดแพ็กเกจนั้น
+select count(*) from public.course_categories;
+```
 
-## Recovery
+`COURSE_RULES_READY` ต้องเป็น `true`
 
-ถ้า Manager blank หรือรายการหาย:
-1. ใช้ไฟล์ v4 ทั้งไฟล์ อย่า copy เฉพาะบางส่วนของ script
-2. ตรวจ Console (F12) ก่อน
-3. v4 ถูกออกแบบให้ถ้า table ใหม่ยังไม่มี จะ fallback ระบบเดิม และไม่ควรทำหน้าหลักหาย
+## หลัง Deploy
+
+1. Commit + Push
+2. รอ GitHub Pages deploy
+3. Ctrl + F5
+4. หน้าเลือกหมวดต้องกลับมาแสดง
+5. Manager > คอร์ส จะกรองตามติวเตอร์ และตั้งแพ็กเกจ/ราคาเฉพาะคอร์สได้
+
+## Tailwind warning
+
+ข้อความ:
+
+`cdn.tailwindcss.com should not be used in production`
+
+เป็น Warning ไม่ใช่สาเหตุที่หมวดหาย และไม่ทำให้ระบบหยุดทำงาน

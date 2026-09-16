@@ -1069,7 +1069,7 @@
   ];
   const S = {
     courses:[], tutors:[], prices:new Map(), rules:new Map(),
-    courseMap:new Map(), tutorMap:new Map(), ready:false
+    courseMap:new Map(), tutorMap:new Map(), ready:false, rulesReady:false
   };
   const $ = id => document.getElementById(id);
   const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1119,12 +1119,13 @@
     const c=db();
     if(!c) return;
     try{
-      const [cr,tr,pr,rr]=await Promise.all([
+      const [cr,tr,pr,flagRes]=await Promise.all([
         c.from('courses').select('id,tutor_id,name,is_university,active,sort_order').order('sort_order').order('name'),
         c.from('tutors').select('id,display_name,active,sort_order').order('sort_order').order('display_name'),
         c.from('course_prices').select('tier,package_code,amount,active'),
-        c.from('course_package_rules').select('course_id,package_code,enabled,custom_price')
+        c.from('app_settings').select('value').eq('key','COURSE_RULES_READY').maybeSingle()
       ]);
+
       if(cr.error) throw cr.error;
       if(tr.error) throw tr.error;
       if(pr.error) throw pr.error;
@@ -1136,15 +1137,32 @@
       S.prices=new Map((pr.data||[]).map(x=>[x.tier+':'+x.package_code,Number(x.amount||0)]));
       S.rules=new Map();
 
-      if(rr.error){
-        console.warn('[AW v4] course_package_rules:',rr.error.message);
-        toast('ยังไม่พบตารางราคาเฉพาะคอร์ส — รัน COURSE_PACKAGE_PRICE_UPGRADE.sql ก่อน','warning');
+      const rulesReady =
+        !flagRes.error &&
+        (
+          flagRes.data?.value === true ||
+          flagRes.data?.value === 'true' ||
+          flagRes.data?.value === 'READY'
+        );
+
+      S.rulesReady = !!rulesReady;
+
+      if(rulesReady){
+        const rr=await c
+          .from('course_package_rules')
+          .select('course_id,package_code,enabled,custom_price');
+
+        if(rr.error){
+          console.warn('[AW v5] course_package_rules:',rr.error.message);
+        }else{
+          (rr.data||[]).forEach(x=>{
+            const k=String(x.course_id);
+            if(!S.rules.has(k)) S.rules.set(k,new Map());
+            S.rules.get(k).set(x.package_code,x);
+          });
+        }
       }else{
-        (rr.data||[]).forEach(x=>{
-          const k=String(x.course_id);
-          if(!S.rules.has(k)) S.rules.set(k,new Map());
-          S.rules.get(k).set(x.package_code,x);
-        });
+        console.info('[AW v5] course package rules not installed yet; manager uses global prices');
       }
 
       S.ready=true;
@@ -1329,6 +1347,11 @@
 
   async function saveDialog(course,m){
     const c=db(); if(!c) return;
+
+    if(!S.rulesReady){
+      return toast('กรุณารัน AREWARIN_V5_RECOVERY.sql ใน Supabase ก่อนใช้ราคาเฉพาะคอร์ส','warning');
+    }
+
     const btn=m.querySelector('[data-save]');
     if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin mr-1"></i>กำลังบันทึก';}
     const rows=D.map(([code])=>{

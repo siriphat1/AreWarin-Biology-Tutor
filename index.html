@@ -5815,7 +5815,25 @@
     </script>
 
     <!-- AW COURSE CATEGORY PUBLIC READY v2 -->
-    <script>
+    
+<script>
+/* AW v5 recovery: compatibility helper used by Policy CMS */
+if (typeof window.escapeHTML !== 'function') {
+  window.escapeHTML = function(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, function(ch) {
+      return {
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        "'":'&#39;',
+        '"':'&quot;'
+      }[ch];
+    });
+  };
+}
+</script>
+
+<script>
 /* =========================================================
    AreWarin Public Catalog - Course Category Add-on
    ใช้ category ของ "คอร์ส" จริง แทนการเหมารวมจาก tutor.categories
@@ -5883,12 +5901,37 @@
       });
 
       try {
-        Object.values(coursesByTutor || {}).forEach(list => {
+        let mappedCourseCount = 0;
+        let fallbackCourseCount = 0;
+
+        Object.entries(coursesByTutor || {}).forEach(([tutorName, list]) => {
+          const legacyCategories = (
+            tutorProfiles?.[tutorName]?.categories || []
+          ).map(String);
+
           (list || []).forEach(c => {
-            c.categoryIds = map.get(String(c.id)) || [];
+            const mapped = map.get(String(c.id));
+
+            // สำคัญ: ถ้าคอร์สยังไม่ถูกผูก course_categories
+            // ให้ใช้หมวดเดิมของติวเตอร์ชั่วคราว เพื่อไม่ให้หน้าเลือกหมวดว่าง
+            if (Array.isArray(mapped) && mapped.length) {
+              c.categoryIds = mapped.map(String);
+              mappedCourseCount++;
+            } else {
+              c.categoryIds = [...legacyCategories];
+              fallbackCourseCount++;
+            }
           });
         });
+
         relationReady = true;
+
+        if (!map.size || fallbackCourseCount) {
+          console.info(
+            '[Course Categories] recovery fallback active:',
+            { mappedCourseCount, fallbackCourseCount }
+          );
+        }
       } catch (e) {
         console.warn('[Course Categories] catalog not ready yet:', e);
         relationReady = false;
@@ -5922,6 +5965,10 @@
     });
 
     if(!filteredCategories.length) {
+      console.warn('[Course Categories] no course-level category matches; using legacy tutor categories');
+      if (typeof legacyRenderCategories === 'function') {
+        return legacyRenderCategories();
+      }
       container.innerHTML = '<div class="onb3-empty"><i class="fas fa-box-open mr-1"></i> ยังไม่พบหมวดวิชาที่เปิดสอนในขณะนี้</div>';
       return;
     }
@@ -6254,21 +6301,50 @@
     R.loading=(async()=>{
       const c=db();
       if(!c) return false;
-      const {data,error}=await c.from('course_package_rules').select('course_id,package_code,enabled,custom_price');
-      if(error){
-        console.warn('[AW v4] custom course pricing disabled; using global prices:',error.message);
+
+      // v5: เช็ก feature flag ก่อน เพื่อไม่ยิง table ที่ยังไม่มีและได้ 404
+      const flagRes = await c
+        .from('app_settings')
+        .select('value')
+        .eq('key','COURSE_RULES_READY')
+        .maybeSingle();
+
+      const readyFlag =
+        !flagRes.error &&
+        (
+          flagRes.data?.value === true ||
+          flagRes.data?.value === 'true' ||
+          flagRes.data?.value === 'READY'
+        );
+
+      if(!readyFlag){
+        console.info('[AW v5] course package rules not installed yet; using global prices');
+        R.loaded=false;
         return false;
       }
+
+      const {data,error}=await c
+        .from('course_package_rules')
+        .select('course_id,package_code,enabled,custom_price');
+
+      if(error){
+        console.warn('[AW v5] custom course pricing unavailable; using global prices:',error.message);
+        R.loaded=false;
+        return false;
+      }
+
       R.map=new Map();
       (data||[]).forEach(x=>{
         const k=String(x.course_id);
         if(!R.map.has(k)) R.map.set(k,new Map());
         R.map.get(k).set(x.package_code,x);
       });
+
       R.loaded=true;
       try{applyAvailability();calcV4();}catch(e){console.warn(e);}
       return true;
     })();
+
     const ok=await R.loading;
     R.loading=null;
     return ok;
