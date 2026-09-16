@@ -37,14 +37,15 @@
   const statusLabel = (v) => ({
     active: 'กำลังเรียน', paused: 'พักเรียน', completed: 'จบแล้ว', cancelled: 'ยกเลิก',
     open: 'กำลังสอน', closed: 'จบคาบ', present: 'เข้าเรียน', late: 'สาย', absent: 'ขาด',
-    leave: 'ลา', makeup: 'ชดเชย', tutor: 'Tutor', manager: 'Manager', admin: 'Admin'
+    leave: 'ลา', tutor: 'Tutor', teacher: 'Tutor', manager: 'Manager', admin: 'Admin'
   })[v] || v || '—';
 
   function friendlyError(error) {
     const m = String(error?.message || error || 'เกิดข้อผิดพลาด');
     if (/Invalid login credentials/i.test(m)) return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
     if (/Email not confirmed/i.test(m)) return 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ';
-    if (/Tutor account is not linked/i.test(m)) return 'บัญชีนี้ยังไม่ได้เชื่อมกับติวเตอร์ กรุณาใช้เมนู “เปิดบัญชีด้วยเบอร์ที่ใช้สมัคร”';
+    if (/Tutor account is not linked/i.test(m)) return 'บัญชีนี้ยังไม่ได้เชื่อมกับใบสมัครติวเตอร์ กรุณาใช้เมนู “เปิดบัญชีด้วยเบอร์ที่ใช้สมัคร”';
+    if (/Tutor profile link required/i.test(m)) return 'บัญชีผ่านการยืนยันแล้ว แต่ยังจับคู่กับ Tutor Profile ไม่ได้ กรุณาให้ Admin เชื่อมใบสมัครกับติวเตอร์ 1 ครั้ง';
     if (/not accepted/i.test(m)) return 'ใบสมัครติวเตอร์ยังไม่ได้รับการอนุมัติ';
     return m;
   }
@@ -127,6 +128,7 @@
     const running = sessions.filter((s) => s.status === 'open' && !s.actual_end_at);
     const used = arr(state.data?.hour_ledger).reduce((sum, x) => sum + Math.max(0, num(x.hours_delta)), 0);
     return `${sectionHeader('OVERVIEW', 'ภาพรวม Tutor OS', isAdmin() ? 'มุมมองผู้ดูแลระบบ · เห็นข้อมูลทุกติวเตอร์' : 'ข้อมูลถูกจำกัดเฉพาะนักเรียนและคอร์สที่คุณรับผิดชอบ')}
+      ${state.data?.needs_tutor_link ? `<div class="aw-card content-card" style="margin-bottom:14px;border-color:#fbbf24;background:#fffbeb"><div class="section-note"><b>บัญชีติวเตอร์ยังรอเชื่อม Tutor Profile</b><br>ระบบยืนยันใบสมัคร tutor-apply และบัญชี Auth แล้ว แต่ยังจับคู่กับรายการในตาราง tutors ไม่ได้ กรุณาให้ Admin เชื่อม Tutor ID ก่อน จึงจะเห็นนักเรียนและเริ่มสอนได้</div></div>` : ''}
       <div class="metric-grid">
         ${metric('fa-user-graduate', 'นักเรียนในความดูแล', students.length, isAdmin() ? 'ทุกคนในระบบ' : 'เฉพาะที่ได้รับมอบหมาย')}
         ${metric('fa-book-open', 'Enrollment ที่ใช้งาน', enrollments.length, 'Active / Paused')}
@@ -304,7 +306,7 @@
   function openEditLesson(sessionId) {
     const s = arr(state.data?.sessions).find((x) => String(x.id) === String(sessionId));
     if (!s) return;
-    showModal('แก้ไขบันทึกการสอน', `<form id="editLessonForm"><div class="form-grid"><label class="aw-label wide">หัวข้อ<input class="aw-input" name="title" value="${esc(s.title || '')}"></label><label class="aw-label">เวลาเริ่ม<input class="aw-input" type="datetime-local" name="start" value="${esc(toLocalInput(s.actual_start_at))}"></label><label class="aw-label">เวลาสิ้นสุด<input class="aw-input" type="datetime-local" name="end" value="${esc(toLocalInput(s.actual_end_at))}"></label><label class="aw-label">สถานะเข้าเรียน<select class="aw-input" name="attendance_status">${[['present','เข้าเรียน'],['late','สาย'],['leave','ลา'],['absent','ขาด'],['makeup','ชดเชย']].map(([v,l]) => `<option value="${v}" ${String(s.attendance_status || 'present') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label><label class="aw-label">ชั่วโมงที่ตัด<input class="aw-input" type="number" min="0" step="0.25" name="deducted_hours" value="${num(s.deducted_hours).toFixed(2)}"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="4">${esc(s.attendance_note || s.note || '')}</textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveLessonEdit"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button>`);
+    showModal('แก้ไขบันทึกการสอน', `<form id="editLessonForm"><div class="form-grid"><label class="aw-label wide">หัวข้อ<input class="aw-input" name="title" value="${esc(s.title || '')}"></label><label class="aw-label">เวลาเริ่ม<input class="aw-input" type="datetime-local" name="start" value="${esc(toLocalInput(s.actual_start_at))}"></label><label class="aw-label">เวลาสิ้นสุด<input class="aw-input" type="datetime-local" name="end" value="${esc(toLocalInput(s.actual_end_at))}"></label><label class="aw-label">สถานะเข้าเรียน<select class="aw-input" name="attendance_status">${[['present','เข้าเรียน'],['late','สาย'],['leave','ลา'],['absent','ขาด']].map(([v,l]) => `<option value="${v}" ${String(s.attendance_status || 'present') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label><label class="aw-label">ชั่วโมงที่ตัด<input class="aw-input" type="number" min="0" step="0.25" name="deducted_hours" value="${num(s.deducted_hours).toFixed(2)}"></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="4">${esc(s.attendance_note || s.note || '')}</textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveLessonEdit"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button>`);
     $('saveLessonEdit').onclick = async () => {
       const fd = new FormData($('editLessonForm'));
       const start = fd.get('start') ? new Date(fd.get('start')).toISOString() : null;
@@ -344,6 +346,7 @@
       state.data = await rpc('tutor_os_bootstrap_v18');
       showApp();
       setConnection(true);
+      if (state.data?.needs_tutor_link && !state.data?.is_admin) state.section = 'overview';
       render();
       setupRealtime();
     } catch (e) {
