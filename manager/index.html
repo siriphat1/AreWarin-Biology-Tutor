@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v17 · 2026-09-16 · PAYMENT SLIP VIEWER -->
+  <!-- AREWARIN READY REPLACE v18 · 2026-09-16 · ENROLLMENT SLIP + REPAIR -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AreWarin Manager · Unified V17</title>
@@ -2908,6 +2908,210 @@
 
   window.AWV17OpenSlip = openSlipViewer;
   window.AWV17RefreshSlips = loadPaymentsIndex;
+})();
+</script>
+
+
+<script>
+/* =========================================================
+   AREWARIN READY v18 — Enrollment Slip Action
+   Adds slip access directly beside "ดูรายละเอียด" / "ลบ"
+   in Manager > การสมัครเรียน
+========================================================= */
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+
+  const STATE = {
+    paymentsByEnrollment: new Map(),
+    loading: false,
+    decorating: false
+  };
+
+  function db() {
+    try { if(typeof sb !== 'undefined' && sb?.from) return sb; } catch(_) {}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+
+    const cfg = window.AREWARIN_CONFIG || {};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if(!window.__awV18EnrollmentSlipClient) {
+        window.__awV18EnrollmentSlipClient = window.supabase.createClient(
+          cfg.SUPABASE_URL,
+          cfg.SUPABASE_ANON_KEY,
+          {auth:{persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return window.__awV18EnrollmentSlipClient;
+    }
+    return null;
+  }
+
+  async function loadPaymentMap() {
+    if(STATE.loading) return;
+
+    const client = db();
+    if(!client) return;
+
+    STATE.loading = true;
+
+    try {
+      const {data,error} = await client
+        .from('payments')
+        .select('id,enrollment_id,payment_method,slip_path,status,created_at')
+        .order('created_at',{ascending:false})
+        .limit(2000);
+
+      if(error) throw error;
+
+      STATE.paymentsByEnrollment = new Map();
+
+      // If an enrollment has more than one payment row, keep the newest.
+      (data || []).forEach(p => {
+        const key = String(p.enrollment_id || '');
+        if(key && !STATE.paymentsByEnrollment.has(key)) {
+          STATE.paymentsByEnrollment.set(key,p);
+        }
+      });
+
+      decorateEnrollmentSlipButtons();
+    } catch(e) {
+      console.error('[AW v18] enrollment payment map failed:', e);
+    } finally {
+      STATE.loading = false;
+    }
+  }
+
+  function buttonFor(payment) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+
+    if(!payment) {
+      btn.disabled = true;
+      btn.className =
+        'px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 ' +
+        'text-slate-400 text-[9px] font-bold whitespace-nowrap';
+      btn.innerHTML = '<i class="fas fa-receipt mr-1"></i>ไม่มีรายการ';
+      return btn;
+    }
+
+    if(payment.payment_method === 'cash') {
+      btn.disabled = true;
+      btn.className =
+        'px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 ' +
+        'text-slate-500 text-[9px] font-bold whitespace-nowrap';
+      btn.innerHTML = '<i class="fas fa-money-bill mr-1"></i>เงินสด';
+      return btn;
+    }
+
+    if(!payment.slip_path) {
+      btn.disabled = true;
+      btn.className =
+        'px-2.5 py-1.5 rounded-lg border border-amber-200 bg-amber-50 ' +
+        'text-amber-600 text-[9px] font-bold whitespace-nowrap';
+      btn.innerHTML = '<i class="fas fa-image-slash mr-1"></i>ไม่มีสลิป';
+      return btn;
+    }
+
+    btn.dataset.awV18EnrollmentSlip = String(payment.id);
+    btn.className =
+      'px-2.5 py-1.5 rounded-lg border border-sky-200 bg-sky-50 ' +
+      'text-sky-700 text-[9px] font-bold hover:bg-sky-100 transition whitespace-nowrap';
+    btn.innerHTML = '<i class="fas fa-image mr-1"></i>ดูสลิป';
+
+    btn.addEventListener('click', async event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Make sure the v17 viewer has the latest payment index.
+      try {
+        if(window.AWV17RefreshSlips) {
+          await window.AWV17RefreshSlips();
+        }
+      } catch(_) {}
+
+      if(window.AWV17OpenSlip) {
+        window.AWV17OpenSlip(String(payment.id));
+      } else {
+        console.error('[AW v18] AWV17OpenSlip is not available');
+      }
+    });
+
+    return btn;
+  }
+
+  function decorateEnrollmentSlipButtons() {
+    const body = $('enrollmentRows');
+    if(!body || STATE.decorating) return;
+
+    STATE.decorating = true;
+
+    try {
+      body.querySelectorAll('tr').forEach(tr => {
+        // v16 already attaches the enrollment id to the row after matching it.
+        const enrollmentId = String(tr.dataset.awV16EnrollmentId || '');
+        if(!enrollmentId) return;
+
+        const actionCell = tr.querySelector('td:last-child');
+        if(!actionCell) return;
+
+        if(actionCell.querySelector('[data-aw-v18-wrap]')) return;
+
+        const payment = STATE.paymentsByEnrollment.get(enrollmentId) || null;
+
+        const wrap = document.createElement('div');
+        wrap.dataset.awV18Wrap = '1';
+        wrap.className = 'mt-1.5 flex flex-wrap justify-end gap-1.5';
+
+        wrap.appendChild(buttonFor(payment));
+        actionCell.appendChild(wrap);
+      });
+    } finally {
+      STATE.decorating = false;
+    }
+  }
+
+  function boot() {
+    const body = $('enrollmentRows');
+    if(!body) return;
+
+    loadPaymentMap();
+
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(() => {
+        decorateEnrollmentSlipButtons();
+      });
+    });
+
+    observer.observe(body,{
+      childList:true,
+      subtree:true
+    });
+
+    $('refreshEnrollments')?.addEventListener('click',() => {
+      setTimeout(loadPaymentMap,350);
+    });
+
+    let ticks = 0;
+    const timer = setInterval(() => {
+      ticks++;
+      if(STATE.paymentsByEnrollment.size) {
+        decorateEnrollmentSlipButtons();
+      }
+      if(ticks > 50) clearInterval(timer);
+    },250);
+  }
+
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded',boot);
+  } else {
+    boot();
+  }
+
+  window.AWV18RefreshEnrollmentSlips = loadPaymentMap;
 })();
 </script>
 
