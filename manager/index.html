@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v11 · 2026-09-16 · HARD DELETE BUTTON FIX -->
+  <!-- AREWARIN READY REPLACE v14 · 2026-09-16 · PROMOTION IMAGE -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AreWarin Manager · Unified V17</title>
@@ -503,7 +503,16 @@
         <section id="section-prices" class="section"><div class="page-head"><div><div class="page-kicker">Pricing</div><h1 class="page-title">ราคาคอร์ส</h1><p class="page-subtitle">กำหนดราคากลางสำหรับแต่ละแพ็กเกจและระดับการเรียน</p></div></div><div class="card p-5"><div class="flex justify-between items-center mb-4"><div><h2 class="font-bold text-lg">ราคาคอร์ส</h2><p class="text-xs text-slate-400">หน้าเว็บสมัครเรียนจะดึงราคานี้โดยอัตโนมัติ</p></div><button id="savePrices" class="px-4 py-2 rounded-xl bg-sky-500 text-white font-bold text-sm">บันทึกราคา</button></div><div id="priceGrid" class="grid md:grid-cols-2 gap-5"></div></div></section>
 
         <section id="section-promotions" class="section"><div class="page-head"><div><div class="page-kicker">Marketing</div><h1 class="page-title">โปรโมชั่น</h1><p class="page-subtitle">สร้างโค้ดส่วนลด กำหนดช่วงเวลา และเปิด/ปิดโปรโมชั่น</p></div></div>
-          <div class="grid xl:grid-cols-[380px_1fr] gap-5"><form id="promoForm" class="card p-5 space-y-3"><div class="flex justify-between"><h2 class="font-bold text-lg">Promotion</h2><button type="button" id="promoReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div><input type="hidden" id="promoId"><input id="promoCode" class="input uppercase" placeholder="CODE" required><input id="promoName" class="input" placeholder="ชื่อโปรโมชั่น"><select id="promoType" class="input"><option value="fixed">ลดเป็นจำนวนเงิน</option><option value="percent">ลดเปอร์เซ็นต์</option></select><input id="promoValue" class="input" type="number" min="0" step="0.01" placeholder="จำนวนส่วนลด" required><label class="text-xs font-bold">เริ่มใช้</label><input id="promoStart" class="input" type="datetime-local"><label class="text-xs font-bold">สิ้นสุด</label><input id="promoEnd" class="input" type="datetime-local"><label class="flex gap-2 items-center text-sm"><input id="promoActive" type="checkbox" checked> เปิดใช้งาน</label><button class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[12px]">บันทึก Promotion</button></form><div class="card p-5"><h2 class="font-bold text-lg mb-4">โปรโมชั่นทั้งหมด</h2><div id="promoList" class="space-y-3"></div></div></div>
+          <div class="grid xl:grid-cols-[380px_1fr] gap-5"><form id="promoForm" class="card p-5 space-y-3"><div class="flex justify-between"><h2 class="font-bold text-lg">Promotion</h2><button type="button" id="promoReset" class="text-xs text-sky-600">ล้างฟอร์ม</button></div><input type="hidden" id="promoId"><input id="promoCode" class="input uppercase" placeholder="CODE" required><input id="promoName" class="input" placeholder="ชื่อโปรโมชั่น">
+<div class="space-y-2">
+  <input id="promoImageUrl" class="input" type="url" placeholder="ลิงก์รูปโปรโมชั่น https://...">
+  <div id="promoImagePreviewWrap" class="hidden overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+    <img id="promoImagePreview" src="" alt="Preview promotion" class="w-full h-36 object-cover">
+  </div>
+  <p class="text-[9px] text-slate-400">ใส่ลิงก์รูปโดยตรง เช่น JPG / PNG / WebP · ระบบจะแสดงรูปตอนผู้เรียนใช้โค้ด</p>
+</div>
+<textarea id="promoDescription" class="input min-h-[80px]" placeholder="คำอธิบายโปรโมชั่น เช่น ลดพิเศษสำหรับนักเรียนใหม่"></textarea>
+<select id="promoType" class="input"><option value="fixed">ลดเป็นจำนวนเงิน</option><option value="percent">ลดเปอร์เซ็นต์</option></select><input id="promoValue" class="input" type="number" min="0" step="0.01" placeholder="จำนวนส่วนลด" required><label class="text-xs font-bold">เริ่มใช้</label><input id="promoStart" class="input" type="datetime-local"><label class="text-xs font-bold">สิ้นสุด</label><input id="promoEnd" class="input" type="datetime-local"><label class="flex gap-2 items-center text-sm"><input id="promoActive" type="checkbox" checked> เปิดใช้งาน</label><button class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[12px]">บันทึก Promotion</button></form><div class="card p-5"><h2 class="font-bold text-lg mb-4">โปรโมชั่นทั้งหมด</h2><div id="promoList" class="space-y-3"></div></div></div>
         </section>
 
         <section id="section-payments" class="section"><div class="page-head"><div><div class="page-kicker">Finance</div><h1 class="page-title">การชำระเงิน</h1><p class="page-subtitle">ตรวจสลิป ยืนยันยอด และจัดการสถานะการชำระเงิน</p></div></div><div class="card p-5"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตรวจสอบการชำระเงิน</h2><p class="text-xs text-slate-400">เมื่อกดยืนยัน ใบเสร็จจะเปลี่ยนสถานะเป็นชำระเงินแล้ว</p></div><button id="refreshPayments" class="text-xs px-3 py-2 bg-slate-100 rounded-xl font-bold">รีเฟรช</button></div><div class="table-wrap"><table class="w-full text-sm min-w-[900px]"><thead><tr class="text-left text-xs text-slate-400 border-b"><th class="py-2">เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส</th><th>ยอด</th><th>วิธีชำระ</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div></section>
@@ -1562,285 +1571,397 @@
 </script>
 
 
+
+
 <script>
 /* =========================================================
-   AREWARIN READY v11
-   HARD DELETE BUTTON INJECTOR
-   - Works even if the old package/price renderer overwrites the footer
-   - Looks for existing "แพ็กเกจ / ราคา" buttons and adds "ลบคอร์ส"
+   AREWARIN READY v14 — Promotion Image Manager
+   Owns the Promotions section so image_url/description work reliably.
 ========================================================= */
 (() => {
   'use strict';
 
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
 
-  function getDb() {
+  let promos = [];
+  let rendering = false;
+
+  function db() {
     try {
-      if (typeof sb !== 'undefined' && sb?.from) return sb;
-    } catch (_) {}
-    if (window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
-    if (window.awSupabase?.from) return window.awSupabase;
-    if (window.supabaseClient?.from) return window.supabaseClient;
-    if (window.sb?.from) return window.sb;
+      if(typeof sb !== 'undefined' && sb?.from) return sb;
+    } catch(_) {}
+
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
 
     const cfg = window.AREWARIN_CONFIG || {};
-    if (window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
-      if (!window.__awV11DeleteClient) {
-        window.__awV11DeleteClient = window.supabase.createClient(
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if(!window.__awV14PromoManagerClient) {
+        window.__awV14PromoManagerClient = window.supabase.createClient(
           cfg.SUPABASE_URL,
           cfg.SUPABASE_ANON_KEY,
-          { auth: { persistSession: true, autoRefreshToken: true } }
+          {auth:{persistSession:true,autoRefreshToken:true}}
         );
       }
-      return window.__awV11DeleteClient;
+      return window.__awV14PromoManagerClient;
     }
+
     return null;
   }
 
   function toast(message, type='success') {
-    if (window.AWAlert?.toast) {
+    if(window.AWAlert?.toast) {
       window.AWAlert.toast(String(message), type);
       return;
     }
-    if (window.Swal?.fire) {
+
+    if(window.Swal?.fire) {
       Swal.fire({
-        toast: true,
-        position: 'top-end',
-        timer: 2300,
-        showConfirmButton: false,
-        icon: type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success',
-        title: String(message)
+        toast:true,
+        position:'top-end',
+        timer:2200,
+        showConfirmButton:false,
+        icon:type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success',
+        title:String(message)
       });
       return;
     }
-    console[type === 'error' ? 'error' : 'log']('[AW v11]', message);
+
+    console.log('[AW v14]', message);
   }
 
-  function esc(value) {
-    return String(value ?? '').replace(/[&<>"']/g, ch => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[ch]));
+  function dtLocal(value) {
+    if(!value) return '';
+    const d = new Date(value);
+    if(Number.isNaN(d.getTime())) return '';
+    const pad = n => String(n).padStart(2,'0');
+    return (
+      d.getFullYear() + '-' +
+      pad(d.getMonth()+1) + '-' +
+      pad(d.getDate()) + 'T' +
+      pad(d.getHours()) + ':' +
+      pad(d.getMinutes())
+    );
   }
 
-  async function archiveCourse(courseId, courseName='คอร์สนี้') {
-    const db = getDb();
-    if (!db) return toast('ไม่พบ Supabase client', 'error');
+  function isoOrNull(value) {
+    if(!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
 
-    try {
-      const { data, error } = await db.rpc('manager_archive_course', {
-        p_course_id: courseId
-      });
+  function updatePreview() {
+    const wrap = $('promoImagePreviewWrap');
+    const img = $('promoImagePreview');
+    const url = ($('promoImageUrl')?.value || '').trim();
 
-      if (error) throw error;
-      if (data?.ok === false) throw new Error(data.message || 'ปิดคอร์สไม่สำเร็จ');
+    if(!wrap || !img) return;
 
-      toast('ปิดคอร์ส "' + courseName + '" แล้ว');
-      setTimeout(() => window.location.reload(), 450);
-    } catch (e) {
-      console.error('[AW v11] archive failed:', e);
+    if(!url) {
+      wrap.classList.add('hidden');
+      img.removeAttribute('src');
+      return;
+    }
+
+    img.onload = () => wrap.classList.remove('hidden');
+    img.onerror = () => {
+      wrap.classList.add('hidden');
+    };
+    img.src = url;
+  }
+
+  function resetForm() {
+    $('promoForm')?.reset();
+    if($('promoId')) $('promoId').value = '';
+    if($('promoActive')) $('promoActive').checked = true;
+    if($('promoImageUrl')) $('promoImageUrl').value = '';
+    if($('promoDescription')) $('promoDescription').value = '';
+    updatePreview();
+  }
+
+  function fillForm(p) {
+    if(!p) return;
+
+    $('promoId').value = p.id || '';
+    $('promoCode').value = p.code || '';
+    $('promoName').value = p.name || '';
+    $('promoImageUrl').value = p.image_url || '';
+    $('promoDescription').value = p.description || '';
+    $('promoType').value = p.discount_type || 'fixed';
+    $('promoValue').value = p.discount_value ?? '';
+    $('promoStart').value = dtLocal(p.starts_at);
+    $('promoEnd').value = dtLocal(p.ends_at);
+    $('promoActive').checked = p.active !== false;
+
+    updatePreview();
+    $('promoForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function loadPromos() {
+    const client = db();
+    if(!client) return;
+
+    const {data,error} = await client
+      .from('promotions')
+      .select('id,code,name,description,image_url,discount_type,discount_value,starts_at,ends_at,active,created_at,updated_at')
+      .order('created_at',{ascending:false});
+
+    if(error) {
+      console.error('[AW v14] load promotions failed:', error);
       toast(
-        e?.message?.includes('manager_archive_course')
-          ? 'ยังไม่ได้ติดตั้ง SQL ระบบลบคอร์ส กรุณารัน AREWARIN_V10_DELETE_COURSE.sql'
-          : 'ปิดคอร์สไม่สำเร็จ: ' + (e?.message || e),
+        error.message?.includes('image_url')
+          ? 'กรุณารัน AREWARIN_V14_PROMO_IMAGE.sql ใน Supabase ก่อน'
+          : 'โหลดโปรโมชั่นไม่สำเร็จ: ' + error.message,
         'error'
       );
+      return;
+    }
+
+    promos = data || [];
+    renderPromos();
+  }
+
+  function formatDiscount(p) {
+    if(p.discount_type === 'percent') {
+      return Number(p.discount_value || 0).toLocaleString('th-TH') + '%';
+    }
+    return Number(p.discount_value || 0).toLocaleString('th-TH') + ' บาท';
+  }
+
+  function renderPromos() {
+    const list = $('promoList');
+    if(!list || rendering) return;
+
+    rendering = true;
+
+    try {
+      if(!promos.length) {
+        list.innerHTML =
+          '<div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">' +
+            '<div class="w-11 h-11 rounded-2xl bg-white text-slate-300 grid place-items-center mx-auto mb-3"><i class="fas fa-ticket"></i></div>' +
+            '<div class="text-[11px] font-bold text-slate-600">ยังไม่มีโปรโมชั่น</div>' +
+          '</div>';
+        return;
+      }
+
+      list.innerHTML = promos.map(p => {
+        const image = (p.image_url || '').trim();
+
+        return `
+          <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            ${image ? `
+              <div class="h-32 bg-slate-100 overflow-hidden relative">
+                <img src="${esc(image)}" alt="${esc(p.name || p.code)}"
+                  class="w-full h-full object-cover"
+                  onerror="this.parentElement.style.display='none'">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"></div>
+                <span class="absolute left-3 bottom-3 rounded-full bg-white/90 px-2.5 py-1 text-[8px] font-extrabold text-slate-700">
+                  <i class="fas fa-image text-sky-500 mr-1"></i>Promotion image
+                </span>
+              </div>` : ''}
+
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full bg-slate-900 text-white px-2.5 py-1 text-[9px] font-extrabold tracking-wider">${esc(p.code)}</span>
+                    <span class="rounded-full ${p.active !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'} border px-2 py-1 text-[8px] font-bold">
+                      ${p.active !== false ? 'เปิดใช้งาน' : 'ปิด'}
+                    </span>
+                  </div>
+                  <h3 class="mt-2 text-[13px] font-extrabold text-slate-800">${esc(p.name || 'ไม่มีชื่อโปรโมชั่น')}</h3>
+                  <p class="mt-1 text-[9px] leading-4 text-slate-400">${esc(p.description || 'ยังไม่มีคำอธิบาย')}</p>
+                </div>
+
+                <div class="text-right shrink-0">
+                  <div class="text-[8px] text-slate-400 font-bold">ส่วนลด</div>
+                  <div class="text-lg font-extrabold text-emerald-600">${esc(formatDiscount(p))}</div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button type="button" data-promo-edit="${esc(p.id)}"
+                  class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-[9px] font-bold text-slate-600 hover:border-sky-200 hover:text-sky-600">
+                  <i class="fas fa-pen mr-1"></i>แก้ไข
+                </button>
+                <button type="button" data-promo-delete="${esc(p.id)}"
+                  class="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-[9px] font-bold text-rose-600 hover:bg-rose-100">
+                  <i class="fas fa-trash-can mr-1"></i>ลบ
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      list.querySelectorAll('[data-promo-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const p = promos.find(x => String(x.id) === String(btn.dataset.promoEdit));
+          fillForm(p);
+        });
+      });
+
+      list.querySelectorAll('[data-promo-delete]').forEach(btn => {
+        btn.addEventListener('click', () => deletePromo(btn.dataset.promoDelete));
+      });
+
+    } finally {
+      rendering = false;
     }
   }
 
-  async function deleteCourse(courseId, courseName='คอร์สนี้') {
-    if (!courseId) return toast('ไม่พบ Course ID', 'error');
+  async function savePromo(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const client = db();
+    if(!client) return;
+
+    const id = ($('promoId')?.value || '').trim();
+    const code = ($('promoCode')?.value || '').trim().toUpperCase();
+    const name = ($('promoName')?.value || '').trim();
+    const description = ($('promoDescription')?.value || '').trim();
+    const imageUrl = ($('promoImageUrl')?.value || '').trim();
+    const discountType = $('promoType')?.value || 'fixed';
+    const discountValue = Number($('promoValue')?.value || 0);
+
+    if(!code) return toast('กรุณากรอกโค้ดโปรโมชั่น','warning');
+    if(!Number.isFinite(discountValue) || discountValue < 0) {
+      return toast('มูลค่าส่วนลดไม่ถูกต้อง','warning');
+    }
+
+    const payload = {
+      code,
+      name: name || null,
+      description: description || null,
+      image_url: imageUrl || null,
+      discount_type: discountType,
+      discount_value: discountValue,
+      starts_at: isoOrNull($('promoStart')?.value),
+      ends_at: isoOrNull($('promoEnd')?.value),
+      active: $('promoActive')?.checked !== false,
+      updated_at: new Date().toISOString()
+    };
+
+    let result;
+
+    if(id) {
+      result = await client
+        .from('promotions')
+        .update(payload)
+        .eq('id',id)
+        .select()
+        .single();
+    } else {
+      result = await client
+        .from('promotions')
+        .insert(payload)
+        .select()
+        .single();
+    }
+
+    if(result.error) {
+      console.error(result.error);
+      toast(
+        result.error.message?.includes('image_url')
+          ? 'กรุณารัน AREWARIN_V14_PROMO_IMAGE.sql ใน Supabase ก่อน'
+          : result.error.code === '23505'
+            ? 'โค้ดโปรโมชั่นนี้มีอยู่แล้ว'
+            : result.error.message,
+        'error'
+      );
+      return;
+    }
+
+    toast(id ? 'แก้ไขโปรโมชั่นแล้ว' : 'เพิ่มโปรโมชั่นแล้ว');
+    resetForm();
+    await loadPromos();
+  }
+
+  async function deletePromo(id) {
+    const p = promos.find(x => String(x.id) === String(id));
+    if(!p) return;
 
     let confirmed = false;
 
-    if (window.Swal?.fire) {
+    if(window.Swal?.fire) {
       const result = await Swal.fire({
-        icon: 'warning',
-        title: 'ลบคอร์สนี้?',
-        html:
-          '<div style="text-align:left;font-size:12px;line-height:1.7">' +
-            '<div style="font-weight:800;color:#0f172a">' + esc(courseName) + '</div>' +
-            '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c">' +
-              '<b>ลบถาวร</b> จะนำคอร์สออกจากฐานข้อมูล รวมถึงการผูกหมวดและราคาเฉพาะคอร์ส' +
-            '</div>' +
-            '<div style="margin-top:8px;color:#64748b">' +
-              'ถ้าคอร์สมีประวัติสมัครเรียน ระบบจะไม่ทำลายประวัติ และจะเสนอให้ปิดคอร์สแทน' +
-            '</div>' +
-          '</div>',
-        showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-trash-can"></i> ลบถาวร',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#e11d48',
-        reverseButtons: true,
-        customClass: { popup: 'rounded-[1.5rem]' }
+        icon:'warning',
+        title:'ลบโปรโมชั่น?',
+        html:`<div class="text-sm"><b>${esc(p.code)}</b><br>${esc(p.name || '')}</div>`,
+        showCancelButton:true,
+        confirmButtonText:'ลบ',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#e11d48'
       });
       confirmed = result.isConfirmed;
     } else {
-      confirmed = window.confirm('ลบคอร์ส "' + courseName + '" ถาวรหรือไม่?');
+      confirmed = window.confirm('ลบโปรโมชั่น ' + p.code + ' ?');
     }
 
-    if (!confirmed) return;
+    if(!confirmed) return;
 
-    const db = getDb();
-    if (!db) return toast('ไม่พบ Supabase client', 'error');
+    const client = db();
+    const {error} = await client.from('promotions').delete().eq('id',id);
 
-    try {
-      const { data, error } = await db.rpc('manager_delete_course', {
-        p_course_id: courseId
-      });
-
-      if (error) throw error;
-
-      if (data?.ok === true) {
-        toast('ลบคอร์ส "' + courseName + '" แล้ว');
-        setTimeout(() => window.location.reload(), 400);
-        return;
-      }
-
-      if (data?.code === 'COURSE_IN_USE' || data?.can_archive === true) {
-        if (window.Swal?.fire) {
-          const fallback = await Swal.fire({
-            icon: 'info',
-            title: 'คอร์สนี้มีประวัติการใช้งาน',
-            html:
-              '<div style="font-size:12px;line-height:1.7;color:#475569">' +
-                'ไม่สามารถลบถาวรได้ เพราะมีข้อมูลนักเรียน/การสมัครอ้างอิงอยู่' +
-                '<br><br><b>แนะนำให้ปิดคอร์สแทน</b> เพื่อซ่อนจากการสมัครใหม่ แต่ยังรักษาประวัติเดิม' +
-              '</div>',
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-eye-slash"></i> ปิดคอร์สแทน',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#0f172a',
-            customClass: { popup: 'rounded-[1.5rem]' }
-          });
-
-          if (fallback.isConfirmed) {
-            await archiveCourse(courseId, courseName);
-          }
-        } else if (window.confirm('คอร์สนี้มีประวัติ ลบถาวรไม่ได้ ต้องการปิดคอร์สแทนหรือไม่?')) {
-          await archiveCourse(courseId, courseName);
-        }
-        return;
-      }
-
-      throw new Error(data?.message || 'ลบคอร์สไม่สำเร็จ');
-
-    } catch (e) {
-      console.error('[AW v11] delete failed:', e);
-
-      const msg = String(e?.message || e || '');
-      if (
-        msg.includes('manager_delete_course') ||
-        msg.includes('Could not find the function') ||
-        msg.includes('schema cache')
-      ) {
-        toast('กรุณารัน AREWARIN_V10_DELETE_COURSE.sql ใน Supabase ก่อน', 'error');
-      } else {
-        toast('ลบคอร์สไม่สำเร็จ: ' + msg, 'error');
-      }
-    }
-  }
-
-  function getCourseNameFromButton(priceButton) {
-    const card =
-      priceButton.closest('[data-aw-v4-course-id]') ||
-      priceButton.closest('.card') ||
-      priceButton.parentElement?.parentElement?.parentElement;
-
-    if (!card) return 'คอร์สนี้';
-
-    const titleCandidates = card.querySelectorAll(
-      'h1,h2,h3,h4,.font-bold,.font-extrabold,strong'
-    );
-
-    for (const el of titleCandidates) {
-      const text = String(el.textContent || '').trim();
-      if (
-        text &&
-        text !== 'แพ็กเกจ / ราคา' &&
-        text !== 'ลบคอร์ส' &&
-        text.length > 2
-      ) {
-        return text;
-      }
+    if(error) {
+      toast('ลบโปรโมชั่นไม่สำเร็จ: ' + error.message,'error');
+      return;
     }
 
-    return 'คอร์สนี้';
+    toast('ลบโปรโมชั่นแล้ว');
+    await loadPromos();
   }
 
-  function ensureDeleteButtons() {
-    document.querySelectorAll('[data-aw-v4-price]').forEach(priceButton => {
-      const courseId = priceButton.getAttribute('data-aw-v4-price');
-      if (!courseId) return;
+  function init() {
+    const form = $('promoForm');
+    if(!form) return;
 
-      const holder = priceButton.parentElement;
-      if (!holder) return;
+    // Capture phase prevents the old manager app submit handler from also saving.
+    document.addEventListener('submit', event => {
+      if(event.target?.id !== 'promoForm') return;
+      savePromo(event);
+    }, true);
 
-      if (holder.querySelector('[data-aw-v11-delete="' + CSS.escape(courseId) + '"]')) {
-        return;
-      }
+    $('promoReset')?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      resetForm();
+    }, true);
 
-      // Make sure both buttons can sit together.
-      holder.classList.add('flex', 'flex-wrap', 'gap-2', 'items-center');
+    $('promoImageUrl')?.addEventListener('input', updatePreview);
+    $('promoImageUrl')?.addEventListener('change', updatePreview);
 
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.setAttribute('data-aw-v11-delete', courseId);
-      deleteButton.className =
-        'px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 ' +
-        'text-rose-600 text-[9px] font-bold hover:bg-rose-100 ' +
-        'transition-colors whitespace-nowrap';
+    loadPromos();
 
-      deleteButton.innerHTML =
-        '<i class="fas fa-trash-can mr-1"></i>ลบคอร์ส';
-
-      deleteButton.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const name = getCourseNameFromButton(priceButton);
-        deleteCourse(courseId, name);
-      });
-
-      priceButton.insertAdjacentElement('afterend', deleteButton);
-    });
-  }
-
-  function boot() {
-    ensureDeleteButtons();
-
-    const list = $('courseList');
-    if (list) {
+    // Native manager may render promoList later. Restore V14 cards when that happens.
+    const list = $('promoList');
+    if(list) {
+      let timer = null;
       const observer = new MutationObserver(() => {
-        requestAnimationFrame(ensureDeleteButtons);
+        if(rendering) return;
+        clearTimeout(timer);
+        timer = setTimeout(renderPromos,80);
       });
-
-      observer.observe(list, {
-        childList: true,
-        subtree: true
-      });
+      observer.observe(list,{childList:true,subtree:false});
     }
-
-    // Extra recovery for async/native rerenders.
-    let ticks = 0;
-    const timer = setInterval(() => {
-      ticks++;
-      ensureDeleteButtons();
-      if (ticks >= 40) clearInterval(timer);
-    }, 250);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded',init);
   } else {
-    boot();
+    init();
   }
 
-  window.AWV11DeleteCourse = deleteCourse;
-  window.AWV11EnsureDeleteButtons = ensureDeleteButtons;
+  window.AWV14Promotions = {
+    reload:loadPromos,
+    reset:resetForm
+  };
 })();
 </script>
 
