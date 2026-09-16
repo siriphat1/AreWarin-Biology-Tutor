@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v9 · 2026-09-16 · STRICT COURSE CATEGORY -->
+  <!-- AREWARIN READY REPLACE v11 · 2026-09-16 · HARD DELETE BUTTON FIX -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AreWarin Manager · Unified V17</title>
@@ -1234,12 +1234,26 @@
           <div class="text-[8px] uppercase tracking-[.08em] font-bold text-slate-400 mb-1">แพ็กเกจที่เปิด · ${esc(tutor?.display_name||'')}</div>
           <div class="flex flex-wrap gap-1">${summary(course)}</div>
         </div>
-        <button type="button" data-aw-v4-price="${esc(course.id)}"
-          class="shrink-0 px-3 py-2 rounded-xl bg-slate-900 text-white text-[9px] font-bold hover:bg-slate-800">
-          <i class="fas fa-tags mr-1"></i>แพ็กเกจ / ราคา
-        </button>`;
+        <div class="shrink-0 flex flex-wrap gap-2">
+          <button type="button" data-aw-v4-price="${esc(course.id)}"
+            class="px-3 py-2 rounded-xl bg-slate-900 text-white text-[9px] font-bold hover:bg-slate-800">
+            <i class="fas fa-tags mr-1"></i>แพ็กเกจ / ราคา
+          </button>
+
+          <button type="button" data-aw-v10-delete="${esc(course.id)}"
+            class="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-[9px] font-bold hover:bg-rose-100">
+            <i class="fas fa-trash-can mr-1"></i>ลบคอร์ส
+          </button>
+        </div>`;
+
       f.querySelector('[data-aw-v4-price]')?.addEventListener('click',e=>{
         e.preventDefault();e.stopPropagation();openDialog(course.id);
+      });
+
+      f.querySelector('[data-aw-v10-delete]')?.addEventListener('click',e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        deleteCourse(course.id);
       });
     });
 
@@ -1384,6 +1398,133 @@
     }
   }
 
+
+  async function archiveCourse(courseId) {
+    const c = db();
+    if (!c) return;
+
+    try {
+      const { data, error } = await c.rpc('manager_archive_course', {
+        p_course_id: courseId
+      });
+
+      if (error) throw error;
+      if (data && data.ok === false) {
+        throw new Error(data.message || 'ปิดคอร์สไม่สำเร็จ');
+      }
+
+      toast('ปิดคอร์สแล้ว');
+      setTimeout(() => window.location.reload(), 500);
+    } catch (e) {
+      console.error('[AW v10] archive course failed:', e);
+      toast('ปิดคอร์สไม่สำเร็จ: ' + (e?.message || e), 'error');
+    }
+  }
+
+  async function deleteCourse(courseId) {
+    const course = S.courseMap.get(String(courseId));
+    if (!course) return toast('ไม่พบข้อมูลคอร์ส', 'error');
+
+    const tutor = S.tutorMap.get(String(course.tutor_id));
+    const courseName = course.name || 'คอร์สนี้';
+    const tutorName = tutor?.display_name || '';
+
+    let confirmed = false;
+
+    if (window.Swal?.fire) {
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'ลบคอร์สนี้?',
+        html:
+          '<div style="text-align:left;font-size:12px;line-height:1.7">' +
+            '<div style="font-weight:800;color:#0f172a">' + esc(courseName) + '</div>' +
+            (tutorName
+              ? '<div style="color:#64748b;margin-top:2px">ติวเตอร์: ' + esc(tutorName) + '</div>'
+              : '') +
+            '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c">' +
+              'การลบจะนำคอร์สออกจากหน้าสมัคร และลบการผูกหมวด/ราคาเฉพาะคอร์สด้วย' +
+            '</div>' +
+            '<div style="margin-top:8px;color:#64748b">' +
+              'หากคอร์สมีประวัติการสมัครเรียน ระบบจะไม่ลบประวัติ และจะเสนอให้ “ปิดคอร์ส” แทน' +
+            '</div>' +
+          '</div>',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-trash-can"></i> ลบถาวร',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#e11d48',
+        reverseButtons: true,
+        customClass: { popup: 'rounded-[1.5rem]' }
+      });
+      confirmed = result.isConfirmed;
+    } else {
+      confirmed = window.confirm('ลบคอร์ส "' + courseName + '" ถาวรหรือไม่?');
+    }
+
+    if (!confirmed) return;
+
+    const c = db();
+    if (!c) return;
+
+    try {
+      const { data, error } = await c.rpc('manager_delete_course', {
+        p_course_id: courseId
+      });
+
+      if (error) throw error;
+
+      if (data?.ok === true) {
+        toast('ลบคอร์สแล้ว');
+
+        S.courses = S.courses.filter(x => String(x.id) !== String(courseId));
+        S.courseMap.delete(String(courseId));
+        S.rules.delete(String(courseId));
+
+        const card = document.querySelector(
+          '[data-aw-v4-course-id="' + CSS.escape(String(courseId)) + '"]'
+        );
+        if (card) card.remove();
+
+        // Reload so native manager state, counts and public-facing cached data are clean.
+        setTimeout(() => window.location.reload(), 450);
+        return;
+      }
+
+      if (data?.code === 'COURSE_IN_USE' || data?.can_archive === true) {
+        if (window.Swal?.fire) {
+          const fallback = await Swal.fire({
+            icon: 'info',
+            title: 'คอร์สนี้มีประวัติการใช้งาน',
+            html:
+              '<div style="font-size:12px;line-height:1.7;color:#475569">' +
+                'ระบบไม่ลบถาวรเพื่อรักษาประวัติการสมัครเรียนและข้อมูลนักเรียน' +
+                '<br><br><b>สามารถปิดคอร์สแทนได้</b> และคอร์สจะไม่แสดงในหน้าสมัครใหม่' +
+              '</div>',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-eye-slash"></i> ปิดคอร์สแทน',
+            cancelButtonText: 'เก็บไว้เหมือนเดิม',
+            confirmButtonColor: '#0f172a',
+            customClass: { popup: 'rounded-[1.5rem]' }
+          });
+
+          if (fallback.isConfirmed) {
+            await archiveCourse(courseId);
+          }
+        } else {
+          if (window.confirm('คอร์สนี้มีประวัติ จึงลบถาวรไม่ได้ ต้องการปิดคอร์สแทนหรือไม่?')) {
+            await archiveCourse(courseId);
+          }
+        }
+        return;
+      }
+
+      throw new Error(data?.message || 'ลบคอร์สไม่สำเร็จ');
+
+    } catch (e) {
+      console.error('[AW v10] delete course failed:', e);
+      toast('ลบคอร์สไม่สำเร็จ: ' + (e?.message || e), 'error');
+    }
+  }
+
   function bind(){
     $('awV4TutorFilter')?.addEventListener('change',applyFilters);
     $('awV4CourseSearch')?.addEventListener('input',applyFilters);
@@ -1411,7 +1552,295 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
 
-  window.AWCoursePackageManager={reload:load,filter:applyFilters};
+  window.AWCoursePackageManager={
+    reload:load,
+    filter:applyFilters,
+    deleteCourse:deleteCourse,
+    archiveCourse:archiveCourse
+  };
+})();
+</script>
+
+
+<script>
+/* =========================================================
+   AREWARIN READY v11
+   HARD DELETE BUTTON INJECTOR
+   - Works even if the old package/price renderer overwrites the footer
+   - Looks for existing "แพ็กเกจ / ราคา" buttons and adds "ลบคอร์ส"
+========================================================= */
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+
+  function getDb() {
+    try {
+      if (typeof sb !== 'undefined' && sb?.from) return sb;
+    } catch (_) {}
+    if (window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if (window.awSupabase?.from) return window.awSupabase;
+    if (window.supabaseClient?.from) return window.supabaseClient;
+    if (window.sb?.from) return window.sb;
+
+    const cfg = window.AREWARIN_CONFIG || {};
+    if (window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if (!window.__awV11DeleteClient) {
+        window.__awV11DeleteClient = window.supabase.createClient(
+          cfg.SUPABASE_URL,
+          cfg.SUPABASE_ANON_KEY,
+          { auth: { persistSession: true, autoRefreshToken: true } }
+        );
+      }
+      return window.__awV11DeleteClient;
+    }
+    return null;
+  }
+
+  function toast(message, type='success') {
+    if (window.AWAlert?.toast) {
+      window.AWAlert.toast(String(message), type);
+      return;
+    }
+    if (window.Swal?.fire) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        timer: 2300,
+        showConfirmButton: false,
+        icon: type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success',
+        title: String(message)
+      });
+      return;
+    }
+    console[type === 'error' ? 'error' : 'log']('[AW v11]', message);
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[ch]));
+  }
+
+  async function archiveCourse(courseId, courseName='คอร์สนี้') {
+    const db = getDb();
+    if (!db) return toast('ไม่พบ Supabase client', 'error');
+
+    try {
+      const { data, error } = await db.rpc('manager_archive_course', {
+        p_course_id: courseId
+      });
+
+      if (error) throw error;
+      if (data?.ok === false) throw new Error(data.message || 'ปิดคอร์สไม่สำเร็จ');
+
+      toast('ปิดคอร์ส "' + courseName + '" แล้ว');
+      setTimeout(() => window.location.reload(), 450);
+    } catch (e) {
+      console.error('[AW v11] archive failed:', e);
+      toast(
+        e?.message?.includes('manager_archive_course')
+          ? 'ยังไม่ได้ติดตั้ง SQL ระบบลบคอร์ส กรุณารัน AREWARIN_V10_DELETE_COURSE.sql'
+          : 'ปิดคอร์สไม่สำเร็จ: ' + (e?.message || e),
+        'error'
+      );
+    }
+  }
+
+  async function deleteCourse(courseId, courseName='คอร์สนี้') {
+    if (!courseId) return toast('ไม่พบ Course ID', 'error');
+
+    let confirmed = false;
+
+    if (window.Swal?.fire) {
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'ลบคอร์สนี้?',
+        html:
+          '<div style="text-align:left;font-size:12px;line-height:1.7">' +
+            '<div style="font-weight:800;color:#0f172a">' + esc(courseName) + '</div>' +
+            '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c">' +
+              '<b>ลบถาวร</b> จะนำคอร์สออกจากฐานข้อมูล รวมถึงการผูกหมวดและราคาเฉพาะคอร์ส' +
+            '</div>' +
+            '<div style="margin-top:8px;color:#64748b">' +
+              'ถ้าคอร์สมีประวัติสมัครเรียน ระบบจะไม่ทำลายประวัติ และจะเสนอให้ปิดคอร์สแทน' +
+            '</div>' +
+          '</div>',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-trash-can"></i> ลบถาวร',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#e11d48',
+        reverseButtons: true,
+        customClass: { popup: 'rounded-[1.5rem]' }
+      });
+      confirmed = result.isConfirmed;
+    } else {
+      confirmed = window.confirm('ลบคอร์ส "' + courseName + '" ถาวรหรือไม่?');
+    }
+
+    if (!confirmed) return;
+
+    const db = getDb();
+    if (!db) return toast('ไม่พบ Supabase client', 'error');
+
+    try {
+      const { data, error } = await db.rpc('manager_delete_course', {
+        p_course_id: courseId
+      });
+
+      if (error) throw error;
+
+      if (data?.ok === true) {
+        toast('ลบคอร์ส "' + courseName + '" แล้ว');
+        setTimeout(() => window.location.reload(), 400);
+        return;
+      }
+
+      if (data?.code === 'COURSE_IN_USE' || data?.can_archive === true) {
+        if (window.Swal?.fire) {
+          const fallback = await Swal.fire({
+            icon: 'info',
+            title: 'คอร์สนี้มีประวัติการใช้งาน',
+            html:
+              '<div style="font-size:12px;line-height:1.7;color:#475569">' +
+                'ไม่สามารถลบถาวรได้ เพราะมีข้อมูลนักเรียน/การสมัครอ้างอิงอยู่' +
+                '<br><br><b>แนะนำให้ปิดคอร์สแทน</b> เพื่อซ่อนจากการสมัครใหม่ แต่ยังรักษาประวัติเดิม' +
+              '</div>',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-eye-slash"></i> ปิดคอร์สแทน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#0f172a',
+            customClass: { popup: 'rounded-[1.5rem]' }
+          });
+
+          if (fallback.isConfirmed) {
+            await archiveCourse(courseId, courseName);
+          }
+        } else if (window.confirm('คอร์สนี้มีประวัติ ลบถาวรไม่ได้ ต้องการปิดคอร์สแทนหรือไม่?')) {
+          await archiveCourse(courseId, courseName);
+        }
+        return;
+      }
+
+      throw new Error(data?.message || 'ลบคอร์สไม่สำเร็จ');
+
+    } catch (e) {
+      console.error('[AW v11] delete failed:', e);
+
+      const msg = String(e?.message || e || '');
+      if (
+        msg.includes('manager_delete_course') ||
+        msg.includes('Could not find the function') ||
+        msg.includes('schema cache')
+      ) {
+        toast('กรุณารัน AREWARIN_V10_DELETE_COURSE.sql ใน Supabase ก่อน', 'error');
+      } else {
+        toast('ลบคอร์สไม่สำเร็จ: ' + msg, 'error');
+      }
+    }
+  }
+
+  function getCourseNameFromButton(priceButton) {
+    const card =
+      priceButton.closest('[data-aw-v4-course-id]') ||
+      priceButton.closest('.card') ||
+      priceButton.parentElement?.parentElement?.parentElement;
+
+    if (!card) return 'คอร์สนี้';
+
+    const titleCandidates = card.querySelectorAll(
+      'h1,h2,h3,h4,.font-bold,.font-extrabold,strong'
+    );
+
+    for (const el of titleCandidates) {
+      const text = String(el.textContent || '').trim();
+      if (
+        text &&
+        text !== 'แพ็กเกจ / ราคา' &&
+        text !== 'ลบคอร์ส' &&
+        text.length > 2
+      ) {
+        return text;
+      }
+    }
+
+    return 'คอร์สนี้';
+  }
+
+  function ensureDeleteButtons() {
+    document.querySelectorAll('[data-aw-v4-price]').forEach(priceButton => {
+      const courseId = priceButton.getAttribute('data-aw-v4-price');
+      if (!courseId) return;
+
+      const holder = priceButton.parentElement;
+      if (!holder) return;
+
+      if (holder.querySelector('[data-aw-v11-delete="' + CSS.escape(courseId) + '"]')) {
+        return;
+      }
+
+      // Make sure both buttons can sit together.
+      holder.classList.add('flex', 'flex-wrap', 'gap-2', 'items-center');
+
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.setAttribute('data-aw-v11-delete', courseId);
+      deleteButton.className =
+        'px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 ' +
+        'text-rose-600 text-[9px] font-bold hover:bg-rose-100 ' +
+        'transition-colors whitespace-nowrap';
+
+      deleteButton.innerHTML =
+        '<i class="fas fa-trash-can mr-1"></i>ลบคอร์ส';
+
+      deleteButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const name = getCourseNameFromButton(priceButton);
+        deleteCourse(courseId, name);
+      });
+
+      priceButton.insertAdjacentElement('afterend', deleteButton);
+    });
+  }
+
+  function boot() {
+    ensureDeleteButtons();
+
+    const list = $('courseList');
+    if (list) {
+      const observer = new MutationObserver(() => {
+        requestAnimationFrame(ensureDeleteButtons);
+      });
+
+      observer.observe(list, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    // Extra recovery for async/native rerenders.
+    let ticks = 0;
+    const timer = setInterval(() => {
+      ticks++;
+      ensureDeleteButtons();
+      if (ticks >= 40) clearInterval(timer);
+    }, 250);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  window.AWV11DeleteCourse = deleteCourse;
+  window.AWV11EnsureDeleteButtons = ensureDeleteButtons;
 })();
 </script>
 
