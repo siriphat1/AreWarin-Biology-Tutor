@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v14 · 2026-09-16 · PROMOTION IMAGE -->
+  <!-- AREWARIN READY REPLACE v17 · 2026-09-16 · PAYMENT SLIP VIEWER -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AreWarin Manager · Unified V17</title>
@@ -486,7 +486,7 @@
         <section id="section-enrollments" class="section space-y-5">
           <div class="page-head"><div><div class="page-kicker">Enrollment</div><h1 class="page-title">การสมัครเรียน</h1><p class="page-subtitle">ค้นหา ตรวจสอบ และจัดการรายการสมัครเรียนทั้งหมด</p></div><button id="refreshEnrollments" class="top-action bg-white border-slate-200 text-slate-600"><i class="fas fa-rotate"></i><span>รีเฟรช</span></button></div>
           <div class="card p-5">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4"><div><h2 class="font-bold text-lg">รายการสมัครทั้งหมด</h2><p class="text-xs text-slate-400">เปิดดูข้อมูลผู้สมัคร คอร์ส ตารางเวลา ยอด และสถานะ</p></div><div class="flex gap-2"><input id="enrollmentSearch" class="input !w-64" placeholder="ค้นหาชื่อ เบอร์ คอร์ส เลขใบเสร็จ"><select id="enrollmentStatusFilter" class="input !w-48"><option value="all">ทุกสถานะ</option><option value="pending_payment_verification">รอตรวจสอบ</option><option value="confirmed">ยืนยันแล้ว</option><option value="rejected">ไม่ผ่าน</option><option value="cancelled">ยกเลิก</option></select></div></div>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4"><div><h2 class="font-bold text-lg">รายการสมัครทั้งหมด</h2><p class="text-xs text-slate-400">เปิดดูข้อมูลผู้สมัคร คอร์ส ตารางเวลา ยอด และสถานะ</p><p class="text-[9px] text-rose-400 mt-1"><i class="fas fa-flask-vial mr-1"></i>สามารถลบรายการทดสอบได้จากปุ่มสีแดงในแต่ละแถว</p></div><div class="flex gap-2"><input id="enrollmentSearch" class="input !w-64" placeholder="ค้นหาชื่อ เบอร์ คอร์ส เลขใบเสร็จ"><select id="enrollmentStatusFilter" class="input !w-48"><option value="all">ทุกสถานะ</option><option value="pending_payment_verification">รอตรวจสอบ</option><option value="confirmed">ยืนยันแล้ว</option><option value="rejected">ไม่ผ่าน</option><option value="cancelled">ยกเลิก</option></select></div></div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4"><div class="bg-slate-50 rounded-2xl p-3 border border-slate-100"><div class="text-[10px] text-slate-400">ทั้งหมด</div><div id="enrollmentStatAll" class="text-xl font-bold mt-1">0</div></div><div class="bg-amber-50 rounded-2xl p-3 border border-amber-100"><div class="text-[10px] text-amber-600">รอตรวจสอบ</div><div id="enrollmentStatPending" class="text-xl font-bold text-amber-700 mt-1">0</div></div><div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-100"><div class="text-[10px] text-emerald-600">ยืนยันแล้ว</div><div id="enrollmentStatConfirmed" class="text-xl font-bold text-emerald-700 mt-1">0</div></div><div class="bg-rose-50 rounded-2xl p-3 border border-rose-100"><div class="text-[10px] text-rose-500">ไม่ผ่าน / ยกเลิก</div><div id="enrollmentStatClosed" class="text-xl font-bold text-rose-600 mt-1">0</div></div></div>
             <div class="table-wrap"><table class="w-full text-sm min-w-[1050px]"><thead><tr class="text-left text-xs text-slate-400"><th>เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส / ติวเตอร์</th><th>เวลา</th><th>ยอด</th><th>ชำระเงิน</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="enrollmentRows"></tbody></table></div>
           </div>
@@ -515,7 +515,7 @@
 <select id="promoType" class="input"><option value="fixed">ลดเป็นจำนวนเงิน</option><option value="percent">ลดเปอร์เซ็นต์</option></select><input id="promoValue" class="input" type="number" min="0" step="0.01" placeholder="จำนวนส่วนลด" required><label class="text-xs font-bold">เริ่มใช้</label><input id="promoStart" class="input" type="datetime-local"><label class="text-xs font-bold">สิ้นสุด</label><input id="promoEnd" class="input" type="datetime-local"><label class="flex gap-2 items-center text-sm"><input id="promoActive" type="checkbox" checked> เปิดใช้งาน</label><button class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[12px]">บันทึก Promotion</button></form><div class="card p-5"><h2 class="font-bold text-lg mb-4">โปรโมชั่นทั้งหมด</h2><div id="promoList" class="space-y-3"></div></div></div>
         </section>
 
-        <section id="section-payments" class="section"><div class="page-head"><div><div class="page-kicker">Finance</div><h1 class="page-title">การชำระเงิน</h1><p class="page-subtitle">ตรวจสลิป ยืนยันยอด และจัดการสถานะการชำระเงิน</p></div></div><div class="card p-5"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตรวจสอบการชำระเงิน</h2><p class="text-xs text-slate-400">เมื่อกดยืนยัน ใบเสร็จจะเปลี่ยนสถานะเป็นชำระเงินแล้ว</p></div><button id="refreshPayments" class="text-xs px-3 py-2 bg-slate-100 rounded-xl font-bold">รีเฟรช</button></div><div class="table-wrap"><table class="w-full text-sm min-w-[900px]"><thead><tr class="text-left text-xs text-slate-400 border-b"><th class="py-2">เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส</th><th>ยอด</th><th>วิธีชำระ</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div></section>
+        <section id="section-payments" class="section"><div class="page-head"><div><div class="page-kicker">Finance</div><h1 class="page-title">การชำระเงิน</h1><p class="page-subtitle">ตรวจสลิป ยืนยันยอด และจัดการสถานะการชำระเงิน</p></div></div><div class="card p-5"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตรวจสอบการชำระเงิน</h2><p class="text-xs text-slate-400">เมื่อกดยืนยัน ใบเสร็จจะเปลี่ยนสถานะเป็นชำระเงินแล้ว</p><p class="text-[9px] text-sky-500 mt-1"><i class="fas fa-image mr-1"></i>รายการโอนเงินที่มีสลิปจะมีปุ่ม “ดูสลิป” ในคอลัมน์จัดการ</p></div><button id="refreshPayments" class="text-xs px-3 py-2 bg-slate-100 rounded-xl font-bold">รีเฟรช</button></div><div class="table-wrap"><table class="w-full text-sm min-w-[900px]"><thead><tr class="text-left text-xs text-slate-400 border-b"><th class="py-2">เลขที่</th><th>ผู้สมัคร</th><th>คอร์ส</th><th>ยอด</th><th>วิธีชำระ</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div></section>
 
         <section id="section-policies" class="section space-y-5">
           <div class="page-head"><div><div class="page-kicker">Policy CMS</div><h1 class="page-title">นโยบาย & กติกา</h1><p class="page-subtitle">แก้ไขข้อความต้อนรับ นโยบายสมัครเรียน และกติกาสมัครติวเตอร์ได้โดยไม่ต้องแก้โค้ดหน้าเว็บ</p></div><div class="flex gap-2"><a href="../" target="_blank" class="top-action bg-white border-slate-200 text-slate-600"><i class="fas fa-eye"></i><span>เว็บสมัคร</span></a><a href="../tutor-apply/" target="_blank" class="top-action bg-sky-50 border-sky-100 text-sky-600"><i class="fas fa-user-plus"></i><span>สมัครติวเตอร์</span></a></div></div>
@@ -1962,6 +1962,952 @@
     reload:loadPromos,
     reset:resetForm
   };
+})();
+</script>
+
+
+<script>
+/* =========================================================
+   AREWARIN READY v16 — Delete Student / Test Enrollment
+   Adds a safe delete button to Manager > การสมัครเรียน
+========================================================= */
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const S = {
+    rows: [],
+    byId: new Map(),
+    loading: false,
+    decorating: false
+  };
+
+  function db() {
+    try { if(typeof sb !== 'undefined' && sb?.from) return sb; } catch(_) {}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+
+    const cfg = window.AREWARIN_CONFIG || {};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if(!window.__awV16StudentDeleteClient) {
+        window.__awV16StudentDeleteClient = window.supabase.createClient(
+          cfg.SUPABASE_URL,
+          cfg.SUPABASE_ANON_KEY,
+          {auth:{persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return window.__awV16StudentDeleteClient;
+    }
+    return null;
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[ch]));
+  }
+
+  function digits(value) {
+    return String(value || '').replace(/\D/g,'');
+  }
+
+  function toast(message, type='success') {
+    if(window.AWAlert?.toast) {
+      window.AWAlert.toast(String(message), type);
+      return;
+    }
+    if(window.Swal?.fire) {
+      Swal.fire({
+        toast:true,
+        position:'top-end',
+        timer:2400,
+        showConfirmButton:false,
+        icon:type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success',
+        title:String(message)
+      });
+      return;
+    }
+    console.log('[AW v16]', message);
+  }
+
+  async function loadEnrollmentIndex() {
+    if(S.loading) return;
+    const client = db();
+    if(!client) return;
+
+    S.loading = true;
+    try {
+      const {data,error} = await client
+        .from('enrollments')
+        .select('id,receipt_no,fullname,nickname,phone,course_text,tutor_text,status,amount_quoted,created_at')
+        .order('created_at',{ascending:false})
+        .limit(1000);
+
+      if(error) throw error;
+
+      S.rows = data || [];
+      S.byId = new Map(S.rows.map(x => [String(x.id),x]));
+
+      decorateRows();
+    } catch(e) {
+      console.error('[AW v16] enrollment index failed:', e);
+    } finally {
+      S.loading = false;
+    }
+  }
+
+  function matchEnrollment(tr) {
+    const text = String(tr.innerText || tr.textContent || '').replace(/\s+/g,' ').trim();
+    if(!text) return null;
+
+    // 1) Receipt number = strongest unique match.
+    let match = S.rows.find(r =>
+      r.receipt_no && text.includes(String(r.receipt_no))
+    );
+    if(match) return match;
+
+    // 2) Fullname + phone.
+    const textDigits = digits(text);
+    match = S.rows.find(r => {
+      const nameOk = r.fullname && text.includes(String(r.fullname));
+      const p = digits(r.phone);
+      const phoneOk = p && textDigits.includes(p);
+      return nameOk && phoneOk;
+    });
+    if(match) return match;
+
+    // 3) Fullname + course as last fallback.
+    const candidates = S.rows.filter(r =>
+      r.fullname && text.includes(String(r.fullname))
+    );
+    if(candidates.length === 1) return candidates[0];
+
+    match = candidates.find(r =>
+      r.course_text && text.includes(String(r.course_text))
+    );
+
+    return match || null;
+  }
+
+  function decorateRows() {
+    const body = $('enrollmentRows');
+    if(!body || S.decorating) return;
+
+    S.decorating = true;
+    try {
+      body.querySelectorAll('tr').forEach(tr => {
+        let enrollmentId = tr.dataset.awV16EnrollmentId || '';
+        let enrollment = enrollmentId ? S.byId.get(enrollmentId) : null;
+
+        if(!enrollment) {
+          enrollment = matchEnrollment(tr);
+          if(!enrollment) return;
+          enrollmentId = String(enrollment.id);
+          tr.dataset.awV16EnrollmentId = enrollmentId;
+        }
+
+        const actionCell = tr.querySelector('td:last-child');
+        if(!actionCell) return;
+
+        if(actionCell.querySelector('[data-aw-v16-delete]')) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'inline-flex items-center gap-1.5 ml-1';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-aw-v16-delete', enrollmentId);
+        btn.className =
+          'px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 ' +
+          'text-rose-600 text-[9px] font-bold hover:bg-rose-100 transition whitespace-nowrap';
+        btn.innerHTML = '<i class="fas fa-trash-can mr-1"></i>ลบ';
+
+        btn.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          deleteEnrollment(enrollmentId);
+        });
+
+        wrap.appendChild(btn);
+        actionCell.appendChild(wrap);
+      });
+    } finally {
+      S.decorating = false;
+    }
+  }
+
+  async function getSlipPath(enrollmentId) {
+    const client = db();
+    if(!client) return null;
+
+    const {data,error} = await client
+      .from('payments')
+      .select('slip_path')
+      .eq('enrollment_id',enrollmentId)
+      .maybeSingle();
+
+    if(error) return null;
+    return data?.slip_path || null;
+  }
+
+  async function confirmDelete(enrollment) {
+    const isConfirmedStudent = enrollment.status === 'confirmed';
+
+    if(!window.Swal?.fire) {
+      return window.confirm(
+        'ลบข้อมูลนักเรียน/รายการสมัคร "' +
+        (enrollment.fullname || '') +
+        '" หรือไม่?'
+      );
+    }
+
+    const warning = isConfirmedStudent
+      ? '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff7ed;color:#c2410c"><b>รายการนี้ยืนยันแล้ว</b> กรุณาตรวจให้แน่ใจก่อนลบ</div>'
+      : '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#fff1f2;color:#be123c">เหมาะสำหรับลบข้อมูลที่สร้างไว้ทดสอบระบบ</div>';
+
+    const result = await Swal.fire({
+      icon:'warning',
+      title:'ลบข้อมูลนักเรียนนี้?',
+      html:
+        '<div style="text-align:left;font-size:12px;line-height:1.7">' +
+          '<div style="font-size:14px;font-weight:800;color:#0f172a">' + esc(enrollment.fullname || 'ไม่ระบุชื่อ') + '</div>' +
+          (enrollment.nickname ? '<div style="color:#64748b">ชื่อเล่น: ' + esc(enrollment.nickname) + '</div>' : '') +
+          (enrollment.phone ? '<div style="color:#64748b">โทร: ' + esc(enrollment.phone) + '</div>' : '') +
+          (enrollment.receipt_no ? '<div style="color:#64748b">เลขที่: ' + esc(enrollment.receipt_no) + '</div>' : '') +
+          (enrollment.course_text ? '<div style="color:#64748b">คอร์ส: ' + esc(enrollment.course_text) + '</div>' : '') +
+          warning +
+          '<div style="margin-top:8px;color:#64748b">ระบบจะลบรายการสมัคร การชำระเงิน การจองตาราง และข้อมูลคอร์สที่ผูกกับรายการนี้</div>' +
+        '</div>',
+      showCancelButton:true,
+      confirmButtonText:'<i class="fas fa-trash-can"></i> ลบข้อมูล',
+      cancelButtonText:'ยกเลิก',
+      confirmButtonColor:'#e11d48',
+      reverseButtons:true,
+      customClass:{popup:'rounded-[1.5rem]'}
+    });
+
+    if(!result.isConfirmed) return false;
+
+    // Stronger second confirmation for confirmed students.
+    if(isConfirmedStudent) {
+      const second = await Swal.fire({
+        icon:'error',
+        title:'ยืนยันอีกครั้ง',
+        text:'รายการนี้มีสถานะ “ยืนยันแล้ว” การลบไม่สามารถย้อนกลับได้',
+        input:'text',
+        inputPlaceholder:'พิมพ์ DELETE เพื่อยืนยัน',
+        showCancelButton:true,
+        confirmButtonText:'ลบถาวร',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#be123c',
+        preConfirm:value => {
+          if(String(value || '').trim().toUpperCase() !== 'DELETE') {
+            Swal.showValidationMessage('กรุณาพิมพ์ DELETE');
+            return false;
+          }
+          return true;
+        }
+      });
+      return !!second.isConfirmed;
+    }
+
+    return true;
+  }
+
+  async function deleteEnrollment(enrollmentId) {
+    const enrollment = S.byId.get(String(enrollmentId));
+    if(!enrollment) {
+      toast('ไม่พบข้อมูลนักเรียน กรุณารีเฟรช','error');
+      return;
+    }
+
+    const ok = await confirmDelete(enrollment);
+    if(!ok) return;
+
+    const client = db();
+    if(!client) return;
+
+    try {
+      const slipPath = await getSlipPath(enrollmentId);
+
+      const {data,error} = await client.rpc(
+        'manager_delete_student_enrollment',
+        {p_enrollment_id:enrollmentId}
+      );
+
+      if(error) throw error;
+
+      if(!data?.ok) {
+        throw new Error(data?.message || 'ลบข้อมูลไม่สำเร็จ');
+      }
+
+      // Best effort: remove uploaded test slip too.
+      if(slipPath) {
+        const removed = await client.storage
+          .from('payment-slips')
+          .remove([slipPath]);
+
+        if(removed.error) {
+          console.warn('[AW v16] DB deleted but slip file could not be removed:', removed.error);
+        }
+      }
+
+      toast('ลบข้อมูล "' + (enrollment.fullname || '') + '" แล้ว');
+
+      S.rows = S.rows.filter(x => String(x.id) !== String(enrollmentId));
+      S.byId.delete(String(enrollmentId));
+
+      const tr = document.querySelector(
+        '#enrollmentRows tr[data-aw-v16-enrollment-id="' +
+        CSS.escape(String(enrollmentId)) +
+        '"]'
+      );
+      if(tr) tr.remove();
+
+      // Let native manager recalculate stats and lists.
+      setTimeout(() => {
+        $('refreshEnrollments')?.click();
+        setTimeout(loadEnrollmentIndex,450);
+      },250);
+
+    } catch(e) {
+      console.error('[AW v16] delete enrollment failed:', e);
+      const message = String(e?.message || e || '');
+
+      if(
+        /manager_delete_student_enrollment|schema cache|could not find the function/i.test(message)
+      ) {
+        toast('กรุณารัน AREWARIN_V16_DELETE_STUDENT.sql ใน Supabase ก่อน','error');
+      } else {
+        toast('ลบข้อมูลไม่สำเร็จ: ' + message,'error');
+      }
+    }
+  }
+
+  function boot() {
+    const body = $('enrollmentRows');
+    if(!body) return;
+
+    loadEnrollmentIndex();
+
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(decorateRows);
+    });
+
+    observer.observe(body,{
+      childList:true,
+      subtree:true
+    });
+
+    $('refreshEnrollments')?.addEventListener('click',() => {
+      setTimeout(loadEnrollmentIndex,350);
+    });
+
+    $('enrollmentSearch')?.addEventListener('input',() => {
+      setTimeout(decorateRows,50);
+    });
+
+    $('enrollmentStatusFilter')?.addEventListener('change',() => {
+      setTimeout(decorateRows,50);
+    });
+
+    let ticks = 0;
+    const timer = setInterval(() => {
+      ticks++;
+      if(S.rows.length) decorateRows();
+      if(ticks > 40) clearInterval(timer);
+    },250);
+  }
+
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded',boot);
+  } else {
+    boot();
+  }
+
+  window.AWV16DeleteStudent = deleteEnrollment;
+  window.AWV16RefreshStudentDelete = loadEnrollmentIndex;
+})();
+</script>
+
+
+<script>
+/* =========================================================
+   AREWARIN READY v17 — Payment Slip Viewer
+   Manager > การชำระเงิน
+   - view private transfer slip
+   - signed URL only (temporary)
+   - mobile-friendly modal
+========================================================= */
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+
+  const STATE = {
+    rows: [],
+    byId: new Map(),
+    loading: false,
+    decorating: false,
+    modal: null,
+    lastObjectUrl: null
+  };
+
+  function db() {
+    try { if(typeof sb !== 'undefined' && sb?.from) return sb; } catch(_) {}
+    if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb;
+    if(window.awSupabase?.from) return window.awSupabase;
+    if(window.supabaseClient?.from) return window.supabaseClient;
+    if(window.sb?.from) return window.sb;
+
+    const cfg = window.AREWARIN_CONFIG || {};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+      if(!window.__awV17SlipClient) {
+        window.__awV17SlipClient = window.supabase.createClient(
+          cfg.SUPABASE_URL,
+          cfg.SUPABASE_ANON_KEY,
+          {auth:{persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return window.__awV17SlipClient;
+    }
+    return null;
+  }
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[ch]));
+  }
+
+  function digits(value) {
+    return String(value || '').replace(/\D/g,'');
+  }
+
+  function money(value) {
+    return Number(value || 0).toLocaleString('th-TH') + ' บาท';
+  }
+
+  function statusText(status) {
+    const map = {
+      pending:'รอตรวจสอบ',
+      paid:'ชำระแล้ว',
+      rejected:'ไม่ผ่าน',
+      cancelled:'ยกเลิก'
+    };
+    return map[status] || status || '-';
+  }
+
+  function statusClass(status) {
+    if(status === 'paid') return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+    if(status === 'rejected') return 'bg-rose-50 text-rose-700 border-rose-100';
+    if(status === 'cancelled') return 'bg-slate-100 text-slate-600 border-slate-200';
+    return 'bg-amber-50 text-amber-700 border-amber-100';
+  }
+
+  function toast(message, type='success') {
+    if(window.AWAlert?.toast) {
+      window.AWAlert.toast(String(message), type);
+      return;
+    }
+    if(window.Swal?.fire) {
+      Swal.fire({
+        toast:true,
+        position:'top-end',
+        timer:2600,
+        showConfirmButton:false,
+        icon:type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success',
+        title:String(message)
+      });
+      return;
+    }
+    console.log('[AW v17]', message);
+  }
+
+  async function loadPaymentsIndex() {
+    if(STATE.loading) return;
+    const client = db();
+    if(!client) return;
+
+    STATE.loading = true;
+
+    try {
+      const {data,error} = await client
+        .from('payments')
+        .select(`
+          id,
+          enrollment_id,
+          payment_method,
+          amount_submitted,
+          verified_amount,
+          slip_path,
+          status,
+          rejection_reason,
+          created_at,
+          verified_at,
+          enrollments (
+            id,
+            receipt_no,
+            fullname,
+            nickname,
+            phone,
+            course_text,
+            tutor_text
+          )
+        `)
+        .order('created_at',{ascending:false})
+        .limit(1000);
+
+      if(error) throw error;
+
+      STATE.rows = (data || []).map(row => {
+        const e = Array.isArray(row.enrollments)
+          ? (row.enrollments[0] || {})
+          : (row.enrollments || {});
+
+        return {
+          ...row,
+          enrollment: e
+        };
+      });
+
+      STATE.byId = new Map(STATE.rows.map(x => [String(x.id),x]));
+
+      decoratePaymentRows();
+    } catch(e) {
+      console.error('[AW v17] payment index failed:', e);
+      toast('โหลดข้อมูลสลิปไม่สำเร็จ: ' + (e?.message || e), 'error');
+    } finally {
+      STATE.loading = false;
+    }
+  }
+
+  function matchPayment(tr) {
+    const text = String(tr.innerText || tr.textContent || '')
+      .replace(/\s+/g,' ')
+      .trim();
+
+    if(!text) return null;
+
+    // Receipt number is the most reliable visible identifier.
+    let match = STATE.rows.find(row => {
+      const receipt = row.enrollment?.receipt_no;
+      return receipt && text.includes(String(receipt));
+    });
+    if(match) return match;
+
+    // Fullname + amount.
+    match = STATE.rows.find(row => {
+      const name = row.enrollment?.fullname;
+      const amount = Number(row.amount_submitted || 0);
+      return name &&
+        text.includes(String(name)) &&
+        (
+          text.includes(amount.toLocaleString('th-TH')) ||
+          text.includes(amount.toLocaleString())
+        );
+    });
+    if(match) return match;
+
+    // Fullname + phone as fallback.
+    const tdDigits = digits(text);
+    match = STATE.rows.find(row => {
+      const name = row.enrollment?.fullname;
+      const phone = digits(row.enrollment?.phone);
+      return name && text.includes(String(name)) && phone && tdDigits.includes(phone);
+    });
+
+    return match || null;
+  }
+
+  function makeButton(payment) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.awV17Slip = String(payment.id);
+
+    if(payment.payment_method === 'cash') {
+      btn.disabled = true;
+      btn.className =
+        'px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 ' +
+        'text-slate-400 text-[9px] font-bold whitespace-nowrap cursor-default';
+      btn.innerHTML = '<i class="fas fa-money-bill mr-1"></i>เงินสด';
+      return btn;
+    }
+
+    if(!payment.slip_path) {
+      btn.disabled = true;
+      btn.className =
+        'px-2.5 py-1.5 rounded-lg border border-amber-200 bg-amber-50 ' +
+        'text-amber-600 text-[9px] font-bold whitespace-nowrap cursor-default';
+      btn.innerHTML = '<i class="fas fa-triangle-exclamation mr-1"></i>ไม่มีสลิป';
+      return btn;
+    }
+
+    btn.className =
+      'px-2.5 py-1.5 rounded-lg border border-sky-200 bg-sky-50 ' +
+      'text-sky-700 text-[9px] font-bold hover:bg-sky-100 transition whitespace-nowrap';
+    btn.innerHTML = '<i class="fas fa-image mr-1"></i>ดูสลิป';
+
+    btn.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      openSlipViewer(String(payment.id));
+    });
+
+    return btn;
+  }
+
+  function decoratePaymentRows() {
+    const body = $('paymentRows');
+    if(!body || STATE.decorating) return;
+
+    STATE.decorating = true;
+
+    try {
+      body.querySelectorAll('tr').forEach(tr => {
+        let paymentId = tr.dataset.awV17PaymentId || '';
+        let payment = paymentId ? STATE.byId.get(paymentId) : null;
+
+        if(!payment) {
+          payment = matchPayment(tr);
+          if(!payment) return;
+
+          paymentId = String(payment.id);
+          tr.dataset.awV17PaymentId = paymentId;
+        }
+
+        const actionCell = tr.querySelector('td:last-child');
+        if(!actionCell) return;
+
+        if(actionCell.querySelector('[data-aw-v17-slip]')) return;
+
+        const wrap = document.createElement('span');
+        wrap.className = 'inline-flex items-center ml-1';
+        wrap.appendChild(makeButton(payment));
+
+        actionCell.appendChild(wrap);
+      });
+    } finally {
+      STATE.decorating = false;
+    }
+  }
+
+  function ensureModal() {
+    if(STATE.modal && document.body.contains(STATE.modal)) return STATE.modal;
+
+    const modal = document.createElement('div');
+    modal.id = 'awV17SlipModal';
+    modal.className =
+      'fixed inset-0 z-[100000] hidden items-center justify-center ' +
+      'bg-slate-950/65 backdrop-blur-sm p-3 sm:p-6';
+
+    modal.innerHTML = `
+      <div class="w-full max-w-[980px] max-h-[94vh] overflow-hidden rounded-[26px] bg-white shadow-2xl border border-white/20 flex flex-col">
+        <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 border-b border-slate-100 bg-white">
+          <div class="min-w-0">
+            <div class="text-[9px] font-extrabold tracking-[.18em] text-sky-500 uppercase">PAYMENT SLIP</div>
+            <div id="awV17SlipTitle" class="mt-0.5 text-[15px] font-extrabold text-slate-900 truncate">สลิปโอนเงิน</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a id="awV17SlipOpenNew"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-slate-200 bg-white text-[10px] font-bold text-slate-600 hover:bg-slate-50">
+              <i class="fas fa-up-right-from-square mr-1.5"></i>เปิดเต็ม
+            </a>
+            <button id="awV17SlipClose" type="button"
+              class="w-9 h-9 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50">
+              <i class="fas fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-[1fr_320px] min-h-0 flex-1">
+          <div class="bg-slate-100 min-h-[48vh] lg:min-h-[620px] overflow-auto flex items-center justify-center p-3 sm:p-5">
+            <div id="awV17SlipLoading" class="text-center text-slate-400">
+              <i class="fas fa-spinner fa-spin text-2xl text-sky-500"></i>
+              <div class="mt-2 text-[10px] font-bold">กำลังโหลดสลิป...</div>
+            </div>
+
+            <img id="awV17SlipImage"
+                 class="hidden max-w-full h-auto rounded-2xl shadow-lg bg-white"
+                 alt="Payment slip">
+
+            <iframe id="awV17SlipFrame"
+                    class="hidden w-full h-[70vh] rounded-2xl bg-white border-0"
+                    title="Payment slip document"></iframe>
+
+            <div id="awV17SlipError"
+                 class="hidden max-w-md rounded-2xl bg-white border border-rose-100 p-5 text-center shadow-sm">
+              <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-500 grid place-items-center mx-auto">
+                <i class="fas fa-file-circle-xmark"></i>
+              </div>
+              <div class="mt-3 text-[12px] font-extrabold text-slate-800">เปิดสลิปไม่สำเร็จ</div>
+              <div id="awV17SlipErrorText" class="mt-1 text-[10px] leading-5 text-slate-500"></div>
+            </div>
+          </div>
+
+          <aside class="border-t lg:border-t-0 lg:border-l border-slate-100 bg-white p-4 sm:p-5 overflow-auto">
+            <div class="text-[10px] font-extrabold text-slate-900">ข้อมูลการชำระเงิน</div>
+
+            <div class="mt-4 space-y-3">
+              <div class="rounded-2xl bg-slate-50 border border-slate-100 p-3.5">
+                <div class="text-[8px] font-bold text-slate-400">ผู้สมัคร</div>
+                <div id="awV17SlipStudent" class="mt-1 text-[12px] font-extrabold text-slate-800">-</div>
+                <div id="awV17SlipPhone" class="mt-0.5 text-[9px] text-slate-400">-</div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                  <div class="text-[8px] font-bold text-slate-400">ยอดที่แจ้ง</div>
+                  <div id="awV17SlipAmount" class="mt-1 text-[13px] font-extrabold text-slate-900">-</div>
+                </div>
+                <div class="rounded-2xl bg-slate-50 border border-slate-100 p-3">
+                  <div class="text-[8px] font-bold text-slate-400">สถานะ</div>
+                  <div id="awV17SlipStatusWrap" class="mt-1"></div>
+                </div>
+              </div>
+
+              <div class="rounded-2xl bg-slate-50 border border-slate-100 p-3.5">
+                <div class="text-[8px] font-bold text-slate-400">เลขที่ / ใบเสร็จ</div>
+                <div id="awV17SlipReceipt" class="mt-1 text-[11px] font-extrabold text-slate-700 break-all">-</div>
+
+                <div class="mt-3 text-[8px] font-bold text-slate-400">คอร์ส</div>
+                <div id="awV17SlipCourse" class="mt-1 text-[10px] font-bold text-slate-600 leading-5">-</div>
+
+                <div class="mt-3 text-[8px] font-bold text-slate-400">ติวเตอร์</div>
+                <div id="awV17SlipTutor" class="mt-1 text-[10px] font-bold text-slate-600">-</div>
+              </div>
+
+              <div class="rounded-2xl border border-sky-100 bg-sky-50 p-3.5 text-[9px] leading-5 text-sky-700">
+                <i class="fas fa-shield-halved mr-1"></i>
+                สลิปเป็นไฟล์ Private ระบบจะสร้างลิงก์ชั่วคราวสำหรับ Manager เท่านั้น
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              <a id="awV17SlipDownload"
+                 class="px-3 py-2.5 rounded-xl bg-slate-900 text-white text-center text-[10px] font-bold hover:bg-slate-800"
+                 download>
+                <i class="fas fa-download mr-1.5"></i>ดาวน์โหลด
+              </a>
+              <button id="awV17SlipDone" type="button"
+                class="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-[10px] font-bold hover:bg-slate-50">
+                ปิด
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    STATE.modal = modal;
+
+    const close = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+
+      const img = $('awV17SlipImage');
+      const frame = $('awV17SlipFrame');
+      if(img) img.removeAttribute('src');
+      if(frame) frame.removeAttribute('src');
+    };
+
+    $('awV17SlipClose')?.addEventListener('click',close);
+    $('awV17SlipDone')?.addEventListener('click',close);
+
+    modal.addEventListener('click',event => {
+      if(event.target === modal) close();
+    });
+
+    document.addEventListener('keydown',event => {
+      if(event.key === 'Escape' && !modal.classList.contains('hidden')) close();
+    });
+
+    return modal;
+  }
+
+  function setLoading() {
+    $('awV17SlipLoading')?.classList.remove('hidden');
+    $('awV17SlipImage')?.classList.add('hidden');
+    $('awV17SlipFrame')?.classList.add('hidden');
+    $('awV17SlipError')?.classList.add('hidden');
+  }
+
+  function showError(message) {
+    $('awV17SlipLoading')?.classList.add('hidden');
+    $('awV17SlipImage')?.classList.add('hidden');
+    $('awV17SlipFrame')?.classList.add('hidden');
+    $('awV17SlipError')?.classList.remove('hidden');
+    if($('awV17SlipErrorText')) $('awV17SlipErrorText').textContent = String(message || 'ไม่สามารถเปิดไฟล์ได้');
+  }
+
+  function fillMeta(payment) {
+    const e = payment.enrollment || {};
+
+    if($('awV17SlipTitle')) {
+      $('awV17SlipTitle').textContent =
+        'สลิปโอนเงิน · ' + (e.fullname || e.nickname || 'ไม่ระบุชื่อ');
+    }
+
+    if($('awV17SlipStudent')) $('awV17SlipStudent').textContent = e.fullname || '-';
+    if($('awV17SlipPhone')) $('awV17SlipPhone').textContent = e.phone || '-';
+    if($('awV17SlipAmount')) $('awV17SlipAmount').textContent = money(payment.amount_submitted);
+    if($('awV17SlipReceipt')) $('awV17SlipReceipt').textContent = e.receipt_no || payment.id || '-';
+    if($('awV17SlipCourse')) $('awV17SlipCourse').textContent = e.course_text || '-';
+    if($('awV17SlipTutor')) $('awV17SlipTutor').textContent = e.tutor_text || '-';
+
+    const statusWrap = $('awV17SlipStatusWrap');
+    if(statusWrap) {
+      statusWrap.innerHTML =
+        '<span class="inline-flex rounded-full border px-2 py-1 text-[8px] font-extrabold ' +
+        statusClass(payment.status) +
+        '">' +
+        esc(statusText(payment.status)) +
+        '</span>';
+    }
+  }
+
+  async function createSlipUrl(path) {
+    const client = db();
+    if(!client) throw new Error('ไม่พบ Supabase session');
+
+    const {data,error} = await client.storage
+      .from('payment-slips')
+      .createSignedUrl(path, 600);
+
+    if(error) throw error;
+
+    const url = data?.signedUrl || data?.signedURL;
+    if(!url) throw new Error('สร้างลิงก์สลิปไม่สำเร็จ');
+
+    return url;
+  }
+
+  async function openSlipViewer(paymentId) {
+    const payment = STATE.byId.get(String(paymentId));
+
+    if(!payment) {
+      toast('ไม่พบข้อมูลการชำระเงิน กรุณารีเฟรช','error');
+      return;
+    }
+
+    if(payment.payment_method === 'cash') {
+      toast('รายการนี้เป็นการชำระเงินสด ไม่มีสลิปโอน','warning');
+      return;
+    }
+
+    if(!payment.slip_path) {
+      toast('รายการนี้ไม่มีไฟล์สลิป','warning');
+      return;
+    }
+
+    const modal = ensureModal();
+    fillMeta(payment);
+    setLoading();
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    try {
+      const url = await createSlipUrl(payment.slip_path);
+
+      const openNew = $('awV17SlipOpenNew');
+      const download = $('awV17SlipDownload');
+
+      if(openNew) {
+        openNew.href = url;
+        openNew.classList.remove('hidden');
+      }
+
+      if(download) {
+        download.href = url;
+        download.setAttribute(
+          'download',
+          'slip-' + (payment.enrollment?.receipt_no || payment.id) + '.jpg'
+        );
+      }
+
+      const ext = String(payment.slip_path).split('.').pop().toLowerCase();
+      const isPdf = ext === 'pdf';
+
+      $('awV17SlipLoading')?.classList.add('hidden');
+
+      if(isPdf) {
+        const frame = $('awV17SlipFrame');
+        if(frame) {
+          frame.src = url;
+          frame.classList.remove('hidden');
+        }
+      } else {
+        const img = $('awV17SlipImage');
+
+        if(img) {
+          img.onload = () => {
+            $('awV17SlipLoading')?.classList.add('hidden');
+            $('awV17SlipError')?.classList.add('hidden');
+            img.classList.remove('hidden');
+          };
+
+          img.onerror = () => {
+            showError('โหลดภาพไม่ได้ แต่ยังสามารถกด “เปิดเต็ม” เพื่อดูไฟล์ได้');
+          };
+
+          img.src = url;
+        }
+      }
+    } catch(e) {
+      console.error('[AW v17] open slip failed:',e);
+      const message = String(e?.message || e || '');
+
+      if(/row-level security|policy|permission|not authorized/i.test(message)) {
+        showError('ไม่มีสิทธิ์อ่านสลิป กรุณารัน AREWARIN_V17_SLIP_VIEWER.sql ใน Supabase');
+      } else {
+        showError(message);
+      }
+    }
+  }
+
+  function boot() {
+    ensureModal();
+
+    const body = $('paymentRows');
+    if(!body) return;
+
+    loadPaymentsIndex();
+
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(decoratePaymentRows);
+    });
+
+    observer.observe(body,{
+      childList:true,
+      subtree:true
+    });
+
+    $('refreshPayments')?.addEventListener('click',() => {
+      setTimeout(loadPaymentsIndex,350);
+    });
+
+    let ticks = 0;
+    const timer = setInterval(() => {
+      ticks++;
+      if(STATE.rows.length) decoratePaymentRows();
+      if(ticks > 40) clearInterval(timer);
+    },250);
+  }
+
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded',boot);
+  } else {
+    boot();
+  }
+
+  window.AWV17OpenSlip = openSlipViewer;
+  window.AWV17RefreshSlips = loadPaymentsIndex;
 })();
 </script>
 
