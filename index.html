@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v3 · 2026-09-16 · COURSE CATEGORY HARD-INTEGRATED -->
+  <!-- AREWARIN READY REPLACE v6 · 2026-09-16 · PACKAGE VISIBILITY FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -1541,6 +1541,19 @@
           .renewal-v11{padding:12px}.renew-grid{grid-template-columns:1fr}.renew-hero{padding:15px;border-radius:18px}.renew-icon{width:39px;height:39px;flex-basis:39px;border-radius:13px}.renew-title{font-size:18px}.renew-subtitle{font-size:10.5px}.renew-card,.renew-result{padding:14px;border-radius:17px}.renew-actions{grid-template-columns:1fr}.renew-footer.split{display:grid;grid-template-columns:1fr}.renew-next{min-width:0}.renew-back,.renew-next{width:100%}
         }
 </style>
+
+<style id="aw-v6-package-visibility-fix">
+  /* V6: package cards must truly disappear when manager closes them */
+  .pkgv6-label.hidden,
+  #modeOption_yearly.hidden,
+  #modeOption_monthly.hidden,
+  #modeOption_20.hidden,
+  #modeOption_10.hidden,
+  #modeOption_hourly.hidden {
+    display: none !important;
+  }
+</style>
+
 </head>
 <body class="bg-gradient-to-br from-sky-50 via-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-3 pt-14 md:p-6 md:pt-16 pb-20">
 
@@ -4077,6 +4090,19 @@
                 applyConfigToStep5();
                 loadAppConfig();
                 updateFinalCartSummary();
+
+                // V6: refresh per-course package rules every time pricing step opens
+                setTimeout(async () => {
+                    try {
+                        if (window.AWCoursePackagePublic?.reload) {
+                            await window.AWCoursePackagePublic.reload();
+                        }
+                        window.AWCoursePackagePublic?.apply?.();
+                        if (typeof window.calcPriceNew === 'function') window.calcPriceNew();
+                    } catch (e) {
+                        console.warn('[AW v6] refresh course package rules failed:', e);
+                    }
+                }, 0);
             }
             
             if(s === 'stepCategory' || s === 'stepTutor') updateMiniCartUI(s);
@@ -6236,7 +6262,17 @@ if (typeof window.escapeHTML !== 'function') {
       const el=document.getElementById(LABEL_IDS[code]);
       const globalOpen=!window.appConfig || appConfig[globalKey[code]]!=='CLOSE';
       const show=globalOpen && allowed(code);
-      if(el) el.classList.toggle('hidden',!show);
+
+      if(el){
+        if(show){
+          el.classList.remove('hidden');
+          el.style.removeProperty('display');
+        }else{
+          el.classList.add('hidden');
+          el.style.setProperty('display','none','important');
+        }
+      }
+
       const radio=el?.querySelector('input[name="studyMode"]');
       if(!show && radio?.checked) radio.checked=false;
       if(show) enabled.push(code);
@@ -6383,7 +6419,15 @@ if (typeof window.escapeHTML !== 'function') {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));
   else setTimeout(install,0);
 
-  window.AWCoursePackagePublic={reload:loadRules,apply:applyAvailability};
+  window.AWCoursePackagePublic={
+    reload: async function(){
+      R.loading=null;
+      R.loaded=false;
+      R.map=new Map();
+      return await loadRules();
+    },
+    apply:applyAvailability
+  };
 })();
 </script>
 

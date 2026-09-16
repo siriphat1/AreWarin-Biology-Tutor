@@ -1,68 +1,59 @@
-# AreWarin Ready Replace v5 — Recovery
+# AreWarin Ready Replace v6 — Package Hide Fix
 
-เวอร์ชันนี้แก้ปัญหาจาก Console ที่พบจริง:
+เวอร์ชันนี้แก้ปัญหา:
 
-1. `course_package_rules 404`
-   - เกิดจากยังไม่มี table ใน Supabase
-   - v5 จะไม่ query table นี้จนกว่า SQL migration จะติดตั้งสำเร็จ
-   - จึงไม่ทำให้ Console ยิง 404 ซ้ำ
+> ปิด 20 ชั่วโมง / 10 ชั่วโมง / รายปีใน Manager แล้ว
+> แต่หน้า "เลือกแพ็กเกจ" ยังแสดงอยู่
 
-2. หน้าเลือกหมวดขึ้น `ยังไม่พบหมวดวิชา`
-   - สาเหตุคือ `course_categories` มี table แล้ว แต่บาง/ทั้งหมดของคอร์สยังไม่มี mapping
-   - v5 จะ fallback ไปใช้ `tutor.categories` สำหรับคอร์สที่ยังไม่ได้ map
-   - จึงไม่ทำให้หน้าสมัครว่างทั้งหน้าอีก
+## สาเหตุ
 
-3. `escapeHTML is not defined`
-   - แก้ compatibility helper ให้ Policy CMS แล้ว
+หน้าเดิมมี CSS:
 
-## วางไฟล์
+```css
+.pkgv6-label { display: block; }
+```
+
+ในขณะที่ระบบใช้ class `hidden` เพื่อซ่อนแพ็กเกจ
+
+จึงเกิดกรณี CSS ของ card ชนะ `hidden` และ card ยังแสดงอยู่ แม้ค่าจากฐานข้อมูลจะเป็นปิดแล้ว
+
+## สิ่งที่ v6 แก้
+
+1. บังคับ `.pkgv6-label.hidden { display:none !important; }`
+2. ตอนปิด package ใช้ inline `display:none !important` เพิ่มอีกชั้น
+3. ทุกครั้งที่เข้าหน้า "รูปแบบ & เวลาเรียน" จะโหลด `course_package_rules` ใหม่
+4. ป้องกันข้อมูล package cache เก่า
+5. ราคาเฉพาะคอร์สยังทำงานต่อจาก v5
+
+## ใช้งาน
+
+วางทับ:
 
 ```text
 YOUR-REPO/
-├─ index.html                 <- ใช้ index.html จากชุด v5
+├─ index.html          <- ใช้ index.html จาก v6
 └─ manager/
-   └─ index.html              <- ใช้ manager/index.html จากชุด v5
+   └─ index.html       <- ใช้ manager/index.html จาก v6
 ```
 
-เก็บไฟล์เดิม:
-- manager/app.js
-- manager/v17-control.js
-- config.js
-- js/supabase-bridge.js
+ถ้าเคยรัน `AREWARIN_V5_RECOVERY.sql` สำเร็จแล้ว ไม่ต้องรัน SQL ซ้ำ
 
-## Supabase
-
-เปิด Supabase > SQL Editor > New Query
-แล้ว Run ทั้งไฟล์:
+ถ้ายังไม่เคยรัน ให้รัน:
 
 ```text
 supabase/AREWARIN_V5_RECOVERY.sql
 ```
 
-จากนั้นตรวจ:
+## หลัง Push GitHub
 
-```sql
-select key,value
-from public.app_settings
-where key in ('COURSE_RULES_READY','COURSE_CATEGORY_RELATION_READY');
+1. รอ GitHub Pages deploy
+2. เปิดเว็บใหม่
+3. Ctrl + Shift + R หรือ Ctrl + F5
+4. เลือกคอร์สใหม่อีกครั้ง
+5. เข้าหน้า "รูปแบบ & เวลาเรียน"
 
-select count(*) from public.course_categories;
-```
+ตัวอย่าง Biochemistry ถ้า Manager เปิดเฉพาะ:
+- 30 ชั่วโมง
+- รายชั่วโมง
 
-`COURSE_RULES_READY` ต้องเป็น `true`
-
-## หลัง Deploy
-
-1. Commit + Push
-2. รอ GitHub Pages deploy
-3. Ctrl + F5
-4. หน้าเลือกหมวดต้องกลับมาแสดง
-5. Manager > คอร์ส จะกรองตามติวเตอร์ และตั้งแพ็กเกจ/ราคาเฉพาะคอร์สได้
-
-## Tailwind warning
-
-ข้อความ:
-
-`cdn.tailwindcss.com should not be used in production`
-
-เป็น Warning ไม่ใช่สาเหตุที่หมวดหาย และไม่ทำให้ระบบหยุดทำงาน
+หน้าเว็บต้องเห็นแค่ 2 card นี้เท่านั้น
