@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f8fb">
+  <title>AreWarin · นักเรียนเดิม</title>
+  <script src="../config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#f7f8fb;--card:#fff;--ink:#1f2a44;--muted:#7d899e;--line:#e8ecf3;
+      --navy:#172554;--blue:#3568d4;--blue-soft:#eef4ff;--green:#0e8a69;--green-soft:#ecfbf5;
+      --amber:#b7791f;--amber-soft:#fff8e8;--rose:#c84a67;--rose-soft:#fff1f4;
+      --shadow:0 22px 55px -44px rgba(27,39,71,.34);--radius:22px
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Anuphan,system-ui,sans-serif;font-size:13px}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:230px minmax(0,1fr)}
+    .side{padding:18px 14px;border-right:1px solid var(--line);background:#fff;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:10px;padding:8px 8px 18px}
+    .logo{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#1e2a5c,#3159b9);display:grid;place-items:center;color:#fff;font:700 18px Inter}
+    .brand b{display:block;font-size:13px}.brand small{display:block;font-size:8px;color:var(--muted);margin-top:2px}
+    .nav-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#a0a9b9;font-weight:700;padding:8px 10px}
+    .nav{display:flex;flex-direction:column;gap:5px}
+    .nav button,.nav a{border:0;text-decoration:none;background:transparent;color:#66758d;text-align:left;border-radius:12px;padding:10px 11px;display:flex;gap:10px;align-items:center;font-weight:600;font-size:10px}
+    .nav button.active{background:#eef4ff;color:#2457c7}.nav i{width:17px;text-align:center}
+    .side-note{position:absolute;left:14px;right:14px;bottom:16px;padding:11px;border-radius:15px;background:#f8fafc;border:1px solid var(--line);font-size:8.4px;line-height:1.6;color:#7b8799}
+    .main{min-width:0}
+    .top{height:70px;border-bottom:1px solid var(--line);background:rgba(247,248,251,.88);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20}
+    .crumb{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#9aa4b5;font-weight:700}
+    .top h1{font-size:16px;margin:3px 0 0}.top-actions{display:flex;gap:8px}
+    .btn{border:1px solid var(--line);background:#fff;color:#536077;border-radius:11px;padding:8px 11px;font-weight:650;font-size:9px}
+    .btn.primary{border-color:#284fa8;background:#1f3d83;color:#fff}
+    .btn.green{border-color:#087558;background:#0d8a69;color:#fff}
+    .content{padding:24px 28px 40px;max-width:1500px;margin:auto}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:15px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center}
+    .stat small{display:block;font-size:8px;color:#94a0b2;font-weight:650}.stat strong{font:700 22px Inter;color:#26344d;display:block;margin-top:4px}
+    .stat .ico{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue)}
+    .stat:nth-child(2) .ico{background:var(--green-soft);color:var(--green)}.stat:nth-child(3) .ico{background:var(--amber-soft);color:var(--amber)}.stat:nth-child(4) .ico{background:var(--rose-soft);color:var(--rose)}
+    .toolbar{display:flex;gap:9px;align-items:center;background:#fff;border:1px solid var(--line);padding:10px;border-radius:16px;margin-bottom:14px}
+    .search{position:relative;flex:1}.search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:10px;color:#a0aaba}
+    .input,.select,.textarea{width:100%;border:1px solid #e1e7f0;background:#fbfcfe;border-radius:11px;padding:9px 10px;color:#314058;outline:0;font-size:9.5px}
+    .search .input{padding-left:31px}.input:focus,.select:focus,.textarea:focus{background:#fff;border-color:#98b8ff;box-shadow:0 0 0 3px rgba(53,104,212,.07)}
+    .layout{display:grid;grid-template-columns:370px minmax(0,1fr);gap:14px;align-items:start}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .list-card{overflow:hidden;position:sticky;top:85px}
+    .list-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+    .list-head b{font-size:11px}.count{font:600 8px Inter;color:#6c7b90;background:#f5f7fa;border:1px solid var(--line);padding:4px 7px;border-radius:99px}
+    .student-list{max-height:calc(100vh - 225px);overflow:auto}
+    .student-row{padding:12px 14px;border-bottom:1px solid #f0f2f6;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;align-items:center;cursor:pointer;transition:.14s}
+    .student-row:hover,.student-row.active{background:#f7faff}.student-row.active{box-shadow:inset 3px 0 #3568d4}
+    .avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#eef4ff,#e4edff);display:grid;place-items:center;color:#3459b2;font-weight:800}
+    .student-row b{display:block;font-size:10px}.student-row small{display:block;color:#8d98aa;font-size:8px;margin-top:3px}.pill{font-size:7px;font-weight:700;border-radius:99px;padding:4px 6px;background:#eef4ff;color:#315ec5;white-space:nowrap}
+    .empty{padding:34px 20px;text-align:center;color:#9aa5b5;font-size:9px}.empty i{display:block;font-size:27px;color:#d7dce5;margin-bottom:10px}
+    .detail{display:grid;gap:13px}
+    .hero{position:relative;overflow:hidden;padding:20px;background:linear-gradient(145deg,#151e49,#213873 64%,#3159a8);color:#fff}
+    .hero:after{content:"";position:absolute;width:230px;height:230px;border:38px solid rgba(255,255,255,.04);border-radius:50%;right:-75px;bottom:-120px}
+    .hero-top{display:flex;justify-content:space-between;gap:15px;position:relative;z-index:1}.hero-person{display:flex;gap:13px;align-items:center}
+    .hero-avatar{width:70px;height:70px;border-radius:21px;background:#fff;color:#254c9a;display:grid;place-items:center;font-weight:800;font-size:22px;box-shadow:0 18px 32px -22px #000}
+    .hero h2{font-size:19px;margin:5px 0 3px}.hero-sub{font-size:8.5px;color:#bfcae3}.hero-badge{display:inline-flex;gap:5px;align-items:center;font-size:7px;font-weight:700;color:#dbe7ff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:4px 7px}
+    .hero-actions{display:flex;gap:6px;align-items:flex-start}.hero-actions button{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:10px;padding:7px 9px;font-size:8px}
+    .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;position:relative;z-index:1}
+    .fact{padding:10px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08)}.fact small{display:block;color:#aebedf;font-size:7px}.fact b{display:block;color:#fff;font-size:9px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .section{padding:17px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.section-head h3{margin:0;font-size:12px}.section-head p{margin:3px 0 0;color:#99a4b4;font-size:8px}
+    .course-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.course-kpi{border:1px solid var(--line);border-radius:13px;padding:10px;background:#fbfcfe}.course-kpi small{font-size:7px;color:#97a2b2}.course-kpi b{font:700 15px Inter;display:block;margin-top:3px;color:#34445d}
+    .timeline{display:grid;gap:8px}.course-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;border:1px solid var(--line);border-radius:14px;padding:11px;background:#fff}.course-icon{width:38px;height:38px;border-radius:12px;background:#eef4ff;color:#3568d4;display:grid;place-items:center}.course-row.legacy .course-icon{background:#fff8e8;color:#b7791f}
+    .course-row h4{margin:0;font-size:10px}.course-meta{font-size:8px;color:#8f9bad;margin-top:4px;line-height:1.6}.course-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.tag{font-size:6.8px;font-weight:700;border-radius:99px;padding:3px 6px;background:#f4f6f9;color:#69778c;border:1px solid #e8ecf2}.tag.legacy{background:#fff9eb;color:#a86a12;border-color:#f5e2b6}
+    .row-actions{display:flex;gap:4px;align-items:flex-start}.icon-btn{width:28px;height:28px;border-radius:9px;border:1px solid var(--line);background:#fff;color:#758398}.icon-btn.danger{color:#c84a67;background:#fff8fa;border-color:#f8dbe2}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:13px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.info{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe}.info small{font-size:7px;color:#9aa5b5}.info b{display:block;font-size:9px;color:#405069;margin-top:3px}
+    .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(5px);display:grid;place-items:center;padding:20px;z-index:100}.hidden{display:none!important}.modal{width:min(650px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;border:1px solid var(--line);box-shadow:0 30px 90px -35px rgba(0,0,0,.45)}.modal-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0;font-size:13px}.modal-body{padding:17px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field.full{grid-column:1/-1}.field span{display:block;font-size:8px;font-weight:650;color:#66748a;margin-bottom:5px}.textarea{min-height:80px;resize:vertical}.modal-foot{padding:12px 17px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:7px}
+    .login{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 15% 10%,#eef4ff,transparent 32%),radial-gradient(circle at 90% 80%,#eefbf6,transparent 30%),#f7f8fb}.login-card{width:min(410px,100%);background:#fff;border:1px solid var(--line);border-radius:25px;padding:25px;box-shadow:0 35px 90px -55px rgba(31,42,68,.5)}.login-card .logo{margin-bottom:16px}.login-card h1{font-size:18px;margin:0}.login-card p{font-size:9px;color:#8e99aa;line-height:1.6;margin:6px 0 16px}.login-card .field{margin-top:9px}
+    .toast{position:fixed;right:20px;bottom:20px;background:#1f2a44;color:#fff;padding:10px 13px;border-radius:12px;font-size:9px;box-shadow:0 15px 35px -20px #000;z-index:200}
+    @media(max-width:1100px){.app{grid-template-columns:72px minmax(0,1fr)}.side{padding:15px 9px}.brand div:not(.logo),.nav span,.nav-label,.side-note{display:none}.nav button,.nav a{justify-content:center}.layout{grid-template-columns:320px minmax(0,1fr)}}
+    @media(max-width:820px){.app{display:block}.side{display:none}.content{padding:16px}.top{padding:0 16px}.stats{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.list-card{position:relative;top:auto}.student-list{max-height:320px}.facts,.course-summary{grid-template-columns:1fr 1fr}.split{grid-template-columns:1fr}}
+    @media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.stat{padding:12px}.stat strong{font-size:18px}.toolbar{flex-wrap:wrap}.toolbar .btn{flex:1}.facts{grid-template-columns:1fr 1fr}.hero-top{flex-direction:column}.course-summary{grid-template-columns:1fr 1fr 1fr}.form-grid,.info-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal" class="modal-bg hidden"></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+(()=>{
+'use strict';
+const CFG=window.AREWARIN_CONFIG||{};
+const sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+const app=document.getElementById('app'), modal=document.getElementById('modal'), toastEl=document.getElementById('toast');
+const S={session:null,me:null,students:[],selected:null,courses:[],q:'',legacyOnly:false,loading:false};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const digits=v=>String(v||'').replace(/\D/g,'');
+const fmtPhone=v=>{const d=digits(v);return d.length===10?`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`:v||'—'};
+const fmtDate=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?v:d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'})};
+const initials=s=>String(s?.nickname||s?.display_name||s?.fullname||'AW').trim().slice(0,2).toUpperCase();
+function toast(msg){toastEl.textContent=msg;toastEl.classList.remove('hidden');setTimeout(()=>toastEl.classList.add('hidden'),2200)}
+function errText(e){return e?.message||e?.details||String(e||'เกิดข้อผิดพลาด')}
+
+function loginHtml(){
+  return `<div class="login"><form id="loginForm" class="login-card">
+    <div class="logo">A</div>
+    <div class="crumb">AREWARIN · STAFF ACCESS</div>
+    <h1>ระบบข้อมูลนักเรียนเดิม</h1>
+    <p>สำหรับ Manager / Admin เพื่อจัดการโปรไฟล์นักเรียนก่อนระบบใหม่ และประวัติคอร์สที่เคยเรียน</p>
+    <label class="field"><span>อีเมล</span><input id="email" class="input" type="email" required autocomplete="email"></label>
+    <label class="field"><span>รหัสผ่าน</span><input id="password" class="input" type="password" required autocomplete="current-password"></label>
+    <button class="btn primary" style="width:100%;margin-top:14px;padding:11px">เข้าสู่ระบบ</button>
+    <div id="loginError" style="font-size:8px;color:#c84a67;margin-top:10px"></div>
+  </form></div>`;
+}
+
+function shell(){
+  return `<div class="app">
+    <aside class="side">
+      <div class="brand"><div class="logo">A</div><div><b>AreWarin</b><small>Legacy Student Records</small></div></div>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav">
+        <button class="active"><i class="fas fa-users-viewfinder"></i><span>นักเรียนเดิม</span></button>
+        <a href="../manager/"><i class="fas fa-grid-2"></i><span>Manager</span></a>
+        <a href="../student/"><i class="fas fa-graduation-cap"></i><span>Student Hub</span></a>
+        <a href="../"><i class="fas fa-house"></i><span>เว็บไซต์หลัก</span></a>
+      </nav>
+      <div class="side-note"><b style="display:block;color:#56647a;margin-bottom:4px">ข้อมูลกลาง</b>โปรไฟล์อยู่ใน <code>os_students</code> และประวัติคอร์สเก่าอยู่ใน <code>legacy_student_course_history</code></div>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <div><div class="crumb">Legacy Student Database</div><h1>ข้อมูลนักเรียนเดิม</h1></div>
+        <div class="top-actions"><button class="btn" id="refreshBtn"><i class="fas fa-rotate"></i> รีเฟรช</button><button class="btn primary" id="newStudentBtn"><i class="fas fa-user-plus"></i> เพิ่มนักเรียนเดิม</button><button class="btn" id="logoutBtn"><i class="fas fa-right-from-bracket"></i></button></div>
+      </header>
+      <div class="content">
+        <div id="stats" class="stats"></div>
+        <div class="toolbar">
+          <div class="search"><i class="fas fa-magnifying-glass"></i><input id="searchInput" class="input" placeholder="ค้นหาชื่อ ชื่อเล่น Student ID เบอร์ โรงเรียน หรือคอร์ส"></div>
+          <button id="legacyFilterBtn" class="btn"><i class="fas fa-clock-rotate-left"></i> เฉพาะนักเรียนเดิม</button>
+          <button id="newCourseBtn" class="btn green" disabled><i class="fas fa-book-medical"></i> เพิ่มประวัติคอร์ส</button>
+        </div>
+        <div class="layout">
+          <section class="card list-card"><div class="list-head"><b>รายชื่อนักเรียน</b><span id="studentCount" class="count">0</span></div><div id="studentList" class="student-list"></div></section>
+          <section id="detail" class="detail"></section>
+        </div>
+      </div>
+    </main>
+  </div>`;
+}
+function statHtml(label,value,icon){return `<div class="stat"><div><small>${label}</small><strong>${value}</strong></div><div class="ico"><i class="${icon}"></i></div></div>`}
+function renderStats(summary={}){
+  document.getElementById('stats').innerHTML=[
+    statHtml('นักเรียนเดิมทั้งหมด',summary.legacy_students||0,'fas fa-user-clock'),
+    statHtml('ประวัติคอร์สเก่า',summary.legacy_course_records||0,'fas fa-book-open'),
+    statHtml('เชื่อมคอร์สปัจจุบัน',summary.linked_course_records||0,'fas fa-link'),
+    statHtml('ยังไม่ Match คอร์ส',summary.unmatched_course_records||0,'fas fa-triangle-exclamation')
+  ].join('');
+}
+function filteredStudents(){
+  const q=S.q.trim().toLowerCase();
+  return S.students.filter(s=>{
+    if(S.legacyOnly&&!s.legacy_student)return false;
+    if(!q)return true;
+    const bag=[s.display_name,s.nickname,s.fullname,s.student_code,s.phone,s.school,s.grade,(s.course_names||[]).join(' ')].join(' ').toLowerCase();
+    return bag.includes(q);
+  });
+}
+function renderList(){
+  const rows=filteredStudents(), box=document.getElementById('studentList');
+  document.getElementById('studentCount').textContent=rows.length;
+  if(!rows.length){box.innerHTML='<div class="empty"><i class="fas fa-users-slash"></i>ไม่พบข้อมูล</div>';return}
+  box.innerHTML=rows.map(s=>`<div class="student-row ${S.selected?.student?.id===s.id?'active':''}" data-id="${esc(s.id)}">
+    <div class="avatar">${esc(initials(s))}</div>
+    <div><b>${esc(s.nickname||s.display_name||s.fullname||'ไม่ระบุชื่อ')}</b><small>${esc(s.student_code||'ยังไม่มี Student ID')} · ${esc(fmtPhone(s.phone))}</small><small>${esc([s.school,s.grade].filter(Boolean).join(' · ')||'—')}</small></div>
+    ${s.legacy_student?'<span class="pill">LEGACY</span>':'<span class="pill" style="background:#effaf6;color:#0e8a69">SYSTEM</span>'}
+  </div>`).join('');
+  box.querySelectorAll('[data-id]').forEach(el=>el.onclick=()=>selectStudent(el.dataset.id));
+}
+function courseCard(c){
+  const legacy=c.source==='legacy';
+  return `<div class="course-row ${legacy?'legacy':''}">
+    <div class="course-icon"><i class="fas ${legacy?'fa-clock-rotate-left':'fa-book'}"></i></div>
+    <div>
+      <h4>${esc(c.course_name||'ไม่ระบุคอร์ส')}</h4>
+      <div class="course-meta">${esc([c.tutor_name,c.study_period,c.academic_year?`ปี ${c.academic_year}`:'',c.note].filter(Boolean).join(' · ')||'ไม่มีรายละเอียดเพิ่มเติม')}</div>
+      <div class="course-tags">
+        <span class="tag ${legacy?'legacy':''}">${legacy?'ก่อนระบบใหม่':'จากระบบสมัครเรียน'}</span>
+        ${c.course_id?'<span class="tag"><i class="fas fa-link"></i> เชื่อม Catalog</span>':'<span class="tag">Legacy name</span>'}
+        ${c.status?`<span class="tag">${esc(c.status)}</span>`:''}
+        ${c.hours?`<span class="tag">${esc(c.hours)} ชม.</span>`:''}
+      </div>
+    </div>
+    <div class="row-actions">
+      ${legacy?`<button class="icon-btn" data-edit-course="${esc(c.id)}" title="แก้ไข"><i class="fas fa-pen"></i></button><button class="icon-btn danger" data-delete-course="${esc(c.id)}" title="ลบ"><i class="fas fa-trash"></i></button>`:''}
+    </div>
+  </div>`;
+}
+function renderDetail(){
+  const d=S.selected, box=document.getElementById('detail'), addBtn=document.getElementById('newCourseBtn');
+  if(!d){addBtn.disabled=true;box.innerHTML='<div class="card empty" style="padding:70px 20px"><i class="fas fa-address-card"></i>เลือกนักเรียนจากรายการด้านซ้ายเพื่อดูโปรไฟล์และคอร์สที่เคยเรียน</div>';return}
+  addBtn.disabled=false;
+  const s=d.student||{}, courses=d.courses||[], legacy=courses.filter(x=>x.source==='legacy'), sys=courses.filter(x=>x.source==='system'), linked=courses.filter(x=>x.course_id);
+  box.innerHTML=`<section class="card hero">
+      <div class="hero-top"><div class="hero-person"><div class="hero-avatar">${esc(initials(s))}</div><div><span class="hero-badge"><i class="fas fa-star"></i> ${s.legacy_student?'RETURNING STUDENT':'STUDENT PROFILE'}</span><h2>${esc(s.nickname||s.display_name||s.fullname||'ไม่ระบุชื่อ')}</h2><div class="hero-sub">${esc(s.fullname||'')} ${s.student_code?'· '+esc(s.student_code):''}</div></div></div>
+      <div class="hero-actions"><button id="editStudentBtn"><i class="fas fa-pen"></i> แก้ไข</button></div></div>
+      <div class="facts">
+        <div class="fact"><small>เบอร์โทร</small><b>${esc(fmtPhone(s.phone))}</b></div>
+        <div class="fact"><small>สถานศึกษา</small><b>${esc(s.school||'—')}</b></div>
+        <div class="fact"><small>ระดับ</small><b>${esc(s.grade||s.education_level||'—')}</b></div>
+        <div class="fact"><small>คณะ / สาขา</small><b>${esc(s.faculty||'—')}</b></div>
+      </div>
+    </section>
+    <section class="card section">
+      <div class="section-head"><div><h3>คอร์สที่เคยเรียน</h3><p>รวมคอร์สก่อนระบบใหม่ และคอร์สที่พบจากระบบสมัครเรียนปัจจุบัน</p></div><button id="addCourseInline" class="btn green"><i class="fas fa-plus"></i> เพิ่มประวัติ</button></div>
+      <div class="course-summary">
+        <div class="course-kpi"><small>ทั้งหมด</small><b>${courses.length}</b></div>
+        <div class="course-kpi"><small>ก่อนระบบใหม่</small><b>${legacy.length}</b></div>
+        <div class="course-kpi"><small>จาก Enrollment</small><b>${sys.length}</b></div>
+      </div>
+      <div class="timeline">${courses.length?courses.map(courseCard).join(''):'<div class="empty"><i class="fas fa-book-open-reader"></i>ยังไม่มีประวัติคอร์สของนักเรียนคนนี้</div>'}</div>
+    </section>
+    <div class="split">
+      <section class="card section"><div class="section-head"><div><h3>ข้อมูลติดต่อ</h3><p>ข้อมูลจาก Student Profile</p></div></div><div class="info-grid">
+        <div class="info"><small>อีเมล</small><b>${esc(s.email||'—')}</b></div><div class="info"><small>LINE ID</small><b>${esc(s.line_id||'—')}</b></div>
+        <div class="info"><small>จังหวัด</small><b>${esc(s.province||'—')}</b></div><div class="info"><small>สถานะ</small><b>${esc(s.status||'active')}</b></div>
+      </div></section>
+      <section class="card section"><div class="section-head"><div><h3>การเชื่อมข้อมูล</h3><p>ตรวจว่าประวัติคอร์สเชื่อม Catalog แล้วหรือไม่</p></div></div><div class="info-grid">
+        <div class="info"><small>Course records linked</small><b>${linked.length}/${courses.length}</b></div><div class="info"><small>Legacy imported</small><b>${s.legacy_imported_at?fmtDate(s.legacy_imported_at):'—'}</b></div>
+        <div class="info"><small>Profile updated</small><b>${s.updated_at?fmtDate(s.updated_at):'—'}</b></div><div class="info"><small>Student ID</small><b>${esc(s.student_code||'—')}</b></div>
+      </div></section>
+    </div>`;
+  document.getElementById('editStudentBtn').onclick=()=>openStudentModal(s);
+  document.getElementById('addCourseInline').onclick=()=>openCourseModal();
+  box.querySelectorAll('[data-edit-course]').forEach(b=>b.onclick=()=>openCourseModal((d.courses||[]).find(x=>x.id===b.dataset.editCourse)));
+  box.querySelectorAll('[data-delete-course]').forEach(b=>b.onclick=()=>deleteCourse(b.dataset.deleteCourse));
+}
+function openModal(title,body,saveLabel,onSave){
+  modal.innerHTML=`<div class="modal"><div class="modal-head"><h3>${esc(title)}</h3><button class="icon-btn" id="closeModal"><i class="fas fa-xmark"></i></button></div><div class="modal-body">${body}</div><div class="modal-foot"><button class="btn" id="cancelModal">ยกเลิก</button><button class="btn primary" id="saveModal">${esc(saveLabel)}</button></div></div>`;
+  modal.classList.remove('hidden');document.getElementById('closeModal').onclick=closeModal;document.getElementById('cancelModal').onclick=closeModal;document.getElementById('saveModal').onclick=onSave;
+}
+function closeModal(){modal.classList.add('hidden');modal.innerHTML=''}
+function openStudentModal(s=null){
+  openModal(s?'แก้ไขข้อมูลนักเรียน':'เพิ่มนักเรียนเดิม',`<div class="form-grid">
+    <label class="field full"><span>ชื่อ-นามสกุล *</span><input id="fName" class="input" value="${esc(s?.fullname||'')}"></label>
+    <label class="field"><span>ชื่อเล่น *</span><input id="fNick" class="input" value="${esc(s?.nickname||'')}"></label>
+    <label class="field"><span>เบอร์โทร *</span><input id="fPhone" class="input" value="${esc(s?.phone||'')}"></label>
+    <label class="field"><span>อีเมล</span><input id="fEmail" class="input" value="${esc(s?.email||'')}"></label>
+    <label class="field"><span>LINE ID</span><input id="fLine" class="input" value="${esc(s?.line_id||'')}"></label>
+    <label class="field"><span>โรงเรียน / มหาวิทยาลัย</span><input id="fSchool" class="input" value="${esc(s?.school||'')}"></label>
+    <label class="field"><span>ระดับชั้น</span><input id="fGrade" class="input" value="${esc(s?.grade||'')}"></label>
+    <label class="field"><span>คณะ / สาขา</span><input id="fFaculty" class="input" value="${esc(s?.faculty||'')}"></label>
+    <label class="field"><span>จังหวัด</span><input id="fProvince" class="input" value="${esc(s?.province||'')}"></label>
+  </div>`,s?'บันทึกการแก้ไข':'สร้าง Student Profile',async()=>{
+    const payload={p_student_id:s?.id||null,p_fullname:document.getElementById('fName').value,p_nickname:document.getElementById('fNick').value,p_phone:document.getElementById('fPhone').value,p_email:document.getElementById('fEmail').value,p_line_id:document.getElementById('fLine').value,p_school:document.getElementById('fSchool').value,p_grade:document.getElementById('fGrade').value,p_faculty:document.getElementById('fFaculty').value,p_province:document.getElementById('fProvince').value};
+    if(!payload.p_fullname.trim()||!payload.p_nickname.trim()||digits(payload.p_phone).length<9)return toast('กรอกชื่อ ชื่อเล่น และเบอร์โทรให้ครบ');
+    const {data,error}=await sb.rpc('legacy_students_manager_upsert_student',payload);if(error)return toast(errText(error));closeModal();toast('บันทึกนักเรียนแล้ว');await loadAll(data?.student_id||s?.id);
+  });
+}
+function openCourseModal(c=null){
+  const s=S.selected?.student;if(!s)return;
+  const catalog=S.courses||[];
+  openModal(c?'แก้ไขประวัติคอร์ส':'เพิ่มคอร์สที่เคยเรียน',`<div class="form-grid">
+    <label class="field full"><span>เลือกจากคอร์สปัจจุบัน (ถ้ามี)</span><select id="cCatalog" class="select"><option value="">— คอร์สเก่าที่ไม่มีใน Catalog —</option>${catalog.map(x=>`<option value="${esc(x.id)}" ${c?.course_id===x.id?'selected':''}>${esc(x.name)}${x.tutor_name?' · '+esc(x.tutor_name):''}</option>`).join('')}</select></label>
+    <label class="field full"><span>ชื่อคอร์สที่เคยเรียน *</span><input id="cName" class="input" value="${esc(c?.course_name||'')}" placeholder="เช่น ชีววิทยา ม.ปลาย / สอวน. ชีววิทยา"></label>
+    <label class="field"><span>ติวเตอร์</span><input id="cTutor" class="input" value="${esc(c?.tutor_name||'')}" placeholder="ชื่อผู้สอนเดิม"></label>
+    <label class="field"><span>ปีที่เรียน</span><input id="cYear" type="number" class="input" value="${esc(c?.academic_year||'')}" placeholder="2567"></label>
+    <label class="field"><span>ช่วงเวลาที่เรียน</span><input id="cPeriod" class="input" value="${esc(c?.study_period||'')}" placeholder="เช่น ม.5 เทอม 2"></label>
+    <label class="field"><span>ชั่วโมงโดยประมาณ</span><input id="cHours" type="number" step="0.25" class="input" value="${esc(c?.hours||'')}"></label>
+    <label class="field"><span>สถานะ</span><select id="cStatus" class="select">${['completed','active','paused','unknown'].map(x=>`<option ${c?.status===x?'selected':''}>${x}</option>`).join('')}</select></label>
+    <label class="field full"><span>หมายเหตุ</span><textarea id="cNote" class="textarea">${esc(c?.note||'')}</textarea></label>
+  </div>`,c?'บันทึกประวัติคอร์ส':'เพิ่มประวัติคอร์ส',async()=>{
+    const courseId=document.getElementById('cCatalog').value||null;
+    const payload={p_history_id:c?.id||null,p_student_id:s.id,p_course_id:courseId,p_course_name:document.getElementById('cName').value,p_tutor_name:document.getElementById('cTutor').value,p_academic_year:document.getElementById('cYear').value?Number(document.getElementById('cYear').value):null,p_study_period:document.getElementById('cPeriod').value,p_hours:document.getElementById('cHours').value?Number(document.getElementById('cHours').value):null,p_status:document.getElementById('cStatus').value,p_note:document.getElementById('cNote').value};
+    if(!payload.p_course_name.trim())return toast('กรุณากรอกชื่อคอร์ส');
+    const {error}=await sb.rpc('legacy_students_manager_upsert_course',payload);if(error)return toast(errText(error));closeModal();toast('บันทึกประวัติคอร์สแล้ว');await selectStudent(s.id,true);
+  });
+  document.getElementById('cCatalog').onchange=e=>{const row=catalog.find(x=>x.id===e.target.value);if(row){document.getElementById('cName').value=row.name||'';document.getElementById('cTutor').value=row.tutor_name||''}};
+}
+async function deleteCourse(id){if(!confirm('ลบประวัติคอร์สนี้หรือไม่?'))return;const {error}=await sb.rpc('legacy_students_manager_delete_course',{p_history_id:id});if(error)return toast(errText(error));toast('ลบแล้ว');await selectStudent(S.selected.student.id,true)}
+async function selectStudent(id,force=false){
+  if(!force&&S.selected?.student?.id===id)return;
+  const {data,error}=await sb.rpc('legacy_students_manager_student_detail',{p_student_id:id});if(error)return toast(errText(error));S.selected=data;renderList();renderDetail();
+}
+async function loadAll(preselect=null){
+  S.loading=true;
+  const [boot,catalog]=await Promise.all([sb.rpc('legacy_students_manager_bootstrap'),sb.rpc('legacy_students_manager_catalog')]);
+  S.loading=false;
+  if(boot.error){toast(errText(boot.error));return}
+  const d=boot.data||{};S.students=d.students||[];S.courses=catalog.data||[];renderStats(d.summary||{});renderList();
+  const id=preselect||S.selected?.student?.id||S.students[0]?.id;
+  if(id)await selectStudent(id,true);else{S.selected=null;renderDetail()}
+}
+async function checkAuth(){
+  const {data:{session}}=await sb.auth.getSession();S.session=session;
+  if(!session){app.innerHTML=loginHtml();bindLogin();return}
+  const {data,error}=await sb.rpc('legacy_students_manager_me');
+  if(error||!data?.allowed){await sb.auth.signOut();app.innerHTML=loginHtml();bindLogin();document.getElementById('loginError').textContent='บัญชีนี้ไม่มีสิทธิ์ Manager / Admin';return}
+  S.me=data;app.innerHTML=shell();bind();await loadAll();
+}
+function bindLogin(){
+  document.getElementById('loginForm').onsubmit=async e=>{e.preventDefault();const box=document.getElementById('loginError');box.textContent='';const {error}=await sb.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});if(error){box.textContent=errText(error);return}await checkAuth()};
+}
+function bind(){
+  document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()};
+  document.getElementById('refreshBtn').onclick=()=>loadAll();
+  document.getElementById('newStudentBtn').onclick=()=>openStudentModal();
+  document.getElementById('newCourseBtn').onclick=()=>openCourseModal();
+  document.getElementById('searchInput').oninput=e=>{S.q=e.target.value;renderList()};
+  document.getElementById('legacyFilterBtn').onclick=e=>{S.legacyOnly=!S.legacyOnly;e.currentTarget.classList.toggle('primary',S.legacyOnly);renderList()};
+  modal.onclick=e=>{if(e.target===modal)closeModal()};
+}
+checkAuth();
+})();
+</script>
+</body>
+</html>

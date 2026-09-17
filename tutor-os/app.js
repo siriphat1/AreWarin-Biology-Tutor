@@ -198,10 +198,12 @@
       }).join('') || '<div class="aw-card empty-state">ยังไม่มีคอร์สในสิทธิ์ของบัญชีนี้</div>'}</div>`;
   }
 
+  function groupMemberCount(groupId){return arr(state.data?.group_members).filter((m)=>String(m.group_id)===String(groupId)&&m.active!==false).length}
+  function groupScheduleShort(g){return g.start_date?`${fmtDate(g.start_date)}${g.end_date?' – '+fmtDate(g.end_date):''}`:'ตารางประจำดูในรายละเอียด'}
   function groupsHtml() {
-    const groups = arr(state.data?.groups);
-    return `${sectionHeader('GROUP LOCKER', 'กลุ่มเรียน · Locker', 'กลุ่มที่เกี่ยวข้องกับติวเตอร์และนักเรียนในสิทธิ์ของคุณ')}
-      <div class="locker-grid">${groups.map((g) => `<article class="aw-card locker-card"><div class="locker-icon"><i class="fa-solid fa-people-group"></i></div><h3>${esc(g.name || g.group_code || 'กลุ่มเรียน')}</h3><p>${esc(g.group_code || '')}</p><span class="aw-tag">${esc(courseById(g.course_id)?.title || courseById(g.course_id)?.name || 'คอร์ส')}</span></article>`).join('') || '<div class="aw-card empty-state">ยังไม่มีกลุ่มเรียนในสิทธิ์ของคุณ</div>'}</div>`;
+    const groups = arr(state.data?.groups).filter((g)=>g.is_active!==false);
+    return `${sectionHeader('GROUP CLASS', 'คลาสกลุ่ม', 'รุ่นเรียนจริงของคอร์ส · บันทึก Attendance ตัดชั่วโมงรายคน และส่ง Recording ให้ผู้ขาดเรียน')}
+      <div class="groupclass-grid">${groups.map((g) => `<article class="aw-card content-card groupclass-card"><div class="groupclass-cover">${g.image_url?`<img src="${esc(g.image_url)}" alt="">`:'<i class="fa-solid fa-users-rectangle"></i>'}<span class="groupclass-code">${esc(g.group_code||'GROUP')}</span><span class="groupclass-state">${esc(g.status==='full'?'เต็ม':g.status==='open'?'เปิด':'คลาส')}</span></div><h3>${esc(g.name || g.group_code || 'คลาสกลุ่ม')}</h3><p>${esc(courseById(g.course_id)?.title || courseById(g.course_id)?.name || 'คอร์ส')}</p><div class="groupclass-meta"><div><small>สมาชิก</small><b>${groupMemberCount(g.id)} / ${num(g.capacity)||'—'} คน</b></div><div><small>ราคา</small><b>${g.price_amount!=null?fmtMoney(g.price_amount):'—'}</b></div><div><small>ช่วงคลาส</small><b>${esc(groupScheduleShort(g))}</b></div><div><small>สถานที่</small><b>${esc(g.mode==='online'?'Online':g.location||'—')}</b></div></div><div class="groupclass-policy">${g.absence_deduct_hours?'<span><i class="fa-regular fa-clock"></i> ขาดเรียนตัดชั่วโมง</span>':''}${g.recording_on_absence?'<span class="video"><i class="fa-solid fa-video"></i> Recording เมื่อขาด</span>':''}</div><div class="groupclass-actions"><button class="aw-btn primary" data-group-lesson="${esc(g.id)}"><i class="fa-solid fa-clipboard-check"></i> บันทึกคาบกลุ่ม</button><button class="aw-btn" data-group-detail="${esc(g.id)}"><i class="fa-solid fa-users"></i> สมาชิก / Recording</button></div></article>`).join('') || '<div class="aw-card empty-state">ยังไม่มีคลาสกลุ่มในสิทธิ์ของคุณ</div>'}</div>`;
   }
 
   function teachingHtml() {
@@ -399,6 +401,34 @@
     $$('[data-delete-schedule]').forEach((b) => b.onclick = () => deleteSchedule(b.dataset.deleteSchedule));
     $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
     $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
+    $$('[data-group-lesson]').forEach((b)=>b.onclick=()=>openGroupLesson(b.dataset.groupLesson));
+    $$('[data-group-detail]').forEach((b)=>b.onclick=()=>openGroupDetail(b.dataset.groupDetail));
+  }
+
+  async function groupDetail(groupId){return await rpc('tutor_group_class_detail',{p_group_id:groupId})}
+
+  async function openGroupDetail(groupId){
+    try{
+      loading('กำลังโหลดคลาสกลุ่ม...');const d=await groupDetail(groupId);Swal.close();
+      const g=d?.group||{},members=arr(d?.members),recordings=arr(d?.recordings),sessions=arr(d?.sessions),schedules=arr(d?.schedules);
+      showModal(g.name||'คลาสกลุ่ม',`<div class="detail-list"><div><span>คอร์ส</span><b>${esc(courseById(g.course_id)?.title||courseById(g.course_id)?.name||'—')}</b></div><div><span>ตารางประจำ</span><b>${esc(schedules.map(x=>`${['','จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'][x.weekday]||''} ${String(x.start_time).slice(0,5)}–${String(x.end_time).slice(0,5)}`).join(' · ')||'—')}</b></div><div><span>สมาชิก</span><b>${members.length} / ${num(g.capacity)||'—'} คน</b></div><div><span>Policy</span><b>${g.absence_deduct_hours?'ขาดเรียนตัดชั่วโมง':'ขาดเรียนไม่ตัด'}${g.recording_on_absence?' · มี Recording':''}</b></div></div><div class="gc-att-list">${members.map(m=>`<div class="gc-att-row"><div><b>${esc(m.nickname||m.display_name||m.fullname||'นักเรียน')}</b><small>${esc(m.student_code||'—')} · ${m.hours_unlimited?'ชั่วโมงไม่จำกัด':`เหลือ ${num(m.remaining_hours).toFixed(2)} ชม.`}</small></div><span class="aw-tag">สมาชิก</span></div>`).join('')||'<div class="empty-state compact">ยังไม่มีสมาชิก</div>'}</div><div style="margin-top:16px"><div class="card-head"><div><h2>Recording</h2><p>ลิงก์ย้อนหลังของคลาสนี้</p></div></div>${recordings.map(r=>`<div class="gc-media"><b>${esc(r.title||'Recording')}</b><br><a href="${esc(r.video_url)}" target="_blank" rel="noopener"><i class="fa-solid fa-play"></i> เปิดวิดีโอ</a> <span style="color:#94a3b8;font-size:8px">· ${esc(r.visibility)}</span></div>`).join('')||'<div class="section-note">ยังไม่มี Recording</div>'}</div>`, `<button class="aw-btn" data-modal-close>ปิด</button><button class="aw-btn" id="addGroupRecording"><i class="fa-solid fa-video"></i> เพิ่ม Recording</button><button class="aw-btn primary" id="detailGroupLesson"><i class="fa-solid fa-clipboard-check"></i> บันทึกคาบ</button>`);
+      $('detailGroupLesson').onclick=()=>openGroupLesson(groupId);$('addGroupRecording').onclick=()=>openGroupRecording(groupId,d);
+    }catch(e){Swal.close();alertToast('error','เปิดคลาสไม่สำเร็จ',friendlyError(e))}
+  }
+
+  async function openGroupLesson(groupId){
+    try{
+      loading('กำลังเตรียมรายชื่อนักเรียน...');const d=await groupDetail(groupId);Swal.close();const g=d?.group||{},members=arr(d?.members);if(!members.length)return alertToast('warning','คลาสนี้ยังไม่มีนักเรียน');
+      const end=new Date(),start=new Date(end.getTime()-2*60*60*1000);
+      showModal('บันทึกคาบ · '+(g.name||'คลาสกลุ่ม'),`<form id="groupLessonForm"><div class="form-grid"><label class="aw-label">เวลาเริ่ม<input class="aw-input" type="datetime-local" name="start" required value="${esc(toLocalInput(start))}"></label><label class="aw-label">เวลาสิ้นสุด<input class="aw-input" type="datetime-local" name="end" required value="${esc(toLocalInput(end))}"></label><label class="aw-label wide">วันนี้สอนอะไร<input class="aw-input" name="title" placeholder="เช่น Genetics · Mendelian inheritance"></label><label class="aw-label wide">รายละเอียด / การบ้าน<textarea class="aw-textarea" name="note" rows="3"></textarea></label><div class="wide"><div class="card-head"><div><h2>Attendance</h2><p>${g.absence_deduct_hours?'ผู้ที่ขาดเรียนจะถูกตัดชั่วโมงเท่าคาบตาม Policy':'ผู้ขาดเรียนจะไม่ถูกตัดชั่วโมง'}</p></div></div><div class="gc-att-list">${members.map(m=>`<label class="gc-att-row"><div><b>${esc(m.nickname||m.display_name||m.fullname||'นักเรียน')}</b><small>${esc(m.student_code||'—')} · ${m.hours_unlimited?'∞':`${num(m.remaining_hours).toFixed(2)} ชม. คงเหลือ`}</small></div><select class="aw-input gc-att-status" data-student-id="${esc(m.student_id)}"><option value="present">เข้าเรียน</option><option value="late">มาสาย</option><option value="absent">ขาดเรียน</option><option value="leave">ลา</option></select></label>`).join('')}</div></div>${g.recording_on_absence?'<label class="aw-label wide">Recording URL <input class="aw-input" name="video_url" placeholder="ใส่ภายหลังได้ · YouTube Unlisted / Google Drive / Video URL"><small style="display:block;margin-top:5px;color:#8a95a8">ถ้ามีนักเรียนขาดและใส่ URL ตอนนี้ ระบบจะส่งให้ผู้มีสิทธิ์อัตโนมัติ</small></label>':''}</div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveGroupLesson"><i class="fa-solid fa-floppy-disk"></i> บันทึกคาบและตัดชั่วโมง</button>`);
+      $('saveGroupLesson').onclick=async()=>{const f=$('groupLessonForm'),fd=new FormData(f),s=fd.get('start'),e=fd.get('end');if(!s||!e)return alertToast('warning','กรุณากรอกเวลาให้ครบ');const attendance=$$('.gc-att-status',f).map(x=>({student_id:x.dataset.studentId,status:x.value}));try{loading('กำลังบันทึก Attendance และตัดชั่วโมง...');const r=await rpc('tutor_group_class_complete_lesson',{p_group_id:groupId,p_start_at:new Date(s).toISOString(),p_end_at:new Date(e).toISOString(),p_title:String(fd.get('title')||'').trim()||null,p_note:String(fd.get('note')||'').trim()||null,p_attendance:attendance,p_video_url:String(fd.get('video_url')||'').trim()||null});Swal.close();closeModal();alertToast(r?.warning_count?'warning':'success','บันทึกคาบกลุ่มแล้ว',`${num(r?.duration_hours).toFixed(2)} ชม. · ตัด ${r?.deducted_students||0} คน${r?.recording_required?' · มีผู้ขาด โปรดเพิ่ม Recording':''}`);await loadData(false)}catch(err){Swal.close();alertToast('error','บันทึกไม่สำเร็จ',friendlyError(err))}};
+    }catch(e){Swal.close();alertToast('error','เปิดคลาสไม่สำเร็จ',friendlyError(e))}
+  }
+
+  function openGroupRecording(groupId,d){
+    const sessions=arr(d?.sessions);if(!sessions.length)return alertToast('warning','ยังไม่มีคาบเรียนที่บันทึกแล้ว');
+    showModal('เพิ่ม Recording',`<form id="groupRecordingForm"><div class="form-grid"><label class="aw-label wide">คาบเรียน<select class="aw-input" name="session_id">${sessions.map(s=>`<option value="${esc(s.id)}">${esc(fmtDate(s.session_date))} · ${esc(s.title||'คาบเรียน')}</option>`).join('')}</select></label><label class="aw-label wide">ชื่อวิดีโอ<input class="aw-input" name="title" placeholder="Recording · A-Level Biology"></label><label class="aw-label wide">Video URL<input class="aw-input" type="url" name="video_url" required placeholder="https://..."></label><label class="aw-label">สิทธิ์การดู<select class="aw-input" name="visibility"><option value="absent_only">เฉพาะผู้ขาด/ลา</option><option value="all_members">สมาชิกทุกคน</option></select></label><label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="2"></textarea></label></div></form>`,`<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveGroupRecording"><i class="fa-solid fa-video"></i> เผยแพร่ Recording</button>`);
+    $('saveGroupRecording').onclick=async()=>{const fd=new FormData($('groupRecordingForm'));if(!String(fd.get('video_url')||'').trim())return alertToast('warning','กรุณาใส่ URL');try{loading('กำลังเผยแพร่ Recording...');await rpc('group_class_save_recording',{p_group_id:groupId,p_session_id:fd.get('session_id'),p_video_url:String(fd.get('video_url')).trim(),p_title:String(fd.get('title')||'').trim()||null,p_note:String(fd.get('note')||'').trim()||null,p_visibility:fd.get('visibility')});Swal.close();closeModal();alertToast('success','เผยแพร่ Recording แล้ว');await loadData(false)}catch(e){Swal.close();alertToast('error','บันทึก Recording ไม่สำเร็จ',friendlyError(e))}};
   }
 
   function openStartLesson() {
@@ -505,7 +535,7 @@
   function setupRealtime() {
     if (state.realtime) return;
     let ch = state.sb.channel('tutor-os-v18');
-    ['os_student_course_enrollments', 'os_attendance_sessions', 'os_student_attendance', 'os_hour_ledger', 'os_hour_pools', 'os_student_groups', 'os_teaching_schedule'].forEach((table) => {
+    ['os_student_course_enrollments', 'os_attendance_sessions', 'os_student_attendance', 'os_hour_ledger', 'os_hour_pools', 'os_student_groups', 'os_student_group_members', 'os_student_group_recordings', 'os_teaching_schedule'].forEach((table) => {
       ch = ch.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
         clearTimeout(state.reloadTimer);
         state.reloadTimer = setTimeout(() => loadData(false), 500);
