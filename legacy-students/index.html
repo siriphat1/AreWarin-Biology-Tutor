@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f7f8fb">
   <title>AreWarin · นักเรียนเดิม</title>
-  <meta name="arewarin-legacy-build" content="23.1-safe-delete">
+  <meta name="arewarin-legacy-build" content="23.2-system-delete">
   <script src="../config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -214,7 +214,7 @@ function renderDetail(){
       <div class="hero-top"><div class="hero-person"><div class="hero-avatar">${esc(initials(s))}</div><div><span class="hero-badge"><i class="fas fa-star"></i> ${s.legacy_student?'RETURNING STUDENT':'STUDENT PROFILE'}</span><h2>${esc(s.nickname||s.display_name||s.fullname||'ไม่ระบุชื่อ')}</h2><div class="hero-sub">${esc(s.fullname||'')} ${s.student_code?'· '+esc(s.student_code):''}</div></div></div>
       <div class="hero-actions">
         <button id="editStudentBtn"><i class="fas fa-pen"></i> แก้ไข</button>
-        ${s.legacy_student?'<button id="deleteStudentBtn" style="background:rgba(255,80,110,.14);border-color:rgba(255,170,185,.25);color:#ffd7df"><i class="fas fa-trash"></i> ลบนักเรียน</button>':''}
+        <button id="deleteStudentBtn" style="background:rgba(255,80,110,.14);border-color:rgba(255,170,185,.25);color:#ffd7df"><i class="fas fa-trash"></i> ลบนักเรียน</button>
       </div></div>
       <div class="facts">
         <div class="fact"><small>เบอร์โทร</small><b>${esc(fmtPhone(s.phone))}</b></div>
@@ -276,24 +276,32 @@ function openDeleteStudentModal(s,systemCourseCount=0){
   if(!s?.id)return;
   const display=s.nickname||s.display_name||s.fullname||'นักเรียน';
   const confirmText=s.student_code||display;
-  const systemWarning=systemCourseCount>0
-    ? `<div class="danger-box" style="margin-top:10px;background:#fffaf0;border-color:#f5dfb8;color:#8a611d">
-         <div class="danger-title"><i class="fas fa-shield-halved"></i> ตรวจพบข้อมูลจากระบบปัจจุบัน</div>
-         <p>นักเรียนคนนี้มีประวัติจาก Enrollment ${systemCourseCount} รายการ ระบบฐานข้อมูลจะตรวจซ้ำและ <b>ไม่อนุญาตให้ลบ</b> หากมี Enrollment, ชั่วโมง, Attendance, Group Class หรือบัญชี Student Hub ผูกอยู่</p>
-       </div>`:'';
+  const isLegacy=!!s.legacy_student;
 
-  openModal('ลบนักเรียนเดิม',`
+  const typeBox=isLegacy
+    ? `<div class="danger-box" style="margin-top:10px;background:#f7fbff;border-color:#d9e9fb;color:#315d88">
+         <div class="danger-title"><i class="fas fa-clock-rotate-left"></i> Legacy Student</div>
+         <p>จะลบ Student Profile และประวัติคอร์สก่อนระบบใหม่ของนักเรียนคนนี้</p>
+       </div>`
+    : `<div class="danger-box" style="margin-top:10px;background:#fffaf0;border-color:#f4dfb9;color:#845d18">
+         <div class="danger-title"><i class="fas fa-database"></i> SYSTEM Student</div>
+         <p>จะลบ Student Profile พร้อมข้อมูลฝั่งนักเรียน เช่น Course Wallet, ชั่วโมง, Attendance, ตารางเรียน, Group Class membership และ Student Hub records ที่ผูกกับ Profile นี้</p>
+         <p style="margin-top:6px"><b>ใบสมัครเรียน / Enrollment และข้อมูลการชำระเงินจะยังเก็บไว้</b> เพื่อไม่ให้ประวัติการเงินและ Audit หาย</p>
+         ${systemCourseCount?`<p style="margin-top:6px">พบประวัติจาก Enrollment ที่แสดงในหน้านี้ <b>${systemCourseCount}</b> รายการ</p>`:''}
+       </div>`;
+
+  openModal(isLegacy?'ลบนักเรียนเดิม':'ลบนักเรียนในระบบ',`
     <div class="danger-box">
       <div class="danger-title"><i class="fas fa-triangle-exclamation"></i> การลบนี้ถาวร</div>
-      <p>จะลบ Student Profile ของ <b>${esc(display)}</b> ออกจาก <code>os_students</code> และลบประวัติคอร์สก่อนระบบใหม่ของนักเรียนคนนี้ที่อยู่ใน <code>legacy_student_course_history</code> ด้วย</p>
-      <p style="margin-top:6px"><b>ข้อมูลระบบปัจจุบันจะไม่ถูกลบ</b> — ถ้ามีข้อมูลเชื่อมอยู่ Backend จะบล็อกคำสั่งลบอัตโนมัติ</p>
+      <p>กำลังจะลบ <b>${esc(display)}</b> (${esc(s.student_code||'ไม่มี Student ID')}) ออกจากฐาน Student Profile</p>
+      <p style="margin-top:6px">หลังลบ นักเรียนจะหายจากหน้ารายชื่อนักเรียนทันที</p>
     </div>
-    ${systemWarning}
+    ${typeBox}
     <label class="field full delete-confirm-label">
       <span>พิมพ์ <b>${esc(confirmText)}</b> เพื่อยืนยัน *</span>
       <input id="deleteStudentConfirm" class="input" autocomplete="off" placeholder="${esc(confirmText)}">
     </label>
-  `,'ลบนักเรียนถาวร',async()=>{
+  `,isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student',async()=>{
     const typed=(document.getElementById('deleteStudentConfirm')?.value||'').trim();
     if(typed!==String(confirmText).trim()){
       toast('ข้อความยืนยันไม่ตรง');
@@ -301,18 +309,18 @@ function openDeleteStudentModal(s,systemCourseCount=0){
     }
 
     const save=document.getElementById('saveModal');
-    if(save){save.disabled=true;save.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังตรวจและลบ';}
+    if(save){save.disabled=true;save.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังลบข้อมูล';}
 
     const {data,error}=await sb.rpc('legacy_students_manager_delete_student',{p_student_id:s.id});
     if(error){
-      if(save){save.disabled=false;save.textContent='ลบนักเรียนถาวร';}
+      if(save){save.disabled=false;save.textContent=isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student';}
       toast(errText(error));
       return;
     }
     if(!data?.ok){
-      if(save){save.disabled=false;save.textContent='ลบนักเรียนถาวร';}
+      if(save){save.disabled=false;save.textContent=isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student';}
       const reasons=Array.isArray(data?.reasons)&&data.reasons.length
-        ? '\n\nเหตุผล:\n- '+data.reasons.join('\n- ')
+        ? '\n\nรายละเอียด:\n- '+data.reasons.join('\n- ')
         : '';
       alert((data?.message||'ไม่สามารถลบนักเรียนคนนี้ได้')+reasons);
       return;
@@ -320,7 +328,10 @@ function openDeleteStudentModal(s,systemCourseCount=0){
 
     closeModal();
     S.selected=null;
-    toast('ลบนักเรียนแล้ว');
+    const preserved=Number(data?.preserved_enrollments||0);
+    toast(preserved>0
+      ? `ลบนักเรียนแล้ว · เก็บ Enrollment เดิมไว้ ${preserved} รายการ`
+      : 'ลบนักเรียนแล้ว');
     await loadAll();
   });
 
