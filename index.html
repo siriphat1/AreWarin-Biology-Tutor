@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN READY REPLACE v15 · 2026-09-16 · SOFTER DISCOUNT CARD -->
+  <!-- AREWARIN REGISTER 22.0.0-returning-student-migration · legacy returning student migration -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -1540,7 +1540,105 @@
         @media(max-width:767px){
           .renewal-v11{padding:12px}.renew-grid{grid-template-columns:1fr}.renew-hero{padding:15px;border-radius:18px}.renew-icon{width:39px;height:39px;flex-basis:39px;border-radius:13px}.renew-title{font-size:18px}.renew-subtitle{font-size:10.5px}.renew-card,.renew-result{padding:14px;border-radius:17px}.renew-actions{grid-template-columns:1fr}.renew-footer.split{display:grid;grid-template-columns:1fr}.renew-next{min-width:0}.renew-back,.renew-next{width:100%}
         }
-</style>
+
+        /* =========================================================
+           V22 · Returning Student Migration / Legacy Student
+           ========================================================= */
+        .legacy-missing{
+            grid-column:1/-1;background:linear-gradient(135deg,#fff 0%,#fffaf3 52%,#f6f8ff 100%);
+            border:1px solid #f5dfb6;border-radius:22px;padding:18px;
+            box-shadow:0 18px 48px -38px rgba(120,80,20,.35)
+        }
+        .legacy-missing-head{display:flex;gap:13px;align-items:flex-start}
+        .legacy-missing-icon{
+            width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;
+            color:#b7791f;background:linear-gradient(135deg,#fff5cf,#ffedd5);border:1px solid #fde7b0;
+            font-size:16px
+        }
+        .legacy-missing-kicker{font-size:8.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#c07a13}
+        .legacy-missing h3{font-size:16px;font-weight:750;color:#27354b;margin-top:3px}
+        .legacy-missing p{font-size:10px;line-height:1.75;color:#748096;margin-top:5px}
+        .legacy-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+        .legacy-choice{
+            border:1px solid #e7edf5;border-radius:17px;padding:14px;background:#fff;text-align:left;
+            display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;cursor:pointer;
+            transition:.18s;box-shadow:0 12px 32px -30px rgba(15,23,42,.4)
+        }
+        .legacy-choice:hover{transform:translateY(-2px);border-color:#bae6fd;box-shadow:0 16px 35px -28px rgba(14,165,233,.4)}
+        .legacy-choice .ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#eef6ff;color:#2563eb}
+        .legacy-choice.secondary .ico{background:#f0fdf4;color:#16a34a}
+        .legacy-choice b{display:block;font-size:11px;color:#27354b}
+        .legacy-choice small{display:block;font-size:8.5px;color:#8b98aa;line-height:1.55;margin-top:3px}
+        .legacy-choice>i{font-size:10px;color:#94a3b8}
+        .legacy-note{
+            margin-top:12px;padding:10px 12px;border-radius:13px;background:#fffdf5;border:1px solid #fde7b0;
+            font-size:8.8px;line-height:1.65;color:#8b6b2c
+        }
+
+        .legacy-profile-shell{max-width:1080px;margin:0 auto}
+        .legacy-profile-grid{display:grid;grid-template-columns:.78fr 1.22fr;gap:14px;align-items:start}
+        .legacy-profile-preview{
+            position:relative;overflow:hidden;padding:20px;border-radius:22px;color:#fff;
+            background:
+                radial-gradient(circle at 105% -5%,rgba(56,189,248,.35),transparent 34%),
+                radial-gradient(circle at -5% 110%,rgba(129,140,248,.28),transparent 35%),
+                linear-gradient(145deg,#111a45,#1c2f69 62%,#234a91);
+            box-shadow:0 25px 48px -38px rgba(15,23,42,.75)
+        }
+        .legacy-profile-preview:after{content:"";position:absolute;right:-45px;bottom:-60px;width:155px;height:155px;border-radius:50%;border:25px solid rgba(255,255,255,.05)}
+        .legacy-profile-top{display:flex;gap:12px;align-items:center;position:relative;z-index:1}
+        .legacy-avatar{
+            width:70px;height:70px;flex:0 0 70px;border-radius:22px;display:grid;place-items:center;
+            font-size:22px;font-weight:850;color:#27439a;background:linear-gradient(145deg,#fff,#e7eeff);
+            border:4px solid rgba(255,255,255,.14);box-shadow:0 15px 30px -20px #000
+        }
+        .legacy-profile-badge{display:inline-flex;gap:5px;align-items:center;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);font-size:7.8px;font-weight:700;color:#dbeafe}
+        .legacy-profile-name{font-size:18px;font-weight:780;color:#fff;margin-top:6px;line-height:1.3}
+        .legacy-profile-phone{font-size:8.5px;color:#bac8e9;margin-top:3px}
+        .legacy-profile-facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;position:relative;z-index:1}
+        .legacy-profile-fact{padding:10px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09)}
+        .legacy-profile-fact small{display:block;font-size:7px;color:#9fb1d8;text-transform:uppercase;letter-spacing:.08em}
+        .legacy-profile-fact b{display:block;font-size:9.5px;color:#fff;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .legacy-profile-tip{position:relative;z-index:1;margin-top:14px;font-size:8.3px;line-height:1.7;color:#b8c5e2;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
+        .legacy-form-card{background:#fff;border:1px solid #e7edf5;border-radius:22px;padding:18px;box-shadow:0 18px 42px -36px rgba(15,23,42,.35)}
+        .legacy-form-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:13px}
+        .legacy-form-title h3{font-size:14px;font-weight:750;color:#263449}
+        .legacy-form-title p{font-size:8.8px;color:#94a3b8;margin-top:3px}
+        .legacy-action-pill{font-size:8px;font-weight:750;border-radius:999px;padding:5px 8px;background:#eef6ff;border:1px solid #dbeafe;color:#2563eb}
+        .legacy-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .legacy-field{display:block}
+        .legacy-field.full{grid-column:1/-1}
+        .legacy-field span{display:block;font-size:9px;font-weight:650;color:#60708a;margin-bottom:5px}
+        .legacy-field input{
+            width:100%;border:1px solid #dfe7f1;background:#fbfdff;border-radius:12px;padding:10px 11px;
+            font:inherit;font-size:10.5px;color:#24334c;outline:0;transition:.15s
+        }
+        .legacy-field input:focus{background:#fff;border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(14,165,233,.08)}
+        .legacy-submit{
+            width:100%;margin-top:14px;border:0;border-radius:14px;padding:12px 14px;color:#fff;background:linear-gradient(135deg,#0f172a,#1d4ed8);
+            font:inherit;font-size:10.5px;font-weight:750;cursor:pointer;box-shadow:0 15px 28px -22px rgba(29,78,216,.8)
+        }
+        .legacy-submit.green{background:linear-gradient(135deg,#047857,#10b981)}
+        .legacy-submit:disabled{opacity:.55;cursor:wait}
+        .legacy-back{border:0;background:transparent;color:#64748b;font:inherit;font-size:9.5px;font-weight:650;cursor:pointer}
+        .legacy-saved{
+            margin-top:13px;padding:13px;border-radius:16px;background:linear-gradient(135deg,#effcf6,#f7fffb);border:1px solid #bbf7d0
+        }
+        .legacy-saved b{display:block;font-size:11px;color:#047857}
+        .legacy-saved p{font-size:8.8px;color:#5f7b70;line-height:1.65;margin-top:4px}
+        .legacy-saved-code{display:inline-flex;margin-top:8px;padding:5px 8px;border-radius:999px;background:#fff;border:1px solid #d1fae5;color:#047857;font-size:8px;font-weight:800}
+        .renew-result.v22-profile{background:linear-gradient(180deg,#fff,#fbfdff);border-color:#dce7f6}
+        .renew-profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+        .renew-profile-stat{border:1px solid #e7edf5;background:#f8fbff;border-radius:12px;padding:9px;text-align:center}
+        .renew-profile-stat small{display:block;font-size:7px;color:#94a3b8}
+        .renew-profile-stat b{display:block;margin-top:4px;font-size:9px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        @media(max-width:760px){
+            .legacy-choice-grid,.legacy-profile-grid,.legacy-form-grid{grid-template-columns:1fr}
+            .legacy-field.full{grid-column:auto}
+            .renew-profile-stats{grid-template-columns:1fr 1fr 1fr}
+        }
+
+    </style>
 
 <style id="aw-v6-package-visibility-fix">
   /* V6: package cards must truly disappear when manager closes them */
@@ -2198,7 +2296,7 @@
                             </div>
                         </section>
 
-                        <section id="oldLookupResult" class="renew-result hidden" aria-live="polite">
+                        <section id="oldLookupResult" class="renew-result v22-profile hidden" aria-live="polite">
                             <div class="renew-result-top">
                                 <div class="renew-avatar"><span id="oldLookupInitial">AW</span></div>
                                 <div class="min-w-0 flex-1">
@@ -2207,6 +2305,11 @@
                                         <span class="renew-found"><i class="fas fa-check"></i> พบข้อมูล</span>
                                     </div>
                                     <p id="oldLookupMeta">-</p>
+                                    <div class="renew-profile-stats">
+                                        <div class="renew-profile-stat"><small>STUDENT ID</small><b id="oldLookupStudentCode">—</b></div>
+                                        <div class="renew-profile-stat"><small>สถานศึกษา</small><b id="oldLookupSchool">—</b></div>
+                                        <div class="renew-profile-stat"><small>ประวัติ</small><b id="oldLookupHistoryCount">—</b></div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -2228,14 +2331,101 @@
                             </div>
 
                             <div class="renew-actions">
-                                <button type="button" class="renew-btn primary" onclick="startExistingRenewal('same')"><i class="fas fa-rotate"></i><span><b>ต่อคอร์สเดิม</b><small>ใช้คอร์สล่าสุดเป็นจุดเริ่มต้น</small></span></button>
-                                <button type="button" class="renew-btn secondary" onclick="startExistingRenewal('modify')"><i class="fas fa-sliders"></i><span><b>แก้ไข / เพิ่มคอร์ส</b><small>เพิ่ม ลบ หรือเปลี่ยนวิชาและติวเตอร์</small></span></button>
+                                <button id="oldContinueSameBtn" type="button" class="renew-btn primary" onclick="startExistingRenewal('same')"><i class="fas fa-rotate"></i><span><b>ต่อคอร์สเดิม</b><small>ใช้คอร์สล่าสุดเป็นจุดเริ่มต้น</small></span></button>
+                                <button id="oldModifyBtn" type="button" class="renew-btn secondary" onclick="startExistingRenewal('modify')"><i class="fas fa-sliders"></i><span><b>แก้ไข / เพิ่มคอร์ส</b><small>เพิ่ม ลบ หรือเปลี่ยนวิชาและติวเตอร์</small></span></button>
                             </div>
+                        </section>
+
+                        <section id="oldLegacyMissing" class="legacy-missing hidden" aria-live="polite">
+                            <div class="legacy-missing-head">
+                                <div class="legacy-missing-icon"><i class="fas fa-clock-rotate-left"></i></div>
+                                <div>
+                                    <div class="legacy-missing-kicker">Legacy student migration</div>
+                                    <h3>เคยเรียนกับ AreWarin ก่อนมีระบบใหม่ใช่ไหม?</h3>
+                                    <p>เบอร์นี้ยังไม่มีประวัติในฐานข้อมูลปัจจุบัน ซึ่งอาจเกิดกับนักเรียนที่เคยสมัครหรือเรียนกับสถาบันก่อนย้ายเข้าระบบใหม่ สามารถนำข้อมูลเดิมเข้าระบบได้จากตรงนี้เลย</p>
+                                </div>
+                            </div>
+                            <div class="legacy-choice-grid">
+                                <button type="button" class="legacy-choice" onclick="beginLegacyStudent('add_course')">
+                                    <span class="ico"><i class="fas fa-book-medical"></i></span>
+                                    <span><b>ลงคอร์สเพิ่ม</b><small>กรอกข้อมูลนักเรียนก่อน แล้วเลือกติวเตอร์ คอร์ส แพ็กเกจ เวลา และชำระเงินตามขั้นตอนปกติ</small></span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button type="button" class="legacy-choice secondary" onclick="beginLegacyStudent('update_profile')">
+                                    <span class="ico"><i class="fas fa-address-card"></i></span>
+                                    <span><b>อัปเดตข้อมูลเข้าระบบ</b><small>สร้าง Student Profile ไว้ก่อน โดยยังไม่ต้องลงคอร์สใหม่</small></span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div class="legacy-note"><i class="fas fa-circle-info mr-1"></i> รายการนี้ใช้สำหรับนักเรียนเดิมของสถาบันที่ไม่มีข้อมูลในระบบใหม่เท่านั้น ข้อมูลที่กรอกจะใช้สร้างโปรไฟล์นักเรียนกลางของ AreWarin</div>
                         </section>
                     </div>
 
                     <div class="renew-footer">
                         <button type="button" onclick="showStep('step3')" class="renew-back"><i class="fas fa-arrow-left"></i> กลับ</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- V22 Legacy Returning Student — create/update profile -->
+            <div id="stepOldLegacyInfo" class="step-content renewal-v11 rounded-b-[2.5rem]">
+                <div class="legacy-profile-shell">
+                    <section class="renew-hero compact">
+                        <div class="renew-icon"><i class="fas fa-user-clock"></i></div>
+                        <div class="min-w-0">
+                            <p class="renew-kicker">Returning student migration</p>
+                            <h2 id="legacyStepTitle" class="renew-title">นำข้อมูลนักเรียนเดิมเข้าระบบ</h2>
+                            <p id="legacyStepSubtitle" class="renew-subtitle">กรอกข้อมูลนักเรียนเพื่อสร้าง Student Profile ในระบบใหม่ ข้อมูลนี้จะใช้กับ Student Hub, Tutor OS และการสมัครครั้งถัดไป</p>
+                        </div>
+                    </section>
+
+                    <div class="legacy-profile-grid">
+                        <aside class="legacy-profile-preview">
+                            <div class="legacy-profile-top">
+                                <div id="legacyPreviewAvatar" class="legacy-avatar">AW</div>
+                                <div class="min-w-0">
+                                    <span class="legacy-profile-badge"><i class="fas fa-star"></i> AREWARIN RETURNING STUDENT</span>
+                                    <div id="legacyPreviewName" class="legacy-profile-name">นักเรียนเดิม</div>
+                                    <div id="legacyPreviewPhone" class="legacy-profile-phone">รอข้อมูลเบอร์โทร</div>
+                                </div>
+                            </div>
+                            <div class="legacy-profile-facts">
+                                <div class="legacy-profile-fact"><small>สถานศึกษา</small><b id="legacyPreviewSchool">—</b></div>
+                                <div class="legacy-profile-fact"><small>ระดับชั้น</small><b id="legacyPreviewGrade">—</b></div>
+                                <div class="legacy-profile-fact"><small>คณะ / สาขา</small><b id="legacyPreviewFaculty">—</b></div>
+                                <div class="legacy-profile-fact"><small>สถานะ</small><b>นักเรียนเดิมของสถาบัน</b></div>
+                            </div>
+                            <div class="legacy-profile-tip"><i class="fas fa-shield-halved mr-1"></i> เมื่อบันทึกแล้ว เบอร์นี้จะค้นพบในระบบนักเรียนเดิมครั้งถัดไป และสามารถเชื่อมกับ Student Portal ภายหลังได้</div>
+                        </aside>
+
+                        <section class="legacy-form-card">
+                            <div class="legacy-form-title">
+                                <div><h3>ข้อมูลนักเรียน</h3><p>กรอกข้อมูลให้เป็นปัจจุบันก่อนบันทึก</p></div>
+                                <span id="legacyActionPill" class="legacy-action-pill">PROFILE UPDATE</span>
+                            </div>
+
+                            <div class="legacy-form-grid">
+                                <label class="legacy-field full"><span>ชื่อ-นามสกุล *</span><input id="legacyFullname" autocomplete="name" placeholder="ชื่อ-นามสกุล" oninput="updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>ชื่อเล่น *</span><input id="legacyNickname" placeholder="ชื่อเล่น" oninput="updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>เบอร์โทร *</span><input id="legacyPhone" type="tel" inputmode="numeric" maxlength="12" placeholder="08x-xxx-xxxx" oninput="formatPhone(this);updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>LINE ID</span><input id="legacyLineId" placeholder="LINE ID"></label>
+                                <label class="legacy-field"><span>อีเมล</span><input id="legacyEmail" type="email" placeholder="name@email.com"></label>
+                                <label class="legacy-field"><span>โรงเรียน / มหาวิทยาลัย *</span><input id="legacySchool" placeholder="สถานศึกษา" oninput="updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>ระดับชั้น *</span><input id="legacyGrade" placeholder="เช่น ม.6 / ปี 1" oninput="updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>คณะ / สาขา</span><input id="legacyFaculty" placeholder="ถ้ามี" oninput="updateLegacyProfilePreview()"></label>
+                                <label class="legacy-field"><span>จังหวัด</span><input id="legacyProvince" placeholder="จังหวัด"></label>
+                                <label class="legacy-field"><span>ชื่อผู้ปกครอง</span><input id="legacyParentName" placeholder="ถ้ามี"></label>
+                                <label class="legacy-field"><span>เบอร์ผู้ปกครอง</span><input id="legacyParentPhone" type="tel" inputmode="numeric" maxlength="12" placeholder="08x-xxx-xxxx" oninput="formatPhone(this)"></label>
+                            </div>
+
+                            <div id="legacySavedProfile" class="legacy-saved hidden"></div>
+
+                            <button id="legacySaveBtn" type="button" class="legacy-submit" onclick="saveLegacyStudentProfile()">
+                                <i class="fas fa-floppy-disk mr-1"></i> บันทึกข้อมูลนักเรียน
+                            </button>
+                            <div class="text-center mt-3"><button type="button" class="legacy-back" onclick="showStep('stepOldLookup')"><i class="fas fa-arrow-left mr-1"></i> กลับไปค้นหาเบอร์อีกครั้ง</button></div>
+                        </section>
                     </div>
                 </div>
             </div>
@@ -2832,23 +3022,23 @@
                             </div>
                             <p id="discountMsg" class="text-[10px] mt-1.5 h-3 font-medium transition-all"></p>
 
-                            <div id="discountSummaryCard" class="hidden mt-3 overflow-hidden rounded-[1.35rem] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-sky-50 shadow-[0_14px_34px_rgba(15,23,42,0.06)]"><div class="h-1.5 bg-gradient-to-r from-sky-400 via-indigo-400 to-violet-400"></div>
-                                <div id="discountSummaryImageWrap" class="hidden relative h-[145px] bg-slate-100 overflow-hidden border-b border-slate-100">
+                            <div id="discountSummaryCard" class="hidden mt-3 overflow-hidden rounded-[1.35rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 shadow-sm">
+                                <div id="discountSummaryImageWrap" class="hidden relative h-[145px] bg-slate-100 overflow-hidden">
                                     <img id="discountSummaryImage" src="" alt="ภาพโปรโมชั่น" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-slate-900/5 to-transparent"></div>
-                                    <div class="absolute left-3 bottom-3 inline-flex items-center gap-1.5 rounded-full bg-white/92 backdrop-blur px-2.5 py-1 text-[9px] font-extrabold text-slate-700 shadow-sm border border-white">
-                                        ✦ PROMOTION
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent"></div>
+                                    <div class="absolute left-3 bottom-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[9px] font-extrabold text-emerald-700 shadow-sm">
+                                        <i class="fas fa-sparkles"></i> PROMOTION
                                     </div>
                                 </div>
                                 <div class="p-3.5">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex items-start gap-3 min-w-0">
-                                        <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white grid place-items-center shadow-sm shrink-0 text-base font-black">
-                                            %
+                                        <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white grid place-items-center shadow-sm shrink-0">
+                                            <i class="fas fa-badge-percent text-sm"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 text-sky-700 px-2.5 py-1 text-[9px] font-extrabold tracking-wide uppercase">
-                                                ✓ ใช้ส่วนลดแล้ว
+                                            <div class="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-1 text-[9px] font-extrabold tracking-wide uppercase">
+                                                <i class="fas fa-check-circle"></i> ใช้ส่วนลดแล้ว
                                             </div>
                                             <h4 id="discountSummaryName" class="mt-2 text-[13px] font-extrabold text-slate-800 leading-tight">ส่วนลด</h4>
                                             <p id="discountSummaryDesc" class="mt-1 text-[10px] text-slate-500 leading-4">รายละเอียดส่วนลด</p>
@@ -2856,22 +3046,22 @@
                                     </div>
                                     <div class="text-right shrink-0">
                                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">ประหยัด</div>
-                                        <div id="discountSummaryValue" class="text-[18px] leading-none font-extrabold text-slate-900">-0 บาท</div>
-                                        <div id="discountSummaryType" class="mt-1 text-[10px] font-bold text-sky-600">ส่วนลด</div>
+                                        <div id="discountSummaryValue" class="text-[18px] leading-none font-extrabold text-emerald-600">-0 บาท</div>
+                                        <div id="discountSummaryType" class="mt-1 text-[10px] font-bold text-emerald-500">ส่วนลด</div>
                                     </div>
                                 </div>
                                 <div class="mt-3 grid grid-cols-3 gap-2">
-                                    <div class="rounded-xl bg-white border border-slate-100 shadow-sm px-3 py-2">
+                                    <div class="rounded-xl bg-white/90 border border-white shadow-sm px-3 py-2">
                                         <div class="text-[9px] text-slate-400 font-bold">โค้ด</div>
                                         <div id="discountSummaryCode" class="mt-0.5 text-[11px] font-extrabold text-slate-700 truncate">-</div>
                                     </div>
-                                    <div class="rounded-xl bg-white border border-slate-100 shadow-sm px-3 py-2">
+                                    <div class="rounded-xl bg-white/90 border border-white shadow-sm px-3 py-2">
                                         <div class="text-[9px] text-slate-400 font-bold">ยอดเดิม</div>
                                         <div id="discountSummaryOriginal" class="mt-0.5 text-[11px] font-extrabold text-slate-700">0 บาท</div>
                                     </div>
-                                    <div class="rounded-xl bg-white border border-slate-100 shadow-sm px-3 py-2">
+                                    <div class="rounded-xl bg-white/90 border border-white shadow-sm px-3 py-2">
                                         <div class="text-[9px] text-slate-400 font-bold">สุทธิ</div>
-                                        <div id="discountSummaryFinal" class="mt-0.5 text-[11px] font-extrabold text-indigo-600">0 บาท</div>
+                                        <div id="discountSummaryFinal" class="mt-0.5 text-[11px] font-extrabold text-sky-600">0 บาท</div>
                                     </div>
                                 </div>
                                 </div>
@@ -3434,6 +3624,11 @@
         var existingStudentRecord = null;
         var existingStudentCourseMatches = [];
         var existingStudentRenewalMode = 'same';
+        var legacyReturningAction = null;
+        var legacyStudentProfileId = null;
+        var legacyStudentCode = '';
+        var legacyParentName = '';
+        var legacyParentPhone = '';
         var maintenanceInterval;
         
         let paymentTimerInterval;
@@ -4418,7 +4613,8 @@
 
         function backFromCategory() {
             if (studentType === 'new') showStep('stepStudyType');
-            else showStep('stepOldLookup'); 
+            else if(legacyReturningAction==='add_course' && legacyStudentProfileId) showStep('stepOldLegacyInfo');
+            else showStep('stepOldLookup');
         }
 
         function selectCategory(catId) {
@@ -4935,6 +5131,11 @@
             existingStudentRecord = null;
             existingStudentCourseMatches = [];
             existingStudentRenewalMode = 'same';
+            legacyReturningAction = null;
+            legacyStudentProfileId = null;
+            legacyStudentCode = '';
+            legacyParentName = '';
+            legacyParentPhone = '';
             courseCart = [];
             selectedTutor = '';
             selectedTimes = [];
@@ -4945,6 +5146,7 @@
             const history = document.getElementById('oldLookupHistory');
             if(phone) phone.value = '';
             if(result) result.classList.add('hidden');
+            document.getElementById('oldLegacyMissing')?.classList.add('hidden');
             if(history){ history.innerHTML=''; history.classList.add('hidden'); }
             const hw=document.getElementById('oldLookupHistoryWrap'); if(hw) hw.classList.add('hidden');
         }
@@ -4973,17 +5175,20 @@
         function renderExistingLookupResult(record) {
             const student = record.student || {};
             const latest = record.latest || {};
+            const history = Array.isArray(record.history) ? record.history : [];
             const name = student.fullname || latest.name || '-';
             const nick = student.nickname ? ' • ' + student.nickname : '';
             const initial = String(student.nickname || name || 'AW').trim().slice(0,2);
             document.getElementById('oldLookupName').textContent = name;
             document.getElementById('oldLookupInitial').textContent = initial;
             document.getElementById('oldLookupMeta').textContent = (student.phone || document.getElementById('oldLookupPhone').value) + nick;
-            document.getElementById('oldLookupDate').textContent = latest.date ? 'สมัครล่าสุด ' + latest.date : '';
-            document.getElementById('oldLookupCourse').textContent = latest.course || 'ไม่พบชื่อคอร์สเดิม';
-            document.getElementById('oldLookupTutor').innerHTML = '<i class="fas fa-user-tie mr-1"></i>' + escapeRenewHtml(latest.tutor || 'ไม่ระบุติวเตอร์');
+            document.getElementById('oldLookupStudentCode').textContent = student.studentCode || student.student_code || 'นักเรียนเดิม';
+            document.getElementById('oldLookupSchool').textContent = [student.school,student.grade].filter(Boolean).join(' • ') || '—';
+            document.getElementById('oldLookupHistoryCount').textContent = history.length ? history.length + ' รายการ' : (latest.id ? '1 รายการ' : 'โปรไฟล์ใหม่');
+            document.getElementById('oldLookupDate').textContent = latest.date ? 'สมัครล่าสุด ' + latest.date : (record.source==='legacy_profile' ? 'ข้อมูลนักเรียนเดิมถูกนำเข้าระบบแล้ว' : '');
+            document.getElementById('oldLookupCourse').textContent = latest.course || (record.source==='legacy_profile' ? 'ยังไม่มีคอร์สในระบบใหม่' : 'ไม่พบชื่อคอร์สเดิม');
+            document.getElementById('oldLookupTutor').innerHTML = '<i class="fas fa-user-tie mr-1"></i>' + escapeRenewHtml(latest.tutor || (record.source==='legacy_profile' ? 'พร้อมเลือกติวเตอร์และคอร์สใหม่' : 'ไม่ระบุติวเตอร์'));
 
-            const history = Array.isArray(record.history) ? record.history : [];
             const wrap = document.getElementById('oldLookupHistoryWrap');
             const list = document.getElementById('oldLookupHistory');
             if(history.length > 1) {
@@ -4995,12 +5200,188 @@
                 wrap.classList.add('hidden');
                 list.innerHTML = '';
             }
+
+            const sameBtn=document.getElementById('oldContinueSameBtn');
+            const modifyBtn=document.getElementById('oldModifyBtn');
+            const hasPrevious=!!latest.id && existingStudentCourseMatches.length>0;
+            if(sameBtn) sameBtn.classList.toggle('hidden',!hasPrevious);
+            if(modifyBtn) {
+                const b=modifyBtn.querySelector('b');const s=modifyBtn.querySelector('small');
+                if(!latest.id){if(b)b.textContent='ลงคอร์สเพิ่ม';if(s)s.textContent='เลือกติวเตอร์และคอร์สจากรายการปัจจุบัน';}
+                else {if(b)b.textContent='แก้ไข / เพิ่มคอร์ส';if(s)s.textContent='เพิ่ม ลบ หรือเปลี่ยนวิชาและติวเตอร์';}
+            }
             document.getElementById('oldLookupResult').classList.remove('hidden');
         }
 
         function escapeRenewHtml(v){
             return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
         }
+
+
+        async function lookupRegistrationProfileRpc(phone) {
+            try {
+                const db = window.AreWarinAPI?.sb;
+                if(!db?.rpc) return null;
+                const {data,error}=await db.rpc('registration_lookup_returning_student',{p_phone:phone});
+                if(error) {
+                    if(/could not find the function|schema cache|does not exist/i.test(String(error.message||''))) return null;
+                    throw error;
+                }
+                return data || null;
+            } catch(err) {
+                console.warn('[V22] returning-student RPC fallback:',err);
+                return null;
+            }
+        }
+
+        function renderLegacyMissingChoice(phone) {
+            existingStudentRecord = null;
+            existingStudentCourseMatches = [];
+            legacyStudentProfileId = null;
+            const panel=document.getElementById('oldLegacyMissing');
+            if(panel) panel.classList.remove('hidden');
+            document.getElementById('oldLookupResult')?.classList.add('hidden');
+            const input=document.getElementById('legacyPhone');
+            if(input){input.value=phone||document.getElementById('oldLookupPhone')?.value||'';formatPhone(input);}
+            updateLegacyProfilePreview();
+        }
+
+        function beginLegacyStudent(action) {
+            legacyReturningAction = action === 'add_course' ? 'add_course' : 'update_profile';
+            legacyStudentProfileId = null;
+            legacyStudentCode = '';
+            const phone=document.getElementById('oldLookupPhone')?.value||'';
+            const phoneInput=document.getElementById('legacyPhone');
+            if(phoneInput){phoneInput.value=phone;formatPhone(phoneInput);}
+            ['legacyFullname','legacyNickname','legacyLineId','legacyEmail','legacySchool','legacyGrade','legacyFaculty','legacyProvince','legacyParentName','legacyParentPhone'].forEach(id=>{
+                const el=document.getElementById(id);if(el)el.value='';
+            });
+            document.getElementById('legacySavedProfile')?.classList.add('hidden');
+            const title=document.getElementById('legacyStepTitle');
+            const sub=document.getElementById('legacyStepSubtitle');
+            const pill=document.getElementById('legacyActionPill');
+            const btn=document.getElementById('legacySaveBtn');
+            if(legacyReturningAction==='add_course'){
+                if(title)title.textContent='ยืนยันข้อมูลนักเรียนเดิมก่อนลงคอร์สเพิ่ม';
+                if(sub)sub.textContent='กรอกข้อมูลนักเรียนให้ครบก่อน ระบบจะสร้างโปรไฟล์ในฐานข้อมูลใหม่ แล้วพาไปเลือกคอร์สตามขั้นตอนปกติ';
+                if(pill)pill.textContent='ADD COURSE';
+                if(btn){btn.classList.remove('green');btn.innerHTML='<i class="fas fa-user-check mr-1"></i> บันทึกโปรไฟล์และไปเลือกคอร์ส';}
+            }else{
+                if(title)title.textContent='อัปเดตข้อมูลนักเรียนเดิมเข้าระบบ';
+                if(sub)sub.textContent='สร้าง Student Profile ไว้ก่อน โดยยังไม่ต้องสมัครคอร์สใหม่ ภายหลังใช้เบอร์นี้ค้นหาได้ทันที';
+                if(pill)pill.textContent='PROFILE UPDATE';
+                if(btn){btn.classList.add('green');btn.innerHTML='<i class="fas fa-floppy-disk mr-1"></i> บันทึกข้อมูลเข้าระบบ';}
+            }
+            updateLegacyProfilePreview();
+            showStep('stepOldLegacyInfo');
+        }
+
+        function updateLegacyProfilePreview() {
+            const full=document.getElementById('legacyFullname')?.value?.trim()||'';
+            const nick=document.getElementById('legacyNickname')?.value?.trim()||'';
+            const phone=document.getElementById('legacyPhone')?.value?.trim()||document.getElementById('oldLookupPhone')?.value||'';
+            const school=document.getElementById('legacySchool')?.value?.trim()||'—';
+            const grade=document.getElementById('legacyGrade')?.value?.trim()||'—';
+            const faculty=document.getElementById('legacyFaculty')?.value?.trim()||'—';
+            const name=nick||full||'นักเรียนเดิม';
+            const av=document.getElementById('legacyPreviewAvatar');if(av)av.textContent=String(name).slice(0,2);
+            const nm=document.getElementById('legacyPreviewName');if(nm)nm.textContent=name;
+            const ph=document.getElementById('legacyPreviewPhone');if(ph)ph.textContent=phone||'รอข้อมูลเบอร์โทร';
+            const sc=document.getElementById('legacyPreviewSchool');if(sc)sc.textContent=school;
+            const gr=document.getElementById('legacyPreviewGrade');if(gr)gr.textContent=grade;
+            const fa=document.getElementById('legacyPreviewFaculty');if(fa)fa.textContent=faculty;
+        }
+
+        function legacyProfilePayload() {
+            return {
+                p_fullname: document.getElementById('legacyFullname')?.value?.trim()||'',
+                p_nickname: document.getElementById('legacyNickname')?.value?.trim()||'',
+                p_phone: document.getElementById('legacyPhone')?.value?.trim()||'',
+                p_email: document.getElementById('legacyEmail')?.value?.trim()||'',
+                p_line_id: document.getElementById('legacyLineId')?.value?.trim()||'',
+                p_school: document.getElementById('legacySchool')?.value?.trim()||'',
+                p_grade: document.getElementById('legacyGrade')?.value?.trim()||'',
+                p_faculty: document.getElementById('legacyFaculty')?.value?.trim()||'',
+                p_province: document.getElementById('legacyProvince')?.value?.trim()||'',
+                p_parent_name: document.getElementById('legacyParentName')?.value?.trim()||'',
+                p_parent_phone: document.getElementById('legacyParentPhone')?.value?.trim()||''
+            };
+        }
+
+        async function saveLegacyStudentProfile() {
+            const required=['legacyFullname','legacyNickname','legacyPhone','legacySchool','legacyGrade'];
+            if(!checkRequired(required)){
+                Swal.fire('ข้อมูลยังไม่ครบ','กรุณากรอกชื่อ ชื่อเล่น เบอร์โทร สถานศึกษา และระดับชั้น','warning');
+                return;
+            }
+            const p=legacyProfilePayload();
+            if(cleanRenewPhone(p.p_phone).length<9){
+                Swal.fire('ตรวจสอบเบอร์โทร','กรุณากรอกเบอร์โทรให้ถูกต้อง','warning');return;
+            }
+            const db=window.AreWarinAPI?.sb;
+            if(!db?.rpc){
+                Swal.fire('ยังไม่พร้อมใช้งาน','ไม่พบการเชื่อมต่อ Supabase','error');return;
+            }
+            const btn=document.getElementById('legacySaveBtn');
+            const old=btn?.innerHTML;
+            if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin mr-1"></i> กำลังบันทึก...';}
+            try{
+                const {data,error}=await db.rpc('registration_upsert_legacy_student_profile',p);
+                if(error)throw error;
+                if(!data?.ok)throw new Error(data?.message||'บันทึกข้อมูลไม่สำเร็จ');
+                legacyStudentProfileId=data.student_id||null;
+                legacyStudentCode=data.student_code||'';
+                legacyParentName=p.p_parent_name||'';
+                legacyParentPhone=p.p_parent_phone||'';
+
+                const synthetic={
+                    found:true,
+                    source:'legacy_profile',
+                    legacyProfileId:legacyStudentProfileId,
+                    student:{
+                        id:legacyStudentProfileId,
+                        studentCode:legacyStudentCode,
+                        fullname:p.p_fullname,nickname:p.p_nickname,phone:p.p_phone,email:p.p_email,
+                        lineId:p.p_line_id,school:p.p_school,grade:p.p_grade,faculty:p.p_faculty,province:p.p_province
+                    },
+                    latest:null,history:[]
+                };
+                existingStudentRecord=synthetic;
+                existingStudentCourseMatches=[];
+
+                const saved=document.getElementById('legacySavedProfile');
+                if(saved){
+                    saved.innerHTML='<b><i class="fas fa-circle-check mr-1"></i> บันทึก Student Profile แล้ว</b><p>'+escapeRenewHtml(p.p_fullname)+' จะถูกค้นพบด้วยเบอร์นี้ในระบบครั้งถัดไป</p>'+(legacyStudentCode?'<span class="legacy-saved-code">Student ID '+escapeRenewHtml(legacyStudentCode)+'</span>':'');
+                    saved.classList.remove('hidden');
+                }
+
+                if(legacyReturningAction==='add_course'){
+                    prefillExistingStudentProfile();
+                    courseCart=[];
+                    renderCategories();
+                    renderCartItems();
+                    setTimeout(()=>showStep('stepCategory'),450);
+                }else{
+                    Swal.fire({
+                        icon:'success',
+                        title:'อัปเดตข้อมูลเรียบร้อย',
+                        html:'<div style="font-size:12px;line-height:1.8;color:#64748b">สร้างโปรไฟล์นักเรียนเดิมในระบบใหม่แล้ว'+(legacyStudentCode?'<br><b style="color:#0f172a">Student ID: '+escapeRenewHtml(legacyStudentCode)+'</b>':'')+'</div>',
+                        confirmButtonText:'เรียบร้อย',
+                        confirmButtonColor:'#059669',
+                        customClass:{popup:'rounded-[1.5rem]'}
+                    });
+                }
+            }catch(err){
+                console.error(err);
+                Swal.fire('บันทึกไม่สำเร็จ',err?.message||String(err),'error');
+            }finally{
+                if(btn){btn.disabled=false;btn.innerHTML=old;}
+                if(legacyReturningAction==='update_profile'&&btn)btn.classList.add('green');
+            }
+        }
+        window.beginLegacyStudent=beginLegacyStudent;
+        window.saveLegacyStudentProfile=saveLegacyStudentProfile;
+        window.updateLegacyProfilePreview=updateLegacyProfilePreview;
 
         async function lookupExistingStudent() {
             const input = document.getElementById('oldLookupPhone');
@@ -5023,17 +5404,17 @@
                     });
                 }
                 if(!res || !res.found) {
-                    existingStudentRecord = null;
-                    document.getElementById('oldLookupResult').classList.add('hidden');
-                    Swal.fire({
-                        icon:'info', title:'ยังไม่พบข้อมูลนักเรียน',
-                        text:'ตรวจสอบเบอร์โทรอีกครั้ง หากเคยใช้เบอร์อื่นในการสมัคร กรุณาใช้เบอร์เดิมก่อน',
-                        confirmButtonText:'ลองใหม่', confirmButtonColor:'#0f172a',
-                        customClass:{popup:'rounded-[1.5rem]'}
-                    });
+                    const profileRes=await lookupRegistrationProfileRpc(phone);
+                    if(profileRes?.found) res=profileRes;
+                }
+                if(!res || !res.found) {
+                    renderLegacyMissingChoice(input ? input.value : phone);
                     return;
                 }
+                document.getElementById('oldLegacyMissing')?.classList.add('hidden');
                 existingStudentRecord = res;
+                legacyStudentProfileId = res.legacyProfileId || res.student?.id || null;
+                legacyStudentCode = res.student?.studentCode || res.student?.student_code || '';
                 existingStudentCourseMatches = matchExistingCourses(res);
                 renderExistingLookupResult(res);
             } catch(err) {
@@ -5102,7 +5483,9 @@
 
         function startExistingRenewal(mode) {
             if(!existingStudentRecord) return;
-            existingStudentRenewalMode = mode;
+            if(!existingStudentRecord?.latest?.id && mode==='same') mode='modify';
+            existingStudentRenewalMode = existingStudentRecord?.latest?.id ? mode : 'legacy_profile';
+            legacyStudentProfileId = existingStudentRecord?.legacyProfileId || existingStudentRecord?.student?.id || legacyStudentProfileId;
             prefillExistingStudentProfile();
             courseCart = existingStudentCourseMatches.map(x=>({...x}));
             renderOldSelectedCourses();
@@ -5820,7 +6203,7 @@
                 renderDiscountSummary();
 
                 if(msg) {
-                    msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-sky-600";
+                    msg.className = "text-[10px] mt-1 h-3 font-bold transition-all text-green-500";
                     msg.innerText = 'ใช้ส่วนลดสำเร็จ';
                 }
 
@@ -6017,7 +6400,10 @@
                     fd.additionalStudents = others;
                 }
             } else {
-                fd.renewalMode = 'catalog';
+                const isLegacyProfileFlow = !!legacyStudentProfileId && (!document.getElementById('oldPreviousEnrollmentId')?.value || existingStudentRenewalMode==='legacy_profile' || legacyReturningAction==='add_course');
+                fd.renewalMode = isLegacyProfileFlow ? 'legacy_profile' : 'catalog';
+                fd.legacyStudentId = isLegacyProfileFlow ? legacyStudentProfileId : null;
+                fd.legacyReturning = isLegacyProfileFlow;
                 fd.previousEnrollmentId = document.getElementById('oldPreviousEnrollmentId')?.value || null;
                 fd.lookupPhone = document.getElementById('oldLookupPhone')?.value || '';
                 fd.fullname = document.getElementById('oldFullname').value;
@@ -6029,6 +6415,10 @@
                 fd.grade = document.getElementById('oldGrade').value;
                 fd.faculty = document.getElementById('oldFaculty').value;
                 fd.province = document.getElementById('oldProvince').value;
+                if(isLegacyProfileFlow){
+                    fd.parentName = legacyParentName || document.getElementById('legacyParentName')?.value || '';
+                    fd.parentPhone = legacyParentPhone || document.getElementById('legacyParentPhone')?.value || '';
+                }
                 fd.mode = selectedMode;
                 fd.studyType = selectedStudyType;
                 fd.groupSize = groupSize;
@@ -6043,8 +6433,21 @@
             }
             
             try {
-                google.script.run.withSuccessHandler(callback).withFailureHandler(err=>{Swal.fire('Error',err.message,'error')}).processApplication(fd);
-            } catch(e) { Swal.fire('Error', 'No backend function', 'error'); }
+                if(fd.renewalMode==='legacy_profile' && fd.legacyStudentId && window.AreWarinAPI?.sb?.functions){
+                    (async()=>{
+                        try{
+                            const {data,error}=await window.AreWarinAPI.sb.functions.invoke('create-legacy-returning-enrollment',{body:fd});
+                            if(error)throw error;
+                            if(!data?.success)throw new Error(data?.message||'สมัครเรียนไม่สำเร็จ');
+                            callback && callback(data);
+                        }catch(err){
+                            Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error');
+                        }
+                    })();
+                }else{
+                    google.script.run.withSuccessHandler(callback).withFailureHandler(err=>{Swal.fire('Error',err.message,'error')}).processApplication(fd);
+                }
+            } catch(e) { Swal.fire('Error', e?.message || 'No backend function', 'error'); }
         }
 
         function submitSpeakerRequest() {
