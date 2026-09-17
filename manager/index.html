@@ -30787,7 +30787,7 @@
   }
 </style>
 
-<meta name="arewarin-manager-build" content="24.5-group-class-visible-inline">
+<meta name="arewarin-manager-build" content="24.7-student-picker-enrollment-badge">
 
 <style id="aw-group-class-visibility-v24-5">
   .aw-group-main-nav{
@@ -30847,6 +30847,48 @@
   #section-groupclasses .page-kicker{color:#2563eb!important}
 </style>
 
+
+<style id="aw-manager-v247-css">
+  .aw-enrollment-nav{position:relative}
+  .aw-enrollment-badge{
+    margin-left:auto;
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:#ef3340;
+    color:#fff;
+    border:2px solid #fff;
+    box-shadow:0 4px 12px rgba(239,51,64,.28);
+    font-size:8px;
+    line-height:1;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+  }
+  .aw-enrollment-badge.hidden{display:none!important}
+  .gc-picker-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin-bottom:10px
+  }
+  .gc-picker-head b{font-size:10px;color:#334155}
+  .gc-picker-head span{font-size:8px;color:#94a3b8}
+  .gc-picker-count{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:25px;height:22px;padding:0 7px;border-radius:999px;
+    background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;
+    font-size:8px;font-weight:850
+  }
+  .gc-student-row.is-member{background:#f8fafc;opacity:.72}
+  .gc-member-pill{
+    margin-left:auto;white-space:nowrap;border-radius:999px;
+    padding:6px 9px;background:#ecfdf5;border:1px solid #bbf7d0;
+    color:#059669;font-size:7.5px;font-weight:800
+  }
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -30871,7 +30913,7 @@
   <i class="fas fa-users-rectangle"></i>
   <span>คลาสกลุ่ม</span>
   <em class="aw-group-nav-badge">GROUP</em>
-</button><a href="../tutor-os/" class="nav"><i class="fas fa-layer-group"></i><span>Tutor OS</span></a><a href="../student/" class="nav"><i class="fas fa-graduation-cap"></i><span>Student Portal</span></a><div class="nav-group-label">Content</div><button data-section="homepage" class="nav"><i class="fas fa-house-laptop"></i><span>หน้าแรก & แบรนด์</span></button><button data-section="tutors" class="nav"><i class="fas fa-user-graduate"></i><span>ติวเตอร์</span></button><button data-section="tutorapplications" class="nav"><i class="fas fa-user-plus"></i><span>สมัครติวเตอร์</span></button><button data-section="courses" class="nav"><i class="fas fa-book-open"></i><span>คอร์ส</span></button><button data-section="reviews" class="nav"><i class="far fa-comment-dots"></i><span>รีวิว</span></button><button data-section="halloffame" class="nav"><i class="fas fa-trophy"></i><span>ทำเนียบคนเก่ง</span></button><div class="nav-group-label">Operations</div><a href="../legacy-students/" class="nav"><i class="fas fa-address-book"></i><span>นักเรียนเดิม</span></a><a href="../tutor-os/?section=groups" class="nav"><i class="fas fa-layer-group"></i><span>Group Locker</span></a><button data-section="v17control" class="nav"><i class="fas fa-bolt"></i><span>Operations Center</span></button><button data-section="student360" class="nav"><i class="fas fa-address-card"></i><span>Student 360°</span></button><button data-section="schedule" class="nav"><i class="far fa-calendar-alt"></i><span>ตารางสอน</span></button><button data-section="enrollments" class="nav"><i class="fas fa-clipboard-list"></i><span>การสมัครเรียน</span></button><button data-section="speakers" class="nav"><i class="fas fa-microphone-lines"></i><span>จ้างวิทยากร</span></button><button data-section="prices" class="nav"><i class="fas fa-tag"></i><span>ราคา</span></button><button data-section="promotions" class="nav"><i class="fas fa-ticket"></i><span>โปรโมชั่น</span></button><button data-section="payments" class="nav"><i class="fas fa-wallet"></i><span>การชำระเงิน</span></button><div class="nav-group-label">Control</div><button data-section="governance" class="nav"><i class="fas fa-shield-halved"></i><span>Health · Audit · Roles</span></button><div class="nav-group-label">Settings</div><button data-section="policies" class="nav"><i class="fas fa-file-shield"></i><span>นโยบาย & กติกา</span></button><button data-section="receipt" class="nav"><i class="fas fa-receipt"></i><span>ตั้งค่าใบเสร็จ</span></button><button data-section="system" class="nav"><i class="fas fa-sliders"></i><span>ตั้งค่าระบบ</span></button></div></aside><main class="manager-content space-y-5">
+</button><a href="../tutor-os/" class="nav"><i class="fas fa-layer-group"></i><span>Tutor OS</span></a><a href="../student/" class="nav"><i class="fas fa-graduation-cap"></i><span>Student Portal</span></a><div class="nav-group-label">Content</div><button data-section="homepage" class="nav"><i class="fas fa-house-laptop"></i><span>หน้าแรก & แบรนด์</span></button><button data-section="tutors" class="nav"><i class="fas fa-user-graduate"></i><span>ติวเตอร์</span></button><button data-section="tutorapplications" class="nav"><i class="fas fa-user-plus"></i><span>สมัครติวเตอร์</span></button><button data-section="courses" class="nav"><i class="fas fa-book-open"></i><span>คอร์ส</span></button><button data-section="reviews" class="nav"><i class="far fa-comment-dots"></i><span>รีวิว</span></button><button data-section="halloffame" class="nav"><i class="fas fa-trophy"></i><span>ทำเนียบคนเก่ง</span></button><div class="nav-group-label">Operations</div><a href="../legacy-students/" class="nav"><i class="fas fa-address-book"></i><span>นักเรียนเดิม</span></a><a href="../tutor-os/?section=groups" class="nav"><i class="fas fa-layer-group"></i><span>Group Locker</span></a><button data-section="v17control" class="nav"><i class="fas fa-bolt"></i><span>Operations Center</span></button><button data-section="student360" class="nav"><i class="fas fa-address-card"></i><span>Student 360°</span></button><button data-section="schedule" class="nav"><i class="far fa-calendar-alt"></i><span>ตารางสอน</span></button><button data-section="enrollments" class="nav aw-enrollment-nav"><i class="fas fa-clipboard-list"></i><span>การสมัครเรียน</span><span id="enrollmentNavBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="speakers" class="nav"><i class="fas fa-microphone-lines"></i><span>จ้างวิทยากร</span></button><button data-section="prices" class="nav"><i class="fas fa-tag"></i><span>ราคา</span></button><button data-section="promotions" class="nav"><i class="fas fa-ticket"></i><span>โปรโมชั่น</span></button><button data-section="payments" class="nav"><i class="fas fa-wallet"></i><span>การชำระเงิน</span></button><div class="nav-group-label">Control</div><button data-section="governance" class="nav"><i class="fas fa-shield-halved"></i><span>Health · Audit · Roles</span></button><div class="nav-group-label">Settings</div><button data-section="policies" class="nav"><i class="fas fa-file-shield"></i><span>นโยบาย & กติกา</span></button><button data-section="receipt" class="nav"><i class="fas fa-receipt"></i><span>ตั้งค่าใบเสร็จ</span></button><button data-section="system" class="nav"><i class="fas fa-sliders"></i><span>ตั้งค่าระบบ</span></button></div></aside><main class="manager-content space-y-5">
         <section id="section-dashboard" class="section active space-y-4"><div class="page-head"><div><div class="page-kicker">Overview</div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">ภาพรวมข้อมูลสำคัญของ AreWarin Biology ในที่เดียว</p></div><div class="hidden sm:flex items-center gap-2 text-[9.5px] text-slate-400 bg-white border border-slate-200 rounded-full px-3 py-2"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> ระบบเชื่อมต่ออยู่</div></div><div class="card dashboard-hero"><div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 h-full"><div><span class="hero-chip"><i class="fas fa-wand-magic-sparkles"></i> AreWarin Workspace</span><h2 class="text-[27px] md:text-[30px] font-semibold tracking-tight mt-4">จัดการระบบได้ง่ายขึ้น<br><span class="text-sky-300">และเห็นภาพรวมได้ทันที</span></h2><p class="text-[10.5px] md:text-[11px] text-slate-300 mt-3 max-w-xl leading-relaxed">ข้อมูลติวเตอร์ คอร์ส ตารางเรียน รีวิว ราคา โปรโมชั่น และการชำระเงินเชื่อมต่อกับหน้าเว็บหลักแบบเรียลไทม์</p></div><div class="flex gap-2"><a href="../" class="hero-chip hover:bg-white/15"><i class="fas fa-eye"></i> ดูหน้าเว็บ</a><a href="../reviews/" class="hero-chip hover:bg-white/15"><i class="far fa-comment-dots"></i> ดูรีวิว</a><a href="../tutor-os/" class="hero-chip hover:bg-white/15"><i class="fas fa-layer-group"></i> Tutor OS</a><button type="button" data-aw-open-groupclasses class="hero-chip hover:bg-white/15"><i class="fas fa-users-rectangle"></i> จัดการคลาสกลุ่ม</button><a href="../tutor-os/?section=groups" class="hero-chip hover:bg-white/15"><i class="fas fa-people-group"></i> Group Locker</a><a href="../student/" class="hero-chip hover:bg-white/15"><i class="fas fa-graduation-cap"></i> Student Portal</a></div></div></div><div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3"><div class="card stat-card" style="--stat-glow:#e0f2fe"><div class="flex items-start justify-between"><div class="stat-icon bg-sky-50 text-sky-600"><i class="fas fa-user-graduate"></i></div><span class="tag">Tutor</span></div><div><div id="statTutors" class="stat-value">0</div><div class="stat-label mt-2">ติวเตอร์ทั้งหมด</div><div class="stat-note mt-1">ผู้สอนในระบบ</div></div></div><div class="card stat-card" style="--stat-glow:#ede9fe"><div class="flex items-start justify-between"><div class="stat-icon bg-violet-50 text-violet-600"><i class="fas fa-book-open"></i></div><span class="tag">Course</span></div><div><div id="statCourses" class="stat-value">0</div><div class="stat-label mt-2">คอร์สทั้งหมด</div><div class="stat-note mt-1">หลักสูตรที่จัดการอยู่</div></div></div><div class="card stat-card" style="--stat-glow:#fef3c7"><div class="flex items-start justify-between"><div class="stat-icon bg-amber-50 text-amber-600"><i class="fas fa-hourglass-half"></i></div><span class="tag">Pending</span></div><div><div id="statPending" class="stat-value text-amber-500">0</div><div class="stat-label mt-2">รอตรวจสลิป</div><div class="stat-note mt-1">ต้องดำเนินการ</div></div></div><div class="card stat-card" style="--stat-glow:#dcfce7"><div class="flex items-start justify-between"><div class="stat-icon bg-emerald-50 text-emerald-600"><i class="fas fa-user-check"></i></div><span class="tag">Enroll</span></div><div><div id="statEnrollments" class="stat-value">0</div><div class="stat-label mt-2">สมัครทั้งหมด</div><div class="stat-note mt-1">รายการลงทะเบียน</div></div></div><div class="card stat-card" style="--stat-glow:#e0e7ff"><div class="flex items-start justify-between"><div class="stat-icon bg-indigo-50 text-indigo-600"><i class="fas fa-star"></i></div><span class="tag">Review</span></div><div><div id="statReviews" class="stat-value text-indigo-500">0</div><div class="stat-label mt-2">รีวิวเผยแพร่</div><div class="stat-note mt-1">Social proof</div></div></div></div></section>
 
         <section id="section-homepage" class="section space-y-5">
@@ -35340,7 +35382,7 @@
 <script id="aw-group-class-manager-v24">
 (()=>{
 'use strict';
-const G={rows:[],courses:[],tutors:[],summary:{},q:'',course:'',status:'',loaded:false};
+const G={rows:[],courses:[],tutors:[],summary:{},q:'',course:'',status:'',loaded:false,memberIds:new Set()};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('th-TH');
@@ -35381,8 +35423,55 @@ async function uploadClassImage(file){if(!file)return null;const c=db();const ex
 async function saveClass(id){const c=db();const btn=$('gcSave');const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังบันทึก';try{let image=$('gcImage').value.trim()||null;const file=$('gcImageFile').files?.[0];if(file)image=await uploadClassImage(file);const schedules=[...document.querySelectorAll('.gc-schedule-row')].map(row=>({weekday:Number(row.querySelector('.gc-sch-day').value),start_time:row.querySelector('.gc-sch-start').value,end_time:row.querySelector('.gc-sch-end').value})).filter(x=>x.start_time&&x.end_time);const payload={id,course_id:$('gcCourse').value,tutor_id:$('gcTutor').value,group_code:$('gcCode').value.trim(),name:$('gcName').value.trim(),description:$('gcDesc').value.trim(),image_url:image,price_amount:Number($('gcPrice').value||0),capacity:Number($('gcCapacity').value||1),included_hours:Number($('gcHours').value||0),included_sessions:Number($('gcSessions').value||0),start_date:$('gcStartDate').value||null,end_date:$('gcEndDate').value||null,mode:$('gcMode').value,location:$('gcLocation').value.trim(),status:$('gcStatus').value,seat_hold_minutes:Number($('gcHold').value||1440),enrollment_open:$('gcEnrollOpen').checked,public_visible:$('gcPublic').checked,absence_deduct_hours:$('gcDeductAbsent').checked,recording_on_absence:$('gcRecording').checked,recording_visibility:$('gcRecordingVisibility').value,allow_promotions:$('gcPromo').checked,waitlist_enabled:$('gcWaitlist').checked,schedules};if(!payload.course_id||!payload.tutor_id||!payload.name)return alertMsg('กรุณากรอกคอร์ส ติวเตอร์ และชื่อคลาส','warning');const {data,error}=await c.rpc('manager_group_class_save',{p_payload:payload});if(error)throw error;if(data&&data.ok===false){const extra=[data.code,data.sqlstate].filter(Boolean).join(' / ');throw new Error((data.message||'บันทึกคลาสไม่สำเร็จ')+(extra?' ['+extra+']':''));}closeModal();alertMsg('บันทึกคลาสแล้ว');await load()}catch(e){alertMsg(e.message||String(e),'error')}finally{if(btn){btn.disabled=false;btn.innerHTML=old}}}
 async function duplicateClass(id){const ok=await Swal.fire({icon:'question',title:'Duplicate คลาสนี้?',text:'ระบบจะคัดลอกข้อมูล ราคา Policy และตาราง แต่ไม่คัดลอกนักเรียน',showCancelButton:true,confirmButtonText:'สร้างสำเนา',cancelButtonText:'ยกเลิก',confirmButtonColor:'#172033'});if(!ok.isConfirmed)return;const {data,error}=await db().rpc('manager_group_class_duplicate',{p_group_id:id});if(error)return alertMsg(error.message,'error');alertMsg('สร้างสำเนาแล้ว');await load();const row=G.rows.find(x=>x.id===data?.group_id);if(row)openEditor(row)}
 async function openDetail(r){const {data,error}=await db().rpc('manager_group_class_students',{p_group_id:r.id});if(error)return alertMsg(error.message,'error');const members=data?.members||[],reservations=data?.reservations||[];const body=`<div class="gc-detail-grid"><section class="gc-box"><div class="flex items-center justify-between gap-2 mb-3"><div><h4 class="!mb-0">นักเรียนในคลาส</h4><div class="text-[8px] text-slate-400 mt-1">${members.length} คน · Capacity ${r.capacity}</div></div><button id="gcAddStudent" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-[9px] font-semibold"><i class="fas fa-user-plus mr-1"></i>ดึงนักเรียนเข้าคลาส</button></div><div class="gc-detail-list">${members.length?members.map(m=>`<div class="gc-student-row"><div class="gc-student-avatar">${esc(String(m.nickname||m.display_name||'AW').slice(0,2))}</div><div><b>${esc(m.nickname||m.display_name||m.fullname||'นักเรียน')}</b><small>${esc(m.student_code||'—')} · ${esc(m.phone||'—')} · ${esc(m.school||'—')}</small><small class="${m.student_course_enrollment_id?'gc-wallet-ok':'gc-wallet-warn'}">${m.student_course_enrollment_id?'✓ ผูก Course Wallet แล้ว':'! ยังไม่ผูกชั่วโมงของคอร์สนี้'}</small></div><button class="icon-btn danger" data-gc-remove-member="${m.student_id}" title="นำออก"><i class="fas fa-user-minus"></i></button></div>`).join(''):'<div class="empty-box py-8 text-center text-[9px] text-slate-400">ยังไม่มีนักเรียนในคลาส</div>'}</div></section><div class="space-y-3"><section class="gc-box"><h4>ภาพรวม</h4><div class="gc-detail-stat"><div><small>Confirmed</small><b>${members.length}</b></div><div><small>รอชำระ</small><b>${reservations.filter(x=>['held','pending_payment'].includes(x.status)).length}</b></div><div><small>เหลือ</small><b>${Math.max(0,Number(r.capacity)-Number(r.seats_taken||0))}</b></div></div></section><section class="gc-box"><h4>ตารางเรียน</h4><div class="text-[9px] text-slate-600 leading-7">${(r.schedules||[]).map(x=>`<div><i class="far fa-calendar mr-1 text-sky-500"></i>${esc(DAYS[x.weekday])} ${esc(String(x.start_time).slice(0,5))}–${esc(String(x.end_time).slice(0,5))}</div>`).join('')||'ยังไม่ได้ตั้งตาราง'}</div></section><section class="gc-box"><h4>Seat reservations</h4><div class="space-y-2">${reservations.length?reservations.map(x=>`<div class="gc-reservation"><b>${esc(x.fullname||x.phone_key||'Applicant')}</b><br>${esc(x.status)} · ${x.seats||1} ที่ ${x.expires_at?`· hold ถึง ${new Date(x.expires_at).toLocaleString('th-TH')}`:''}</div>`).join(''):'<div class="text-[8px] text-slate-400">ไม่มีรายการจองที่นั่ง</div>'}</div></section></div></div>`;openModal(r.name,body);$('gcAddStudent').onclick=()=>openStudentPicker(r);document.querySelectorAll('[data-gc-remove-member]').forEach(b=>b.onclick=()=>removeMember(r,b.dataset.gcRemoveMember))}
-async function openStudentPicker(r){const body=`<div class="gc-box"><div class="gc-search mb-3"><i class="fas fa-magnifying-glass"></i><input id="gcStudentSearch" class="input" placeholder="ค้นหา Student ID ชื่อ ชื่อเล่น เบอร์ โรงเรียน"></div><div id="gcStudentResults" class="gc-search-results"><div class="text-center py-10 text-[9px] text-slate-400">พิมพ์อย่างน้อย 2 ตัวอักษรเพื่อค้นหา</div></div></div>`;openModal('ดึงนักเรียนเข้า '+r.name,body);let timer;$('gcStudentSearch').oninput=e=>{clearTimeout(timer);timer=setTimeout(()=>searchStudents(r,e.target.value),260)}}
-async function searchStudents(r,q){const root=$('gcStudentResults');if(String(q).trim().length<2){root.innerHTML='<div class="text-center py-10 text-[9px] text-slate-400">พิมพ์อย่างน้อย 2 ตัวอักษรเพื่อค้นหา</div>';return}root.innerHTML='<div class="text-center py-8 text-[9px] text-slate-400"><i class="fas fa-circle-notch fa-spin mr-1"></i>กำลังค้นหา</div>';const {data,error}=await db().rpc('manager_group_class_search_students',{p_group_id:r.id,p_query:q});if(error){root.innerHTML='<div class="text-rose-500 text-[9px]">'+esc(error.message)+'</div>';return}const rows=data||[];root.innerHTML=rows.length?rows.map(s=>`<div class="gc-student-row"><div class="gc-student-avatar">${esc(String(s.nickname||s.display_name||'AW').slice(0,2))}</div><div><b>${esc(s.nickname||s.display_name||s.fullname)}</b><small>${esc(s.student_code||'—')} · ${esc(s.phone||'—')} · ${esc(s.school||'—')}</small><small class="${s.student_course_enrollment_id?'gc-wallet-ok':'gc-wallet-warn'}">${s.student_course_enrollment_id?'มี Course Wallet สำหรับคอร์สนี้':'ยังไม่มี Course Wallet — เพิ่มได้แต่จะยังตัดชั่วโมงไม่ได้'}</small></div><button class="btn primary" data-add-student="${s.id}">เพิ่ม</button></div>`).join(''):'<div class="text-center py-10 text-[9px] text-slate-400">ไม่พบนักเรียน</div>';root.querySelectorAll('[data-add-student]').forEach(b=>b.onclick=()=>addMember(r,b.dataset.addStudent))}
+async function openStudentPicker(r){
+  const body=`<div class="gc-box">
+    <div class="gc-picker-head">
+      <div><b>นักเรียนในระบบ</b><span class="block mt-1">แสดงรายชื่อทันที และพิมพ์ค้นหาเพื่อกรองได้</span></div>
+      <span id="gcPickerCount" class="gc-picker-count">...</span>
+    </div>
+    <div class="gc-search mb-3"><i class="fas fa-magnifying-glass"></i><input id="gcStudentSearch" class="input" placeholder="ค้นหา Student ID ชื่อ ชื่อเล่น เบอร์ โรงเรียน"></div>
+    <div id="gcStudentResults" class="gc-search-results"><div class="text-center py-8 text-[9px] text-slate-400"><i class="fas fa-circle-notch fa-spin mr-1"></i>กำลังโหลดรายชื่อนักเรียน</div></div>
+  </div>`;
+  openModal('ดึงนักเรียนเข้า '+r.name,body);
+
+  G.memberIds=new Set();
+  try{
+    const detail=await db().rpc('manager_group_class_students',{p_group_id:r.id});
+    (detail.data?.members||[]).forEach(m=>G.memberIds.add(String(m.student_id||m.id)));
+  }catch(_){}
+
+  let timer;
+  $('gcStudentSearch').oninput=e=>{
+    clearTimeout(timer);
+    timer=setTimeout(()=>searchStudents(r,e.target.value),220)
+  };
+  await searchStudents(r,'');
+}
+async function searchStudents(r,q){
+  const root=$('gcStudentResults');
+  if(!root)return;
+  root.innerHTML='<div class="text-center py-8 text-[9px] text-slate-400"><i class="fas fa-circle-notch fa-spin mr-1"></i>กำลังโหลดรายชื่อนักเรียน</div>';
+  const {data,error}=await db().rpc('manager_group_class_search_students',{p_group_id:r.id,p_query:String(q||'').trim()});
+  if(error){
+    root.innerHTML='<div class="text-rose-500 text-[9px]">'+esc(error.message)+'</div>';
+    return
+  }
+  const rows=data||[];
+  const counter=$('gcPickerCount');if(counter)counter.textContent=rows.length+' คน';
+  root.innerHTML=rows.length?rows.map(s=>{
+    const already=G.memberIds.has(String(s.id));
+    return `<div class="gc-student-row ${already?'is-member':''}">
+      <div class="gc-student-avatar">${esc(String(s.nickname||s.display_name||s.fullname||'AW').slice(0,2))}</div>
+      <div>
+        <b>${esc(s.nickname||s.display_name||s.fullname||'นักเรียน')}</b>
+        <small>${esc(s.student_code||'—')} · ${esc(s.phone||'—')} · ${esc(s.school||'—')}</small>
+        <small class="${s.student_course_enrollment_id?'gc-wallet-ok':'gc-wallet-warn'}">${s.student_course_enrollment_id?'มี Course Wallet สำหรับคอร์สนี้':'ยังไม่มี Course Wallet — เพิ่มได้แต่จะยังตัดชั่วโมงไม่ได้'}</small>
+      </div>
+      ${already?'<span class="gc-member-pill"><i class="fas fa-check mr-1"></i>อยู่ในคลาสแล้ว</span>':`<button class="btn primary" data-add-student="${s.id}">เพิ่ม</button>`}
+    </div>`
+  }).join(''):'<div class="text-center py-10 text-[9px] text-slate-400">ไม่พบนักเรียน</div>';
+  root.querySelectorAll('[data-add-student]').forEach(b=>b.onclick=()=>addMember(r,b.dataset.addStudent))
+}
 async function addMember(r,studentId){const {data,error}=await db().rpc('manager_group_class_add_student',{p_group_id:r.id,p_student_id:studentId});if(error)return alertMsg(error.message,'error');alertMsg(data?.warning||'เพิ่มนักเรียนเข้าคลาสแล้ว',data?.warning?'warning':'success');await load();const row=G.rows.find(x=>x.id===r.id)||r;await openDetail(row)}
 async function removeMember(r,studentId){const ok=await Swal.fire({icon:'warning',title:'นำออกจากคลาส?',text:'ประวัติการสมัครและ Course Wallet จะไม่ถูกลบ',showCancelButton:true,confirmButtonText:'นำออก',cancelButtonText:'ยกเลิก'});if(!ok.isConfirmed)return;const {error}=await db().rpc('manager_group_class_remove_student',{p_group_id:r.id,p_student_id:studentId});if(error)return alertMsg(error.message,'error');alertMsg('นำออกจากคลาสแล้ว');await load();const row=G.rows.find(x=>x.id===r.id)||r;await openDetail(row)}
 function activate(){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.manager-sidebar .nav[data-section]').forEach(n=>n.classList.remove('active'));$('section-groupclasses')?.classList.add('active');document.querySelector('[data-section="groupclasses"]')?.classList.add('active');load()}
@@ -35420,6 +35509,58 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(section==='groupclasses'||location.hash==='#groupclasses') setTimeout(openGroups,180);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
+
+
+<script id="aw-enrollment-nav-badge-v247">
+(()=>{
+  'use strict';
+  let timer=null,channel=null;
+
+  function db(){
+    return window.AreWarinAPI?.sb||window.supabaseClient||null;
+  }
+  function paint(n){
+    const el=document.getElementById('enrollmentNavBadge');
+    if(!el)return;
+    const count=Math.max(0,Number(n||0));
+    el.textContent=count>99?'99+':String(count);
+    el.classList.toggle('hidden',count===0);
+    el.setAttribute('aria-label',count+' รายการสมัครเรียนรอตรวจสอบ');
+    el.title=count+' รายการสมัครเรียนรอตรวจสอบ';
+  }
+  async function refresh(){
+    const c=db();if(!c)return;
+    try{
+      const {count,error}=await c.from('enrollments')
+        .select('id',{count:'exact',head:true})
+        .eq('status','pending_payment_verification');
+      if(error)throw error;
+      paint(count||0);
+    }catch(e){
+      console.warn('[Enrollment badge]',e?.message||e);
+    }
+  }
+  function bindRealtime(){
+    const c=db();
+    if(!c?.channel||channel)return;
+    try{
+      channel=c.channel('manager-enrollment-badge-v247')
+        .on('postgres_changes',{event:'*',schema:'public',table:'enrollments'},()=>refresh())
+        .subscribe();
+    }catch(e){console.warn('[Enrollment badge realtime]',e)}
+  }
+  function boot(){
+    refresh();
+    bindRealtime();
+    document.querySelector('[data-section="enrollments"]')?.addEventListener('click',()=>setTimeout(refresh,120));
+    document.getElementById('refreshEnrollments')?.addEventListener('click',()=>setTimeout(refresh,350));
+    window.addEventListener('focus',refresh);
+    timer=setInterval(refresh,60000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,250));
+  else setTimeout(boot,250);
 })();
 </script>
 
