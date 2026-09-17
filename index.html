@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER 22.0.0-returning-student-migration · legacy returning student migration -->
+  <!-- AREWARIN REGISTER V25 · CLEAR INDIVIDUAL/GROUP ROUTING -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -1638,7 +1638,16 @@
             .renew-profile-stats{grid-template-columns:1fr 1fr 1fr}
         }
 
-    </style>
+    
+        /* =========================================================
+           V24 · Existing Group Class / Cohort Selection
+           ========================================================= */
+        #stepGroupClassChoice.group-v24{background:linear-gradient(180deg,#f8fafc,#f5f8ff)}
+        .gcv24-shell{max-width:1050px;margin:0 auto;padding:18px}.gcv24-hero{padding:18px;border-radius:24px;background:linear-gradient(135deg,#14224f,#274a9a);color:#fff;position:relative;overflow:hidden}.gcv24-hero:after{content:"";position:absolute;width:220px;height:220px;border:40px solid rgba(255,255,255,.05);border-radius:50%;right:-80px;bottom:-135px}.gcv24-kicker{font-size:8px;letter-spacing:.15em;font-weight:800;color:#a5c8ff;text-transform:uppercase}.gcv24-hero h2{font-size:22px;font-weight:800;margin-top:4px}.gcv24-hero p{font-size:9.5px;line-height:1.7;color:#cfdbf4;margin-top:5px;max-width:680px}.gcv24-private{margin-top:12px;border:1px solid #dbe7f8;background:#fff;border-radius:19px;padding:14px;display:grid;grid-template-columns:48px 1fr auto;gap:11px;align-items:center;box-shadow:0 16px 38px -34px rgba(25,50,105,.4)}.gcv24-private .ico{width:48px;height:48px;border-radius:15px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;font-size:17px}.gcv24-private b{display:block;font-size:11px;color:#26364f}.gcv24-private span{display:block;font-size:8.5px;color:#8591a5;line-height:1.6;margin-top:3px}.gcv24-private button{border:0;border-radius:11px;background:#172033;color:#fff;padding:9px 12px;font-size:8.5px;font-weight:750}.gcv24-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:18px 2px 9px}.gcv24-title h3{font-size:13px;font-weight:800;color:#2a3953}.gcv24-title p{font-size:8px;color:#9aa4b4;margin-top:2px}.gcv24-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.gcv24-card{background:#fff;border:1px solid #e5ebf3;border-radius:21px;overflow:hidden;box-shadow:0 18px 42px -36px rgba(15,23,42,.35)}.gcv24-cover{height:135px;position:relative;background:linear-gradient(135deg,#dff4ff,#e8e8ff);overflow:hidden}.gcv24-cover img{width:100%;height:100%;object-fit:cover}.gcv24-cover .fallback{height:100%;display:grid;place-items:center;font-size:32px;color:#5171ca}.gcv24-seat{position:absolute;left:10px;top:10px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.92);color:#3156ad;font-size:7px;font-weight:800;border:1px solid rgba(255,255,255,.7)}.gcv24-seat.full{color:#be123c}.gcv24-code{position:absolute;right:10px;bottom:10px;padding:5px 7px;border-radius:999px;background:rgba(15,23,42,.72);color:#fff;font-size:6.8px;font-weight:700}.gcv24-body{padding:14px}.gcv24-name{font-size:13px;font-weight:800;color:#25334b}.gcv24-parent{font-size:8px;color:#8b96a8;margin-top:3px}.gcv24-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.gcv24-meta div{padding:8px;border-radius:11px;background:#f8fafc;border:1px solid #edf1f6}.gcv24-meta small{display:block;font-size:6.6px;color:#9ca6b6}.gcv24-meta b{display:block;font-size:8.2px;color:#495971;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gcv24-policy{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.gcv24-policy span{padding:4px 6px;border-radius:999px;font-size:6.7px;font-weight:700;border:1px solid #e5eaf1;background:#fafbfc;color:#68778d}.gcv24-policy .video{background:#effcf6;color:#047857;border-color:#bbf7d0}.gcv24-policy .deduct{background:#fff8ed;color:#c2410c;border-color:#fed7aa}.gcv24-bottom{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:11px;padding-top:10px;border-top:1px solid #eef2f6}.gcv24-price small{display:block;font-size:6.8px;color:#9ca6b6}.gcv24-price b{display:block;font-size:18px;color:#1f3b79;margin-top:2px}.gcv24-bottom button{border:0;border-radius:11px;padding:9px 12px;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:8.5px;font-weight:750}.gcv24-bottom button:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}.gcv24-back{margin-top:16px;text-align:center}.gcv24-back button{border:1px solid #e2e8f0;background:#fff;border-radius:11px;padding:8px 12px;color:#64748b;font-size:8.5px;font-weight:700}
+        #groupClassLockedPanel{border:1px solid #c7d8ff;background:linear-gradient(135deg,#f8fbff,#f3f5ff);border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:0 18px 42px -36px rgba(37,99,235,.35)}.gclock-head{display:flex;gap:11px;align-items:center}.gclock-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);color:#355ac3;display:grid;place-items:center;font-size:16px}.gclock-head h3{font-size:13px;font-weight:800;color:#26364f}.gclock-head p{font-size:8px;color:#8693a7;margin-top:2px}.gclock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.gclock-grid div{padding:9px;border-radius:12px;background:#fff;border:1px solid #e4eaf4}.gclock-grid small{display:block;font-size:6.6px;color:#98a4b5}.gclock-grid b{display:block;font-size:8.7px;color:#43536c;margin-top:3px}.gclock-policy{margin-top:11px;padding:11px;border-radius:13px;background:#fff;border:1px solid #e5eaf2}.gclock-policy label{display:flex;gap:8px;align-items:flex-start;font-size:8.5px;line-height:1.6;color:#58677e}.gclock-policy input{margin-top:3px}.gclock-policy strong{color:#b45309}.gclock-change{margin-top:10px;border:0;background:transparent;color:#315ec5;font-size:8px;font-weight:750;padding:0}
+        @media(max-width:720px){.gcv24-list{grid-template-columns:1fr}.gcv24-private{grid-template-columns:42px 1fr}.gcv24-private button{grid-column:2;justify-self:start}.gclock-grid{grid-template-columns:1fr 1fr}}
+
+</style>
 
 <style id="aw-v6-package-visibility-fix">
   /* V6: package cards must truly disappear when manager closes them */
@@ -1650,6 +1659,44 @@
   #modeOption_hourly.hidden {
     display: none !important;
   }
+
+        /* =========================================================
+           V25 · Clear Individual / Group registration routing
+        ========================================================= */
+        #stepGroupModeChoice.grp25-shell{background:linear-gradient(180deg,#f8fafc,#f7f8ff)}
+        .grp25-hero{display:flex;gap:12px;align-items:center;padding:18px;border:1px solid #e4e9f4;border-radius:22px;background:linear-gradient(135deg,#fff,#f7f9ff);box-shadow:0 18px 44px -40px rgba(30,64,175,.35);margin-bottom:14px}
+        .grp25-hero-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,#dbeafe,#ede9fe);color:#4f46e5;font-size:18px;flex:none}
+        .grp25-kicker{font-size:7px;font-weight:900;letter-spacing:.14em;color:#6366f1;margin-bottom:4px}
+        .grp25-hero h2{font-size:18px;font-weight:900;color:#1e293b;line-height:1.2}
+        .grp25-hero p:not(.grp25-kicker){font-size:8.5px;color:#8491a7;margin-top:4px}
+        .grp25-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .grp25-card{position:relative;text-align:left;padding:17px;border-radius:22px;border:1.5px solid #e4e9f2;background:#fff;box-shadow:0 18px 44px -38px rgba(15,23,42,.35);transition:.2s;min-height:220px}
+        .grp25-card:hover{transform:translateY(-2px);border-color:#cbd5e1}
+        .grp25-card.active{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08),0 24px 45px -35px rgba(79,70,229,.55)}
+        .grp25-check{position:absolute;right:13px;top:13px;width:22px;height:22px;border-radius:999px;border:1.5px solid #dbe2ee;color:transparent;display:grid;place-items:center;font-size:9px}
+        .grp25-card.active .grp25-check{background:#4f46e5;border-color:#4f46e5;color:#fff}
+        .grp25-icon{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;font-size:16px;margin-bottom:12px}
+        .grp25-icon.self{background:#ecfeff;color:#0891b2;border:1px solid #cffafe}
+        .grp25-icon.existing{background:#eef2ff;color:#4f46e5;border:1px solid #e0e7ff}
+        .grp25-badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:6.5px;font-weight:850;margin-bottom:6px}
+        .grp25-badge.self{background:#ecfeff;color:#0e7490}.grp25-badge.existing{background:#eef2ff;color:#4338ca}
+        .grp25-card h3{font-size:14px;font-weight:900;color:#26354c;margin-bottom:5px}
+        .grp25-card p{font-size:8px;line-height:1.65;color:#7a889d}
+        .grp25-points{display:grid;gap:5px;margin-top:12px;padding-top:11px;border-top:1px solid #eef1f6}
+        .grp25-points span{font-size:7.4px;color:#596a83;font-weight:650}.grp25-points i{width:14px;color:#6366f1}
+        #stepGroupModeChoice #groupSizeInputDiv{margin-top:13px}
+        .grp25-existing-note{margin-top:13px;padding:12px 14px;border-radius:16px;border:1px solid #dbeafe;background:#eff6ff;display:flex;gap:9px;align-items:flex-start;color:#31527f}
+        .grp25-existing-note i{margin-top:2px;color:#3b82f6}.grp25-existing-note strong{font-size:8.5px;display:block}.grp25-existing-note span{display:block;font-size:7.4px;color:#7184a0;margin-top:2px}
+        .grp25-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+        .grp25-back,.grp25-next{border-radius:14px;padding:11px 15px;font-size:8.5px;font-weight:800}
+        .grp25-back{background:#fff;border:1px solid #e2e8f0;color:#64748b}
+        .grp25-next{margin-left:auto;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;border:0;box-shadow:0 12px 28px -20px rgba(79,70,229,.7)}
+        .gcv25-routebar{display:flex;gap:10px;align-items:center;border:1px solid #dbeafe;background:linear-gradient(135deg,#f8fbff,#eef2ff);padding:12px 13px;border-radius:17px;margin-bottom:13px}
+        .gcv25-routeicon{width:38px;height:38px;border-radius:12px;background:#fff;color:#4f46e5;border:1px solid #e0e7ff;display:grid;place-items:center;flex:none}
+        .gcv25-routebar b{display:block;font-size:9px;color:#334155}.gcv25-routebar span{display:block;font-size:7px;color:#8290a6;margin-top:2px}
+        .gcv25-routebar button{border:1px solid #dbeafe;background:#fff;color:#4f46e5;border-radius:11px;padding:8px 10px;font-size:7px;font-weight:800;white-space:nowrap}
+        @media(max-width:720px){.grp25-grid{grid-template-columns:1fr}.gcv25-routebar{align-items:flex-start;flex-wrap:wrap}.gcv25-routebar button{width:100%}}
+
 </style>
 
 </head>
@@ -2049,7 +2096,7 @@
                         <div class="min-w-0 flex-1">
                             <p class="onb3-kicker">Learning format</p>
                             <h2 class="onb3-title">เลือกรูปแบบการเรียนที่เหมาะกับคุณ</h2>
-                            <p class="onb3-subtitle">ทั้งสองรูปแบบเลือกคอร์สและเวลาได้เหมือนกัน ต่างกันที่ความเป็นส่วนตัวและจำนวนผู้เรียน</p>
+                            <p class="onb3-subtitle">เลือกก่อนว่าเรียนเดี่ยวหรือเรียนกลุ่ม หากเลือกกลุ่ม ระบบจะให้เลือกต่อว่าจะจับกลุ่มมาเองหรือเข้าคลาสกลุ่มที่เปิดอยู่</p>
                         </div>
                     </div>
                     <span class="onb3-step-chip"><i class="fas fa-users-gear"></i> ขั้นตอนที่ 2 · รูปแบบการเรียน</span>
@@ -2084,22 +2131,72 @@
                             <div class="onb3-study-top">
                                 <div class="onb3-study-icon"><i class="fas fa-user-group"></i></div>
                                 <div>
-                                    <div class="onb3-study-name">เรียนกลุ่ม</div>
-                                    <div class="onb3-study-desc">จับกลุ่มเพื่อนมาเรียนด้วยกัน ได้บรรยากาศสนุกและช่วยเฉลี่ยค่าเรียนต่อคนให้คุ้มขึ้น</div>
+                                    <div class="onb3-study-name">เรียนแบบกลุ่ม <span class="text-pink-500">Group</span></div>
+                                    <div class="onb3-study-desc">เลือกได้ว่าจะจับกลุ่มมาเอง 2–10 คน หรือเลือกเข้าคลาสกลุ่มที่ AreWarin เปิดไว้แล้ว</div>
                                 </div>
                             </div>
                             <div class="onb3-study-divider"></div>
                             <div class="onb3-study-features">
-                                <div class="onb3-study-feature"><i class="fas fa-circle-check"></i><span>เรียนพร้อมเพื่อนในกลุ่มของคุณ</span></div>
+                                <div class="onb3-study-feature"><i class="fas fa-circle-check"></i><span>จับกลุ่มมาเอง หรือเลือกกลุ่มที่มีอยู่</span></div>
                                 <div class="onb3-study-feature"><i class="fas fa-circle-check"></i><span>ราคาเฉลี่ยต่อคนประหยัดกว่า</span></div>
-                                <div class="onb3-study-feature"><i class="fas fa-circle-check"></i><span>รองรับกลุ่มตั้งแต่ 2–10 คน</span></div>
+                                <div class="onb3-study-feature"><i class="fas fa-circle-check"></i><span>คลาสที่มีอยู่จะแสดงวัน เวลา ราคา และที่นั่ง</span></div>
                             </div>
-                            <span class="onb3-bestfor"><i class="fas fa-people-group"></i> เหมาะกับ: กลุ่มเพื่อน / พี่น้อง / ทีมติวสอบ</span>
+                            <span class="onb3-bestfor"><i class="fas fa-people-group"></i> เลือกรูปแบบกลุ่มในขั้นตอนถัดไป</span>
                         </div>
                     </label>
                 </div>
 
-                <div id="groupSizeInputDiv" class="hidden onb3-group-panel animate-fade-in">
+                <div class="onb3-actions">
+                    <button type="button" onclick="showStep('step3')" class="onb3-back"><i class="fas fa-arrow-left"></i> กลับ</button>
+                    <button type="button" onclick="confirmStudyType()" class="onb3-next">เลือกหมวดวิชาต่อ <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+
+            <!-- V25 · Group Registration Mode -->
+            <div id="stepGroupModeChoice" class="step-content grp25-shell p-4 md:p-6 rounded-b-[2.5rem]">
+                <section class="grp25-hero">
+                    <div class="grp25-hero-icon"><i class="fas fa-people-group"></i></div>
+                    <div class="min-w-0">
+                        <p class="grp25-kicker">GROUP REGISTRATION</p>
+                        <h2>อยากสมัครแบบกลุ่มอย่างไร?</h2>
+                        <p>เลือกเส้นทางให้ชัดก่อน เพื่อไม่ให้สับสนกับการสมัครเรียนเดี่ยว</p>
+                    </div>
+                </section>
+
+                <div class="grp25-grid">
+                    <button type="button" id="grp25SelfCard" class="grp25-card" onclick="selectGroupRegistrationMode('self')">
+                        <span class="grp25-check"><i class="fas fa-check"></i></span>
+                        <div class="grp25-icon self"><i class="fas fa-user-group"></i></div>
+                        <div>
+                            <span class="grp25-badge self">จัดกลุ่มเอง</span>
+                            <h3>จับกลุ่มมาเอง</h3>
+                            <p>สมัครพร้อมเพื่อนหรือพี่น้อง 2–10 คน จากนั้นเลือกคอร์ส ติวเตอร์ แพ็กเกจ และเวลาว่างตามขั้นตอนปกติ</p>
+                        </div>
+                        <div class="grp25-points">
+                            <span><i class="fas fa-circle-check"></i> เลือกวันเวลาเอง</span>
+                            <span><i class="fas fa-circle-check"></i> เลือกติวเตอร์เอง</span>
+                            <span><i class="fas fa-circle-check"></i> กรอกสมาชิกเพิ่มในใบสมัคร</span>
+                        </div>
+                    </button>
+
+                    <button type="button" id="grp25ExistingCard" class="grp25-card" onclick="selectGroupRegistrationMode('existing')">
+                        <span class="grp25-check"><i class="fas fa-check"></i></span>
+                        <div class="grp25-icon existing"><i class="fas fa-users-rectangle"></i></div>
+                        <div>
+                            <span class="grp25-badge existing">คลาสที่เปิดอยู่</span>
+                            <h3>เลือกกลุ่มที่มีอยู่</h3>
+                            <p>เลือกคอร์สก่อน เช่น A-Level Biology แล้วระบบจะแสดง Group A / Group B ที่กำลังเปิดรับ พร้อมผู้สอน ตาราง ราคา และที่นั่ง</p>
+                        </div>
+                        <div class="grp25-points">
+                            <span><i class="fas fa-calendar-days"></i> ตารางกำหนดไว้แล้ว</span>
+                            <span><i class="fas fa-tag"></i> ราคาแยกตามคลาส</span>
+                            <span><i class="fas fa-chair"></i> เห็นจำนวนที่นั่งก่อนสมัคร</span>
+                        </div>
+                    </button>
+                </div>
+
+<div id="groupSizeInputDiv" class="hidden onb3-group-panel animate-fade-in">
                     <div class="onb3-group-head">
                         <div>
                             <strong><i class="fas fa-users mr-1"></i> จำนวนผู้เรียนในกลุ่ม</strong>
@@ -2115,9 +2212,18 @@
                     <p class="onb3-group-note"><i class="fas fa-circle-info mr-1"></i> ขั้นตอนข้อมูลส่วนตัวจะมีช่องให้กรอกชื่อสมาชิกเพิ่มเติมอัตโนมัติ</p>
                 </div>
 
-                <div class="onb3-actions">
-                    <button type="button" onclick="showStep('step3')" class="onb3-back"><i class="fas fa-arrow-left"></i> กลับ</button>
-                    <button type="button" onclick="confirmStudyType()" class="onb3-next">เลือกหมวดวิชาต่อ <i class="fas fa-arrow-right"></i></button>
+                
+                <div class="grp25-existing-note hidden" id="grp25ExistingNote">
+                    <i class="fas fa-circle-info"></i>
+                    <div>
+                        <strong>เลือกคอร์สก่อน แล้วค่อยเลือกคลาสจริง</strong>
+                        <span>ระบบจะแสดงเฉพาะคลาสของคอร์สที่ยังเปิดรับสมัครและยังมีที่นั่ง</span>
+                    </div>
+                </div>
+
+                <div class="grp25-actions">
+                    <button type="button" onclick="showStep('stepStudyType')" class="grp25-back"><i class="fas fa-arrow-left"></i> กลับ</button>
+                    <button type="button" onclick="confirmGroupRegistrationMode()" class="grp25-next">เลือกคอร์สต่อ <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
 
@@ -2496,6 +2602,37 @@
                 </div>
             </div>
 
+
+            <!-- V25 · Existing Group Class Choice -->
+            <div id="stepGroupClassChoice" class="step-content group-v24 rounded-b-[2.5rem]">
+                <div class="gcv24-shell">
+                    <section class="gcv24-hero">
+                        <div class="gcv24-kicker">GROUP · EXISTING CLASS</div>
+                        <h2>เลือกคลาสกลุ่มที่มีอยู่</h2>
+                        <p>นี่คือเส้นทาง “เรียนกลุ่ม → เลือกกลุ่มที่มีอยู่” เท่านั้น การสมัครเรียนเดี่ยวจะไม่เข้าหน้านี้</p>
+                    </section>
+
+                    <div class="gcv25-routebar">
+                        <div class="gcv25-routeicon"><i class="fas fa-users-rectangle"></i></div>
+                        <div class="min-w-0 flex-1">
+                            <b>กำลังเลือกคลาสที่ AreWarin เปิดไว้</b>
+                            <span>เลือกได้ 1 คลาสต่อการสมัครหนึ่งรายการ ตารางและราคาจะล็อกตามคลาส</span>
+                        </div>
+                        <button type="button" onclick="switchGroupRegistrationPath('self')"><i class="fas fa-user-group"></i> เปลี่ยนเป็นจับกลุ่มมาเอง</button>
+                    </div>
+
+                    <div class="gcv24-title">
+                        <div><h3>คลาสที่เปิดรับสมัคร</h3><p id="groupClassCourseLabel">แสดงตามคอร์สที่คุณเลือก</p></div>
+                        <span id="groupClassChoiceCount" class="text-[8px] text-slate-400"></span>
+                    </div>
+                    <div id="groupClassChoiceList" class="gcv24-list"></div>
+
+                    <div class="gcv24-back">
+                        <button type="button" onclick="showStep('stepCourseCart')"><i class="fas fa-arrow-left mr-1"></i>กลับไปเลือกคอร์ส</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Step 4: Personal Info — Modern Personal Information V4 -->
             <div id="step4" class="step-content person-v4 rounded-b-[2.5rem]">
                 <div class="piv4-shell">
@@ -2678,7 +2815,9 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div id="groupClassLockedPanel" class="hidden"></div>
+
+                <div id="standardPackageGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     
                     <!-- Left Col / Top Row: Summary & Multi-config -->
                     <div class="space-y-4">
@@ -2857,7 +2996,7 @@
                     </section>
                 </div>
 
-                <div class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-slate-100 mt-2">
+                <div id="standardSchedulePanel" class="bg-white rounded-[1.5rem] p-5 shadow-sm border border-slate-100 mt-2">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <div>
                             <p class="text-sm font-bold text-slate-700 flex items-center gap-2"><i class="far fa-calendar-check text-green-500"></i> เลือกเวลาเรียน</p>
@@ -3609,11 +3748,18 @@
         var currentDiscountMeta = null; 
         var selectedStudyType = 'individual'; 
         var groupSize = 1;
+        var groupRegistrationMode = null; // null | self | existing
+        var groupModeAfterCourse = false;
         var selectedTutor = '';
         var selectedLevel = 'all';        
         var selectedCategory = ''; 
         
         var courseCart = []; 
+        var groupClassOptions = [];
+        var selectedGroupClass = null;
+        var groupChoiceResolved = false;
+        var groupClassCache = {};
+
         var allTutorSchedules = {}; // kept for backwards compatibility
         var scheduleMatrix = { tutors: [], templates: [], rows: [] };
         var selectedScheduleSlots = [];
@@ -4330,9 +4476,11 @@
             var p=1; 
             if(s==='step1')p=1; else if(s==='step2')p=2; else if(s==='step3')p=3; 
             else if(s==='stepStudyType')p=3;
+            else if(s==='stepGroupModeChoice')p=4;
             else if(s==='stepCategory')p=4;
             else if(s==='stepTutor')p=5; 
             else if(s==='stepCourseCart')p=6;
+            else if(s==='stepGroupClassChoice')p=7;
             else if(s==='step4')p=7; else if(s==='step5')p=8; else if(s==='step6')p=9; else if(s==='step7')p=10;
             else if(s.includes('Old'))p=6;
             else if(s === 'stepSpeaker') { p=10; showAssistantDog('speaker'); }
@@ -4341,6 +4489,7 @@
                 applyConfigToStep5();
                 loadAppConfig();
                 updateFinalCartSummary();
+                setTimeout(applyGroupClassStep5, 0);
 
                 // V6: refresh per-course package rules every time pricing step opens
                 setTimeout(async () => {
@@ -4350,6 +4499,7 @@
                         }
                         window.AWCoursePackagePublic?.apply?.();
                         if (typeof window.calcPriceNew === 'function') window.calcPriceNew();
+                        applyGroupClassStep5();
                     } catch (e) {
                         console.warn('[AW v6] refresh course package rules failed:', e);
                     }
@@ -4374,7 +4524,7 @@
         function resetForm() {
             document.getElementById('mainForm').reset();
             currentPrice = PRICE_STD_30H; finalPrice = PRICE_STD_30H; studentType = 'new'; selectedMode = 'monthly'; selectedTimes = []; selectedScheduleSlots = []; scheduleDayFilter = 'all'; paymentMethod = 'transfer'; selectedTutor = ''; selectedCategory = ''; selectedLevel = 'all';
-            selectedStudyType = 'individual'; groupSize = 1;
+            selectedStudyType = 'individual'; groupSize = 1; groupRegistrationMode = null; groupModeAfterCourse = false;
             courseCart = [];
             allTutorSchedules = {};
             cartShareMode = 'share';
@@ -4501,12 +4651,16 @@
 
         function selectStudyType(type) {
             selectedStudyType = type;
+            selectedGroupClass = null;
+            groupChoiceResolved = false;
+
+            // Important: do NOT open group-size options on the main study-type page.
+            // Individual stays pure individual. Group gets its own next step.
             const groupInput = document.getElementById('groupSizeInputDiv');
-            if(!groupInput) return;
-            if (type === 'group') {
-                groupInput.classList.remove('hidden');
-            } else {
-                groupInput.classList.add('hidden');
+            if(groupInput) groupInput.classList.add('hidden');
+
+            if (type === 'individual') {
+                groupRegistrationMode = null;
                 groupSize = 1;
                 const sizeInput = document.getElementById('inputGroupSize');
                 if(sizeInput) sizeInput.value = 2;
@@ -4515,19 +4669,94 @@
 
         function confirmStudyType() {
             if (selectedStudyType === 'group') {
-                const sizeInput = document.getElementById('inputGroupSize');
-                const size = sizeInput ? parseInt(sizeInput.value) : 1;
-                if (!size || size < 2) {
-                    Swal.fire('แจ้งเตือน', 'กรุณาระบุจำนวนผู้เรียนอย่างน้อย 2 คนครับ', 'warning');
-                    return;
-                }
-                groupSize = size;
-            } else {
+                groupRegistrationMode = null;
                 groupSize = 1;
+                groupModeAfterCourse = false;
+                syncGroupRegistrationModeUI();
+                showStep('stepGroupModeChoice');
+                return;
             }
-            renderAdditionalStudentsInputs(); 
+
+            // Individual route: unchanged — no existing-group prompt, no cohort lookup.
+            groupRegistrationMode = null;
+            groupSize = 1;
+            selectedGroupClass = null;
+            groupChoiceResolved = true;
+            renderAdditionalStudentsInputs();
             renderCategories();
             showStep('stepCategory');
+        }
+
+        function syncGroupRegistrationModeUI(){
+            const selfCard=document.getElementById('grp25SelfCard');
+            const existingCard=document.getElementById('grp25ExistingCard');
+            const sizePanel=document.getElementById('groupSizeInputDiv');
+            const note=document.getElementById('grp25ExistingNote');
+            if(selfCard)selfCard.classList.toggle('active',groupRegistrationMode==='self');
+            if(existingCard)existingCard.classList.toggle('active',groupRegistrationMode==='existing');
+            if(sizePanel)sizePanel.classList.toggle('hidden',groupRegistrationMode!=='self');
+            if(note)note.classList.toggle('hidden',groupRegistrationMode!=='existing');
+        }
+
+        function selectGroupRegistrationMode(mode){
+            groupRegistrationMode = mode === 'existing' ? 'existing' : 'self';
+            selectedStudyType = 'group';
+            selectedGroupClass = null;
+            groupChoiceResolved = false;
+
+            if(groupRegistrationMode==='existing'){
+                groupSize = 1;
+            }else{
+                const sizeInput=document.getElementById('inputGroupSize');
+                if(sizeInput && Number(sizeInput.value)<2) sizeInput.value=2;
+                groupSize=Math.max(2,Number(sizeInput?.value||2));
+            }
+            syncGroupRegistrationModeUI();
+        }
+
+        function confirmGroupRegistrationMode(){
+            if(!groupRegistrationMode){
+                Swal.fire('เลือกรูปแบบกลุ่ม','กรุณาเลือก “จับกลุ่มมาเอง” หรือ “เลือกกลุ่มที่มีอยู่” ก่อนครับ','info');
+                return;
+            }
+
+            if(groupRegistrationMode==='self'){
+                const sizeInput=document.getElementById('inputGroupSize');
+                const size=Math.max(2,Math.min(10,Number(sizeInput?.value||2)));
+                if(!Number.isFinite(size) || size<2){
+                    Swal.fire('จำนวนผู้เรียน','กรุณาระบุผู้เรียนอย่างน้อย 2 คนครับ','warning');
+                    return;
+                }
+                groupSize=size;
+                selectedGroupClass=null;
+                groupChoiceResolved=true;
+            }else{
+                groupSize=1; // one seat in an existing cohort
+                selectedGroupClass=null;
+                groupChoiceResolved=false;
+            }
+
+            renderAdditionalStudentsInputs();
+
+            // If user switched route after already choosing a course, do not make them select the course again.
+            if(groupModeAfterCourse && courseCart.length){
+                groupModeAfterCourse=false;
+                if(groupRegistrationMode==='existing') proceedToModeTime();
+                else continueAfterGroupChoice();
+                return;
+            }
+
+            renderCategories();
+            showStep('stepCategory');
+        }
+
+        function switchGroupRegistrationPath(mode){
+            selectedGroupClass=null;
+            groupChoiceResolved=false;
+            groupRegistrationMode=mode==='existing'?'existing':'self';
+            groupModeAfterCourse=courseCart.length>0;
+            syncGroupRegistrationModeUI();
+            showStep('stepGroupModeChoice');
         }
 
         function renderAdditionalStudentsInputs() {
@@ -4612,7 +4841,10 @@
         }
 
         function backFromCategory() {
-            if (studentType === 'new') showStep('stepStudyType');
+            if (studentType === 'new') {
+                if(selectedStudyType==='group') showStep('stepGroupModeChoice');
+                else showStep('stepStudyType');
+            }
             else if(legacyReturningAction==='add_course' && legacyStudentProfileId) showStep('stepOldLegacyInfo');
             else showStep('stepOldLookup');
         }
@@ -4861,8 +5093,13 @@
             const c = activeCourseDetail.course;
             const tutor = activeCourseDetail.tutor;
             const idx = courseCart.findIndex(function(item){ return item.course === c.name && item.tutor === tutor; });
+            if(idx===-1 && selectedStudyType==='group' && groupRegistrationMode==='existing' && courseCart.length>=1){
+                Swal.fire('เลือกได้ครั้งละ 1 คอร์ส','สำหรับ “เลือกกลุ่มที่มีอยู่” กรุณาเลือกคอร์สหลักเพียง 1 คอร์ส แล้วระบบจะแสดงคลาสที่เปิดรับครับ','info');
+                return;
+            }
             if (idx === -1) courseCart.push({ tutor: tutor, tutorId: c.tutorId || tutorProfiles[tutor]?.id || null, course: c.name, courseId: c.id || null, offeringId: c.offeringId || null, isUni: !!c.isUni });
             else courseCart.splice(idx, 1);
+            resetGroupClassChoice();
             renderCourseCartList();
             renderCartItems();
             const inCart = courseCart.some(function(item){ return item.course === c.name && item.tutor === tutor; });
@@ -4944,16 +5181,24 @@
         function toggleCourseInCart(courseName, isUni, checkboxElement) {
             const index = courseCart.findIndex(item => item.course === courseName && item.tutor === selectedTutor);
             const course = (coursesByTutor[selectedTutor] || []).find(c => c.name === courseName) || {};
+            if(checkboxElement.checked && index===-1 && selectedStudyType==='group' && groupRegistrationMode==='existing' && courseCart.length>=1){
+                checkboxElement.checked=false;
+                Swal.fire('เลือกได้ครั้งละ 1 คอร์ส','สำหรับ “เลือกกลุ่มที่มีอยู่” กรุณาเลือกคอร์สหลัก 1 คอร์สต่อการสมัครครับ','info');
+                return;
+            }
             if (checkboxElement.checked && index === -1) {
                 courseCart.push({ tutor: selectedTutor, tutorId: course.tutorId || tutorProfiles[selectedTutor]?.id || null, course: courseName, courseId: course.id || null, offeringId: course.offeringId || null, isUni: isUni });
+                resetGroupClassChoice();
             } else if (!checkboxElement.checked && index > -1) {
                 courseCart.splice(index, 1);
+                resetGroupClassChoice();
             }
             renderCartItems();
         }
 
         function removeCourseFromCart(index) {
             courseCart.splice(index, 1);
+            resetGroupClassChoice();
             renderCourseCartList();
             renderCartItems();
         }
@@ -5002,13 +5247,120 @@
             }
         }
 
-        function proceedToModeTime() {
-            if (studentType === 'new') showStep('step4'); 
-            else {
-                renderOldSelectedCourses();
-                showStep('stepOldInfo');
-            }
+
+        function resetGroupClassChoice() {
+            selectedGroupClass = null;
+            groupClassOptions = [];
+            groupChoiceResolved = selectedStudyType==='individual' || groupRegistrationMode==='self';
+            const check=document.getElementById('groupPolicyCheck'); if(check) check.checked=false;
         }
+        function groupDayName(d){return ({1:'จันทร์',2:'อังคาร',3:'พุธ',4:'พฤหัสบดี',5:'ศุกร์',6:'เสาร์',7:'อาทิตย์'})[Number(d)]||''}
+        function groupScheduleText(g){const rows=Array.isArray(g?.schedules)?g.schedules:[];return rows.length?rows.map(x=>groupDayName(x.weekday)+' '+String(x.start_time||'').slice(0,5)+'–'+String(x.end_time||'').slice(0,5)).join(' · '):'ตารางจะแจ้งภายหลัง'}
+        async function loadGroupClassOptions(courseId){
+            if(!courseId||!window.AreWarinAPI?.sb)return [];
+            if(groupClassCache[courseId])return groupClassCache[courseId];
+            try{
+                const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:courseId});
+                if(error)throw error;
+                const rows=Array.isArray(data)?data:(data||[]);
+                groupClassCache[courseId]=rows;
+                return rows;
+            }catch(e){console.warn('[GroupClass V24] public list unavailable:',e);return []}
+        }
+        function renderGroupClassChoice(rows){
+            groupClassOptions=rows||[];
+            const root=document.getElementById('groupClassChoiceList');
+            const count=document.getElementById('groupClassChoiceCount');
+            if(count)count.textContent=groupClassOptions.length+' คลาส';
+            const courseLabel=document.getElementById('groupClassCourseLabel');
+            if(courseLabel)courseLabel.textContent='คอร์ส: '+String(courseCart[0]?.course||'—');
+            if(!root)return;
+            root.innerHTML=groupClassOptions.length?groupClassOptions.map(g=>{
+                const left=Math.max(0,Number(g.remaining_seats||0)), full=left<=0;
+                return '<article class="gcv24-card"><div class="gcv24-cover">'+(g.image_url?'<img src="'+escapeSummaryHtml(g.image_url)+'" alt="">':'<div class="fallback"><i class="fas fa-users-rectangle"></i></div>')+'<span class="gcv24-seat '+(full?'full':'')+'">'+(full?'เต็มแล้ว':'เหลือ '+left+' ที่')+'</span><span class="gcv24-code">'+escapeSummaryHtml(g.group_code||'GROUP')+'</span></div><div class="gcv24-body"><div class="gcv24-name">'+escapeSummaryHtml(g.name||'คลาสกลุ่ม')+'</div><div class="gcv24-parent">'+escapeSummaryHtml(g.course_name||courseCart[0]?.course||'')+'</div><div class="gcv24-meta"><div><small>ผู้สอน</small><b>'+escapeSummaryHtml(g.tutor_name||'—')+'</b></div><div><small>ตาราง</small><b>'+escapeSummaryHtml(groupScheduleText(g))+'</b></div><div><small>สถานที่</small><b>'+escapeSummaryHtml(g.mode==='online'?'Online':g.location||'—')+'</b></div><div><small>จำนวน</small><b>'+Number(g.seats_taken||0)+' / '+Number(g.capacity||0)+' คน</b></div></div><div class="gcv24-policy">'+(g.absence_deduct_hours?'<span class="deduct"><i class="fas fa-clock"></i> ขาดเรียนตัดชั่วโมง</span>':'')+(g.recording_on_absence?'<span class="video"><i class="fas fa-video"></i> มีวิดีโอย้อนหลัง</span>':'')+'<span>'+escapeSummaryHtml(String(g.included_hours||'—'))+' ชม.</span><span>'+escapeSummaryHtml(String(g.included_sessions||'—'))+' ครั้ง</span></div><div class="gcv24-bottom"><div class="gcv24-price"><small>ราคา / คน</small><b>฿'+Number(g.price_amount||0).toLocaleString('th-TH')+'</b></div><button type="button" '+(full?'disabled':'')+' onclick="selectExistingGroupClass(\''+g.id+'\')">'+(full?'เต็มแล้ว':'เลือกคลาสนี้ <i class="fas fa-arrow-right ml-1"></i>')+'</button></div></div></article>';
+            }).join(''):'<div class="col-span-full py-10 px-5 text-center bg-white border border-dashed border-slate-200 rounded-[1.5rem]"><div class="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 grid place-items-center mx-auto mb-3"><i class="fas fa-users-slash"></i></div><b class="block text-[11px] text-slate-600">คอร์สนี้ยังไม่มีคลาสกลุ่มที่เปิดรับ</b><span class="block text-[8px] text-slate-400 mt-1">เลือกคอร์สอื่น หรือเปลี่ยนเป็นจับกลุ่มมาเองได้</span><button type="button" onclick="switchGroupRegistrationPath(\'self\')" class="mt-4 px-4 py-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 text-[8px] font-bold"><i class="fas fa-user-group mr-1"></i>จับกลุ่มมาเอง</button></div>';
+        }
+        function continueAfterGroupChoice(){
+            if(studentType==='new')showStep('step4');
+            else{renderOldSelectedCourses();showStep('stepOldInfo');}
+        }
+        function selectPrivateCoursePath(){
+            // Backward-compatible alias used by older buttons.
+            switchGroupRegistrationPath('self');
+        }
+
+        function selectExistingGroupClass(id){
+            const g=groupClassOptions.find(x=>String(x.id)===String(id));if(!g)return;
+            if(Number(g.remaining_seats||0)<=0){
+                Swal.fire('คลาสเต็มแล้ว','กรุณาเลือกคลาสอื่น หรือเปลี่ยนเป็นจับกลุ่มมาเอง','info');
+                return;
+            }
+            selectedGroupClass=g;
+            groupChoiceResolved=true;
+            selectedStudyType='group';
+            groupRegistrationMode='existing';
+            groupSize=1;
+            selectedMode='group_class';
+            selectedScheduleSlots=[];
+            selectedTimes=(g.schedules||[]).map(x=>groupDayName(x.weekday)+' '+String(x.start_time||'').slice(0,5)+'–'+String(x.end_time||'').slice(0,5));
+            const groupRadio=document.querySelector('input[name="studyTypeRadio"][value="group"]');
+            if(groupRadio)groupRadio.checked=true;
+            renderAdditionalStudentsInputs();
+            continueAfterGroupChoice();
+        }
+
+        async function proceedToModeTime() {
+            // 1:1 remains 1:1. Never show cohort choices to an individual applicant.
+            if(selectedStudyType==='individual'){
+                selectedGroupClass=null;
+                groupRegistrationMode=null;
+                groupChoiceResolved=true;
+                groupSize=1;
+                continueAfterGroupChoice();
+                return;
+            }
+
+            // Self-formed group uses the existing normal package + tutor schedule flow.
+            if(selectedStudyType==='group' && groupRegistrationMode!=='existing'){
+                if(!groupRegistrationMode)groupRegistrationMode='self'; // old/returning-student compatibility
+                selectedGroupClass=null;
+                groupChoiceResolved=true;
+                groupSize=Math.max(2,Number(groupSize||2));
+                continueAfterGroupChoice();
+                return;
+            }
+
+            // Existing cohort: exactly one parent course per enrollment.
+            if(courseCart.length!==1 || !courseCart[0]?.courseId){
+                Swal.fire(
+                    'เลือก 1 คอร์สก่อน',
+                    'การเข้าคลาสกลุ่มที่มีอยู่ต้องเลือกคอร์สหลัก 1 คอร์สต่อการสมัคร เช่น A-Level Biology แล้วระบบจะแสดงกลุ่มที่เปิดอยู่ครับ',
+                    'info'
+                );
+                showStep('stepCourseCart');
+                return;
+            }
+
+            const rows=await loadGroupClassOptions(courseCart[0].courseId);
+            renderGroupClassChoice(rows);
+            showStep('stepGroupClassChoice');
+        }
+
+        function applyGroupClassStep5(){
+            const locked=document.getElementById('groupClassLockedPanel'),standard=document.getElementById('standardPackageGrid'),schedule=document.getElementById('standardSchedulePanel');
+            if(!locked||!standard||!schedule)return;
+            if(!selectedGroupClass){locked.classList.add('hidden');standard.classList.remove('hidden');schedule.classList.remove('hidden');return}
+            const g=selectedGroupClass;selectedMode='group_class';groupSize=1;selectedTimes=(g.schedules||[]).map(x=>groupDayName(x.weekday)+' '+String(x.start_time||'').slice(0,5)+'–'+String(x.end_time||'').slice(0,5));
+            standard.classList.add('hidden');schedule.classList.add('hidden');locked.classList.remove('hidden');
+            locked.innerHTML='<div class="gclock-head"><div class="gclock-icon"><i class="fas fa-users-rectangle"></i></div><div><h3>'+escapeSummaryHtml(g.name||'คลาสกลุ่ม')+'</h3><p>ราคาและตารางล็อกตามคลาสที่เลือก ไม่ต้องเลือกแพ็กเกจหรือเวลาซ้ำ</p></div></div><div class="gclock-grid"><div><small>ผู้สอน</small><b>'+escapeSummaryHtml(g.tutor_name||'—')+'</b></div><div><small>ราคา / คน</small><b>฿'+Number(g.price_amount||0).toLocaleString('th-TH')+'</b></div><div><small>ตาราง</small><b>'+escapeSummaryHtml(groupScheduleText(g))+'</b></div><div><small>สถานที่</small><b>'+escapeSummaryHtml(g.mode==='online'?'Online':g.location||'—')+'</b></div></div><div class="gclock-policy"><label><input id="groupPolicyCheck" type="checkbox"><span>ฉันเข้าใจเงื่อนไขของคลาสนี้: '+(g.absence_deduct_hours?'<strong>หากไม่เข้าเรียน ระบบยังตัดชั่วโมงตามคาบปกติ</strong>':'การตัดชั่วโมงเป็นไปตาม Attendance ของคลาส')+(g.recording_on_absence?' และผู้ขาดเรียนจะได้รับวิดีโอย้อนหลังเมื่อผู้สอนเผยแพร่ Recording':'')+'</span></label></div><button type="button" class="gclock-change" onclick="selectedGroupClass=null;groupChoiceResolved=false;proceedToModeTime()"><i class="fas fa-arrow-left mr-1"></i>เปลี่ยนคลาสกลุ่ม</button>';
+            calcPriceNew();
+        }
+        window.selectPrivateCoursePath=selectPrivateCoursePath;
+        window.selectExistingGroupClass=selectExistingGroupClass;
+        window.selectGroupRegistrationMode=selectGroupRegistrationMode;
+        window.confirmGroupRegistrationMode=confirmGroupRegistrationMode;
+        window.switchGroupRegistrationPath=switchGroupRegistrationPath;
+
 
         function validateStepCourseCart() {
             if(courseCart.length === 0) {
@@ -5039,6 +5391,7 @@
         }
 
         async function fetchAllCartTutorSchedules() {
+            if(selectedGroupClass){selectedScheduleSlots=[];selectedTimes=(selectedGroupClass.schedules||[]).map(x=>groupDayName(x.weekday)+' '+String(x.start_time||'').slice(0,5)+'–'+String(x.end_time||'').slice(0,5));return;}
             if (courseCart.length === 0) {
                 scheduleMatrix = { tutors: [], templates: [], rows: [] };
                 selectedScheduleSlots = [];
@@ -5137,6 +5490,7 @@
             legacyParentName = '';
             legacyParentPhone = '';
             courseCart = [];
+            resetGroupClassChoice();
             selectedTutor = '';
             selectedTimes = [];
             selectedScheduleSlots = [];
@@ -5577,6 +5931,11 @@
         }
 
         function validateStep5() { 
+            if(selectedGroupClass){
+                const policy=document.getElementById('groupPolicyCheck');
+                if(!policy?.checked){Swal.fire('ยืนยันเงื่อนไขคลาส','กรุณายอมรับเงื่อนไขการขาดเรียน การตัดชั่วโมง และ Recording ก่อนดำเนินการต่อ','warning');return;}
+                calcPriceNew();renderSummary();showStep('step6');return;
+            }
             renderTimeGridWithSchedule();
             const checkedMode = document.querySelector('input[name="studyMode"]:checked');
             if(!checkedMode || (checkedMode.parentElement && checkedMode.parentElement.classList.contains('hidden'))) { 
@@ -5617,6 +5976,14 @@
         
         function calcPriceNew() {
             if(!courseCart.length) return;
+            if(selectedGroupClass){
+                currentPrice=Math.max(0,Number(selectedGroupClass.price_amount||0));
+                finalPrice=currentPrice;
+                selectedMode='group_class';
+                groupSize=1;
+                updatePriceUI();
+                return;
+            }
             let isUni = courseCart.some(c => c.isUni);
 
             let pYearly = isUni ? PRICE_UNI_YEARLY : PRICE_STD_YEARLY;
@@ -5894,7 +6261,8 @@
             const tutorName = [...new Set(courseCart.map(c => c.tutor))].join(', ') || '-';
             const inp = document.getElementById('inputHours');
             let modeName = '';
-            if(selectedMode === 'yearly') modeName = "คอร์สรายปี (1 ปีเต็ม)";
+            if(selectedGroupClass) modeName = 'คลาสกลุ่ม · ' + (selectedGroupClass.name||'') + ' · ' + (selectedGroupClass.included_hours||'—') + ' ชม. / ' + (selectedGroupClass.included_sessions||'—') + ' ครั้ง';
+            else if(selectedMode === 'yearly') modeName = "คอร์สรายปี (1 ปีเต็ม)";
             else if(selectedMode === 'monthly') modeName = "คอร์สเหมา 30 ชม.";
             else if(selectedMode === 'pack20') modeName = "คอร์ส 20 ชม.";
             else if(selectedMode === 'pack10') modeName = "คอร์ส 10 ชม.";
@@ -5905,7 +6273,8 @@
                 else modeName += " [หารชั่วโมงเรียนรวมทุกวิชา]";
             }
 
-            if(selectedStudyType === 'group') modeName += ' (เรียนกลุ่ม ' + groupSize + ' คน)';
+            if(selectedGroupClass) modeName += ' · ที่นั่ง 1 คน';
+            else if(selectedStudyType === 'group') modeName += ' (กลุ่มส่วนตัว ' + groupSize + ' คน)';
             else modeName += " (เรียนเดี่ยว)";
 
             const onsiteCheck = document.getElementById('onsiteCheck');
@@ -5918,7 +6287,7 @@
             const sumMode = document.getElementById('sumMode');
             const sumPrice = document.getElementById('sumPrice');
             if(sumTutor) sumTutor.innerText = tutorName;
-            if(sumTime) sumTime.innerText = selectedTimes.join(', ') || '-';
+            if(sumTime) sumTime.innerText = selectedGroupClass ? (groupScheduleText(selectedGroupClass)+(selectedGroupClass.location?' · '+selectedGroupClass.location:'')) : (selectedTimes.join(', ') || '-');
             if(sumCourse) sumCourse.innerText = courseName;
             if(sumMode) sumMode.innerText = modeName;
             if(sumPrice) sumPrice.innerText = finalPrice.toLocaleString() + " บาท";
@@ -6357,6 +6726,9 @@
             fd.onsite = !!(document.getElementById('onsiteCheck') && document.getElementById('onsiteCheck').checked);
             fd.hourlyCount = Number(document.getElementById('inputHours')?.value || 1);
             fd.modeLabel = document.getElementById('sumMode')?.innerText || selectedMode;
+            fd.groupRegistrationMode = selectedStudyType==='group' ? (selectedGroupClass ? 'existing' : (groupRegistrationMode||'self')) : null;
+            if(selectedStudyType==='group' && !selectedGroupClass) fd.registrationPath='self_group';
+            if(selectedStudyType==='individual') fd.registrationPath='individual';
             
             fd.course = courseCart.map(c => c.course + ' (' + c.tutor + ')').join(', ');
             fd.tutor = [...new Set(courseCart.map(c => c.tutor))].join(', ');
@@ -6370,6 +6742,20 @@
                 tutorName: c.tutor,
                 isUniversity: !!c.isUni
             }));
+            if(selectedGroupClass){
+                fd.groupClassId=selectedGroupClass.id;
+                fd.groupClassCode=selectedGroupClass.group_code||null;
+                fd.registrationPath='group_class';
+                fd.studyType='group';
+                fd.groupSize=1;
+                fd.selectedMode='group_class';
+                fd.mode='group_class';
+                fd.modeLabel='คลาสกลุ่ม · '+(selectedGroupClass.name||'');
+                fd.hours=String(selectedGroupClass.included_hours||'');
+                fd.time=groupScheduleText(selectedGroupClass);
+                fd.price=Number(selectedGroupClass.price_amount||finalPrice||0);
+                fd.groupPolicyAccepted=!!document.getElementById('groupPolicyCheck')?.checked;
+            }
             
             var discountInput = document.getElementById('discountCode');
             if (discountInput && discountInput.value) fd.discountCode = discountInput.value;
@@ -6432,8 +6818,18 @@
                 if (courseCart.length > 1) fd.mode += (cartShareMode === 'separate' ? ' (แยกแพ็กเกจ)' : ' (หารชั่วโมงรวมกัน)');
             }
             
+            if(selectedGroupClass){
+                fd.groupClassId=selectedGroupClass.id;fd.groupClassCode=selectedGroupClass.group_code||null;fd.registrationPath='group_class';fd.studyType='group';fd.groupSize=1;fd.selectedMode='group_class';fd.mode='group_class';fd.modeLabel='คลาสกลุ่ม · '+(selectedGroupClass.name||'');fd.hours=String(selectedGroupClass.included_hours||'');fd.time=groupScheduleText(selectedGroupClass);fd.scheduleSelections=[];fd.price=Number(selectedGroupClass.price_amount||finalPrice||0);fd.groupPolicyAccepted=!!document.getElementById('groupPolicyCheck')?.checked;
+            }
             try {
-                if(fd.renewalMode==='legacy_profile' && fd.legacyStudentId && window.AreWarinAPI?.sb?.functions){
+                if(fd.groupClassId && window.AreWarinAPI?.sb?.functions){
+                    (async()=>{
+                        try{
+                            const {data,error}=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment',{body:fd});
+                            if(error)throw error;if(!data?.success)throw new Error(data?.message||'สมัครคลาสกลุ่มไม่สำเร็จ');callback&&callback(data);
+                        }catch(err){Swal.fire('สมัครคลาสกลุ่มไม่สำเร็จ',err?.message||String(err),'error');}
+                    })();
+                }else if(fd.renewalMode==='legacy_profile' && fd.legacyStudentId && window.AreWarinAPI?.sb?.functions){
                     (async()=>{
                         try{
                             const {data,error}=await window.AreWarinAPI.sb.functions.invoke('create-legacy-returning-enrollment',{body:fd});
