@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V25 · CLEAR INDIVIDUAL/GROUP ROUTING -->
+  <!-- AREWARIN REGISTER V25.2 · GROUP CLASS PRICE SOURCE FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -5974,16 +5974,37 @@
             calcPriceNew();
         }
         
+        function syncSelectedGroupClassPrice() {
+            if(!selectedGroupClass) return false;
+
+            const classPrice = Math.max(0, Number(selectedGroupClass.price_amount || 0));
+            currentPrice = classPrice;
+            selectedMode = 'group_class';
+            groupSize = 1;
+
+            // Existing Group Class price is independent from the parent-course package price.
+            // Apply a promo only when this class explicitly allows promotions.
+            if(selectedGroupClass.allow_promotions && currentDiscountMeta && Number(currentDiscountMeta.amount || 0) > 0) {
+                finalPrice = Math.max(0, classPrice - Number(currentDiscountMeta.amount || 0));
+                currentDiscountMeta.original = classPrice;
+                currentDiscountMeta.final = finalPrice;
+            } else {
+                finalPrice = classPrice;
+                if(!selectedGroupClass.allow_promotions && currentDiscountMeta) {
+                    currentDiscountMeta = null;
+                    hideDiscountSummary();
+                }
+            }
+            return true;
+        }
+
         function calcPriceNew() {
-            if(!courseCart.length) return;
             if(selectedGroupClass){
-                currentPrice=Math.max(0,Number(selectedGroupClass.price_amount||0));
-                finalPrice=currentPrice;
-                selectedMode='group_class';
-                groupSize=1;
+                syncSelectedGroupClassPrice();
                 updatePriceUI();
                 return;
             }
+            if(!courseCart.length) return;
             let isUni = courseCart.some(c => c.isUni);
 
             let pYearly = isUni ? PRICE_UNI_YEARLY : PRICE_STD_YEARLY;
@@ -6250,6 +6271,9 @@
         }
 
         function renderSummary() {
+            // Do not let the parent course/package pricing overwrite a selected cohort price.
+            if(selectedGroupClass) syncSelectedGroupClassPrice();
+
             var name = (studentType === 'new')
                 ? (document.getElementById('fullname') ? document.getElementById('fullname').value : '')
                 : (document.getElementById('oldFullname') ? document.getElementById('oldFullname').value : '');
@@ -6505,6 +6529,15 @@
         }
 
         async function checkDiscount() {
+            if(selectedGroupClass && !selectedGroupClass.allow_promotions) {
+                clearDiscountState();
+                syncSelectedGroupClassPrice();
+                updatePriceUI();
+                Swal.fire('คลาสนี้ไม่ร่วมโปรโมชั่น','ราคาคลาสกลุ่มนี้เป็นราคาที่กำหนดไว้เฉพาะคลาส และไม่ได้เปิดให้ใช้โค้ดส่วนลดครับ','info');
+                return;
+            }
+            if(selectedGroupClass) syncSelectedGroupClassPrice();
+
             const input = document.getElementById('discountCode');
             const code = (input?.value || '').trim().toUpperCase();
             const btn = document.getElementById('btnCheckDiscount');
@@ -7395,6 +7428,7 @@ if (typeof window.escapeHTML !== 'function') {
   }
 
   function applyAvailability(){
+    if(typeof selectedGroupClass!=='undefined' && selectedGroupClass) return ['group_class'];
     if(!courseCart?.length) return;
 
     const globalKey={
@@ -7434,6 +7468,20 @@ if (typeof window.escapeHTML !== 'function') {
   }
 
   function calcV4(){
+    // V25.2: an existing cohort owns its own price.
+    // Never recalculate it from the parent course's package rules.
+    if(typeof selectedGroupClass!=='undefined' && selectedGroupClass){
+      if(typeof syncSelectedGroupClassPrice==='function') syncSelectedGroupClassPrice();
+      else {
+        currentPrice=Math.max(0,Number(selectedGroupClass.price_amount||0));
+        finalPrice=currentPrice;
+        selectedMode='group_class';
+        groupSize=1;
+      }
+      if(typeof updatePriceUI==='function') updatePriceUI();
+      return;
+    }
+
     if(!courseCart?.length){
       return;
     }
@@ -7534,6 +7582,7 @@ if (typeof window.escapeHTML !== 'function') {
     const oldCalc=window.calcPriceNew;
     window.calcPriceNew=function(){
       try{
+        if(typeof selectedGroupClass!=='undefined' && selectedGroupClass) return calcV4();
         if(R.loaded && courseCart?.length) return calcV4();
       }catch(e){console.warn('[AW v4] calc fallback',e);}
       if(typeof oldCalc==='function') return oldCalc();
