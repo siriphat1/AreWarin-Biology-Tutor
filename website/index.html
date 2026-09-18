@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AreWarin Tutor - ติวเข้มวิทย์-คณิต เคมี ชีวะ</title>
+    
+    <!-- Load External Scripts & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./config.js"></script>
+    <script src="./js/supabase-bridge.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ========================================== -->
+    <!-- 1. STYLE: CSS & HACKS -->
+    <!-- ========================================== -->
+    <style>
+        /* Reset & Base */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            background: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        #bio-awarin-wrapper * { box-sizing: border-box; }
+        #bio-awarin-wrapper { font-family: 'Prompt', sans-serif; color: #334155; }
+        
+        /* Modern Background Pattern */
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.9); }
+        .glass-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(14, 165, 233, 0.15); background: rgba(255, 255, 255, 0.95); border-color: rgba(14, 165, 233, 0.2); }
+        
+        /* Bento Grid Specific Hover Effects */
+        .bento-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .bento-card:hover { transform: scale(1.02); z-index: 10; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); }
+
+        /* Text Gradients & Effects */
+        .text-gradient { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .typing::after { content: '|'; animation: blink 1s infinite; color: #0ea5e9; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Book Animation */
+        .book { transform-style: preserve-3d; transition: transform 0.5s; }
+        .book:hover { transform: rotateY(-10deg) scale(1.02); }
+
+        /* Hide Scrollbar */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Background Animations */
+        .dna-icon { position: absolute; color: rgba(14, 165, 233, 0.06); z-index: 0; animation: float 8s infinite ease-in-out; pointer-events: none;}
+        .bubble { position: absolute; bottom: -50px; background-color: rgba(14, 165, 233, 0.1); border-radius: 50%; z-index: 0; animation: rise 15s infinite ease-in; pointer-events: none;}
+        
+        /* Interactive Elements */
+        .video-glow { box-shadow: 0 0 40px -10px rgba(14, 165, 233, 0.4); border: 4px solid rgba(255, 255, 255, 0.9); }
+        
+        /* FAQ */
+        details summary::-webkit-details-marker { display:none; }
+        details > summary { list-style: none; }
+        
+        /* Mobile Menu */
+        #mobile-menu { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 0; overflow: hidden; }
+        #mobile-menu.open { max-height: 450px; }
+        
+        /* Iframe Shield */
+        .embed-shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.2); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; transition: opacity 0.3s; }
+        .embed-shield.active { opacity: 0; pointer-events: none; }
+        
+        /* Back to Top */
+        #back-to-top { opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(20px); }
+        #back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+
+        /* Keyframes */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes rise { 0% { bottom: -10%; transform: translateX(0); opacity: 0; } 50% { opacity: 0.6; } 100% { bottom: 110%; transform: translateX(-20px); opacity: 0; } }
+        @keyframes animate-blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0px, 0px) scale(1); } }
+
+        /* Tutor Tabs */
+        .tutor-tab.active { background-color: white; color: #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transform: scale(1.05); border-color: #cbd5e1; }
+        .tutor-tab { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tutor-tab:hover, .tutor-tab.active { opacity: 1; filter: grayscale(0%); }
+
+        /* Modal Styles - Mobile Optimized */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+            padding: 1rem;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: white; border-radius: 1.5rem; max-width: 800px; width: 100%;
+            max-height: 85vh; overflow-y: auto;
+            transform: scale(0.95) translateY(20px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+    
+        /* ===== AreWarin Main Website V21 · Manager Connected ===== */
+        .aw-live-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.45rem .8rem;border-radius:999px;background:#eff6ff;border:1px solid #dbeafe;color:#2563eb;font-size:.72rem;font-weight:700}
+        .aw-live-dot{width:.48rem;height:.48rem;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}
+        .aw-register-cta{display:inline-flex;align-items:center;justify-content:center;gap:.55rem}
+        .aw-manager-sync{position:relative;overflow:hidden}
+        .aw-manager-sync:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-90px;top:-110px;background:rgba(14,165,233,.08);pointer-events:none}
+        .aw-price-sub{font-size:.72rem;color:#94a3b8;margin-top:.45rem;font-weight:600}
+        .aw-course-price-note{display:inline-flex;align-items:center;gap:.35rem;font-size:.66rem;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;padding:.3rem .55rem;border-radius:999px}
+        .aw-loading-catalog{opacity:.7;pointer-events:none}
+        .aw-dynamic-banner-empty{display:flex;align-items:center;justify-content:center;min-height:300px;color:#94a3b8}
+
+    </style>
+</head>
+<body class="antialiased selection:bg-sky-200 selection:text-sky-900">
+
+<!-- Scroll Progress Bar -->
+<div id="scroll-progress" class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-sky-400 via-indigo-500 to-pink-500 z-[10000] transition-all duration-100 ease-out shadow-[0_0_10px_rgba(14,165,233,0.5)]" style="width: 0%"></div>
+
+<!-- ========================================== -->
+<!-- 2. CONTENT WRAPPER -->
+<!-- ========================================== -->
+<div id="bio-awarin-wrapper" class="relative overflow-hidden bg-slate-50 bg-grid-pattern">
+
+    <!-- Background Elements (Optimized for performance) -->
+    <div class="absolute top-[-5%] right-[-5%] w-72 md:w-[600px] h-72 md:h-[600px] bg-sky-200/40 rounded-full mix-blend-multiply filter blur-[80px] md:blur-[120px] animate-[animate-blob_7s_infinite] pointer-events-none"></div>
+    <div class="absolute top-[20%] left-[-10%] w-72 md:w-[600px] h-72 md:h-[600px] bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-[80px] md:blur-[120px] animate-[animate-blob_7s_infinite_2s] pointer-events-none"></div>
+    
+    <div class="dna-icon text-7xl md:text-9xl top-[10%] left-[2%] md:left-[5%] rotate-12"><i class="fa-solid fa-dna"></i></div>
+    <div class="dna-icon text-6xl md:text-8xl top-[40%] right-[2%] md:right-[5%] -rotate-45" style="animation-delay: 2s;"><i class="fa-solid fa-dna"></i></div>
+    <div class="bubble w-8 h-8 md:w-10 md:h-10 left-[10%]" style="animation-duration: 8s; animation-delay: 0s;"></div>
+    <div class="bubble w-4 h-4 md:w-6 md:h-6 left-[25%]" style="animation-duration: 12s; animation-delay: 2s;"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 w-full z-[9999] transition-all duration-300 border-b border-transparent" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <!-- LOGO -->
+                <a href="#home" class="scroll-link flex items-center gap-2 group">
+                    <img data-site-logo src="https://img5.pic.in.th/file/secure-sv1/IMG_0507-Photoroom.png" alt="AreWarin Tutor Logo" class="h-10 md:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+                </a>
+                
+                <!-- Menu + CTA -->
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="#home" class="scroll-link text-slate-600 hover:text-sky-600 transition font-medium text-sm cursor-pointer">หน้าแรก</a>
+                    <a href="#about" class="scroll-link text-slate-600 hover:text-sky-600 transition font-medium text-sm cursor-pointer">ทีมผู้สอน & คอร์ส</a>
+                    <a href="./reviews/" data-reviews-link class="text-slate-600 hover:text-sky-600 transition font-medium text-sm cursor-pointer">รีวิว</a>
+                    <a href="https://sites.google.com/view/arewarinbio/%E0%B9%80%E0%B8%8A%E0%B8%84%E0%B9%80%E0%B8%A7%E0%B8%A5%E0%B8%B2%E0%B9%80%E0%B8%A3%E0%B8%A2%E0%B8%9" target="_blank" class="text-slate-600 hover:text-indigo-600 transition font-medium text-sm cursor-pointer flex items-center gap-1.5 bg-slate-100/50 px-3 py-1.5 rounded-full hover:bg-indigo-50">
+                        <i class="fa-regular fa-clock"></i> เช็คเวลาเรียน
+                    </a>
+                    <a href="./register/" data-registration-link class="scroll-link px-6 py-2.5 bg-slate-900 text-white rounded-full hover:bg-sky-600 transition-all duration-300 shadow-[0_4px_14px_0_rgba(15,23,42,0.2)] hover:shadow-[0_6px_20px_rgba(14,165,233,0.3)] hover:-translate-y-0.5 cursor-pointer font-bold text-sm">
+                        สมัครเรียน
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-white text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 focus:outline-none transition-all duration-300 active:scale-95" onclick="toggleMenu()">
+                    <i id="menu-icon" class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="md:hidden bg-white/95 backdrop-blur-2xl border-t border-slate-100 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] fixed top-16 left-0 w-full z-[9998] rounded-b-[2rem]">
+            <div class="flex flex-col p-5 space-y-2">
+                <a href="#home" class="scroll-link flex items-center gap-4 p-3.5 rounded-2xl hover:bg-sky-50 text-slate-700 hover:text-sky-600 font-bold transition-all group" onclick="toggleMenu()">
+                    <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center group-hover:bg-sky-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <i class="fa-solid fa-house text-sm"></i>
+                    </div>
+                    <span class="text-base">หน้าแรก</span>
+                </a>
+                
+                <a href="#about" class="scroll-link flex items-center gap-4 p-3.5 rounded-2xl hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-bold transition-all group" onclick="toggleMenu()">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <i class="fa-solid fa-book-open text-sm"></i>
+                    </div>
+                    <span class="text-base">ทีมผู้สอน & คอร์สเรียน</span>
+                </a>
+
+                <a href="./reviews/" data-reviews-link class="flex items-center gap-4 p-3.5 rounded-2xl hover:bg-violet-50 text-slate-700 hover:text-violet-600 font-bold transition-all group" onclick="toggleMenu()">
+                    <div class="w-10 h-10 rounded-full bg-violet-100 text-violet-500 flex items-center justify-center group-hover:bg-violet-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <i class="fa-regular fa-comment-dots text-sm"></i>
+                    </div>
+                    <span class="text-base">รีวิวจากน้องๆ</span>
+                </a>
+
+                <a href="https://sites.google.com/view/arewarinbio/%E0%B9%80%E0%B8%8A%E0%B8%84%E0%B9%80%E0%B8%A7%E0%B8%A5%E0%B8%B2%E0%B9%80%E0%B8%A3%E0%B8%A2%E0%B8%99" target="_blank" class="flex items-center gap-4 p-3.5 rounded-2xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 font-bold transition-all group">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <i class="fa-regular fa-clock text-sm"></i>
+                    </div>
+                    <span class="text-base">เช็คเวลาเรียน</span>
+                </a>
+
+                <div class="pt-3 pb-2">
+                    <a href="./register/" data-registration-link class="scroll-link flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-[0_10px_20px_-5px_rgba(15,23,42,0.3)] hover:-translate-y-1 transition-all duration-300" onclick="toggleMenu()">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </div>
+                            <span class="font-bold text-base tracking-wide">สมัครเรียนเลย</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-sm opacity-70"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-28 md:pt-36 pb-12 md:pb-20 min-h-[85vh] flex items-center relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div data-aos="fade-right" class="order-2 lg:order-1 relative z-10 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-sky-200/60 rounded-full text-sky-600 text-xs font-bold mb-6 md:mb-8 tracking-wide uppercase shadow-sm">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span></span>
+                    <span id="awRegistrationBadge">เปิดรับสมัครคอร์ส</span> <span class="auto-year-ad">2026</span>
+                </div>
+                <h1 class="text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-5 md:mb-6 text-slate-800 tracking-tight text-balance">
+                    <span id="awHeroTitlePrefix">เก่ง</span> <span class="text-gradient" id="typing-text"></span><br class="hidden sm:block" /><span id="awHeroTitleSuffix">ได้ด้วยความเข้าใจ</span>
+                </h1>
+                <div class="flex items-center justify-center lg:justify-start gap-4 mb-6 md:mb-10">
+                    <div class="hidden lg:block h-px w-16 bg-slate-300"></div>
+                    <p class="text-base sm:text-lg md:text-xl font-medium text-slate-600">
+                        โดย <span class="text-sky-600 font-bold">ครูพี่อาร์ & ทีมงาน</span>
+                        <span class="block text-xs sm:text-sm text-slate-400 font-normal mt-0.5 md:mt-1">ติวเตอร์คุณภาพ ประสบการณ์แน่น</span>
+                    </p>
+                </div>
+                <p class="text-sm sm:text-base md:text-lg text-slate-500 mb-10 font-light leading-relaxed max-w-[90%] sm:max-w-lg mx-auto lg:mx-0 text-balance">
+                    เตรียมความพร้อมสู่สนามสอบ <span class="font-bold text-indigo-600">DEK<span class="auto-dek-year">69</span></span> และ <span class="font-bold text-indigo-600">DEK<span class="auto-dek-next">70</span></span> ด้วยเทคนิคการสอนที่เน้น "Concept" และ "ความเข้าใจ" ครบถ้วนทั้ง <span class="font-bold text-sky-600">ชีวะ เคมี และคณิตศาสตร์</span>
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center lg:justify-start">
+                    <a href="#about" class="scroll-link px-8 py-3.5 md:py-4 bg-slate-900 text-white rounded-full font-bold text-sm hover:bg-sky-600 transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_10px_25px_-6px_rgba(14,165,233,0.5)] transform hover:-translate-y-1">รู้จักทีมผู้สอน</a>
+                    <a href="#about" class="scroll-link px-8 py-3.5 md:py-4 bg-white text-slate-700 border border-slate-200 rounded-full font-bold text-sm hover:bg-slate-50 transition transform hover:-translate-y-1 flex items-center justify-center gap-2 shadow-sm">ดูคอร์สเรียน</a>
+                </div>
+            </div>
+            
+            <div class="relative order-1 lg:order-2 flex justify-center mt-6 lg:mt-0" data-aos="fade-left">
+                <!-- Decorative background elements -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-sky-300/40 to-indigo-300/40 rounded-[2.5rem] md:rounded-[3rem] transform rotate-6 scale-95 blur-xl md:blur-2xl"></div>
+                <div class="absolute inset-0 border-2 border-white/50 rounded-[2.5rem] md:rounded-[3rem] transform -rotate-3 scale-[1.02] z-0 pointer-events-none"></div>
+                
+                <!-- Main Image Card -->
+                <div class="glass p-3 md:p-4 rounded-[2rem] md:rounded-[2.5rem] relative transform hover:scale-[1.02] transition duration-500 max-w-[280px] sm:max-w-sm w-full shadow-2xl shadow-sky-900/10 z-10 animate-[float_6s_ease-in-out_infinite]">
+                    <div class="aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2rem] relative bg-slate-100">
+                        <img id="awHeroImage" src="https://img2.pic.in.th/pic/IMG_0484806e4d0b757a83dd.jpeg" alt="AreWarin Tutor" class="w-full h-full object-cover object-center transform hover:scale-105 transition duration-700" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent"></div>
+                    </div>
+                    
+                    <!-- Floating Badge -->
+                    <div class="absolute -bottom-4 md:bottom-8 -left-4 md:-left-8 bg-white/95 backdrop-blur-md px-4 md:px-6 py-3 md:py-4 rounded-2xl shadow-xl border border-white/80 animate-[float_4s_ease-in-out_infinite_1s]">
+                        <div class="flex items-center gap-3 md:gap-4">
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white text-base md:text-lg shadow-inner"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div>
+                                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider">Expert</p>
+                                <p class="text-sm md:text-base font-bold text-slate-800 leading-none mt-0.5">Science & Math</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Stats Counter -->
+    <section class="py-0 relative z-20 -mt-8 md:-mt-12 mx-4 md:mx-auto max-w-6xl">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <!-- Box 1: Big Stat -->
+            <div class="bento-card col-span-2 bg-slate-900 text-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 shadow-xl flex flex-col justify-center items-center relative overflow-hidden group" data-aos="fade-up" data-aos-delay="0">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl group-hover:bg-sky-500/40 transition-colors"></div>
+                <h3 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-sky-400 mb-1 md:mb-2 z-10">500+</h3>
+                <p class="text-slate-300 text-xs md:text-sm font-medium z-10">นักเรียนที่สอบติดมหาวิทยาลัยชั้นนำ</p>
+            </div>
+            <!-- Box 2 -->
+            <div class="bento-card col-span-1 bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2rem] p-6 shadow-lg flex flex-col justify-center items-center" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-2xl md:text-4xl font-extrabold text-indigo-500 mb-1">100+</h3>
+                <p class="text-slate-500 text-[10px] md:text-xs font-bold text-center">นักเรียนในคอร์สปัจจุบัน</p>
+            </div>
+            <!-- Box 3 -->
+            <div class="bento-card col-span-1 bg-gradient-to-br from-pink-500 to-rose-500 text-white rounded-[1.5rem] md:rounded-[2rem] p-6 shadow-lg flex flex-col justify-center items-center" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-2xl md:text-4xl font-extrabold mb-1">100%</h3>
+                <p class="text-pink-100 text-[10px] md:text-xs font-bold text-center">ความพึงพอใจการสอน</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Exam Calendar -->
+    <section class="pt-20 pb-12 md:py-20 bg-transparent relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-10 md:mb-12" data-aos="fade-up">
+                <span class="text-indigo-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-4 py-1.5 md:py-2 rounded-full border border-indigo-100 shadow-sm inline-block mb-4">Important Dates</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">ปฏิทินสอบสำคัญ ปี 70 📅</h2>
+                <p class="mt-3 text-sm md:text-base text-slate-500">เช็คตารางสอบ TCAS70, NETSAT, TGAT/TPAT และ A-Level ได้ที่นี่</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5" data-aos="fade-up" data-aos-delay="100">
+                <!-- TCAS70 Card (Span 2) -->
+                <div class="bento-card md:col-span-2 lg:col-span-2 bg-gradient-to-br from-purple-600 to-indigo-700 text-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg cursor-pointer flex flex-col justify-between relative overflow-hidden" onclick="openModal('modal-tcas', '2026-12-12T09:00:00')">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-white/20 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full border border-white/30">University Admission</span>
+                            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fa-solid fa-calendar-check text-lg"></i></div>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-extrabold mb-2">TCAS70</h3>
+                        <p class="text-purple-100 text-sm mb-6 max-w-[80%]">กำหนดการ TCAS ทั้ง 4 รอบ Portfolio, Quota, Admission, Direct Admission</p>
+                    </div>
+                    <button class="w-fit px-5 py-2.5 rounded-full bg-white text-purple-700 text-xs font-bold transition hover:scale-105 flex items-center gap-2 shadow-md relative z-10">
+                        ดูตารางสอบและกำหนดการ <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- NETSAT Card (Span 1) -->
+                <div class="bento-card md:col-span-1 lg:col-span-1 bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-md cursor-pointer flex flex-col" onclick="openModal('modal-netsat', '2026-08-15T09:00:00')">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-rose-50 text-rose-600 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full border border-rose-100">Quota KKU</span>
+                        <div class="text-rose-500"><i class="fa-solid fa-school text-xl"></i></div>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-extrabold text-slate-800 mb-1">NETSAT 2/69</h3>
+                    <p class="text-slate-500 text-xs md:text-sm mb-6 flex-grow">โควตา ม.ขอนแก่น (ครั้งที่ 2)</p>
+                    <div class="text-rose-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-1 transition">คลิกดูรายละเอียด <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                </div>
+
+                <!-- TGAT/TPAT Card (Span 1) -->
+                <div class="bento-card md:col-span-1 lg:col-span-1 bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-md cursor-pointer flex flex-col" onclick="openModal('modal-tgat', '2026-12-12T09:00:00')">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-blue-50 text-blue-600 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full border border-blue-100">Aptitude</span>
+                        <div class="text-blue-500"><i class="fa-solid fa-laptop-code text-xl"></i></div>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-extrabold text-slate-800 mb-1">TGAT / TPAT 70</h3>
+                    <p class="text-slate-500 text-xs md:text-sm mb-6 flex-grow">สอบวัดความถนัดทั่วไป/วิชาชีพ</p>
+                    <div class="text-blue-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-1 transition">คลิกดูรายละเอียด <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                </div>
+
+                <!-- A-Level Card (Span 2/4 depending on screen) -->
+                <div class="bento-card md:col-span-3 lg:col-span-4 bg-gradient-to-r from-orange-50 to-amber-50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-orange-100 shadow-sm cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between gap-6" onclick="openModal('modal-alevel', '2027-03-13T08:30:00')">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center"><i class="fa-solid fa-book-open"></i></div>
+                            <span class="bg-white text-orange-600 text-[10px] md:text-xs font-bold px-3 py-1 rounded-full border border-orange-200 shadow-sm">A-Level</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">A-Level 70 (วิชาสามัญ)</h3>
+                        <p class="text-slate-600 text-sm">กำหนดการสอบ 9 วิชาหลัก สำหรับยื่นคะแนนรอบ 2 และ 3</p>
+                    </div>
+                    <button class="w-full md:w-auto px-6 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition flex items-center justify-center gap-2 shadow-md flex-shrink-0">
+                        เปิดปฏิทินสอบ <i class="fa-solid fa-calendar-day"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <!-- TCAS70 Modal -->
+    <div id="modal-tcas" class="modal-overlay" onclick="closeModal('modal-tcas')">
+        <div class="modal-content p-6 md:p-8" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-calendar-check text-purple-500"></i> ปฏิทิน TCAS70</h3>
+                <button onclick="closeModal('modal-tcas')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <!-- Modal Countdown -->
+            <div class="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                <p class="text-xs text-purple-600 font-bold uppercase mb-2"><i class="fa-regular fa-clock mr-1"></i> นับถอยหลังวันสอบ TGAT / TPAT</p>
+                <div class="flex justify-center gap-2 md:gap-3 modal-countdown" id="countdown-modal-tcas">
+                    <!-- JS will fill this -->
+                </div>
+            </div>
+
+            <!-- New Month-by-Month Table Format -->
+            <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm mb-2">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-white uppercase bg-blue-600">
+                        <tr>
+                            <th scope="col" class="px-4 md:px-6 py-3 md:py-4 w-1/4 text-center text-sm md:text-base font-bold">เดือน</th>
+                            <th scope="col" class="px-4 md:px-6 py-3 md:py-4 w-3/4 text-center text-sm md:text-base font-bold">รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <!-- ก.ย. 69 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-pink-100/60 border-r border-slate-200">ก.ย. 69</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>เริ่มรับสมัครรอบ 1 Portfolio</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- ต.ค. 69 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-amber-100/50 border-r border-slate-200">ต.ค. 69</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>สมัครสอบ TPAT1 กสพท</li>
+                                    <li>ลงทะเบียน myTCAS</li>
+                                    <li>สมัครสอบ TGAT / TPAT2-5</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- พ.ย. 69 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-pink-100/60 border-r border-slate-200">พ.ย. 69</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>พิมพ์บัตรเข้าสอบ TGAT / TPAT2-5</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- ธ.ค. 69 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-amber-100/50 border-r border-slate-200">ธ.ค. 69</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li class="font-bold text-red-500">สอบ TGAT / TPAT2-5</li>
+                                    <li>ประกาศผลสอบ TGAT / TPAT3 (แบบคอมพิวเตอร์)</li>
+                                    <li>ขอทบทวนผลคะแนนสอบ TGAT / TPAT3 (แบบคอมพิวเตอร์)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- ม.ค. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-pink-100/60 border-r border-slate-200">ม.ค. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>พิมพ์บัตรเข้าสอบ TPAT1 กสพท</li>
+                                    <li>ประกาศผลสอบ TGAT / TPAT2-5 (แบบกระดาษ)</li>
+                                    <li>ขอทบทวนผลคะแนนสอบ TGAT / TPAT2-5 (แบบกระดาษ)</li>
+                                    <li>สมัครสอบ A-Level</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- ก.พ. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-amber-100/50 border-r border-slate-200">ก.พ. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li class="font-bold text-red-500">สอบ TPAT1 กสพท</li>
+                                    <li>พิมพ์บัตรเข้าสอบ A-Level</li>
+                                    <li>เริ่มรับสมัครรอบ 2 Quota</li>
+                                    <li>ประกาศผลรอบ 1 Portfolio</li>
+                                    <li>ยืนยันสิทธิ์รอบ 1 Portfolio</li>
+                                    <li>สละสิทธิ์รอบ 1 Portfolio</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- มี.ค. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-pink-100/60 border-r border-slate-200">มี.ค. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>ประกาศผลสอบ TPAT1 กสพท</li>
+                                    <li class="font-bold text-red-500">สอบ A-Level</li>
+                                    <li>ขอทบทวนผลคะแนนสอบ TPAT1 กสพท</li>
+                                    <li>ประกาศเฉลยคำตอบ A-Level</li>
+                                    <li>เปิดให้โต้แย้งเฉลยของข้อสอบ A-Level</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- เม.ย. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-amber-100/50 border-r border-slate-200">เม.ย. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>ประกาศผลสอบ A-Level</li>
+                                    <li>ขอทบทวนผลคะแนนสอบ A-Level</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- พ.ค. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-pink-100/60 border-r border-slate-200">พ.ค. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>ประกาศผล / ยืนยันสิทธิ์ / สละสิทธิ์ รอบ 2 Quota</li>
+                                    <li>ประกาศผล / ยืนยันสิทธิ์ / สละสิทธิ์ รอบ 3 Admission</li>
+                                    <li>เริ่มรับสมัครรอบ 4 Direct Admission</li>
+                                    <li>ประกาศจำนวนที่นั่งรอบ 4 Direct Admission</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <!-- มิ.ย. 70 -->
+                        <tr class="bg-white">
+                            <td class="px-4 md:px-6 py-4 text-center font-extrabold text-slate-700 bg-amber-100/50 border-r border-slate-200">มิ.ย. 70</td>
+                            <td class="px-4 md:px-6 py-4">
+                                <ul class="list-disc list-outside ml-4 space-y-1">
+                                    <li>ประกาศผล / ยืนยันสิทธิ์ / สละสิทธิ์รอบ 4 Direct Admission</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2 text-right">*หมายเหตุ: ข้อมูลอาจมีการเปลี่ยนแปลง อ้างอิงประกาศ ทปอ.</p>
+        </div>
+    </div>
+
+    <!-- NETSAT Modal -->
+    <div id="modal-netsat" class="modal-overlay" onclick="closeModal('modal-netsat')">
+        <div class="modal-content p-6 md:p-8" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-school text-rose-500"></i> NETSAT 2/69 (ม.ขอนแก่น)</h3>
+                    <p class="text-xs text-slate-500 mt-1">สำหรับนักเรียนภาคตะวันออกเฉียงเหนือและโรงเรียนเครือข่าย</p>
+                </div>
+                <button onclick="closeModal('modal-netsat')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+
+            <!-- Modal Countdown -->
+            <div class="mb-6 p-4 bg-rose-50 rounded-xl border border-rose-100 text-center">
+                <p class="text-xs text-rose-600 font-bold uppercase mb-2"><i class="fa-regular fa-clock mr-1"></i> นับถอยหลังวันสอบ NETSAT</p>
+                <div class="flex justify-center gap-2 md:gap-3 modal-countdown" id="countdown-modal-netsat">
+                    <!-- JS will fill this -->
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 rounded-l-lg">กำหนดการ</th>
+                            <th scope="col" class="px-6 py-3 rounded-r-lg">รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900">1 - 10 มิ.ย. 69</td><td class="px-6 py-4">รับสมัครสอบ NETSAT 2/69</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900">1 - 11 มิ.ย. 69</td><td class="px-6 py-4">ชำระเงินค่าสมัคร</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900">20 ก.ค. 69</td><td class="px-6 py-4">ประกาศผังที่นั่งสอบ</td></tr>
+                        <tr class="bg-rose-50/50"><td class="px-6 py-4 font-bold text-rose-700">15 - 16 ส.ค. 69</td><td class="px-6 py-4 font-bold text-rose-700">วันทดสอบ NETSAT 2/69</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900">11 ก.ย. 69</td><td class="px-6 py-4 text-green-600 font-bold">ประกาศคะแนน</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TGAT/TPAT Modal -->
+    <div id="modal-tgat" class="modal-overlay" onclick="closeModal('modal-tgat')">
+        <div class="modal-content p-6 md:p-8" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-laptop-code text-blue-500"></i> กำหนดการสอบ TGAT/TPAT 70</h3>
+                </div>
+                <button onclick="closeModal('modal-tgat')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <!-- Modal Countdown -->
+            <div class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100 text-center">
+                <p class="text-xs text-blue-600 font-bold uppercase mb-2"><i class="fa-regular fa-clock mr-1"></i> นับถอยหลังวันสอบ TGAT / TPAT</p>
+                <div class="flex justify-center gap-2 md:gap-3 modal-countdown" id="countdown-modal-tgat">
+                    <!-- JS will fill this -->
+                </div>
+            </div>
+            
+            <div class="mb-6 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                <h4 class="font-bold text-blue-700 mb-2">ข้อควรระวัง!</h4>
+                <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+                    <li>การสอบรูปแบบคอมพิวเตอร์ เลือกได้เฉพาะวิชา <strong>TGAT และ TPAT3</strong></li>
+                    <li>การสอบ TGAT และ TPAT3 รูปแบบคอมพิวเตอร์ จะสอบเป็น <strong>ภาษาอังกฤษ</strong></li>
+                    <li>การสอบ <strong>TPAT1 (กสพท)</strong> แยกไปสอบช่วงเดือนกุมภาพันธ์</li>
+                </ul>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600 border border-slate-200 rounded-lg">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 w-1/3">ช่วงเวลา</th>
+                            <th scope="col" class="px-6 py-3 w-2/3">รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">ต.ค. 69</td><td class="px-6 py-4">สมัครสอบ TGAT / TPAT2-5</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">พ.ย. 69</td><td class="px-6 py-4">พิมพ์บัตรเข้าสอบ TGAT / TPAT2-5</td></tr>
+                        <tr class="bg-blue-50"><td class="px-6 py-4 font-bold text-blue-600 border-r border-slate-100">ธ.ค. 69</td><td class="px-6 py-4 font-bold text-blue-700">สอบ TGAT / TPAT2-5</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">ม.ค. 70</td><td class="px-6 py-4">ประกาศผลสอบ TGAT / TPAT2-5 (แบบกระดาษ)</td></tr>
+                        <tr class="bg-blue-50"><td class="px-6 py-4 font-bold text-blue-600 border-r border-slate-100">ก.พ. 70</td><td class="px-6 py-4 font-bold text-blue-700">สอบ TPAT1 กสพท</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- A-Level Modal -->
+    <div id="modal-alevel" class="modal-overlay" onclick="closeModal('modal-alevel')">
+        <div class="modal-content p-6 md:p-8" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book-open text-orange-500"></i> กำหนดการสอบ A-Level 70</h3>
+                    <p class="text-xs text-slate-500 mt-1">มีการสอบรูปแบบกระดาษ เพียงรูปแบบเดียว</p>
+                </div>
+                <button onclick="closeModal('modal-alevel')" class="text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+
+            <!-- Modal Countdown -->
+            <div class="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100 text-center">
+                <p class="text-xs text-orange-600 font-bold uppercase mb-2"><i class="fa-regular fa-clock mr-1"></i> นับถอยหลังวันสอบ A-Level</p>
+                <div class="flex justify-center gap-2 md:gap-3 modal-countdown" id="countdown-modal-alevel">
+                    <!-- JS will fill this -->
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600 border border-slate-200 rounded-lg">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 w-1/3">ช่วงเวลา</th>
+                            <th scope="col" class="px-6 py-3 w-2/3">รายละเอียด</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">ม.ค. 70</td><td class="px-6 py-4">สมัครสอบ A-Level</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">ก.พ. 70</td><td class="px-6 py-4">พิมพ์บัตรเข้าสอบ A-Level</td></tr>
+                        <tr class="bg-orange-50"><td class="px-6 py-4 font-bold text-orange-600 border-r border-slate-100">มี.ค. 70</td><td class="px-6 py-4 font-bold text-orange-700">สอบ A-Level</td></tr>
+                        <tr class="bg-white"><td class="px-6 py-4 font-medium text-slate-900 border-r border-slate-100">เม.ย. 70</td><td class="px-6 py-4">ประกาศผลสอบ A-Level</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trusted Schools -->
+    <section class="py-8 md:py-16 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-8">ได้รับเชิญเป็นวิทยากรให้กับโรงเรียนชั้นนำ</p>
+            <div class="flex flex-wrap justify-center gap-3 md:gap-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-pink-600 hover:border-pink-200 transition-all cursor-default">โรงเรียนเลิงนกทา</span>
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-blue-600 hover:border-blue-200 transition-all cursor-default">โรงเรียนเดชอุดม</span>
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-purple-600 hover:border-purple-200 transition-all cursor-default">รร.จอมพระประชาสรรพ์</span>
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-sky-600 hover:border-sky-200 transition-all cursor-default">กาฬสินธุ์พิทยาสรรพ์</span>
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-green-600 hover:border-green-200 transition-all cursor-default">โรงเรียนเกษตรสมบูรณ์</span>
+                <span class="bg-white px-4 md:px-5 py-2 rounded-xl border border-slate-200 text-slate-600 text-[10px] md:text-sm font-bold shadow-sm hover:text-orange-600 hover:border-orange-200 transition-all cursor-default">โรงเรียนวัดหนองแวงวิทยา</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Zero to Hero (Learning Roadmap) -->
+    <section id="zero-to-hero" class="py-12 md:py-20 lg:py-24 relative bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-8 md:mb-16" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-sky-50 px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">Learning Roadmap</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">ไม่มีพื้นฐาน... <span class="text-sky-500">ก็เก่งได้ 🚀</span></h2>
+                <p class="mt-3 md:mt-4 text-slate-500 text-xs md:text-lg max-w-2xl mx-auto text-balance">เลิกท่องจำแบบนกแก้วนกขุนทอง มาปูพื้นฐานความเข้าใจให้แน่น เพื่อต่อยอดสู่เนื้อหาที่ยากขึ้นอย่างมั่นใจ</p>
+            </div>
+
+            <!-- Bento Grid Layout for Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                
+                <!-- Step 1 (Span 2) -->
+                <div class="bento-card md:col-span-2 bg-slate-50 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-10 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6" data-aos="fade-up" data-aos-delay="0">
+                    <div class="w-14 h-14 md:w-24 md:h-24 flex-shrink-0 bg-sky-100 rounded-[1rem] md:rounded-[1.5rem] flex items-center justify-center text-2xl md:text-4xl border-2 border-white shadow-sm relative">
+                        <i class="fa-solid fa-seedling text-sky-500"></i>
+                        <div class="absolute -top-2 -right-2 w-5 h-5 md:w-8 md:h-8 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm shadow">1</div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg md:text-2xl font-extrabold text-slate-800 mb-1.5 md:mb-2">ปูพื้นฐานใหม่จากศูนย์</h3>
+                        <p class="text-slate-500 text-xs md:text-base leading-relaxed">เริ่มสอนตั้งแต่ 0 สำหรับคนไม่มีพื้นฐาน ครอบคลุมครบทุกวิชา อธิบายด้วยภาษาที่เข้าใจง่าย ไม่ซับซ้อน</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 (Span 1) -->
+                <div class="bento-card md:col-span-1 bg-indigo-50/50 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-indigo-100 flex flex-col justify-center" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-indigo-100 rounded-xl md:rounded-[1rem] flex items-center justify-center text-xl md:text-2xl mb-3 md:mb-4 border-2 border-white shadow-sm relative w-fit">
+                        <i class="fa-solid fa-puzzle-piece text-indigo-500"></i>
+                        <div class="absolute -top-2 -right-2 w-4 h-4 md:w-5 md:h-5 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[9px] md:text-[10px] shadow">2</div>
+                    </div>
+                    <h3 class="text-base md:text-xl font-extrabold text-slate-800 mb-1.5 md:mb-2">เชื่อมโยงเนื้อหา</h3>
+                    <p class="text-slate-500 text-[10px] md:text-sm leading-relaxed">เน้นเข้าใจกลไกและความเชื่อมโยงของระบบต่างๆ เห็นภาพรวมก่อนลงลึกรายละเอียด</p>
+                </div>
+
+                <!-- Step 3 (Span 1) -->
+                <div class="bento-card md:col-span-1 bg-purple-50/50 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-purple-100 flex flex-col justify-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-purple-100 rounded-xl md:rounded-[1rem] flex items-center justify-center text-xl md:text-2xl mb-3 md:mb-4 border-2 border-white shadow-sm relative w-fit">
+                        <i class="fa-solid fa-brain text-purple-500"></i>
+                        <div class="absolute -top-2 -right-2 w-4 h-4 md:w-5 md:h-5 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[9px] md:text-[10px] shadow">3</div>
+                    </div>
+                    <h3 class="text-base md:text-xl font-extrabold text-slate-800 mb-1.5 md:mb-2">เทคนิควิเคราะห์</h3>
+                    <p class="text-slate-500 text-[10px] md:text-sm leading-relaxed">ฝึกกระบวนการคิดวิเคราะห์โจทย์ สอนเทคนิคการตัดช้อยส์ และจับจุดหลอกที่พบบ่อยในข้อสอบ</p>
+                </div>
+
+                <!-- Step 4 (Span 2) -->
+                <div class="bento-card md:col-span-2 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-10 shadow-[0_10px_30px_rgba(249,115,22,0.2)] flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 relative overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+                    <div class="absolute right-0 top-0 w-48 h-48 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                    <div class="w-14 h-14 md:w-24 md:h-24 flex-shrink-0 bg-white/20 backdrop-blur-sm rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-2xl md:text-4xl border-2 border-white/40 shadow-inner relative z-10">
+                        <i class="fa-solid fa-trophy text-white"></i>
+                        <div class="absolute -top-2 -right-2 w-5 h-5 md:w-8 md:h-8 bg-white text-orange-600 rounded-full flex items-center justify-center font-black text-[10px] md:text-sm shadow-md">4</div>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-lg md:text-2xl font-extrabold text-white mb-1 md:mb-2">พิชิตทุกสนามสอบ</h3>
+                        <p class="text-orange-50 text-[10px] md:text-base leading-relaxed font-medium">พร้อมลุยทุกสนามสอบด้วยความมั่นใจ ทั้งการเพิ่มเกรดในโรงเรียน และสอบแข่งขันระดับประเทศ (A-Level / สอวน. / โควตาต่างๆ)</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Subjects Overview -->
+    <section id="subjects-overview" class="py-12 md:py-20 bg-slate-50 border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-16" data-aos="fade-up">
+                <span class="text-indigo-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-indigo-50 px-4 py-1.5 md:py-2 rounded-full border border-indigo-100 shadow-sm inline-block mb-3 md:mb-4">All Subjects</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">ครบทุกวิชา <span class="text-indigo-600">สายวิทย์-คณิต 🔬</span></h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-500">สอนโดยติวเตอร์ผู้เชี่ยวชาญเฉพาะทางในแต่ละวิชา</p>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5 auto-rows-[auto]">
+                
+                <!-- Bio (Big Featured) -->
+                <div class="bento-card col-span-1 md:col-span-2 lg:col-span-2 md:row-span-2 rounded-[1.5rem] md:rounded-[2.5rem] bg-gradient-to-br from-sky-400 to-indigo-600 p-6 md:p-8 text-white relative overflow-hidden group min-h-[180px] md:min-h-[350px] flex flex-col justify-end cursor-pointer shadow-lg" onclick="document.querySelector('#about').scrollIntoView({behavior: 'smooth'})">
+                    <div class="absolute -right-6 -top-6 text-7xl md:text-9xl opacity-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-700"><i class="fa-solid fa-dna"></i></div>
+                    <div class="relative z-10">
+                        <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 backdrop-blur-md rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-2xl mb-3 md:mb-4 border border-white/30"><i class="fa-solid fa-dna"></i></div>
+                        <h3 class="text-2xl md:text-4xl font-extrabold mb-1.5 md:mb-2">ชีววิทยา</h3>
+                        <p class="text-sky-100 text-[10px] md:text-base font-medium leading-tight md:leading-normal">เข้าใจระบบสิ่งมีชีวิตอย่างเป็นเหตุเป็นผล ไม่ต้องท่องจำแบบนกแก้วนกขุนทองอีกต่อไป</p>
+                    </div>
+                </div>
+
+                <!-- Chem (Tall) -->
+                <div class="bento-card col-span-1 md:col-span-1 lg:col-span-1 md:row-span-2 rounded-[1.5rem] md:rounded-[2.5rem] bg-emerald-50 border border-emerald-100 p-5 md:p-8 flex flex-col justify-center items-start md:items-center text-left md:text-center min-h-[120px] md:min-h-[350px] group cursor-pointer" onclick="document.querySelector('#about').scrollIntoView({behavior: 'smooth'})">
+                    <div class="w-10 h-10 md:w-16 md:h-16 bg-emerald-100 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-3xl mb-3 md:mb-4 text-emerald-500 group-hover:scale-110 transition-transform"><i class="fa-solid fa-flask"></i></div>
+                    <div>
+                        <h3 class="text-lg md:text-2xl font-extrabold text-slate-800 mb-1 md:mb-1.5">เคมี</h3>
+                        <p class="text-slate-500 text-[10px] md:text-sm">มองเห็นภาพโมเลกุลชัดเจน คำนวณแม่นยำ</p>
+                    </div>
+                </div>
+
+                <!-- Sci Junior (Small) -->
+                <div class="bento-card col-span-1 md:col-span-1 lg:col-span-1 rounded-[1.5rem] md:rounded-[2rem] bg-pink-50 border border-pink-100 p-5 md:p-6 flex items-center md:flex-col md:items-start lg:items-center justify-start md:justify-center gap-3 md:gap-0 text-left md:text-center group cursor-pointer" onclick="document.querySelector('#about').scrollIntoView({behavior: 'smooth'})">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-pink-100 rounded-xl flex items-center justify-center text-lg md:text-xl text-pink-500 md:mb-3 flex-shrink-0 group-hover:scale-110 transition-transform"><i class="fa-solid fa-atom"></i></div>
+                    <div>
+                        <h3 class="text-base md:text-xl font-extrabold text-slate-800 mb-0.5 md:mb-1">วิทย์ ม.ต้น</h3>
+                        <p class="text-slate-500 text-[9px] md:text-xs">ปูพื้นฐานแน่น สอบเข้า รร.ดัง</p>
+                    </div>
+                </div>
+
+                <!-- Math (Small) -->
+                <div class="bento-card col-span-1 md:col-span-1 lg:col-span-1 rounded-[1.5rem] md:rounded-[2rem] bg-amber-50 border border-amber-100 p-5 md:p-6 flex items-center md:flex-col md:items-start lg:items-center justify-start md:justify-center gap-3 md:gap-0 text-left md:text-center group cursor-pointer" onclick="document.querySelector('#about').scrollIntoView({behavior: 'smooth'})">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 rounded-xl flex items-center justify-center text-lg md:text-xl text-amber-500 md:mb-3 flex-shrink-0 group-hover:scale-110 transition-transform"><i class="fa-solid fa-square-root-variable"></i></div>
+                    <div>
+                        <h3 class="text-base md:text-xl font-extrabold text-slate-800 mb-0.5 md:mb-1">คณิตศาสตร์</h3>
+                        <p class="text-slate-500 text-[9px] md:text-xs">เทคนิคคิดลัด ตีโจทย์แตกกระจาย</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Why Choose Us -->
+    <section class="py-12 md:py-20 lg:py-24 relative bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-8 md:mb-16" data-aos="fade-up">
+                <span class="text-indigo-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-indigo-50 px-4 py-1.5 md:py-2 rounded-full border border-indigo-100 shadow-sm inline-block mb-3 md:mb-4">Why Us?</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">เรียนที่นี่... <span class="text-indigo-600">ต่างจากที่อื่นยังไง?</span></h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-500">ผลลัพธ์ที่แตกต่าง เริ่มต้นจากวิธีการเรียนที่ถูกต้อง</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                
+                <!-- Old Way (Span 1) -->
+                <div class="bento-card md:col-span-1 bg-slate-50 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-200 flex flex-col justify-center opacity-80 hover:opacity-100 transition-opacity">
+                    <div class="bg-slate-700 text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full font-bold text-[10px] md:text-sm w-fit mb-4 md:mb-6">การเรียนแบบเดิมๆ</div>
+                    <ul class="space-y-3 md:space-y-4">
+                        <li class="flex items-start gap-2 md:gap-3">
+                            <i class="fa-solid fa-xmark text-red-400 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-slate-700 text-xs md:text-sm">เน้นท่องจำสูตร</h4>
+                                <p class="text-[9px] md:text-[10px] text-slate-500 mt-0.5 md:mt-0">เข้าสอบก็ลืม พลิกแพลงไม่ได้</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2 md:gap-3">
+                            <i class="fa-solid fa-xmark text-red-400 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-slate-700 text-xs md:text-sm">เนื้อหาเยอะน่าเบื่อ</h4>
+                                <p class="text-[9px] md:text-[10px] text-slate-500 mt-0.5 md:mt-0">เรียนไปง่วงไป ไม่เห็นภาพจริง</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2 md:gap-3">
+                            <i class="fa-solid fa-xmark text-red-400 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-slate-700 text-xs md:text-sm">สอนเร็วข้ามขั้น</h4>
+                                <p class="text-[9px] md:text-[10px] text-slate-500 mt-0.5 md:mt-0">คนไม่มีพื้นฐานเรียนไม่รู้เรื่อง</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Our Way Bento Box 1 -->
+                <div class="bento-card md:col-span-1 bg-gradient-to-b from-indigo-50 to-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-indigo-100 shadow-sm flex flex-col items-center text-center justify-center group">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl md:text-2xl mb-3 md:mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-lightbulb"></i></div>
+                    <h4 class="font-extrabold text-slate-800 text-base md:text-lg mb-1 md:mb-2">เน้น Concept</h4>
+                    <p class="text-[10px] md:text-sm text-slate-500">เข้าใจที่มาที่ไป เชื่อมโยงเนื้อหาได้ เจอโจทย์พลิกแพลงแค่ไหนก็ทำได้</p>
+                </div>
+
+                <!-- Our Way Bento Box 2 -->
+                <div class="bento-card md:col-span-1 bg-gradient-to-b from-sky-50 to-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-sky-100 shadow-sm flex flex-col items-center text-center justify-center group">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl md:text-2xl mb-3 md:mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-photo-film"></i></div>
+                    <h4 class="font-extrabold text-slate-800 text-base md:text-lg mb-1 md:mb-2">สนุก เห็นภาพจริง</h4>
+                    <p class="text-[10px] md:text-sm text-slate-500">ใช้กราฟิก 3D และตัวอย่างในชีวิตจริง ช่วยให้จำแม่นโดยไม่ต้องนั่งท่อง</p>
+                </div>
+
+                <!-- Our Way Bento Box 3 (Span 2 or full width on mobile) -->
+                <div class="bento-card md:col-span-2 bg-gradient-to-r from-indigo-600 to-sky-500 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl text-white flex flex-col sm:flex-row items-center gap-4 md:gap-6 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-24 h-24 md:w-32 md:h-32 bg-white/20 rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] bg-white/20 backdrop-blur-md flex items-center justify-center text-xl md:text-3xl border border-white/30 flex-shrink-0"><i class="fa-solid fa-handshake-angle text-white"></i></div>
+                    <div class="text-center sm:text-left">
+                        <h4 class="font-extrabold text-white text-lg md:text-2xl mb-1">เริ่มจาก 0 ก็เก่งได้</h4>
+                        <p class="text-sky-100 text-[10px] md:text-base font-medium">ปูพื้นฐานให้ใหม่ทุกวิชา (วิทย์-คณิต) ดูแลทั่วถึงเหมือนพี่สอนน้อง ไม่ทิ้งใครไว้ข้างหลัง</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Core Value -->
+    <section class="py-12 md:py-20 lg:py-24 relative bg-slate-900 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+            <div class="absolute top-[10%] left-[-10%] w-72 md:w-[500px] h-72 md:h-[500px] bg-indigo-600/20 rounded-full blur-[60px] md:blur-[100px]"></div>
+            <div class="absolute bottom-[-10%] right-[10%] w-72 md:w-[600px] h-72 md:h-[600px] bg-sky-500/10 rounded-full blur-[80px] md:blur-[120px]"></div>
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.05]"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                
+                <!-- Main Message (Span 2 Cols, 2 Rows) -->
+                <div class="bento-card md:col-span-2 md:row-span-2 bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-12 flex flex-col justify-center shadow-2xl relative overflow-hidden" data-aos="fade-right">
+                    <div class="absolute -right-10 -top-10 md:-right-20 md:-top-20 w-48 h-48 md:w-64 md:h-64 bg-sky-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <span class="text-sky-400 font-bold tracking-widest text-[9px] md:text-xs uppercase bg-slate-900/50 border border-slate-700 px-3 md:px-4 py-1 md:py-1.5 rounded-full w-fit mb-4 md:mb-6">Our Core Value</span>
+                    <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight text-balance mb-4 md:mb-6">
+                        เรียนแบบ <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">มีคุณภาพ</span><br>
+                        ในราคาที่ <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">จับต้องได้</span>
+                    </h2>
+                    <p class="text-slate-400 text-xs md:text-base lg:text-lg leading-relaxed max-w-xl">
+                        เราเชื่อว่า "ความรู้" คือกุญแจสำคัญสู่อนาคต และโอกาสในการเข้าถึงการศึกษาที่มีคุณภาพ ไม่ควรถูกจำกัดด้วย "ราคา"
+                    </p>
+                    <div class="mt-6 md:mt-8 flex flex-row gap-3 md:gap-4 overflow-x-auto hide-scroll pb-2 md:pb-0">
+                        <div class="flex items-center gap-2 md:gap-3 bg-slate-900/50 p-2 md:p-4 rounded-xl md:rounded-2xl border border-slate-700/50 w-fit flex-shrink-0">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 text-sky-400 text-sm md:text-base"><i class="fa-solid fa-medal"></i></div>
+                            <div class="text-left">
+                                <h4 class="text-white font-bold text-[10px] md:text-sm">คุณภาพคับแก้ว</h4>
+                                <p class="text-slate-400 text-[8px] md:text-[10px] mt-0.5">สอนสด/คลิปชัด</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 md:gap-3 bg-slate-900/50 p-2 md:p-4 rounded-xl md:rounded-2xl border border-slate-700/50 w-fit flex-shrink-0">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600 text-yellow-400 text-sm md:text-base"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div class="text-left">
+                                <h4 class="text-white font-bold text-[10px] md:text-sm">คุ้มค่าทุกบาท</h4>
+                                <p class="text-slate-400 text-[8px] md:text-[10px] mt-0.5">ราคาแฟร์</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating 1 -->
+                <div class="bento-card bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-white/10 shadow-lg text-white flex flex-col justify-center items-start group" data-aos="fade-left" data-aos-delay="0">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl mb-3 md:mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open-reader text-white"></i></div>
+                    <span class="text-indigo-100 text-[10px] md:text-sm font-medium mb-0.5 md:mb-1">ความเข้มข้นเนื้อหา</span>
+                    <h4 class="text-lg md:text-2xl font-extrabold mb-2 md:mb-3">ระดับ 5 ดาว</h4>
+                    <div class="flex gap-0.5 md:gap-1 text-yellow-300 text-[10px] md:text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                </div>
+
+                <!-- Rating 2 -->
+                <div class="bento-card bg-gradient-to-br from-rose-500 to-orange-500 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-white/10 shadow-lg text-white flex flex-col justify-center items-start group" data-aos="fade-left" data-aos-delay="100">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl mb-3 md:mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chalkboard-user text-white"></i></div>
+                    <span class="text-rose-100 text-[10px] md:text-sm font-medium mb-0.5 md:mb-1">เทคนิคการสอน</span>
+                    <h4 class="text-lg md:text-2xl font-extrabold mb-2 md:mb-3">ระดับ 5 ดาว</h4>
+                    <div class="flex gap-0.5 md:gap-1 text-yellow-300 text-[10px] md:text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                </div>
+
+                <!-- Rating 3 -->
+                <div class="bento-card bg-gradient-to-br from-emerald-500 to-teal-600 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-white/10 shadow-lg text-white flex flex-col justify-center items-start group" data-aos="fade-up" data-aos-delay="0">
+                    <div class="w-10 h-10 md:w-12 h-12 bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-xl mb-3 md:mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-heart-circle-check text-white"></i></div>
+                    <span class="text-emerald-100 text-[10px] md:text-sm font-medium mb-0.5 md:mb-1">การดูแลเอาใจใส่</span>
+                    <h4 class="text-lg md:text-2xl font-extrabold mb-2 md:mb-3">ระดับ 5 ดาว</h4>
+                    <div class="flex gap-0.5 md:gap-1 text-yellow-300 text-[10px] md:text-sm"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                </div>
+
+                <!-- Price Banner (Span 2) -->
+                <div class="bento-card md:col-span-2 bg-gradient-to-r from-sky-400 to-indigo-500 rounded-[1.5rem] md:rounded-[2.5rem] p-1 shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-slate-900 rounded-[1.3rem] md:rounded-[2.3rem] w-full h-full p-5 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="text-center sm:text-left">
+                            <p class="text-sky-300 text-[10px] md:text-sm font-bold tracking-widest uppercase mb-1 md:mb-2"><i class="fa-solid fa-tags mr-1"></i> จ่ายในราคาเริ่มต้นเพียง</p>
+                            <h3 class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white">160<span class="text-sm md:text-xl text-slate-400 font-medium ml-1">฿ <span class="text-[10px] md:text-sm font-normal">/ ชม.</span></span></h3>
+                        </div>
+                        <a href="#pricing" class="scroll-link px-5 md:px-8 py-2.5 md:py-4 rounded-full bg-white text-slate-900 font-bold text-xs md:text-sm hover:bg-sky-50 transition shadow-lg whitespace-nowrap">
+                            ดูแพ็คเกจราคา <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Section + Courses -->
+    <section id="about" class="py-12 md:py-20 lg:py-24 relative bg-white/60 backdrop-blur-sm border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-8 md:mb-16" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-sky-50 px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">Team & Courses</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">ทีมผู้สอน & คอร์สเรียน 📚</h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-500">เลือกติวเตอร์เพื่อดูประวัติและคอร์สเรียนของแต่ละท่าน</p>
+            </div>
+
+            <!-- Tutor Tabs -->
+            <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8 md:mb-12" id="tutor-tabs">
+                <!-- Tabs injected by JS -->
+            </div>
+
+            <!-- Profile Display Area -->
+            <div id="tutor-profile-container">
+                <!-- Dynamic Content Loads Here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio -->
+    <section id="portfolio" class="py-12 md:py-20 lg:py-24 relative bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-10 md:mb-20" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">Masterpiece</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">ผลงานตรวจทานหนังสือ 📚</h2>
+            </div>
+            
+            <div class="glass-card bg-white rounded-[1.5rem] md:rounded-[3rem] p-5 sm:p-10 md:p-16 flex flex-col lg:flex-row items-center gap-8 lg:gap-20 shadow-xl border-white" data-aos="fade-up">
+                <div class="w-full lg:w-1/2 flex justify-center relative pt-4 md:pt-0">
+                    <div class="book relative w-40 sm:w-64 md:w-80 rounded-[1rem] md:rounded-2xl cursor-pointer z-10 shadow-2xl">
+                        <img src="https://img2.pic.in.th/pic/IMG_0413c4104beb709d1705.jpeg" alt="360 Concept in Biology" class="w-full h-auto rounded-[1rem] md:rounded-2xl object-cover" loading="lazy" />
+                    </div>
+                    <div class="absolute -top-3 -right-3 sm:-top-8 sm:-right-8 md:-top-10 md:-right-10 z-20 w-16 h-16 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-full border-2 md:border-4 border-white shadow-xl overflow-hidden animate-float bg-white flex items-center justify-center p-1 md:p-2">
+                        <img src="https://img2.pic.in.th/pic/IMG_0415d1c5a68692a4bb0e.jpeg" alt="Logo 360 Concept" class="w-full h-full object-contain rounded-full" loading="lazy" />
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2 text-center lg:text-left mt-4 lg:mt-0">
+                    <div class="inline-flex items-center gap-1.5 md:gap-2 mb-4 md:mb-6 bg-green-50 px-3 md:px-5 py-1 md:py-2 rounded-full border border-green-200/60 shadow-sm">
+                        <i class="fa-solid fa-circle-check text-green-500 text-xs md:text-base"></i>
+                        <span class="text-green-700 text-[8px] md:text-xs font-bold uppercase tracking-wider">Official Verified</span>
+                    </div>
+                    <h3 class="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 mb-2 md:mb-4">360 Concepts in Biology</h3>
+                    <h4 class="text-base sm:text-xl md:text-2xl font-bold text-sky-600 mb-4 md:mb-8 bg-sky-50 inline-block px-3 md:px-4 py-1 md:py-1.5 rounded-lg border border-sky-100">
+                        Part 1: <span class="text-slate-600">คู่มือเตรียมสอบ สอวน.</span>
+                    </h4>
+                    <p class="text-slate-600 leading-relaxed text-xs md:text-base lg:text-lg font-light text-balance px-2 lg:px-0">
+                        ร่วมเป็นส่วนหนึ่งในทีมผู้ตรวจทานความถูกต้องทางวิชาการ (Content Verification) เพื่อให้น้องๆ มั่นใจได้ว่าเนื้อหา <strong class="text-slate-800 font-semibold bg-yellow-100 px-1 rounded">"แม่นยำ ถูกต้อง และทันสมัย"</strong> ที่สุดสำหรับการเตรียมตัวสอบ
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO: Free Resources -->
+    <section id="free-resources" class="py-12 md:py-20 lg:py-24 relative bg-slate-900 text-white overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
+        <div class="absolute top-0 right-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-sky-500/20 rounded-full blur-[60px] md:blur-[100px] pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-64 md:w-[400px] h-64 md:h-[400px] bg-pink-500/20 rounded-full blur-[60px] md:blur-[100px] pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-8 md:mb-16" data-aos="fade-up">
+                <span class="text-sky-400 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-slate-800 border border-slate-700 px-3 md:px-4 py-1 md:py-1.5 rounded-full shadow-sm inline-block mb-3 md:mb-4">Free Giveaway</span>
+                <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">คลังความรู้...<span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-pink-400">แจกฟรี! 🎁</span></h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-400">ทดลองเรียนและโหลดเอกสารสรุปเตรียมสอบได้ฟรี</p>
+            </div>
+
+            <!-- Bento Grid 4 Blocks -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                
+                <!-- Box 1: Video Trial (Span 2) -->
+                <a href="#" class="bento-card md:col-span-2 md:row-span-2 bg-gradient-to-br from-slate-800 to-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-10 border border-slate-700 hover:border-pink-500 hover:shadow-[0_10px_30px_rgba(236,72,153,0.15)] transition-all duration-300 relative overflow-hidden group flex flex-col justify-between" data-aos="fade-right">
+                    <div class="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 bg-pink-500/10 rounded-bl-full transform translate-x-1/2 -translate-y-1/2 group-hover:bg-pink-500/20 transition-colors blur-xl"></div>
+                    <div class="w-12 h-12 md:w-20 md:h-20 bg-pink-500/20 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-4xl text-pink-400 mb-4 md:mb-6 group-hover:scale-110 transition-transform shadow-inner border border-pink-500/30 relative z-10"><i class="fa-brands fa-youtube"></i></div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl md:text-4xl font-extrabold mb-2 md:mb-3 text-white">ทดลองเรียนฟรี 2 ชม. เต็ม</h3>
+                        <p class="text-slate-400 text-[10px] md:text-base mb-4 md:mb-8 leading-relaxed max-w-md">คลิปติวฟรีเรื่อง "การหายใจระดับเซลล์" และ "ปริมาณสารสัมพันธ์" เรียนจบเข้าใจทันที พร้อมเอกสารประกอบการเรียน</p>
+                        <span class="inline-flex items-center gap-1.5 md:gap-2 bg-pink-600 text-white text-[10px] md:text-sm font-bold px-4 md:px-6 py-2 md:py-3 rounded-full group-hover:bg-pink-500 transition shadow-lg w-fit">
+                            ดูคลิปติวฟรี <i class="fa-solid fa-play"></i>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Box 2: PDF Formulas (Span 1) -->
+                <a href="#" class="bento-card md:col-span-1 bg-gradient-to-br from-sky-900/60 to-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-sky-800 hover:border-sky-400 hover:shadow-[0_10px_30px_rgba(56,189,248,0.15)] transition-all duration-300 relative overflow-hidden group flex flex-col justify-between" data-aos="fade-left" data-aos-delay="100">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-sky-500/20 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl text-sky-400 mb-3 md:mb-4 group-hover:scale-110 transition-transform border border-sky-500/30"><i class="fa-solid fa-file-pdf"></i></div>
+                    <div>
+                        <h3 class="text-base md:text-xl font-extrabold mb-1 md:mb-2 text-white">สรุปสูตร วิทย์-คณิต</h3>
+                        <p class="text-sky-100/70 text-[9px] md:text-sm mb-4 md:mb-6 leading-relaxed">รวมสูตรสำคัญที่ออกสอบบ่อย อ่านเข้าใจง่าย สีสันสดใส</p>
+                    </div>
+                    <span class="text-sky-400 text-[9px] md:text-sm font-bold flex items-center gap-1 md:gap-2 group-hover:translate-x-2 transition w-fit">ดาวน์โหลด PDF <i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <!-- Box 3: Mock Exam (Span 1) -->
+                <a href="#" class="bento-card md:col-span-1 bg-gradient-to-br from-emerald-900/60 to-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] p-5 md:p-8 border border-emerald-800 hover:border-emerald-400 hover:shadow-[0_10px_30px_rgba(52,211,153,0.15)] transition-all duration-300 relative overflow-hidden group flex flex-col justify-between" data-aos="fade-left" data-aos-delay="200">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-emerald-500/20 rounded-lg md:rounded-xl flex items-center justify-center text-lg md:text-2xl text-emerald-400 mb-3 md:mb-4 group-hover:scale-110 transition-transform border border-emerald-500/30"><i class="fa-solid fa-file-lines"></i></div>
+                    <div>
+                        <h3 class="text-base md:text-xl font-extrabold mb-1 md:mb-2 text-white">ข้อสอบ Mock Exam</h3>
+                        <p class="text-emerald-100/70 text-[9px] md:text-sm mb-4 md:mb-6 leading-relaxed">ประเมินความพร้อมก่อนสอบจริง ด้วยข้อสอบเสมือนจริงพร้อมเฉลยละเอียด</p>
+                    </div>
+                    <span class="text-emerald-400 text-[9px] md:text-sm font-bold flex items-center gap-1 md:gap-2 group-hover:translate-x-2 transition w-fit">เริ่มทำข้อสอบ <i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <!-- Box 4: Study Planner (Span 3 on mobile, 3 on desktop) -->
+                <a href="#" class="bento-card md:col-span-3 bg-gradient-to-r from-amber-600/20 to-orange-500/10 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 border border-amber-700/50 hover:border-amber-400 hover:shadow-[0_10px_30px_rgba(251,191,36,0.15)] transition-all duration-300 relative overflow-hidden group flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center gap-4 md:gap-5">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-500/20 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl text-amber-400 border border-amber-500/30 flex-shrink-0 group-hover:rotate-6 transition-transform"><i class="fa-regular fa-calendar-check"></i></div>
+                        <div class="text-center sm:text-left">
+                            <h3 class="text-base md:text-xl font-extrabold text-white mb-0.5 md:mb-1">Study Planner 6 เดือนพิชิตมหาลัย</h3>
+                            <p class="text-amber-100/70 text-[9px] md:text-sm">แจกฟรี! ตารางวางแผนอ่านหนังสือ ให้คุณจัดการเวลาได้อย่างมีประสิทธิภาพ</p>
+                        </div>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-400 border border-amber-500/50 text-[10px] md:text-sm font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-full flex items-center gap-1.5 md:gap-2 group-hover:bg-amber-500 group-hover:text-slate-900 transition-colors whitespace-nowrap w-fit mx-auto sm:mx-0">รับ Planner ฟรี <i class="fa-solid fa-download"></i></span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities Gallery -->
+    <section id="activity" class="py-12 md:py-20 lg:py-24 relative bg-white">
+        <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-16 px-4" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-sky-50 px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">Activities</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800">ภาพกิจกรรมวิทยากร 🎤</h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-500">บรรยากาศการบรรยายให้ความรู้แก่น้องๆ ตามโรงเรียนต่างๆ</p>
+            </div>
+            
+            <!-- Mobile Optimized Horizontal Scroll -->
+            <div class="flex overflow-x-auto gap-3 md:gap-6 pb-8 md:pb-10 hide-scroll snap-x snap-mandatory px-4 sm:px-0" style="scroll-padding-left: 1rem;">
+                <div class="w-[85vw] max-w-[320px] md:max-w-[450px] flex-shrink-0 snap-center rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group">
+                    <img src="https://lh3.googleusercontent.com/d/1sSIiuGrTMpqT5jmz4qoVB_gLXy2yU4P9" class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition duration-500" alt="Activity 1" loading="lazy" />
+                </div>
+                <div class="w-[85vw] max-w-[320px] md:max-w-[450px] flex-shrink-0 snap-center rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group">
+                    <img src="https://lh3.googleusercontent.com/d/1myKgT7wOwLIN35NaVs8VqK4EUnwtz26c" class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition duration-500" alt="Activity 2" loading="lazy" />
+                </div>
+                <div class="w-[85vw] max-w-[320px] md:max-w-[450px] flex-shrink-0 snap-center rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group">
+                    <img src="https://lh3.googleusercontent.com/d/1MC6MkPEot3SW-RBK0-8UdJDsM536ECVz" class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition duration-500" alt="Activity 3" loading="lazy" />
+                </div>
+                <div class="w-[85vw] max-w-[320px] md:max-w-[450px] flex-shrink-0 snap-center rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group">
+                    <img src="https://lh3.googleusercontent.com/d/16QahP5U_TREaYRuq94PsB8mxM0a1Up1g" class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition duration-500" alt="Activity 4" loading="lazy" />
+                </div>
+                <div class="w-[85vw] max-w-[320px] md:max-w-[450px] flex-shrink-0 snap-center rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group">
+                    <img src="https://lh3.googleusercontent.com/d/19PgAuVGfbgxhyBhH7JM4HKqgQICZq8_j" class="w-full h-48 md:h-72 object-cover group-hover:scale-105 transition duration-500" alt="Activity 5" loading="lazy" />
+                </div>
+                <!-- Spacer for last item to scroll fully -->
+                <div class="w-[5vw] flex-shrink-0 sm:hidden"></div>
+            </div>
+            
+            <div class="text-center mt-0 md:mt-2 px-4">
+                <p class="text-[9px] md:text-xs text-slate-400 bg-slate-100 inline-block px-3 py-1 rounded-full"><i class="fa-solid fa-arrows-left-right mr-1"></i> เลื่อนซ้าย-ขวา เพื่อดูภาพเพิ่มเติม</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teaching Atmosphere (Video) -->
+    <section id="teaching-video" class="py-12 md:py-20 relative bg-slate-50 border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800 mb-6 md:mb-12">บรรยากาศการสอน 🎥</h2>
+            <div class="video-glow aspect-video rounded-[1rem] md:rounded-[2.5rem] overflow-hidden relative bg-slate-900 shadow-2xl mx-auto max-w-full">
+                <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/n7OmFntD-Ss?rel=0&modestbranding=1" frameborder="0" allowfullscreen loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promo Banner -->
+    <section id="promotion" class="py-12 md:py-20 lg:py-24 relative overflow-hidden bg-white">
+        <div class="absolute inset-0 bg-grid-pattern opacity-50 pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            
+            <!-- Countdown Timer -->
+            <div class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-6 mb-8 md:mb-12" data-aos="fade-up">
+                <div class="text-center md:text-right">
+                    <p class="text-[9px] md:text-xs text-slate-500 font-bold uppercase tracking-wider mb-0.5 md:mb-1">Limited Time Offer</p>
+                    <h3 class="text-lg md:text-2xl font-extrabold text-red-500">โปรโมชั่นจะหมดในอีก</h3>
+                </div>
+                <div class="flex gap-2 md:gap-3 text-center">
+                    <div class="bg-slate-800 text-white p-2 md:p-3 rounded-lg md:rounded-xl min-w-[50px] md:min-w-[70px] shadow-md">
+                        <span class="text-lg md:text-2xl font-bold font-mono block leading-none" id="days">00</span>
+                        <span class="text-[8px] md:text-[10px] text-slate-400 uppercase mt-1 block">Days</span>
+                    </div>
+                    <div class="bg-slate-800 text-white p-2 md:p-3 rounded-lg md:rounded-xl min-w-[50px] md:min-w-[70px] shadow-md">
+                        <span class="text-lg md:text-2xl font-bold font-mono block leading-none" id="hours">00</span>
+                        <span class="text-[8px] md:text-[10px] text-slate-400 uppercase mt-1 block">Hours</span>
+                    </div>
+                    <div class="bg-slate-800 text-white p-2 md:p-3 rounded-lg md:rounded-xl min-w-[50px] md:min-w-[70px] shadow-md">
+                        <span class="text-lg md:text-2xl font-bold font-mono block leading-none" id="minutes">00</span>
+                        <span class="text-[8px] md:text-[10px] text-slate-400 uppercase mt-1 block">Mins</span>
+                    </div>
+                    <div class="bg-red-500 text-white p-2 md:p-3 rounded-lg md:rounded-xl min-w-[50px] md:min-w-[70px] shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-[pulse_2s_ease-in-out_infinite]">
+                        <span class="text-lg md:text-2xl font-bold font-mono block leading-none" id="seconds">00</span>
+                        <span class="text-[8px] md:text-[10px] text-white/90 uppercase mt-1 block">Secs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Slider -->
+            <div class="glass-card bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-1.5 md:p-2 overflow-hidden relative shadow-2xl border-white" data-aos="fade-up">
+                <div class="bg-slate-50 rounded-[1rem] md:rounded-[2.2rem] overflow-hidden relative flex flex-col md:block h-auto md:h-[480px]">
+                    <div id="banner-track" class="flex transition-transform duration-700 cubic-bezier(0.4, 0, 0.2, 1) h-full w-full">
+                        
+                        <!-- Slide 1 -->
+                        <div class="banner-slide flex-shrink-0 w-full h-full flex flex-col md:flex-row bg-gradient-to-br from-orange-50 to-red-50">
+                            <div class="w-full md:w-1/2 relative h-48 sm:h-64 md:h-full overflow-hidden flex-shrink-0">
+                                <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                                <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-red-900/80 md:from-red-900/60 to-transparent"></div>
+                                <div class="absolute bottom-5 left-5 md:bottom-10 md:left-10 text-white z-10">
+                                    <span class="bg-red-500 text-white text-[9px] md:text-xs font-bold px-2.5 py-1 rounded-full mb-1.5 md:mb-3 inline-block shadow-md">HOT SALE</span>
+                                    <h3 class="text-xl md:text-4xl font-extrabold shadow-sm leading-tight text-balance">ตะลุยโจทย์ A-Level</h3>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-1/2 p-5 sm:p-8 md:p-12 flex flex-col justify-center bg-white/40 backdrop-blur-sm">
+                                <h3 class="text-xl md:text-3xl font-extrabold text-slate-800 mb-1.5 md:mb-4">โปรฯ เดือนนี้ <span class="text-red-500">ลดแรง!</span></h3>
+                                <p class="text-slate-600 mb-5 md:mb-8 text-xs md:text-base leading-relaxed text-balance">โค้งสุดท้ายก่อนสอบ! สมัครคอร์สตะลุยโจทย์วันนี้ รับส่วนลดสูงสุด 1,700 บาท</p>
+                                <div class="space-y-2.5 md:space-y-3 w-full max-w-sm mx-auto md:mx-0">
+                                    <div class="flex items-center justify-between bg-white p-2.5 md:p-4 rounded-lg md:rounded-2xl border border-red-100 shadow-sm">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] md:text-sm font-bold text-slate-700">ศิษย์เก่า</span>
+                                            <span class="text-[9px] md:text-xs text-red-500 font-medium">ลด 1,700฿</span>
+                                        </div>
+                                        <button onclick="copyCode('ARE888', this)" class="text-[10px] md:text-sm bg-red-50 text-red-600 px-3 md:px-5 py-1.5 md:py-2.5 rounded-md md:rounded-xl font-bold border border-red-100 hover:bg-red-600 hover:text-white transition-colors code-btn shadow-sm">ARE888</button>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-white p-2.5 md:p-4 rounded-lg md:rounded-2xl border border-red-100 shadow-sm">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] md:text-sm font-bold text-slate-700">เด็กใหม่</span>
+                                            <span class="text-[9px] md:text-xs text-red-500 font-medium">ลด 500฿</span>
+                                        </div>
+                                        <button onclick="copyCode('ARENEW', this)" class="text-[10px] md:text-sm bg-red-50 text-red-600 px-3 md:px-5 py-1.5 md:py-2.5 rounded-md md:rounded-xl font-bold border border-red-100 hover:bg-red-600 hover:text-white transition-colors code-btn shadow-sm">ARENEW</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="banner-slide flex-shrink-0 w-full h-full flex flex-col md:flex-row bg-gradient-to-br from-sky-50 to-indigo-50">
+                            <div class="w-full md:w-1/2 relative h-48 sm:h-64 md:h-full overflow-hidden flex-shrink-0">
+                                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                                <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-sky-900/80 md:from-sky-900/60 to-transparent"></div>
+                                <div class="absolute bottom-5 left-5 md:bottom-10 md:left-10 text-white z-10">
+                                    <span class="bg-sky-500 text-white text-[9px] md:text-xs font-bold px-2.5 py-1 rounded-full mb-1.5 md:mb-3 inline-block shadow-md">NEW COURSE</span>
+                                    <h3 class="text-xl md:text-4xl font-extrabold shadow-sm leading-tight text-balance">คอร์สปูพื้นฐาน ม.4-6</h3>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-1/2 p-5 sm:p-8 md:p-12 flex flex-col justify-center bg-white/40 backdrop-blur-sm">
+                                <h3 class="text-xl md:text-3xl font-extrabold text-slate-800 mb-1.5 md:mb-4">เริ่มต้นดี <span class="text-sky-600">มีชัยไปกว่าครึ่ง</span></h3>
+                                <p class="text-slate-600 mb-5 md:mb-8 text-xs md:text-base leading-relaxed text-balance">ปรับพื้นฐานให้แน่น เข้าใจกลไกธรรมชาติ ไม่ต้องจำเยอะ เรียนสนุก เข้าใจง่าย พร้อมรับเกรด 4</p>
+                                <div class="space-y-2.5 md:space-y-3 w-full max-w-sm mx-auto md:mx-0">
+                                    <div class="flex items-center justify-between bg-white p-2.5 md:p-4 rounded-lg md:rounded-2xl border border-sky-100 shadow-sm">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] md:text-sm font-bold text-slate-700">สมัครวันนี้</span>
+                                            <span class="text-[9px] md:text-xs text-sky-500 font-medium">ลดทันที 500฿</span>
+                                        </div>
+                                        <button onclick="copyCode('ARENEW', this)" class="text-[10px] md:text-sm bg-sky-50 text-sky-600 px-3 md:px-5 py-1.5 md:py-2.5 rounded-md md:rounded-xl font-bold border border-sky-100 hover:bg-sky-600 hover:text-white transition-colors code-btn shadow-sm">ARENEW</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="banner-slide flex-shrink-0 w-full h-full flex flex-col md:flex-row bg-gradient-to-br from-amber-50 to-orange-50">
+                            <div class="w-full md:w-1/2 relative h-48 sm:h-64 md:h-full overflow-hidden flex-shrink-0">
+                                <img src="https://images.unsplash.com/photo-1532153975070-2e9ab71f1b14?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                                <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-amber-900/80 md:from-amber-900/60 to-transparent"></div>
+                                <div class="absolute bottom-5 left-5 md:bottom-10 md:left-10 text-white z-10">
+                                    <span class="bg-amber-500 text-white text-[9px] md:text-xs font-bold px-2.5 py-1 rounded-full mb-1.5 md:mb-3 inline-block shadow-md">POSN OLYMPIAD</span>
+                                    <h3 class="text-xl md:text-4xl font-extrabold shadow-sm leading-tight text-balance">พิชิต สอวน. ค่าย 1</h3>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-1/2 p-5 sm:p-8 md:p-12 flex flex-col justify-center bg-white/40 backdrop-blur-sm">
+                                <h3 class="text-xl md:text-3xl font-extrabold text-slate-800 mb-1.5 md:mb-4">สานฝัน <span class="text-amber-600">เด็กโอลิมปิก</span></h3>
+                                <p class="text-slate-600 mb-5 md:mb-8 text-xs md:text-base leading-relaxed text-balance">เจาะลึกเนื้อหาเกินหลักสูตร พร้อมเทคนิคทำข้อสอบวิเคราะห์ เพื่อก้าวสู่ค่าย 1 และ 2 อย่างมั่นใจ</p>
+                                <div class="space-y-2.5 md:space-y-3 w-full max-w-sm mx-auto md:mx-0">
+                                    <div class="flex items-center justify-between bg-white p-2.5 md:p-4 rounded-lg md:rounded-2xl border border-amber-100 shadow-sm">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] md:text-sm font-bold text-slate-700">มาเป็นแก๊ง</span>
+                                            <span class="text-[9px] md:text-xs text-amber-500 font-medium">สมัครกลุ่มลด 10%</span>
+                                        </div>
+                                        <button onclick="copyCode('AREGROUP', this)" class="text-[10px] md:text-sm bg-amber-50 text-amber-600 px-3 md:px-5 py-1.5 md:py-2.5 rounded-md md:rounded-xl font-bold border border-amber-100 hover:bg-amber-500 hover:text-white transition-colors code-btn shadow-sm">AREGROUP</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Slider Navigation Dots -->
+                    <div class="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-3 z-20 bg-black/20 px-2.5 py-1 md:py-1.5 rounded-full backdrop-blur-sm">
+                        <div class="banner-dot w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full bg-white cursor-pointer opacity-100 scale-125 transition-all" onclick="goToSlide(0)"></div>
+                        <div class="banner-dot w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full bg-white opacity-50 cursor-pointer transition-all hover:opacity-100" onclick="goToSlide(1)"></div>
+                        <div class="banner-dot w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full bg-white opacity-50 cursor-pointer transition-all hover:opacity-100" onclick="goToSlide(2)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Plans -->
+    <section id="pricing" class="py-12 md:py-20 lg:py-24 relative bg-slate-50 border-y border-slate-100">
+        <div class="max-w-5xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-10 md:mb-16" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">Pricing Plans</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">รูปแบบการเรียนทั่วไป 💸</h2>
+                <p class="text-slate-500 mt-2 md:mt-3 text-xs md:text-lg">สำหรับคอร์สเรียนส่วนตัวหรือกลุ่มย่อย</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-10 max-w-3xl mx-auto px-2">
+                <!-- Hourly -->
+                <div class="bento-card bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2rem] text-center border border-slate-100 flex flex-col h-full shadow-lg" data-aos="fade-up">
+                    <div class="w-14 h-14 md:w-20 md:h-20 mx-auto bg-sky-50 rounded-[1rem] md:rounded-2xl flex items-center justify-center text-sky-500 text-2xl md:text-4xl mb-4 md:mb-8 border border-sky-100"><i class="fa-regular fa-clock"></i></div>
+                    <h3 class="text-lg md:text-2xl font-extrabold text-slate-800 mb-1.5 md:mb-3">เรียนรายชั่วโมง</h3>
+                    <p class="text-slate-500 text-[10px] md:text-sm mb-5 md:mb-8 leading-relaxed">เหมาะสำหรับน้องๆ ที่ต้องการเน้นเฉพาะจุด หรือติวสอบเร่งด่วน</p>
+                    <div class="mb-5 md:mb-8 text-sky-600 font-extrabold flex items-end justify-center gap-1">
+                        <span id="awPriceHourly" class="text-3xl md:text-5xl leading-none">180</span>
+                        <span class="text-xs md:text-base text-slate-400 font-medium mb-1">/ ชม.</span>
+                    </div><div id="awPriceHourlyUni" class="aw-price-sub"></div>
+                    <ul class="text-left text-[10px] md:text-sm text-slate-600 space-y-2.5 md:space-y-3.5 mb-2 md:mb-0 md:flex-grow w-fit mx-auto">
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-500 mr-2 md:mr-2.5"></i> จ่ายจริงตามเวลาที่เรียน</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-500 mr-2 md:mr-2.5"></i> เลือกเวลาเรียนได้ยืดหยุ่น</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-500 mr-2 md:mr-2.5"></i> ไม่มีข้อผูกมัด</li>
+                    </ul>
+                </div>
+                
+                <!-- Course -->
+                <div class="bento-card bg-gradient-to-br from-indigo-500 to-indigo-700 text-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2rem] text-center border-2 border-indigo-400 relative flex flex-col h-full mt-4 md:mt-0 shadow-xl" data-aos="fade-up" data-aos-delay="100">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[9px] md:text-xs font-bold px-4 md:px-5 py-1 md:py-1.5 rounded-full shadow-md whitespace-nowrap z-10">BEST VALUE คุ้มที่สุด</div>
+                    <div class="w-14 h-14 md:w-20 md:h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-[1rem] md:rounded-2xl flex items-center justify-center text-white text-2xl md:text-4xl mb-4 md:mb-8 border border-white/30"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h3 class="text-lg md:text-2xl font-extrabold mb-1.5 md:mb-3 text-white">เหมาคอร์ส 30 ชม.</h3>
+                    <p class="text-indigo-100 text-[10px] md:text-sm mb-5 md:mb-8 leading-relaxed">เหมาะสำหรับปูพื้นฐานระยะยาว หรือเตรียมสอบแบบเข้มข้น</p>
+                    
+                    <div class="mb-5 md:mb-8 flex flex-col items-center">
+                        <span class="text-xs md:text-base text-indigo-300 line-through mb-0.5 md:mb-1">5,400฿</span>
+                        <div class="text-white font-extrabold flex items-end justify-center gap-1">
+                            <span id="awPrice30h" class="text-3xl md:text-5xl leading-none">4,900</span>
+                            <span class="text-xs md:text-base text-indigo-200 font-medium mb-1">฿</span>
+                        </div>
+                        <div id="awPrice30hMeta" class="mt-2 md:mt-3 bg-red-500 text-white text-[9px] md:text-xs font-bold px-2.5 md:px-3 py-1 rounded-full w-fit shadow-inner">ราคาจากระบบ Manager</div><div id="awPrice30hUni" class="aw-price-sub !text-indigo-100"></div>
+                    </div>
+                    
+                    <ul class="text-left text-[10px] md:text-sm text-white space-y-2.5 md:space-y-3.5 mb-0 md:flex-grow w-fit mx-auto">
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-300 mr-2 md:mr-2.5"></i> เฉลี่ยเพียง 163฿ / ชม.</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-300 mr-2 md:mr-2.5"></i> วางแผนการเรียนระยะยาวได้</li>
+                        <li class="flex items-center"><i class="fa-solid fa-check-circle text-green-300 mr-2 md:mr-2.5"></i> ฟรี! เอกสารประกอบการเรียน</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Satisfaction Guarantee Badge -->
+            <div class="mt-10 md:mt-16 text-center" data-aos="fade-up">
+                <div class="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-white px-5 sm:px-8 py-3 md:py-4 rounded-[1rem] sm:rounded-full shadow-lg border border-pink-100 mx-4 sm:mx-0">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-pink-50 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-shield-heart text-pink-500 text-xl md:text-2xl"></i>
+                    </div>
+                    <div class="text-center sm:text-left">
+                        <p class="text-[9px] md:text-[10px] text-pink-500 font-bold uppercase tracking-wider mb-0.5">100% Satisfaction</p>
+                        <p class="text-[10px] md:text-sm text-slate-700 font-extrabold">รับรองคุณภาพการสอน ไม่เข้าใจยินดีสอนซ้ำฟรี!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXTERNAL REGISTRATION CTA · V21 -->
+    <section id="registration-cta" class="py-12 md:py-20 relative bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 overflow-hidden">
+        <div class="absolute -top-32 -right-24 w-80 h-80 rounded-full bg-sky-500/15 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-24 w-96 h-96 rounded-full bg-indigo-500/15 blur-3xl"></div>
+        <div class="max-w-5xl mx-auto px-4 relative z-10">
+            <div class="aw-manager-sync rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 bg-white/[.06] backdrop-blur-xl p-6 md:p-12 text-white shadow-2xl">
+                <div class="grid lg:grid-cols-[1fr_auto] gap-7 items-center">
+                    <div>
+                        <div class="aw-live-pill !bg-white/10 !border-white/15 !text-sky-200"><span class="aw-live-dot"></span> ระบบสมัครเรียน AreWarin</div>
+                        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold mt-5 leading-tight">พร้อมเริ่มเรียนกับเราแล้วหรือยัง?</h2>
+                        <p class="text-slate-300 text-xs md:text-base mt-4 leading-relaxed max-w-2xl">ระบบสมัครเรียนแยกออกจากเว็บไซต์หลักแล้ว เพื่อให้เลือกหมวด ติวเตอร์ คอร์ส แพ็กเกจ ราคา เวลาเรียน และชำระเงินได้ครบในระบบเดียว</p>
+                        <div class="flex flex-wrap gap-2 mt-5 text-[9px] md:text-xs">
+                            <span class="px-3 py-1.5 rounded-full bg-white/10 border border-white/10">เลือกติวเตอร์</span>
+                            <span class="px-3 py-1.5 rounded-full bg-white/10 border border-white/10">เลือกราคา/แพ็กเกจ</span>
+                            <span class="px-3 py-1.5 rounded-full bg-white/10 border border-white/10">เลือกเวลาเรียน</span>
+                            <span class="px-3 py-1.5 rounded-full bg-white/10 border border-white/10">ชำระเงิน & ส่งสลิป</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-3 min-w-[220px]">
+                        <a data-registration-link href="./register/" class="aw-register-cta px-7 py-4 rounded-2xl bg-white text-slate-900 font-extrabold text-sm hover:bg-sky-50 transition shadow-xl">
+                            สมัครเรียน <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a data-student-link href="./student/" class="aw-register-cta px-7 py-3.5 rounded-2xl bg-white/10 text-white border border-white/15 font-bold text-xs hover:bg-white/15 transition">
+                            นักเรียนเดิม · Student Hub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HALL OF FAME · CONNECTED TO MANAGER -->
+    <section id="hall-of-fame" class="py-12 md:py-20 lg:py-24 relative bg-white overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-yellow-100/50 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-64 md:w-96 h-64 md:h-96 bg-purple-100/50 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob animation-delay-2000 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-10 md:mb-16" data-aos="fade-up">
+                <span class="text-yellow-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-yellow-50 px-4 py-1.5 md:py-2 rounded-full border border-yellow-100 shadow-sm inline-block mb-3 md:mb-4">Hall of Fame</span>
+                <h2 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-800">ทำเนียบคนเก่ง 🏆</h2>
+                <p class="mt-2 md:mt-3 text-xs md:text-lg text-slate-500">ความสำเร็จของน้องๆ คือความภูมิใจของเรา</p>
+            </div>
+
+            <div id="hallOfFameGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+                
+                <div class="bento-card bg-white border border-slate-100 p-4 md:p-8 rounded-[1rem] md:rounded-[2rem] text-center shadow-sm animate-pulse"><div class="w-10 h-10 md:w-16 md:h-16 mx-auto bg-slate-100 rounded-xl md:rounded-2xl mb-3 md:mb-4"></div><div class="h-3 rounded bg-slate-100 w-2/3 mx-auto mb-2"></div><div class="h-2.5 rounded bg-slate-100 w-1/2 mx-auto"></div></div>
+                <div class="bento-card bg-white border border-slate-100 p-4 md:p-8 rounded-[1rem] md:rounded-[2rem] text-center shadow-sm animate-pulse"><div class="w-10 h-10 md:w-16 md:h-16 mx-auto bg-slate-100 rounded-xl md:rounded-2xl mb-3 md:mb-4"></div><div class="h-3 rounded bg-slate-100 w-2/3 mx-auto mb-2"></div><div class="h-2.5 rounded bg-slate-100 w-1/2 mx-auto"></div></div>
+                <div class="bento-card bg-white border border-slate-100 p-4 md:p-8 rounded-[1rem] md:rounded-[2rem] text-center shadow-sm animate-pulse"><div class="w-10 h-10 md:w-16 md:h-16 mx-auto bg-slate-100 rounded-xl md:rounded-2xl mb-3 md:mb-4"></div><div class="h-3 rounded bg-slate-100 w-2/3 mx-auto mb-2"></div><div class="h-2.5 rounded bg-slate-100 w-1/2 mx-auto"></div></div>
+                <div class="bento-card bg-white border border-slate-100 p-4 md:p-8 rounded-[1rem] md:rounded-[2rem] text-center shadow-sm animate-pulse"><div class="w-10 h-10 md:w-16 md:h-16 mx-auto bg-slate-100 rounded-xl md:rounded-2xl mb-3 md:mb-4"></div><div class="h-3 rounded bg-slate-100 w-2/3 mx-auto mb-2"></div><div class="h-2.5 rounded bg-slate-100 w-1/2 mx-auto"></div></div>
+
+            </div>
+
+            <div id="hallOfFameFooter" class="mt-8 md:mt-12 text-center hidden">
+                <div class="inline-flex items-center bg-slate-50 px-4 md:px-6 py-2 md:py-3 rounded-full border border-slate-200 text-slate-500 text-[10px] md:text-sm font-medium">
+                    <i class="fa-solid fa-check-circle text-green-500 mr-1.5 md:mr-2"></i>
+                    <span id="hallOfFameFooterText">และน้องๆ คนเก่งอีกมากมายจากคอร์สเรียนของเรา</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS · CONNECTED TO EXISTING REVIEW SYSTEM -->
+    <section id="reviews" class="py-12 md:py-20 relative bg-slate-50/50 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6 md:mb-12 px-4">
+                <div class="text-center md:text-left w-full md:w-auto">
+                    <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-3 md:px-4 py-1 md:py-1.5 rounded-full border border-sky-100 shadow-sm inline-block mb-2 md:mb-3">REAL STUDENT VOICES</span>
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">เสียงจริงจากนักเรียน 💬</h2>
+                    <p class="text-slate-500 text-xs md:text-sm mt-2">รีวิวชุดเดียวกับระบบ Review Center และ AreWarin Manager</p>
+                </div>
+                <div class="flex gap-2 md:gap-3 items-center">
+                    <div class="hidden sm:flex gap-2">
+                        <button onclick="scrollReviews('left')" class="w-9 h-9 md:w-11 md:h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-sky-50 hover:text-sky-600 transition shadow-sm"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                        <button onclick="scrollReviews('right')" class="w-9 h-9 md:w-11 md:h-11 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-sky-50 hover:text-sky-600 transition shadow-sm"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                    </div>
+                    <a href="./reviews/" data-reviews-link class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-[10px] md:text-xs font-bold hover:bg-sky-600 transition shadow-sm">
+                        ดูรีวิวทั้งหมด <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div id="reviews-container" class="flex overflow-x-auto gap-3 md:gap-6 pb-8 md:pb-12 snap-x snap-mandatory hide-scroll px-4 sm:px-0" style="scroll-padding-left:1rem">
+                <div class="w-[85vw] max-w-[360px] flex-shrink-0 rounded-[1.5rem] bg-white border border-slate-100 p-6 shadow-sm animate-pulse">
+                    <div class="h-12 w-12 rounded-full bg-slate-100 mb-5"></div><div class="h-3 rounded bg-slate-100 w-1/2 mb-3"></div><div class="h-2 rounded bg-slate-100 w-full mb-2"></div><div class="h-2 rounded bg-slate-100 w-4/5"></div>
+                </div>
+            </div>
+
+            <div class="text-center mt-0 sm:hidden px-4">
+                <p class="text-[9px] text-slate-400 bg-slate-100 inline-block px-2.5 py-1 rounded-full"><i class="fa-solid fa-arrows-left-right mr-1"></i> ปัดซ้าย-ขวา เพื่ออ่านรีวิวเพิ่มเติม</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-12 md:pb-24 relative bg-white pt-4">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-12 shadow-[0_20px_50px_-18px_rgba(14,165,233,.42)] overflow-hidden text-center">
+                <div class="absolute -right-16 -top-20 w-56 h-56 bg-white/10 rounded-full blur-xl"></div>
+                <div class="relative z-10">
+                    <div id="awReviewStat" class="text-sky-100 text-[10px] md:text-xs uppercase tracking-[.18em] font-bold">AREWARIN STUDENT STORIES</div>
+                    <h3 class="text-white text-2xl md:text-4xl font-extrabold mt-3">อ่านประสบการณ์จากผู้เรียนจริง</h3>
+                    <p class="text-sky-100/90 text-xs md:text-base mt-3 max-w-2xl mx-auto leading-relaxed">ค้นหาตามคอร์ส โรงเรียน และอ่านรีวิวฉบับเต็มได้จาก Review Center</p>
+                    <a href="./reviews/" data-reviews-link class="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-900 font-bold text-xs md:text-sm hover:bg-sky-50 transition shadow-lg">
+                        เปิด Review Center <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-12 md:py-24 relative bg-slate-50 border-t border-slate-200/50">
+        <div class="max-w-3xl mx-auto px-4 relative z-10">
+            <div class="text-center mb-8 md:mb-12" data-aos="fade-up">
+                <span class="text-sky-600 font-bold tracking-widest text-[10px] md:text-xs uppercase bg-white px-4 py-1.5 md:py-2 rounded-full border border-sky-100 shadow-sm inline-block mb-3 md:mb-4">FAQ</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-800">คำถามที่พบบ่อย ❓</h2>
+            </div>
+            <div class="space-y-2.5 md:space-y-4" data-aos="fade-up">
+                <details class="group bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 overflow-hidden open:border-indigo-200 open:shadow-md transition-all duration-300">
+                    <summary class="flex justify-between items-center cursor-pointer p-4 md:p-6 font-bold text-slate-800 select-none group-hover:text-indigo-600 text-xs md:text-base">
+                        <span>ไม่มีพื้นฐานเลย เรียนได้ไหม?</span>
+                        <span class="transform group-open:rotate-180 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-chevron-down text-indigo-500 text-[10px] md:text-xs"></i></span>
+                    </summary>
+                    <div class="px-4 md:px-6 pb-4 md:pb-6 text-slate-600 font-normal text-[10px] md:text-sm leading-relaxed">
+                        เรียนได้แน่นอนครับ! เรามีคอร์สปูพื้นฐานที่เริ่มสอนตั้งแต่ศูนย์ เน้นความเข้าใจคอนเซปต์ ไม่ใช่แค่ท่องจำ พี่ๆ ติวเตอร์จะช่วยปรับพื้นฐานให้น้องๆ มั่นใจก่อนลงลึกเนื้อหายากๆ ครับ
+                    </div>
+                </details>
+                <details class="group bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 overflow-hidden open:border-indigo-200 open:shadow-md transition-all duration-300">
+                    <summary class="flex justify-between items-center cursor-pointer p-4 md:p-6 font-bold text-slate-800 select-none group-hover:text-indigo-600 text-xs md:text-base">
+                        <span>ถ้าติดธุระ ขาดเรียน ดูย้อนหลังได้ไหม?</span>
+                        <span class="transform group-open:rotate-180 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-chevron-down text-indigo-500 text-[10px] md:text-xs"></i></span>
+                    </summary>
+                    <div class="px-4 md:px-6 pb-4 md:pb-6 text-slate-600 font-normal text-[10px] md:text-sm leading-relaxed">
+                        ดูได้ครับ ทุกคลาสสดจะมีการบันทึกวีดีโอไว้ น้องๆ สามารถเข้าดูย้อนหลังได้ตลอดชีพผ่านกลุ่ม Facebook หรือระบบของเรา ทบทวนได้ไม่จำกัดจำนวนครั้งครับ
+                    </div>
+                </details>
+                <details class="group bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 overflow-hidden open:border-indigo-200 open:shadow-md transition-all duration-300">
+                    <summary class="flex justify-between items-center cursor-pointer p-4 md:p-6 font-bold text-slate-800 select-none group-hover:text-indigo-600 text-xs md:text-base">
+                        <span>ชำระเงินค่าเรียนผ่านช่องทางไหน?</span>
+                        <span class="transform group-open:rotate-180 transition-transform duration-300 w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-chevron-down text-indigo-500 text-[10px] md:text-xs"></i></span>
+                    </summary>
+                    <div class="px-4 md:px-6 pb-4 md:pb-6 text-slate-600 font-normal text-[10px] md:text-sm leading-relaxed">
+                        สามารถโอนชำระผ่านธนาคาร (Mobile Banking) ได้ทุกธนาคารครับ โดยรายละเอียดบัญชีจะแจ้งในขั้นตอนการสมัครเรียน หรือสอบถามแอดมินทาง Line ได้เลยครับ
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 md:py-32 relative bg-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 md:mb-6 text-slate-800 tracking-tight text-balance">พร้อมเก่งไปด้วยกันหรือยัง?</h2>
+            <p class="text-slate-500 mb-8 md:mb-14 text-xs sm:text-base md:text-xl font-medium">ทักมาปรึกษาแผนการเรียนกับทีมติวเตอร์ได้โดยตรงเลย</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-3 md:gap-6">
+                <a href="https://lin.ee/JLiQSeC" class="group flex items-center justify-center gap-2 md:gap-3 bg-[#06C755] text-white px-5 md:px-8 py-3 md:py-5 rounded-xl md:rounded-2xl font-bold text-sm md:text-xl hover:bg-[#05b54d] transition-all shadow-[0_8px_20px_rgba(6,199,85,0.3)] hover:shadow-[0_12px_25px_rgba(6,199,85,0.4)] hover:-translate-y-1">
+                    <i class="fa-brands fa-line text-xl md:text-3xl group-hover:rotate-12 group-hover:scale-110 transition-all"></i>
+                    <span>Add Line: @876qlurq</span>
+                </a>
+                <a href="https://www.facebook.com/AreWarinTutor" class="group flex items-center justify-center gap-2 md:gap-3 bg-[#1877F2] text-white px-5 md:px-8 py-3 md:py-5 rounded-xl md:rounded-2xl font-bold text-sm md:text-xl hover:bg-[#166fe5] transition-all shadow-[0_8px_20px_rgba(24,119,242,0.3)] hover:shadow-[0_12px_25px_rgba(24,119,242,0.4)] hover:-translate-y-1 mt-2 sm:mt-0">
+                    <i class="fa-brands fa-facebook text-xl md:text-3xl group-hover:-rotate-12 group-hover:scale-110 transition-all"></i>
+                    <span>Facebook Page</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 pt-12 md:pt-20 pb-6 md:pb-8 text-slate-400 border-t-4 border-sky-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-12">
+                <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+                    <span class="text-lg md:text-2xl font-extrabold text-white block mb-3 md:mb-4 flex items-center gap-2"><i class="fa-solid fa-dna text-sky-500"></i> AreWarin.Tutor</span>
+                    <p class="text-[10px] md:text-sm leading-relaxed mb-5 md:mb-6 max-w-sm text-slate-400">สถาบันกวดวิชาวิทย์-คณิตออนไลน์ที่เน้นความเข้าใจ ไม่ใช่แค่การท่องจำ สอนโดยติวเตอร์ที่มีประสบการณ์จริงและผลงานการันตี</p>
+                    <div class="flex gap-2.5 md:gap-3">
+                        <a href="#" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-colors border border-slate-700 hover:border-transparent text-xs md:text-base"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-[#E4405F] hover:text-white transition-colors border border-slate-700 hover:border-transparent text-xs md:text-base"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-colors border border-slate-700 hover:border-transparent text-xs md:text-base"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                    <div class="mt-5 md:mt-6"><a href="https://dbdregistered.dbd.go.th/api/public/trustmarkinfo/132059" target="_blank" class="inline-block transition hover:opacity-80 p-1.5 md:p-2 bg-white rounded-lg"><img src="https://ketshopweb.com/upload-img/1632477296144.webp" alt="DBD Registered" class="h-6 md:h-10 w-auto"></a></div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-3 md:mb-4 uppercase tracking-wider text-[10px] md:text-sm">เมนูลัด</h4>
+                    <ul class="space-y-2 md:space-y-3 text-[10px] md:text-sm">
+                        <li><a href="#home" class="scroll-link hover:text-sky-400 hover:translate-x-1 inline-block transition-all">หน้าแรก</a></li>
+                        <li><a href="#about" class="scroll-link hover:text-sky-400 hover:translate-x-1 inline-block transition-all">ทีมผู้สอน & คอร์สเรียน</a></li>
+                        <li><a href="./reviews/" data-reviews-link class="hover:text-sky-400 hover:translate-x-1 inline-block transition-all">รีวิวจากน้องๆ</a></li>
+                        <li><a href="#contact" class="scroll-link hover:text-sky-400 hover:translate-x-1 inline-block transition-all">ติดต่อสอบถาม</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-3 md:mb-4 uppercase tracking-wider text-[10px] md:text-sm">ช่วยเหลือ</h4>
+                    <ul class="space-y-2 md:space-y-3 text-[10px] md:text-sm">
+                        <li><a href="https://www.xn--12cr8bgutgg6a4d3anq5adg8o6f5c.site/p/blog-page_3.html?m=1" target="_blank" class="hover:text-sky-400 hover:translate-x-1 inline-block transition-all">วิธีการสมัครเรียน</a></li>
+                        <li><a href="https://www.xn--12cr8bgutgg6a4d3anq5adg8o6f5c.site/p/blog-page_3.html?m=1" target="_blank" class="hover:text-sky-400 hover:translate-x-1 inline-block transition-all">แจ้งชำระเงิน</a></li>
+                        <li><a href="https://sites.google.com/view/arewarinbio/%E0%B9%80%E0%B8%8A%E0%B8%84%E0%B9%80%E0%B8%A7%E0%B8%A5%E0%B8%B2%E0%B9%80%E0%B8%A3%E0%B8%A2%E0%B8%9" target="_blank" class="hover:text-sky-400 hover:translate-x-1 inline-block transition-all">เช็คเวลาเรียน</a></li>
+                        <li><a href="#" class="hover:text-sky-400 hover:translate-x-1 inline-block transition-all">นโยบายความเป็นส่วนตัว</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 text-center md:text-left">
+                <div class="text-[9px] md:text-xs text-slate-500">&copy; <span id="copyrightYear">2026</span> AreWarin Tutor. All rights reserved.</div>
+                <div class="text-[9px] md:text-[10px] text-slate-600">Designed & Developed with ❤️ for Education</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back To Top (Optimized for Mobile) -->
+    <a href="#home" id="back-to-top" class="fixed bottom-6 right-6 z-40 w-10 h-10 md:w-14 md:h-14 bg-slate-900/90 backdrop-blur text-white rounded-full flex items-center justify-center shadow-[0_10px_20px_rgba(15,23,42,0.3)] hover:bg-sky-500 hover:shadow-[0_10px_20px_rgba(14,165,233,0.4)] transition-all duration-300 border border-slate-700 hover:border-transparent scroll-link hover:-translate-y-1">
+        <i class="fa-solid fa-arrow-up text-sm md:text-lg"></i>
+    </a>
+
+</div> <!-- End Wrapper -->
+
+<!-- Scripts -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    /* 🔥 GLOBAL FUNCTIONS & DATA DEFINITIONS 🔥 */
+
+    /* =========================================================
+       V21 · MANAGER CONNECTED PUBLIC WEBSITE
+       ========================================================= */
+    const AW_SITE = {
+        registrationUrl: './register/',
+        studentUrl: './student/',
+        scheduleUrl: './student/',
+        reviewsUrl: './reviews/',
+        branding: {},
+        catalog: null,
+        banners: []
+    };
+
+    function awEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function awMoney(v){return Number(v||0).toLocaleString('th-TH')}
+
+    function registrationHref(course){
+        const base=AW_SITE.registrationUrl||'./register/';
+        try{
+            const u=new URL(base,location.href);
+            if(course?.id)u.searchParams.set('course',course.id);
+            if(course?.tutorId)u.searchParams.set('tutor',course.tutorId);
+            u.searchParams.set('source','main-website');
+            return u.href;
+        }catch(_){return base}
+    }
+    window.registrationHref=registrationHref;
+
+    function applyRegistrationLinks(){
+        document.querySelectorAll('[data-registration-link]').forEach(a=>a.href=AW_SITE.registrationUrl||'./register/');
+        document.querySelectorAll('[data-student-link]').forEach(a=>a.href=AW_SITE.studentUrl||'./student/');
+        document.querySelectorAll('[data-reviews-link]').forEach(a=>a.href=AW_SITE.reviewsUrl||'./reviews/');
+    }
+
+    function normalizeTutorProfile(key,t){
+        const themes={
+            bio:['bg-sky-50','text-sky-500','border-sky-100 hover:border-sky-500'],
+            chem:['bg-emerald-50','text-emerald-600','border-emerald-100 hover:border-emerald-500'],
+            sci:['bg-pink-50','text-pink-500','border-pink-100 hover:border-pink-500'],
+            math:['bg-amber-50','text-amber-500','border-amber-100 hover:border-amber-500']
+        };
+        const cat=(t.categories||[])[0]||'bio', th=themes[cat]||themes.bio;
+        return {
+            ...t,
+            img:t.img||t.image_url||'',
+            name:t.name||t.display_name||key,
+            realName:t.realName||t.full_name||'',
+            edu:Array.isArray(t.edu)?t.edu:(Array.isArray(t.education)?t.education:[]),
+            awards:Array.isArray(t.awards)?t.awards:[],
+            role:t.role||t.role_text||'Tutor',
+            video:t.video||t.video_id||'',
+            levels:t.levels||[],
+            categories:t.categories||[],
+            bgClass:t.bgClass||th[0],
+            iconClass:t.iconClass||th[1],
+            borderColor:t.borderColor||t.border_color||th[2]
+        };
+    }
+
+    function normalizeCourse(c,tutorName){
+        return {
+            ...c,
+            id:c.id||c.courseId||'',
+            tutorId:c.tutorId||c.tutor_id||'',
+            name:c.name||c.title||'คอร์สเรียน',
+            detail:c.detail||c.short_description||c.shortDesc||'',
+            img:c.img||c.image_url||'',
+            fullDesc:c.fullDesc||c.description||c.full_description||'',
+            target:c.target||c.target_text||'ผู้เรียนที่สนใจ',
+            instructor:c.instructor||tutorName,
+            badge:c.badge||c.badge_text||''
+        };
+    }
+
+    async function loadManagerConnectedWebsite(){
+        const api=window.AreWarinAPI;
+        if(!api)return;
+        try{
+            const catalog=await api.getPublicCatalog();
+            AW_SITE.catalog=catalog||null;
+
+            if(catalog?.tutorProfiles&&Object.keys(catalog.tutorProfiles).length){
+                for(const k of Object.keys(tutors))delete tutors[k];
+                for(const [k,v] of Object.entries(catalog.tutorProfiles)){
+                    tutors[k]=normalizeTutorProfile(k,v);
+                }
+            }
+            if(catalog?.coursesByTutor&&Object.keys(catalog.coursesByTutor).length){
+                for(const k of Object.keys(coursesByTutor))delete coursesByTutor[k];
+                for(const [k,rows] of Object.entries(catalog.coursesByTutor)){
+                    coursesByTutor[k]=(rows||[]).map(c=>normalizeCourse(c,k));
+                }
+            }
+
+            const p=catalog?.prices||{};
+            const stdHour=p.standard?.hourly;
+            const uniHour=p.university?.hourly;
+            const std30=p.standard?.monthly;
+            const uni30=p.university?.monthly;
+            if(stdHour!=null)document.getElementById('awPriceHourly')?.replaceChildren(document.createTextNode(awMoney(stdHour)));
+            if(std30!=null)document.getElementById('awPrice30h')?.replaceChildren(document.createTextNode(awMoney(std30)));
+            const hu=document.getElementById('awPriceHourlyUni');
+            if(hu&&uniHour!=null)hu.textContent=`มหาวิทยาลัย ${awMoney(uniHour)} บาท / ชม.`;
+            const pu=document.getElementById('awPrice30hUni');
+            if(pu&&uni30!=null)pu.textContent=`มหาวิทยาลัย 30 ชม. ${awMoney(uni30)} บาท`;
+            const pm=document.getElementById('awPrice30hMeta');
+            if(pm)pm.textContent='ราคาอัปเดตจาก Manager';
+        }catch(e){
+            console.warn('[Main V21] catalog fallback:',e);
+        }
+
+        const db=api.sb;
+        if(db){
+            try{
+                const [brandRes,bannerRes,reviewRes,hallRes]=await Promise.all([
+                    db.from('site_branding').select('*').eq('id',1).maybeSingle(),
+                    db.from('home_banners').select('*').eq('active',true).order('sort_order').order('created_at'),
+                    db.from('reviews').select('*').eq('active',true).order('featured',{ascending:false}).order('sort_order').order('created_at',{ascending:false}).limit(8),
+                    db.from('hall_of_fame').select('*').eq('active',true).order('featured',{ascending:false}).order('sort_order').order('achievement_year',{ascending:false}).limit(12)
+                ]);
+                if(!brandRes.error&&brandRes.data){
+                    AW_SITE.branding=brandRes.data;
+                    const b=brandRes.data;
+                    AW_SITE.registrationUrl=b.registration_url||AW_SITE.registrationUrl;
+                    AW_SITE.studentUrl=b.student_portal_url||AW_SITE.studentUrl;
+                    AW_SITE.scheduleUrl=b.schedule_url||AW_SITE.studentUrl;
+                    AW_SITE.reviewsUrl=b.reviews_url||AW_SITE.reviewsUrl;
+                    document.querySelectorAll('[data-site-logo]').forEach(img=>{if(b.logo_url)img.src=b.logo_url});
+                    const reg=document.getElementById('awRegistrationBadge');if(reg&&b.registration_badge)reg.textContent=b.registration_badge;
+                    const hero=document.getElementById('awHeroImage');if(hero&&b.hero_image_url)hero.src=b.hero_image_url;
+                    const pre=document.getElementById('awHeroTitlePrefix');if(pre&&b.hero_title)pre.textContent=b.hero_title;
+                    const suf=document.getElementById('awHeroTitleSuffix');if(suf&&b.hero_suffix)suf.textContent=b.hero_suffix;
+                    applyRegistrationLinks();
+                }
+                if(!bannerRes.error){
+                    AW_SITE.banners=bannerRes.data||[];
+                    renderConnectedPromotionBanners();
+                }
+                if(!reviewRes.error){
+                    AW_SITE.reviews=reviewRes.data||[];
+                    renderMainReviews(AW_SITE.reviews);
+                }else{
+                    renderMainReviews([]);
+                }
+                if(!hallRes.error){
+                    AW_SITE.hallOfFame=hallRes.data||[];
+                    renderHallOfFame(AW_SITE.hallOfFame);
+                }else{
+                    renderHallOfFame([]);
+                }
+            }catch(e){console.warn('[Main V21] branding/banner fallback:',e)}
+        }
+
+        const names=Object.keys(tutors);
+        if(names.length&&!tutors[currentTutor])currentTutor=names[0];
+        renderTutorTabs();
+        renderProfile();
+        applyRegistrationLinks();
+    }
+
+
+
+    function hallTheme(type){
+        const t=String(type||'').toLowerCase();
+        if(/แพทย|doctor|med/.test(t))return {bg:'bg-pink-50',text:'text-pink-500',border:'border-pink-100',icon:'fa-user-doctor'};
+        if(/สอวน|olympiad|science|ชีว/.test(t))return {bg:'bg-green-50',text:'text-green-500',border:'border-green-100',icon:'fa-microscope'};
+        if(/นิติ|law/.test(t))return {bg:'bg-purple-50',text:'text-purple-500',border:'border-purple-100',icon:'fa-scale-balanced'};
+        if(/วิศว|engineer/.test(t))return {bg:'bg-blue-50',text:'text-blue-500',border:'border-blue-100',icon:'fa-gears'};
+        if(/ทุน|scholar/.test(t))return {bg:'bg-amber-50',text:'text-amber-500',border:'border-amber-100',icon:'fa-award'};
+        return {bg:'bg-sky-50',text:'text-sky-500',border:'border-sky-100',icon:'fa-trophy'};
+    }
+
+    function renderHallOfFame(rows){
+        const root=document.getElementById('hallOfFameGrid');
+        if(!root)return;
+        if(!Array.isArray(rows)||!rows.length){
+            root.innerHTML=`<div class="col-span-2 lg:col-span-4 text-center py-12 rounded-[1.5rem] bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs">
+                <i class="fa-solid fa-trophy text-3xl text-slate-300 block mb-3"></i>ยังไม่มีรายการ Hall of Fame ที่เปิดเผย
+            </div>`;
+            return;
+        }
+        root.innerHTML=rows.slice(0,8).map((r,i)=>{
+            const th=hallTheme(r.achievement_type||r.achievement_title);
+            const place=r.institution||r.school||r.university||'';
+            return `<article class="bento-card bg-white border ${th.border} p-4 md:p-7 rounded-[1rem] md:rounded-[2rem] text-center shadow-sm relative overflow-hidden" data-aos="zoom-in" data-aos-delay="${(i%4)*80}">
+                ${r.featured?'<span class="absolute top-3 right-3 text-[7px] md:text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">Featured</span>':''}
+                ${r.image_url
+                    ? `<img src="${awEsc(r.image_url)}" alt="${awEsc(r.student_name||'Hall of Fame')}" class="w-14 h-14 md:w-20 md:h-20 mx-auto rounded-2xl object-cover border border-slate-100 mb-3 md:mb-4 shadow-sm" loading="lazy">`
+                    : `<div class="w-10 h-10 md:w-16 md:h-16 mx-auto ${th.bg} rounded-xl md:rounded-2xl flex items-center justify-center text-lg md:text-3xl mb-3 md:mb-4 ${th.text} border ${th.border}"><i class="fa-solid ${th.icon}"></i></div>`
+                }
+                <h3 class="text-slate-800 font-extrabold text-xs md:text-lg mb-1">${awEsc(r.student_name||'นักเรียน AreWarin')}</h3>
+                <p class="${th.text} font-bold text-[9px] md:text-sm mb-2 md:mb-3 ${th.bg} inline-block px-2 py-1 rounded-lg">${awEsc(r.achievement_title||'ความสำเร็จ')}</p>
+                ${r.achievement_detail?`<p class="text-slate-500 text-[8px] md:text-[10px] leading-relaxed mb-3 line-clamp-3">${awEsc(r.achievement_detail)}</p>`:''}
+                <div class="border-t border-slate-100 pt-2 md:pt-3">
+                    <p class="text-slate-400 text-[8px] md:text-[10px] uppercase tracking-wide">${awEsc(r.institution_label||'สถาบัน')}</p>
+                    <p class="text-slate-700 text-[10px] md:text-sm font-bold mt-0.5">${awEsc(place||'—')}</p>
+                    ${r.achievement_year?`<p class="text-[8px] text-slate-400 mt-1">ปี ${awEsc(r.achievement_year)}</p>`:''}
+                </div>
+            </article>`;
+        }).join('');
+        const foot=document.getElementById('hallOfFameFooter');
+        if(foot){
+            foot.classList.remove('hidden');
+            const t=document.getElementById('hallOfFameFooterText');
+            if(t)t.textContent=rows.length>8?`และยังมีอีก ${rows.length-8} ความสำเร็จจากนักเรียน AreWarin`:'ความสำเร็จของน้องๆ คือความภูมิใจของเรา';
+        }
+    }
+
+    function awReviewStars(n){
+        const x=Math.max(1,Math.min(5,Number(n||5)));
+        return Array.from({length:5},(_,i)=>`<i class="fa-solid fa-star ${i<x?'text-yellow-400':'text-slate-200'}"></i>`).join('');
+    }
+
+    function renderMainReviews(rows){
+        const root=document.getElementById('reviews-container');
+        if(!root)return;
+        if(!Array.isArray(rows)||!rows.length){
+            root.innerHTML=`<div class="w-full py-12 text-center bg-white rounded-[1.5rem] border border-slate-100 text-slate-400 text-xs">
+                <i class="fa-regular fa-comment-dots text-2xl text-slate-300 block mb-3"></i>
+                ยังไม่มีรีวิวที่เปิดเผยในระบบ
+            </div>`;
+            return;
+        }
+        root.innerHTML=rows.map(r=>`
+            <a href="${awEsc(AW_SITE.reviewsUrl||'./reviews/')}" class="bento-card w-[85vw] max-w-[360px] md:max-w-[400px] flex-shrink-0 snap-center bg-white p-5 md:p-7 rounded-[1.5rem] md:rounded-[2rem] flex flex-col shadow-sm border ${r.featured?'border-amber-200 bg-gradient-to-b from-amber-50/50 to-white':'border-slate-100'} hover:border-sky-200">
+                <div class="flex items-start gap-3 md:gap-4 mb-4">
+                    ${r.image_url
+                        ? `<img src="${awEsc(r.image_url)}" class="w-11 h-11 md:w-14 md:h-14 rounded-2xl object-cover border border-slate-100 bg-slate-50" loading="lazy">`
+                        : `<div class="w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-sky-100 to-indigo-100 text-indigo-600 flex items-center justify-center font-extrabold text-xs">${awEsc(String(r.student_name||'?').slice(0,2))}</div>`
+                    }
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2"><h4 class="font-bold text-slate-800 text-xs md:text-base truncate">${awEsc(r.student_name||'นักเรียน AreWarin')}</h4>${r.featured?'<span class="text-[7px] md:text-[9px] rounded-full px-2 py-1 bg-amber-50 border border-amber-200 text-amber-600 font-bold whitespace-nowrap">แนะนำ</span>':''}</div>
+                        <div class="text-[8px] md:text-[10px] text-slate-400 mt-1 truncate"><i class="fa-solid fa-school mr-1"></i>${awEsc(r.school||'AreWarin Student')}</div>
+                        <div class="flex gap-0.5 text-[8px] md:text-[10px] mt-2">${awReviewStars(r.rating)}</div>
+                    </div>
+                </div>
+                <div class="mb-3"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50 border border-sky-100 text-sky-700 text-[8px] md:text-[10px] font-bold"><i class="fa-solid fa-book-open"></i>${awEsc(r.course_name||'คอร์สเรียน')}</span></div>
+                <div class="text-sky-400 text-xl leading-none">“</div>
+                <p class="text-[10px] md:text-sm text-slate-600 leading-relaxed line-clamp-5 flex-grow">${awEsc(r.review_text||'')}</p>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-[8px] md:text-[10px]">
+                    <span class="text-slate-300">STUDENT REVIEW</span><span class="text-sky-600 font-bold">อ่านฉบับเต็ม <i class="fa-solid fa-arrow-right ml-1"></i></span>
+                </div>
+            </a>`).join('');
+        const stat=document.getElementById('awReviewStat');
+        if(stat)stat.textContent=`${rows.length}+ REAL STUDENT STORIES`;
+    }
+
+    function renderConnectedPromotionBanners(){
+        const track=document.getElementById('banner-track');
+        if(!track||!AW_SITE.banners.length)return;
+        track.innerHTML=AW_SITE.banners.map((b,i)=>`
+            <div class="banner-slide flex-shrink-0 w-full h-full flex flex-col md:flex-row bg-gradient-to-br from-sky-50 to-indigo-50">
+                <div class="w-full md:w-1/2 relative h-48 sm:h-64 md:h-full overflow-hidden flex-shrink-0">
+                    ${b.image_url?`<img src="${awEsc(b.image_url)}" class="absolute inset-0 w-full h-full object-cover" loading="lazy">`:`<div class="absolute inset-0 bg-gradient-to-br from-sky-500 to-indigo-600"></div>`}
+                    <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-slate-900/75 to-transparent"></div>
+                    <div class="absolute bottom-5 left-5 md:bottom-10 md:left-10 text-white z-10">
+                        <span class="bg-sky-500 text-white text-[9px] md:text-xs font-bold px-2.5 py-1 rounded-full mb-1.5 md:mb-3 inline-block shadow-md">${awEsc(b.badge_text||'AREWARIN')}</span>
+                        <h3 class="text-xl md:text-4xl font-extrabold shadow-sm leading-tight">${awEsc(b.title||'AreWarin')}</h3>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 p-5 sm:p-8 md:p-12 flex flex-col justify-center bg-white/60 backdrop-blur-sm">
+                    <h3 class="text-xl md:text-3xl font-extrabold text-slate-800 mb-2 md:mb-4">${awEsc(b.highlight_text||b.title||'เรียนให้เข้าใจ')}</h3>
+                    <p class="text-slate-600 mb-5 md:mb-8 text-xs md:text-base leading-relaxed">${awEsc(b.description||'ข้อมูลอัปเดตจากระบบ Manager')}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${b.location_text?`<span class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-[9px] md:text-xs text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i>${awEsc(b.location_text)}</span>`:''}
+                        <a href="${awEsc(b.link_url||AW_SITE.registrationUrl)}" class="px-4 py-2 rounded-full bg-slate-900 text-white text-[9px] md:text-xs font-bold hover:bg-sky-600 transition">ดูรายละเอียด <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+            </div>`).join('');
+
+        const oldDots=document.querySelector('.banner-dot')?.parentElement;
+        if(oldDots){
+            oldDots.innerHTML=AW_SITE.banners.map((_,i)=>`<div class="banner-dot w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full bg-white cursor-pointer ${i===0?'opacity-100 scale-125':'opacity-50'} transition-all" onclick="goToSlide(${i})"></div>`).join('');
+        }
+        window.AW_BANNER_TOTAL=AW_SITE.banners.length;
+        goToSlide(0);
+    }
+
+    // Define data in Global Scope so functions can access it
+    const tutors = {
+        'พี่อาร์': {
+            img: "https://img2.pic.in.th/pic/531691933_1782062845771076_6500762805646335341_n.jpg",
+            name: "พี่อาร์ (สุธาวริน)",
+            realName: "สุธาวริน ศิริภัทราณิชา",
+            edu: [
+                "กำลังศึกษา ป.โท ชีวเคมีทางการแพทย์ฯ คณะแพทยศาสตร์ มข. (ทุนส่งเสริมการศึกษาฯ)",
+                "วท.บ. ชีววิทยา (เกียรตินิยมอันดับ 1) ม.อุบลฯ (ทุนเรียนดีตลอดหลักสูตร)"
+            ],
+            awards: [
+                "เหรียญทอง ทักษะวิทยาศาสตร์ระดับประเทศ",
+                "ประธานชมรมวิชาการ & พี่เลี้ยงค่ายโอลิมปิก สอวน.",
+                "ติด Portfolio หลายมหาวิทยาลัย (มข., มมส., ม.พะเยา)"
+            ],
+            role: "ชีววิทยา ม.ปลาย",
+            video: "n7OmFntD-Ss",
+            levels: ['senior', 'university'],
+            categories: ['bio'],
+            borderColor: 'border-sky-100 hover:border-sky-500',
+            bgClass: 'bg-sky-50',
+            iconClass: 'text-sky-500'
+        },
+        'พี่เอ็มมี่': {
+            img: "https://img5.pic.in.th/file/secure-sv1/10000149872150ba1db90bab6b.jpg",
+            name: "พี่เอ็มมี่",
+            realName: "กีรติยาพร โหจันทึก",
+            edu: [
+                "กำลังศึกษา ป.โท สาขาพยาธิวิทยา คณะแพทยศาสตร์ มข.",
+                "วท.บ. ชีววิทยา (เกียรตินิยมอันดับ 2)"
+            ],
+            awards: [
+                "ผู้เชี่ยวชาญด้านวิทยาศาสตร์พื้นฐาน",
+                "ประสบการณ์สอนโรงเรียนชั้นนำ"
+            ],
+            role: "วิทย์ ม.ต้น",
+            video: "",
+            levels: ['junior'],
+            categories: ['sci'],
+            borderColor: 'border-pink-100 hover:border-pink-500',
+            bgClass: 'bg-pink-50',
+            iconClass: 'text-pink-500'
+        },
+        'พี่ฟิล์ม': {
+            img: "https://img5.pic.in.th/file/secure-sv1/1000014988bae43c3a84d9756a.jpg",
+            name: "พี่ฟิล์ม",
+            realName: "อาทิตยา ใหม่ห้อง",
+            edu: [
+                "กำลังศึกษา ป.โท สาขากายวิภาคศาสตร์ (Anatomy) คณะแพทยศาสตร์ มข.",
+                "วท.บ. สาขาวิทยาศาสตร์การแพทย์"
+            ],
+            awards: [
+                "เทคนิคการสอนเป็นภาพ เข้าใจง่าย",
+                "ขวัญใจน้องๆ ประถม"
+            ],
+            role: "วิทย์-คณิต ประถม",
+            video: "",
+            levels: ['primary'],
+            categories: ['sci', 'math'],
+            borderColor: 'border-amber-100 hover:border-amber-500',
+            bgClass: 'bg-amber-50',
+            iconClass: 'text-amber-500'
+        },
+        'พี่ต้อง': {
+            img: "https://img5.pic.in.th/file/secure-sv1/597388940_877671237995405_756803582194104517_n.jpg",
+            name: "พี่ต้อง (ปราการ)",
+            realName: "ปราการ บุญใส",
+            edu: [
+                "ปัจจุบันศึกษาที่คณะเภสัชศาสตร์ มหาวิทยาลัยอุบลราชธานี ชั้นปีที่ 4 (ทุนเรียนดีตลอดหลักสูตร)",
+                "สอวน. เคมี ค่าย 2"
+            ],
+            awards: [
+                "ตัวแทนศูนย์ สอวน. แข่งขันระดับชาติ",
+                "คะแนนเคมี 9 วิชาสามัญ 80+"
+            ],
+            role: "เคมี ม.ต้น - ม.ปลาย",
+            video: "",
+            levels: ['junior', 'senior', 'university'],
+            categories: ['chem'],
+            borderColor: 'border-emerald-100 hover:border-emerald-500',
+            bgClass: 'bg-emerald-50',
+            iconClass: 'text-emerald-600'
+        },
+        'พี่ยูนีค': {
+            img: "https://img5.pic.in.th/file/secure-sv1/1000016880.png",
+            name: "พี่ยูนีค (มณฑล)",
+            realName: "มณฑล ไชโยเเสง",
+            edu: [
+                "กำลังศึกษา ป.ตรี คณะวิทยาศาสตร์ สาขาชีววิทยา มหาวิทยาลัยมหาสารคาม"
+            ],
+            awards: [
+                "ผู้ช่วยอาจารย์ในห้องปฏิบัติการชีววิทยา (TA)",
+                "ประสบการณ์สอน 2 ปี",
+                "เชี่ยวชาญด้าน Marine Ecology"
+            ],
+            role: "ชีวะ & อังกฤษ",
+            video: "",
+            levels: ['junior', 'university'],
+            categories: ['bio', 'eng', 'sci'],
+            borderColor: 'border-purple-100 hover:border-purple-500',
+            bgClass: 'bg-purple-50',
+            iconClass: 'text-purple-500'
+        },
+        'พี่เจส': {
+            img: "https://img5.pic.in.th/file/secure-sv1/S__18948106.jpg",
+            name: "พี่เจส (อนันธนชัย)",
+            realName: "อนันธนชัย ธานี",
+            edu: [
+                "กำลังศึกษา โครงการห้องเรียนพิเศษ (SMTE) โรงเรียนเดชอุดม",
+                "สอวน. ดาราศาสตร์ ค่าย 2 (POSN Astronomy II)"
+            ],
+            awards: [
+                "คะแนนภาคปฏิบัติสูงสุด สอวน. ดาราศาสตร์ ค่าย 1",
+                "ตัวแทนนำเสนอ TYPT2026 (อีสานใต้)",
+                "เหรียญทอง โครงงานสิ่งประดิษฐ์วิทยาศาสตร์ระดับประเทศ",
+                "ประธานรุ่นที่ 1 โครงการปั้นหมอ รร.เดชอุดม",
+                "ประสบการณ์สอน 3 ปีเต็ม"
+            ],
+            role: "ฟิสิกส์ & ดาราศาสตร์",
+            bgClass: "bg-orange-50", 
+            iconClass: "text-orange-500"
+        }
+    };
+
+    const coursesByTutor = {
+        'พี่อาร์': [
+            { name: "Genetics (พันธุศาสตร์)", detail: "เนื้อหา ม.4 เทอม 2", img: "https://images.unsplash.com/photo-1614631463996-271d18728d8b?q=80&w=2070&auto=format&fit=crop", fullDesc: "เจาะลึกพันธุศาสตร์ (Genetics) ตั้งแต่พื้นฐานกฎของเมนเดล จนถึง Molecular Genetics", target: "น้อง ม.4 หรือ ม.ปลาย ทบทวน", instructor: "พี่อาร์", badge: 'new' },
+            { name: "เตรียมสอบ NETSAT", detail: "ปูพื้นฐานแน่น", img: "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?q=80&w=2070&auto=format&fit=crop", fullDesc: "คอร์สปูพื้นฐานชีววิทยาสำหรับสอบ NETSAT มข. เน้นจุดออกสอบบ่อย", target: "น้อง ม.5-6 เตรียมสอบโควตา มข.", instructor: "พี่อาร์", badge: 'new' },
+            { name: "A-Level ชีววิทยา", detail: "เนื้อหา ม.ปลาย ครบ", img: "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=2070&auto=format&fit=crop", fullDesc: "สรุปเนื้อหาชีวะ ม.ปลาย ทั้งหมด พร้อมตะลุยโจทย์ A-Level ย้อนหลัง", target: "น้อง ม.6 หรือเด็กซิ่ว", instructor: "พี่อาร์", badge: 'hot' },
+            { name: "สอวน. ชีววิทยา", detail: "ติวเข้มโอลิมปิก", img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2080&auto=format&fit=crop", fullDesc: "ติวเข้มเนื้อหาเกินหลักสูตร เจาะลึก Campbell Biology เพื่อสอบค่าย 1", target: "น้อง ม.3-5 สนใจโอลิมปิก", instructor: "พี่อาร์", badge: 'star' },
+            { name: "ชีวเคมี (ป.ตรี)", detail: "Biochemistry", img: "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=2070&auto=format&fit=crop", fullDesc: "เนื้อหาชีวเคมีระดับมหาวิทยาลัย Biomolecules, Enzymes, Metabolism", target: "นักศึกษา ป.ตรี สายวิทย์", instructor: "พี่อาร์", badge: '' },
+            { name: "คอร์สเพิ่มเนื้อหา", detail: "เสริมจุดแข็ง", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop", fullDesc: "คอร์สปรับพื้นฐานและเสริมเกรดในโรงเรียน เลือกบทเรียนได้ตามต้องการ", target: "น้อง ม.4-6 เพิ่มเกรด", instructor: "พี่อาร์", badge: '' }
+        ],
+        'พี่เอ็มมี่': [
+            { name: "วิทยาศาสตร์ ม.ต้น", detail: "ปูพื้นฐาน ม.1-3", img: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2070&auto=format&fit=crop", fullDesc: "ปูพื้นฐานวิทย์ ม.1-3 ครบทั้ง ฟิสิกส์ เคมี ชีวะ โลกดาราศาสตร์", target: "น้อง ม.1-3 เพิ่มเกรด", instructor: "พี่เอ็มมี่", badge: 'recommend' },
+            { name: "ติวสอบเข้า ม.4", detail: "รร.แข่งขันสูง", img: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=2070&auto=format&fit=crop", fullDesc: "สรุปเข้มวิทย์ ม.ต้น ตะลุยโจทย์สอบเข้าโรงเรียนดัง เตรียมอุดม/MWIT", target: "น้อง ม.3 เตรียมสอบเข้า ม.4", instructor: "พี่เอ็มมี่", badge: 'hot' },
+            { name: "IJSO วิทย์", detail: "ติวสอบโอลิมปิกต้น", img: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=2070&auto=format&fit=crop", fullDesc: "ติวเข้มเนื้อหาวิทยาศาสตร์ขั้นสูง เพื่อสอบแข่งขัน IJSO", target: "น้อง ม.1-2 สอบแข่งขัน", instructor: "พี่เอ็มมี่", badge: 'star' }
+        ],
+        'พี่ฟิล์ม': [
+            { name: "วิทยาศาสตร์ ประถม", detail: "ป.1 - ป.6", img: "https://images.unsplash.com/photo-1564325724739-bae0bd08762c?q=80&w=2070&auto=format&fit=crop", fullDesc: "เรียนรู้วิทย์ผ่านการทดลองและภาพประกอบการ์ตูน สนุก ไม่น่าเบื่อ", target: "น้อง ป.1-6", instructor: "พี่ฟิล์ม", badge: 'recommend' },
+            { name: "คณิตศาสตร์ ประถม", detail: "คิดเลขเร็ว", img: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop", fullDesc: "ฝึกทักษะการคำนวณ คิดเลขเร็ว และแก้โจทย์ปัญหาคณิตศาสตร์", target: "น้อง ป.1-6", instructor: "พี่ฟิล์ม", badge: '' },
+            { name: "สอบเข้า ม.1", detail: "ติวเข้มโค้งสุดท้าย", img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop", fullDesc: "ติวเข้มวิทย์-คณิต โค้งสุดท้ายเพื่อสอบเข้า ม.1 ห้อง Gifted/EP", target: "น้อง ป.6 เตรียมสอบเข้า ม.1", instructor: "พี่ฟิล์ม", badge: 'hot' }
+        ],
+        'พี่ต้อง': [
+            { name: "เคมี ม.ต้น", detail: "ปูพื้นฐานเคมี", img: "https://images.unsplash.com/photo-1628863353691-0071c8c1874c?q=80&w=2070&auto=format&fit=crop", fullDesc: "ปูพื้นฐานเคมีเบื้องต้น สสาร พลังงาน และตารางธาตุ", target: "น้อง ม.1-3 เตรียมต่อสายวิทย์", instructor: "พี่ต้อง", badge: '' },
+            { name: "เคมี ม.ปลาย", detail: "เนื้อหาครบ ตะลุยโจทย์", img: "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?q=80&w=2070&auto=format&fit=crop", fullDesc: "เจาะลึกเคมี ม.ปลาย ครบทุกบท ทฤษฎีและการคำนวณ", target: "น้อง ม.4-6 เตรียมสอบ A-Level", instructor: "พี่ต้อง", badge: 'hot' },
+            { name: "สอวน. เคมี", detail: "ติวเข้มโอลิมปิก", img: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=2070&auto=format&fit=crop", fullDesc: "ติวเข้มเนื้อหาเคมีลึกซึ้ง เตรียมสอบค่าย 1 สอวน. โดยรุ่นพี่ค่าย 2", target: "น้อง ม.3-5 สนใจโอลิมปิก", instructor: "พี่ต้อง", badge: 'star' },
+            { name: "เคมี มหาวิทยาลัย", detail: "General Chemistry", img: "https://images.unsplash.com/photo-1554475901-4538ddfbccc2?q=80&w=2072&auto=format&fit=crop", fullDesc: "ติวเคมีทั่วไป (Gen Chem) สำหรับนิสิตปี 1 เภสัช, แพทย์, วิศวะ", target: "นิสิตปี 1 สายวิทย์", instructor: "พี่ต้อง", badge: '' }
+        ],
+        'พี่ยูนีค': [
+            { name: "General Biology", detail: "ชีวะพื้นฐาน ปี 1", img: "https://www.pixelstalk.net/wp-content/uploads/2016/10/Biology-Viruses-Picture.jpg", fullDesc: "ปูพื้นฐานชีววิทยาระดับมหาวิทยาลัย (Gen Bio) สำหรับนิสิตปี 1 ทุกคณะ", target: "นิสิตปี 1", instructor: "พี่ยูนีค", badge: 'new' },
+            { name: "University English", detail: "อังกฤษระดับมหาลัย", img: "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop", fullDesc: "ติวภาษาอังกฤษสำหรับระดับมหาวิทยาลัย (มีการทดสอบวัดระดับก่อนเรียน)", target: "นิสิตทุกชั้นปี", instructor: "พี่ยูนีค", badge: '' },
+            { name: "Science (EP/Inter)", detail: "วิทย์ ม.ต้น ภาคอังกฤษ", img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2080&auto=format&fit=crop", fullDesc: "สอนวิทยาศาสตร์ ม.ต้น เป็นภาษาอังกฤษ (Science in English) สำหรับน้องๆ EP/Inter", target: "น้อง ม.ต้น (EP/Inter)", instructor: "พี่ยูนีค", badge: 'recommend' },
+            { name: "Science ม.ต้น", detail: "วิทย์ทั่วไป", img: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop", fullDesc: "ปูพื้นฐานวิทยาศาสตร์ ม.ต้น เพิ่มเกรดในห้องเรียน เน้นความเข้าใจ", target: "น้อง ม.1-3", instructor: "พี่ยูนีค", badge: '' }
+        ], 
+        'พี่เจส': [
+            { 
+                name: "POSN Astronomy (สอวน.)", 
+                detail: "ติวเข้มดาราศาสตร์", 
+                img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop", 
+                fullDesc: "ติวเข้มดาราศาสตร์โอลิมปิก (สอวน.) ทั้งภาคทฤษฎีและปฏิบัติการดูดาว จากรุ่นพี่ค่าย 2 เจ้าของคะแนนภาคปฏิบัติสูงสุด", 
+                target: "น้อง ม.3-5 สอบ สอวน.", 
+                instructor: "พี่เจส", 
+                badge: 'star' 
+            },
+            { 
+                name: "Physics กลศาสตร์", 
+                detail: "พื้นฐานฟิสิกส์ ม.4", 
+                img: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?q=80&w=2074&auto=format&fit=crop", 
+                fullDesc: "ปูพื้นฐานฟิสิกส์บทนำและการเคลื่อนที่ (Mechanics) เน้นความเข้าใจที่มาของสูตร ไม่ต้องจำเยอะ พร้อมลุยโจทย์", 
+                target: "น้อง ม.4 หรือเตรียมสอบ", 
+                instructor: "พี่เจส", 
+                badge: 'recommend' 
+            },
+            { 
+                name: "Science Project Master", 
+                detail: "ปั้นโครงงานวิทย์", 
+                img: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=2070&auto=format&fit=crop", 
+                fullDesc: "เทคนิคการทำโครงงานวิทยาศาสตร์และสิ่งประดิษฐ์ให้ได้รางวัลระดับประเทศ ถ่ายทอดจากประสบการณ์เหรียญทองตัวจริง", 
+                target: "น้อง ม.ต้น-ปลาย", 
+                instructor: "พี่เจส", 
+                badge: 'new' 
+            }
+        ]
+    };
+
+    let currentTutor = 'พี่อาร์';
+    let modalInterval;
+
+    // Fixed openModal function to handle iOS scrolling issue properly
+    function openModal(modalId, targetDateStr) {
+        const modal = document.getElementById(modalId);
+        if(modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+            document.documentElement.style.overflow = 'hidden'; // Safari fix
+
+            if (targetDateStr) {
+                startModalCountdown(targetDateStr, `countdown-${modalId}`);
+            }
+        }
+    }
+    window.openModal = openModal;
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = ''; // Safari fix
+            if (modalInterval) clearInterval(modalInterval);
+        }
+    }
+    window.closeModal = closeModal;
+
+    function startModalCountdown(targetDateStr, elementId) {
+        if (modalInterval) clearInterval(modalInterval);
+        
+        const targetDate = new Date(targetDateStr).getTime();
+        const element = document.getElementById(elementId);
+        
+        if (!element) return;
+
+        function update() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                element.innerHTML = '<span class="text-red-500 font-bold text-sm md:text-base">สิ้นสุดการสอบแล้ว</span>';
+                clearInterval(modalInterval);
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            element.innerHTML = `
+                <div class="bg-white border border-slate-200 rounded-lg p-1.5 md:p-2 min-w-[50px] md:min-w-[60px] shadow-sm">
+                    <span class="block text-lg md:text-xl font-bold text-slate-800 leading-none">${days}</span>
+                    <span class="block text-[9px] md:text-[10px] text-slate-400 mt-1">วัน</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-lg p-1.5 md:p-2 min-w-[50px] md:min-w-[60px] shadow-sm">
+                    <span class="block text-lg md:text-xl font-bold text-slate-800 leading-none">${hours}</span>
+                    <span class="block text-[9px] md:text-[10px] text-slate-400 mt-1">ชั่วโมง</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-lg p-1.5 md:p-2 min-w-[50px] md:min-w-[60px] shadow-sm">
+                    <span class="block text-lg md:text-xl font-bold text-slate-800 leading-none">${minutes}</span>
+                    <span class="block text-[9px] md:text-[10px] text-slate-400 mt-1">นาที</span>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-lg p-1.5 md:p-2 min-w-[50px] md:min-w-[60px] shadow-sm">
+                    <span class="block text-lg md:text-xl font-bold text-red-500 leading-none">${seconds}</span>
+                    <span class="block text-[9px] md:text-[10px] text-slate-400 mt-1">วินาที</span>
+                </div>
+            `;
+        }
+
+        update();
+        modalInterval = setInterval(update, 1000);
+    }
+
+    function copyCode(code, element) {
+        const tempInput = document.createElement("input");
+        tempInput.value = code;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        
+        const btn = element;
+        if(btn) {
+            const originalText = btn.innerText;
+            btn.innerText = 'Copied!';
+            btn.classList.add('!bg-green-500', '!text-white', '!border-green-600');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('!bg-green-500', '!text-white', '!border-green-600');
+            }, 2000);
+        }
+    }
+    window.copyCode = copyCode;
+
+    function scrollReviews(direction) {
+        const container = document.getElementById('reviews-container');
+        if(container) {
+            // Adaptive scroll amount based on screen width
+            const isMobile = window.innerWidth < 768;
+            const scrollAmount = isMobile ? window.innerWidth * 0.85 : 400; 
+            
+            if (direction === 'left') container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            else container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+    window.scrollReviews = scrollReviews;
+
+    function toggleMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const icon = document.getElementById('menu-icon');
+        
+        if(menu) {
+            menu.classList.toggle('open');
+            if (icon) {
+                if (menu.classList.contains('open')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-xmark');
+                } else {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        }
+    }
+    window.toggleMenu = toggleMenu;
+
+    function changeTutor(name) {
+        currentTutor = name;
+        renderTutorTabs();
+        renderProfile();
+    }
+    window.changeTutor = changeTutor;
+
+    function renderTutorTabs() {
+        const container = document.getElementById('tutor-tabs');
+        if(!container) return;
+
+        let html = '';
+        for (const [key, tutor] of Object.entries(tutors)) {
+            const shortName = tutor.name.split(' ')[0];
+            html += `
+                <button onclick="changeTutor('${key}')" 
+                    class="tutor-tab flex flex-col items-center gap-1.5 md:gap-2 p-2 rounded-xl md:rounded-2xl border border-transparent hover:border-slate-200 transition-all duration-300 ${key === currentTutor ? 'active' : ''}">
+                    <div class="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden border-[3px] ${key === currentTutor ? 'border-indigo-500 shadow-md' : 'border-slate-200'}">
+                        <img src="${tutor.img}" alt="${tutor.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${tutor.name}&background=random';">
+                    </div>
+                    <span class="text-[9px] md:text-sm font-extrabold ${key === currentTutor ? 'text-indigo-600' : 'text-slate-500'}">${shortName}</span>
+                </button>
+            `;
+        }
+        container.innerHTML = html;
+    }
+    
+    function renderProfile() {
+        const tutor = tutors[currentTutor];
+        const container = document.getElementById('tutor-profile-container');
+        if(!container) return;
+        
+        const eduList = tutor.edu.map(e => `<li class="relative pb-2 md:pb-3"><span class="absolute -left-[23px] md:-left-[31px] top-0.5 md:top-1.5 w-2 h-2 md:w-4 md:h-4 rounded-full border border-white md:border-2 ${tutor.bgClass.replace('bg-', 'bg-').replace('50', '400')} shadow-sm"></span>${e}</li>`).join('');
+        
+        const awardsList = tutor.awards.map(a => `<li class="flex items-start gap-1.5 md:gap-2 pb-1 md:pb-1.5"><i class="fa-solid fa-star text-yellow-400 mt-0.5 md:mt-1 text-[8px] md:text-sm"></i><span>${a}</span></li>`).join('');
+
+        const courses = coursesByTutor[currentTutor] || [];
+        let coursesHtml = '';
+        
+        if (courses.length > 0) {
+            coursesHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mt-6 md:mt-12 fade-in-up">`;
+            courses.forEach((course) => {
+                let badgeHtml = '';
+                if(course.badge === 'hot') badgeHtml = '<span class="absolute top-3 right-3 md:top-4 md:right-4 bg-red-500 text-white text-[8px] md:text-[10px] font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-md z-10">HOT 🔥</span>';
+                if(course.badge === 'new') badgeHtml = '<span class="absolute top-3 right-3 md:top-4 md:right-4 bg-blue-500 text-white text-[8px] md:text-[10px] font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-md z-10">NEW ✨</span>';
+                if(course.badge === 'recommend') badgeHtml = '<span class="absolute top-3 right-3 md:top-4 md:right-4 bg-green-500 text-white text-[8px] md:text-[10px] font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-md z-10">แนะนำ 👍</span>';
+                if(course.badge === 'star') badgeHtml = '<span class="absolute top-3 right-3 md:top-4 md:right-4 bg-yellow-400 text-slate-800 text-[8px] md:text-[10px] font-bold px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-md z-10">ติวเข้ม ⭐</span>';
+
+                coursesHtml += `
+                    <div class="bento-card bg-white rounded-[1rem] md:rounded-[2rem] overflow-hidden group border border-slate-100 flex flex-col shadow-sm" data-aos="zoom-in">
+                        <div class="relative h-40 md:h-52 overflow-hidden bg-slate-100 p-2 md:p-3 pb-0">
+                            ${badgeHtml}
+                            <img src="${course.img}" alt="${course.name}" class="w-full h-full object-cover rounded-t-[0.8rem] md:rounded-t-[1.5rem] transform group-hover:scale-105 transition duration-700" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=No+Image';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent p-2 md:p-3 pb-0">
+                                <div class="w-full h-full rounded-t-[0.8rem] md:rounded-t-[1.5rem]"></div>
+                            </div>
+                            <div class="absolute bottom-2 left-4 right-4 md:bottom-3 md:left-5 md:right-5 text-white">
+                                <p class="text-[8px] md:text-xs font-medium opacity-90 mb-0 md:mb-0.5 text-sky-300 drop-shadow-md">${course.detail}</p>
+                                <h4 class="text-sm md:text-lg font-extrabold shadow-sm leading-tight line-clamp-1">${course.name}</h4>
+                            </div>
+                        </div>
+                        <div class="p-4 md:p-6 flex flex-col h-auto">
+                            <p class="text-[9px] md:text-xs font-extrabold text-indigo-600 mb-2 md:mb-3 bg-indigo-50 border border-indigo-100/50 inline-block px-2 md:px-2.5 py-0.5 md:py-1 rounded-full w-fit shadow-sm">${course.target}</p>
+                            <p class="text-slate-600 text-[10px] md:text-sm leading-relaxed mb-3 md:mb-4 flex-grow font-light line-clamp-2 md:line-clamp-none">${course.fullDesc}</p>
+                            <div class="mt-auto pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center">
+                                <span class="text-[9px] md:text-xs font-bold text-slate-400 bg-slate-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded-md"><i class="fa-solid fa-chalkboard-user mr-1"></i>${course.instructor}</span>
+                                <a href="${registrationHref(course)}" class="text-[9px] md:text-xs font-bold text-white bg-slate-800 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full hover:bg-sky-600 transition flex items-center gap-1 shadow-sm">สมัคร <i class="fa-solid fa-arrow-right text-[8px]"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            coursesHtml += `</div>`;
+        } else {
+             coursesHtml = '<div class="text-center text-slate-400 py-6 md:py-10 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100 mt-4 md:mt-8 text-xs md:text-base">ไม่พบข้อมูลคอร์สเรียนในขณะนี้</div>';
+        }
+
+        const html = `
+            <div class="bento-card bg-white/80 backdrop-blur-xl p-5 md:p-10 lg:p-12 rounded-[1.5rem] md:rounded-[3rem] transition-all duration-500 ease-in-out fade-in-up mb-8 md:mb-16 border border-white shadow-[0_15px_40px_-10px_rgba(0,0,0,0.05)]" data-aos="fade-up">
+                <div class="flex flex-col lg:flex-row gap-6 md:gap-12 items-center lg:items-start">
+                    <!-- Image Side -->
+                    <div class="w-full lg:w-1/3 flex-shrink-0 text-center lg:text-left relative">
+                        <div class="relative inline-block">
+                            <div class="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 rounded-[1.5rem] md:rounded-[3rem] overflow-hidden border-[4px] md:border-[8px] border-white shadow-xl mx-auto lg:mx-0 transform rotate-2 hover:rotate-0 transition-all duration-500 bg-slate-100">
+                                <img src="${tutor.img}" alt="${tutor.name}" class="w-full h-full object-cover hover:scale-110 transition duration-700" loading="lazy" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${tutor.name}&background=random&size=256';">
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 md:bottom-4 md:-right-4 bg-white px-2 md:px-5 py-1 md:py-2 rounded-full text-[8px] md:text-xs font-bold shadow-lg flex items-center gap-1 md:gap-1.5 ${tutor.iconClass} border border-slate-100">
+                                <i class="fa-solid fa-circle-check"></i> Verified
+                            </div>
+                        </div>
+                        <h3 class="text-lg md:text-3xl font-extrabold text-slate-800 mt-4 md:mt-8">${tutor.name}</h3>
+                        <p class="text-slate-500 text-[10px] md:text-sm font-medium mt-0.5 md:mt-1">${tutor.realName}</p>
+                        <div class="mt-3 md:mt-5 inline-block px-3 md:px-4 py-1 md:py-2 rounded-lg md:rounded-xl ${tutor.bgClass} ${tutor.iconClass} font-extrabold text-[10px] md:text-sm border border-slate-100 shadow-sm">
+                            ${tutor.role}
+                        </div>
+                    </div>
+
+                    <!-- Info Side -->
+                    <div class="w-full lg:w-2/3">
+                        <div class="space-y-4 md:space-y-8 bg-slate-50/50 p-4 md:p-8 rounded-[1.2rem] md:rounded-[2rem] border border-slate-100/50">
+                            <!-- Education -->
+                            <div>
+                                <h4 class="text-sm md:text-lg font-extrabold text-slate-800 mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
+                                    <div class="w-6 h-6 md:w-10 md:h-10 rounded-md md:rounded-lg ${tutor.bgClass} ${tutor.iconClass} flex items-center justify-center text-xs md:text-base"><i class="fa-solid fa-graduation-cap"></i></div>
+                                    ประวัติการศึกษา
+                                </h4>
+                                <ul class="space-y-1.5 md:space-y-3 text-slate-600 text-[10px] md:text-sm border-l-2 border-slate-200 ml-3 md:ml-5 pl-4 md:pl-8 relative font-light">
+                                    ${eduList}
+                                </ul>
+                            </div>
+                            
+                            <hr class="border-slate-200/60">
+                            
+                            <!-- Awards/Exp -->
+                            <div>
+                                <h4 class="text-sm md:text-lg font-extrabold text-slate-800 mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
+                                    <div class="w-6 h-6 md:w-10 md:h-10 rounded-md md:rounded-lg ${tutor.bgClass} ${tutor.iconClass} flex items-center justify-center text-xs md:text-base"><i class="fa-solid fa-medal"></i></div> 
+                                    ผลงาน & ประสบการณ์
+                                </h4>
+                                <ul class="space-y-1 md:space-y-2 text-slate-600 text-[10px] md:text-sm pl-1 md:pl-2 font-light">
+                                    ${awardsList}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Header -->
+            <div class="text-center mt-8 md:mt-20 mb-4 md:mb-10" data-aos="fade-up">
+                <h3 class="text-xl md:text-4xl font-extrabold text-slate-800">คอร์สเรียนของ${tutor.name.split(' ')[0]} 💡</h3>
+            </div>
+
+            <!-- Courses Grid -->
+            ${coursesHtml}
+        `;
+        container.innerHTML = html;
+        if (typeof AOS !== 'undefined') AOS.refresh();
+        
+        attachScrollLinkListeners();
+    }
+
+    // --- Start Execution Logic ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        
+        // Initialize AOS
+        if (typeof AOS !== 'undefined') {
+            // Adaptive offset based on mobile/desktop
+            const offsetValue = window.innerWidth < 768 ? 10 : 50; // Reduced offset for mobile to trigger earlier
+            AOS.init({ duration: 800, once: true, offset: offsetValue });
+        }
+
+        // Initialize Tilt Effect (Disable on mobile for better performance)
+        if (typeof VanillaTilt !== 'undefined' && window.innerWidth >= 768) {
+            const books = document.querySelectorAll(".book");
+            if(books.length > 0) {
+                VanillaTilt.init(books, { max: 12, speed: 400, glare: true, "max-glare": 0.25, scale: 1.03 });
+            }
+        }
+
+        // Initialize Banner Slider
+        const slider = document.getElementById('banner-track');
+        if (slider) {
+            let currentSlide = 0;
+            const totalSlides = window.AW_BANNER_TOTAL || document.querySelectorAll('.banner-slide').length || 1;
+            
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                if(window.goToSlide) window.goToSlide(currentSlide);
+            }, 6000); // Increased time to 6s so people can read text better
+        }
+
+        // Initialize App — Manager connected
+        await loadManagerConnectedWebsite();
+        startCountdown();
+        typeWriter();
+        
+        // Dynamic Year Logic
+        const date = new Date();
+        const yearAD = date.getFullYear(); // Will be 2026 based on context
+        const yearBE = yearAD + 543;
+        const dekYear = yearBE % 100;
+
+        document.querySelectorAll('.auto-year-ad').forEach(el => el.textContent = yearAD);
+        document.querySelectorAll('.auto-dek-year').forEach(el => el.textContent = dekYear);
+        document.querySelectorAll('.auto-dek-next').forEach(el => el.textContent = dekYear + 1);
+        
+        const copyrightYear = document.getElementById('copyrightYear');
+        if(copyrightYear) copyrightYear.textContent = yearAD;
+    });
+
+    // Helper function for slider
+    function goToSlide(index) {
+        const slider = document.getElementById('banner-track');
+        if(slider) {
+            const translateValue = -index * 100;
+            slider.style.transform = `translateX(${translateValue}%)`;
+            document.querySelectorAll('.banner-dot').forEach((dot, idx) => {
+                if(idx === index) { 
+                    dot.classList.remove('opacity-50'); 
+                    dot.classList.add('opacity-100', 'scale-125'); 
+                } else { 
+                    dot.classList.add('opacity-50'); 
+                    dot.classList.remove('opacity-100', 'scale-125'); 
+                }
+            });
+        }
+    }
+    window.goToSlide = goToSlide;
+
+    // Navbar Scroll Logic & Back to Top & Progress Bar
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        const backToTop = document.getElementById('back-to-top');
+        const progressBar = document.getElementById('scroll-progress');
+        
+        // Navbar Glass Effect
+        if (nav) {
+            if (window.scrollY > 20) { 
+                nav.classList.add('glass', 'shadow-sm', 'border-slate-200/50'); 
+                nav.classList.remove('border-transparent', 'bg-transparent');
+            } else { 
+                nav.classList.remove('glass', 'shadow-sm', 'border-slate-200/50'); 
+                nav.classList.add('border-transparent');
+            }
+        }
+        
+        // Back To Top Visibility
+        if (backToTop) {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+
+        // Scroll Progress Logic
+        if (progressBar) {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + "%";
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            const activeModals = document.querySelectorAll('.modal-overlay.active');
+            activeModals.forEach(modal => {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+                if (modalInterval) clearInterval(modalInterval);
+            });
+        }
+    });
+
+    function attachScrollLinkListeners() {
+        document.querySelectorAll('.scroll-link').forEach(anchor => {
+            anchor.removeEventListener('click', handleScrollLink);
+            anchor.addEventListener('click', handleScrollLink);
+        });
+    }
+
+    function handleScrollLink(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if(!targetId || !targetId.startsWith('#')) return;
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            // Close menu if open
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            if (menu && menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if(icon) {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-bars');
+                }
+            }
+            
+            // Adjust offset for fixed header
+            const headerOffset = window.innerWidth < 768 ? 64 : 80;
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+                 top: offsetPosition,
+                 behavior: "smooth"
+            });
+        }
+    }
+
+    attachScrollLinkListeners();
+
+    // Typing Effect
+    const words = ["ชีววิทยา", "เคมี", "วิทย์ ม.ต้น", "คณิตศาสตร์"];
+    let i = 0; let timer;
+    let isDeleting = false;
+    
+    function typeWriter() {
+        const element = document.getElementById("typing-text");
+        if(element) {
+            const word = words[i];
+            let currentText = element.innerText;
+            
+            if (!isDeleting && currentText !== word) {
+                element.innerText = word.substring(0, currentText.length + 1);
+            } else if (isDeleting && currentText !== "") {
+                element.innerText = word.substring(0, currentText.length - 1);
+            }
+            
+            let typeSpeed = 100;
+            if (isDeleting) typeSpeed /= 2;
+            
+            if (!isDeleting && currentText === word) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && currentText === "") {
+                isDeleting = false;
+                i = (i + 1) % words.length;
+                typeSpeed = 500;
+            }
+            
+            timer = setTimeout(typeWriter, typeSpeed);
+        }
+    }
+
+    // Countdown Logic
+    function startCountdown() {
+        const daysElem = document.getElementById("days");
+        if(!daysElem) return; 
+
+        // Set the date we're counting down to (Example: 3 days from now)
+        const countDownDate = new Date();
+        countDownDate.setDate(countDownDate.getDate() + 3); 
+        countDownDate.setHours(23, 59, 59, 0);
+
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate.getTime() - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            if(document.getElementById("days")) document.getElementById("days").innerHTML = days < 10 ? "0" + days : days;
+            if(document.getElementById("hours")) document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
+            if(document.getElementById("minutes")) document.getElementById("minutes").innerHTML = minutes < 10 ? "0" + minutes : minutes;
+            if(document.getElementById("seconds")) document.getElementById("seconds").innerHTML = seconds < 10 ? "0" + seconds : seconds;
+
+            if (distance < 0) {
+                clearInterval(x);
+            }
+        }, 1000);
+    }
+
+</script>
+</body>
+</html>
