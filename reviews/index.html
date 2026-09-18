@@ -37,7 +37,10 @@
         <img id="reviewsBrandLogo" src="https://img2.pic.in.th/pic/531691933_1782062845771076_6500762805646335341_n.jpg" alt="AreWarin Biology" class="w-9 h-9 rounded-xl object-cover border border-white shadow-sm">
         <div class="min-w-0"><div id="reviewsBrandName" class="text-[12px] font-semibold text-slate-800 truncate">AreWarin Biology</div><div class="text-[9px] text-slate-400">Student Reviews</div></div>
       </a>
-      <a href="../" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[10px] font-semibold text-slate-600 transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+      <div class="flex items-center gap-2">
+        <a id="reviewHeaderRegisterLink" href="../register/" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 hover:bg-sky-600 text-[10px] font-semibold text-white transition"><i class="fas fa-pen"></i> สมัครเรียน</a>
+        <a href="../" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-[10px] font-semibold text-slate-600 transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+      </div>
     </div>
   </header>
 
@@ -79,7 +82,7 @@
 
     <section class="mt-8 md:mt-10 rounded-[26px] border border-sky-100 bg-gradient-to-br from-sky-50 to-indigo-50 p-5 md:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div><div class="text-[9px] font-semibold text-sky-500 uppercase tracking-[.14em]">Start your journey</div><h3 class="text-[16px] font-semibold text-slate-800 mt-1">พร้อมเริ่มเรียนกับเราแล้วหรือยัง?</h3><p class="text-[10.5px] text-slate-500 mt-1">เลือกคอร์ส ติวเตอร์ และเวลาเรียนที่เหมาะกับคุณได้จากระบบสมัครเรียน</p></div>
-      <a href="../" class="inline-flex shrink-0 items-center gap-2 px-5 py-3 rounded-2xl bg-slate-900 hover:bg-black text-white text-[10.5px] font-semibold transition">ไปหน้าสมัครเรียน <i class="fas fa-arrow-right"></i></a>
+      <a id="reviewRegistrationLink" href="../register/" class="inline-flex shrink-0 items-center gap-2 px-5 py-3 rounded-2xl bg-slate-900 hover:bg-black text-white text-[10.5px] font-semibold transition">ไปหน้าสมัครเรียน <i class="fas fa-arrow-right"></i></a>
     </section>
   </main>
 
@@ -115,7 +118,13 @@
   window.closeModal=()=>{const m=document.getElementById('reviewModal');m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.style.overflow=''};
   document.getElementById('reviewModal').addEventListener('click',e=>{if(e.target.id==='reviewModal')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
   document.getElementById('searchInput').addEventListener('input',e=>{state.search=e.target.value;apply()});
-  async function boot(){document.getElementById('year').textContent=new Date().getFullYear();const sb=getClient();if(!sb){document.getElementById('loadingGrid').classList.add('hidden');document.getElementById('emptyState').classList.remove('hidden');document.getElementById('emptyState').innerHTML='<div class="w-14 h-14 mx-auto rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl mb-4"><i class="fas fa-database"></i></div><h3 class="font-semibold text-slate-700 text-sm">ยังไม่ได้เชื่อม Supabase</h3><p class="text-[10.5px] text-slate-400 mt-2">ตั้งค่า Supabase ใน config.js แล้วหน้านี้จะโหลดรีวิวอัตโนมัติ</p>';return}try{const{data:brand}=await sb.from('site_branding').select('*').eq('id',1).maybeSingle();if(brand){if(brand.logo_url)document.getElementById('reviewsBrandLogo').src=brand.logo_url;if(brand.site_name_en)document.getElementById('reviewsBrandName').textContent=brand.site_name_en;}}catch(e){console.warn('Branding fallback',e)}const{data,error}=await sb.from('reviews').select('*').eq('active',true).order('featured',{ascending:false}).order('sort_order').order('created_at',{ascending:false});document.getElementById('loadingGrid').classList.add('hidden');if(error){console.error(error);document.getElementById('emptyState').classList.remove('hidden');document.getElementById('emptyState').innerHTML='<div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl mb-4"><i class="fas fa-circle-exclamation"></i></div><h3 class="font-semibold text-slate-700 text-sm">โหลดรีวิวไม่สำเร็จ</h3><p class="text-[10.5px] text-slate-400 mt-2">กรุณาตรวจสอบตาราง reviews และ RLS ใน Supabase</p>';return}state.reviews=data||[];document.getElementById('statReviewCount').textContent=state.reviews.length;document.getElementById('statSchoolCount').textContent=new Set(state.reviews.map(x=>x.school).filter(Boolean)).size;document.getElementById('statCourseCount').textContent=new Set(state.reviews.map(x=>x.course_name).filter(Boolean)).size;renderFilters();apply()}
+  async function boot(){document.getElementById('year').textContent=new Date().getFullYear();const sb=getClient();if(!sb){document.getElementById('loadingGrid').classList.add('hidden');document.getElementById('emptyState').classList.remove('hidden');document.getElementById('emptyState').innerHTML='<div class="w-14 h-14 mx-auto rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl mb-4"><i class="fas fa-database"></i></div><h3 class="font-semibold text-slate-700 text-sm">ยังไม่ได้เชื่อม Supabase</h3><p class="text-[10.5px] text-slate-400 mt-2">ตั้งค่า Supabase ใน config.js แล้วหน้านี้จะโหลดรีวิวอัตโนมัติ</p>';return}try{const{data:brand}=await sb.from('site_branding').select('*').eq('id',1).maybeSingle();if(brand){
+  if(brand.logo_url)document.getElementById('reviewsBrandLogo').src=brand.logo_url;
+  if(brand.site_name_en)document.getElementById('reviewsBrandName').textContent=brand.site_name_en;
+  const reg=brand.registration_url||'../register/';
+  const a=document.getElementById('reviewRegistrationLink');if(a)a.href=reg;
+  const h=document.getElementById('reviewHeaderRegisterLink');if(h)h.href=reg;
+}}catch(e){console.warn('Branding fallback',e)}const{data,error}=await sb.from('reviews').select('*').eq('active',true).order('featured',{ascending:false}).order('sort_order').order('created_at',{ascending:false});document.getElementById('loadingGrid').classList.add('hidden');if(error){console.error(error);document.getElementById('emptyState').classList.remove('hidden');document.getElementById('emptyState').innerHTML='<div class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl mb-4"><i class="fas fa-circle-exclamation"></i></div><h3 class="font-semibold text-slate-700 text-sm">โหลดรีวิวไม่สำเร็จ</h3><p class="text-[10.5px] text-slate-400 mt-2">กรุณาตรวจสอบตาราง reviews และ RLS ใน Supabase</p>';return}state.reviews=data||[];document.getElementById('statReviewCount').textContent=state.reviews.length;document.getElementById('statSchoolCount').textContent=new Set(state.reviews.map(x=>x.school).filter(Boolean)).size;document.getElementById('statCourseCount').textContent=new Set(state.reviews.map(x=>x.course_name).filter(Boolean)).size;renderFilters();apply()}
   boot();
 </script>
 </body>
