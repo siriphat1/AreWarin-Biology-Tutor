@@ -4,20 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AreWarin · ลงทะเบียนนักเรียนเก่า</title>
-<meta name="arewarin-legacy-self-register-build" content="1.0.0">
+<meta name="arewarin-legacy-self-register-build" content="1.1.0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-:root{--ink:#17233b;--muted:#8795ab;--line:#e4eaf2;--bg:#f5f8fc;--card:#fff;--blue:#2764e7;--blue2:#6254ea;--green:#0b956c;--red:#dc3e59;--amber:#d0870a}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,"Noto Sans Thai",system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 10% 0,#e8f4ff 0,transparent 30%),linear-gradient(180deg,#f5f8fc,#eef3f9);color:var(--ink);font-size:14px}.hidden{display:none!important}
-.shell{min-height:100vh;display:grid;grid-template-columns:minmax(280px,390px) minmax(0,760px);gap:26px;max-width:1190px;margin:auto;padding:28px 22px}.aside{position:sticky;top:28px;height:calc(100vh - 56px);border-radius:28px;padding:28px;background:linear-gradient(155deg,#13234a,#274ea5 58%,#554be0);color:#fff;overflow:hidden;box-shadow:0 28px 70px -45px rgba(26,51,116,.7)}.aside:before,.aside:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.06)}.aside:before{width:300px;height:300px;right:-150px;top:-80px}.aside:after{width:240px;height:240px;left:-120px;bottom:-100px}.brand{position:relative;z-index:2;display:flex;align-items:center;gap:11px}.logo{width:46px;height:46px;border-radius:16px;background:#fff;color:#244a9e;display:grid;place-items:center;font-weight:950;font-size:17px}.brand b{display:block;font-size:15px}.brand small{font-size:9px;color:#cdd9ff}.hero{position:relative;z-index:2;margin-top:55px}.eyebrow{font-size:8px;letter-spacing:.18em;font-weight:900;color:#b6c8ff}.hero h1{font-size:32px;line-height:1.23;margin:9px 0 10px}.hero p{font-size:11px;line-height:1.8;color:#d6e0ff;max-width:320px}.benefits{position:relative;z-index:2;display:grid;gap:10px;margin-top:35px}.benefit{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:15px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.11)}.benefit i{width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:9px}.benefit b{display:block;font-size:9px}.benefit span{font-size:8px;line-height:1.55;color:#d4defb}.aside-foot{position:absolute;left:28px;right:28px;bottom:25px;z-index:2;font-size:8px;color:#afc2ef;line-height:1.6}.main{padding:2px 0 30px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:7px 5px 16px}.topbar a{color:#64748b;text-decoration:none;font-size:9px;font-weight:750}.secure{font-size:8px;color:#7b8aa1;display:flex;align-items:center;gap:6px}.progress{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;gap:4px;align-items:center;margin-bottom:13px;box-shadow:0 16px 38px -34px rgba(30,50,90,.45)}.pstep{flex:1;position:relative;display:flex;align-items:center;gap:8px;color:#a1adbd;font-size:7.5px;font-weight:800}.pstep:not(:last-child):after{content:"";position:absolute;right:4px;left:34px;bottom:-3px;height:2px;background:#edf1f6}.pnum{width:24px;height:24px;border-radius:999px;border:1px solid #e1e7f0;display:grid;place-items:center;background:#fff;z-index:2}.pstep.active{color:#2d5fd0}.pstep.active .pnum{background:#2d5fd0;border-color:#2d5fd0;color:#fff}.pstep.done{color:#0b8d69}.pstep.done .pnum{background:#e8faf4;border-color:#b8ecd9;color:#078a64}.card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:23px;box-shadow:0 25px 60px -50px rgba(21,39,77,.5)}.cardhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:20px}.cardicon{width:44px;height:44px;border-radius:14px;background:#edf3ff;color:#2d63df;display:grid;place-items:center;font-size:16px;flex:none}.cardhead .kicker{font-size:7px;letter-spacing:.15em;font-weight:900;color:#4d6fcd;margin-bottom:4px}.cardhead h2{font-size:20px;margin:0}.cardhead p{font-size:8.5px;color:var(--muted);line-height:1.55;margin:4px 0 0}.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:8px;color:#697890;font-weight:800}.req{color:#de4260}.input,select,textarea{width:100%;border:1px solid #dfe6ef;background:#fbfcfe;border-radius:12px;padding:11px 12px;color:#304058;font:inherit;font-size:9px;outline:none}.input:focus,select:focus,textarea:focus{background:#fff;border-color:#8db1ff;box-shadow:0 0 0 3px #eef4ff}.hint{font-size:7px;color:#9aa6b7;line-height:1.5}.actions{display:flex;gap:9px;justify-content:space-between;margin-top:20px}.btn{border:1px solid #dde4ed;background:#fff;color:#596a82;border-radius:12px;padding:11px 15px;font-size:9px;font-weight:850;cursor:pointer}.btn.primary{margin-left:auto;background:linear-gradient(135deg,#2764e7,#5c52e7);border-color:transparent;color:#fff;box-shadow:0 14px 28px -22px #315bd1}.btn.green{background:#0b956c;border-color:#0b956c;color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}.phonebox{padding:18px;border:1px solid #dce6f5;border-radius:17px;background:linear-gradient(135deg,#fbfdff,#f5f9ff)}.phoneentry{display:grid;grid-template-columns:1fr auto;gap:8px}.lookupstate{margin-top:12px;padding:11px 12px;border-radius:12px;font-size:8px;line-height:1.6}.lookupstate.ok{background:#effbf7;border:1px solid #c8efdf;color:#197458}.lookupstate.warn{background:#fff8eb;border:1px solid #f5dfb3;color:#845b12}.lookupstate.bad{background:#fff2f4;border:1px solid #f6ced6;color:#a62e47}.coursebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.coursebar b{font-size:10px}.coursebar span{font-size:7.5px;color:var(--muted)}.courses{display:grid;gap:9px}.course{border:1px solid #e2e8f0;border-radius:15px;padding:12px;background:#fbfcfe}.coursetop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}.coursetop b{font-size:9px}.remove{width:27px;height:27px;border:1px solid #f0d5dc;background:#fff5f7;color:#c23f58;border-radius:8px;cursor:pointer}.coursegrid{display:grid;grid-template-columns:1.4fr 1fr .7fr;gap:8px}.review{display:grid;gap:9px}.reviewsec{border:1px solid #e3e9f1;border-radius:14px;padding:13px}.reviewsec h3{font-size:9px;margin:0 0 8px}.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.r{background:#f8fafc;border-radius:9px;padding:9px}.r small{display:block;font-size:6.5px;color:#98a4b6;margin-bottom:2px}.r b{font-size:8.5px}.consent{display:flex;gap:9px;align-items:flex-start;padding:12px;border:1px solid #dce4ee;background:#fbfcfe;border-radius:13px;margin-top:13px}.consent input{margin-top:2px}.consent span{font-size:8px;color:#6e7c91;line-height:1.55}.success{text-align:center;padding:20px 10px 10px}.successicon{width:76px;height:76px;border-radius:25px;background:#eafbf5;color:#07936b;display:grid;place-items:center;font-size:30px;margin:auto}.success h2{font-size:22px;margin:15px 0 4px}.success p{font-size:9px;color:#7f8ca0;line-height:1.7;max-width:480px;margin:0 auto}.studentcode{display:inline-flex;flex-direction:column;gap:2px;background:#15233f;color:#fff;border-radius:15px;padding:12px 20px;margin:17px auto}.studentcode small{font-size:7px;color:#aebbd1}.studentcode b{font-size:17px;letter-spacing:.03em}.links{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}.notice{padding:11px 12px;border-radius:12px;background:#fffaf0;border:1px solid #f5e0b7;color:#805d1d;font-size:7.5px;line-height:1.65;margin-top:12px}.spinner{display:inline-block;width:13px;height:13px;border:2px solid #dbe5f5;border-top-color:#3164dd;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:880px){.shell{grid-template-columns:1fr;max-width:760px;padding:14px}.aside{position:relative;top:0;height:auto;min-height:300px}.hero{margin-top:30px}.aside-foot{position:relative;left:auto;right:auto;bottom:auto;margin-top:25px}.benefits{grid-template-columns:repeat(3,1fr)}.benefit{display:block}.benefit i{margin-bottom:7px}}@media(max-width:580px){.fieldgrid,.coursegrid,.rgrid{grid-template-columns:1fr}.benefits{grid-template-columns:1fr}.progress{overflow:auto}.pstep span{display:none}.card{padding:17px}.phoneentry{grid-template-columns:1fr}.shell{padding:8px}.aside{border-radius:21px}.main{padding-bottom:18px}}
+:root{--ink:#17233b;--muted:#708198;--line:#e2e8f0;--bg:#f3f7fb;--card:#fff;--blue:#2563eb;--blue2:#5b55e7;--green:#07966f;--red:#dc3e59;--amber:#d0870a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,"Noto Sans Thai","Sarabun",system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,#f5f9ff,#eef3f8);color:var(--ink);font-size:15px;line-height:1.55}.hidden{display:none!important}
+.shell{min-height:100vh;display:grid;grid-template-columns:minmax(300px,380px) minmax(0,800px);gap:28px;max-width:1240px;margin:auto;padding:28px 22px}.aside{position:sticky;top:28px;height:calc(100vh - 56px);border-radius:30px;padding:30px;background:linear-gradient(155deg,#13234a,#274ea5 58%,#554be0);color:#fff;overflow:hidden;box-shadow:0 30px 80px -45px rgba(26,51,116,.72)}.aside:before,.aside:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.06)}.aside:before{width:320px;height:320px;right:-160px;top:-90px}.aside:after{width:240px;height:240px;left:-120px;bottom:-100px}.brand{position:relative;z-index:2;display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;background:#fff;color:#244a9e;display:grid;place-items:center;font-weight:950;font-size:18px}.brand b{display:block;font-size:16px}.brand small{font-size:11px;color:#cdd9ff}.hero{position:relative;z-index:2;margin-top:54px}.eyebrow{font-size:11px;letter-spacing:.12em;font-weight:900;color:#c2d1ff}.hero h1{font-size:34px;line-height:1.2;margin:10px 0 12px}.hero p{font-size:14px;line-height:1.75;color:#dbe4ff;max-width:320px}.benefits{position:relative;z-index:2;display:grid;gap:11px;margin-top:34px}.benefit{display:flex;gap:11px;align-items:flex-start;padding:13px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}.benefit i{width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:12px;flex:none}.benefit b{display:block;font-size:13px}.benefit span{font-size:12px;line-height:1.55;color:#d8e1fb}.aside-foot{position:absolute;left:30px;right:30px;bottom:26px;z-index:2;font-size:11px;color:#b8c8ef;line-height:1.6}.main{padding:2px 0 32px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:7px 5px 16px}.topbar a{color:#64748b;text-decoration:none;font-size:13px;font-weight:750}.secure{font-size:12px;color:#7b8aa1;display:flex;align-items:center;gap:6px}.progress{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;gap:5px;align-items:center;margin-bottom:14px;box-shadow:0 16px 38px -34px rgba(30,50,90,.45)}.pstep{flex:1;position:relative;display:flex;align-items:center;gap:8px;color:#a1adbd;font-size:11px;font-weight:800}.pstep:not(:last-child):after{content:"";position:absolute;right:4px;left:36px;bottom:-4px;height:2px;background:#edf1f6}.pnum{width:28px;height:28px;border-radius:999px;border:1px solid #e1e7f0;display:grid;place-items:center;background:#fff;z-index:2;font-size:12px}.pstep.active{color:#2d5fd0}.pstep.active .pnum{background:#2d5fd0;border-color:#2d5fd0;color:#fff}.pstep.done{color:#0b8d69}.pstep.done .pnum{background:#e8faf4;border-color:#b8ecd9;color:#078a64}.card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:0 25px 60px -50px rgba(21,39,77,.5)}.cardhead{display:flex;gap:14px;align-items:flex-start;margin-bottom:22px}.cardicon{width:48px;height:48px;border-radius:15px;background:#edf3ff;color:#2d63df;display:grid;place-items:center;font-size:18px;flex:none}.cardhead .kicker{font-size:10px;letter-spacing:.12em;font-weight:900;color:#4d6fcd;margin-bottom:4px}.cardhead h2{font-size:23px;margin:0}.cardhead p{font-size:13px;color:var(--muted);line-height:1.6;margin:5px 0 0}.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:#586a83;font-weight:800}.req{color:#de4260}.input,select,textarea{width:100%;border:1px solid #dce4ee;background:#fbfcfe;border-radius:13px;padding:12px 13px;color:#304058;font:inherit;font-size:14px;outline:none}.input:focus,select:focus,textarea:focus{background:#fff;border-color:#8db1ff;box-shadow:0 0 0 3px #eef4ff}.hint{font-size:11px;color:#8f9bad;line-height:1.55}.actions{display:flex;gap:10px;justify-content:space-between;margin-top:22px}.btn{border:1px solid #dde4ed;background:#fff;color:#596a82;border-radius:13px;padding:11px 16px;font-size:13px;font-weight:850;cursor:pointer}.btn.primary{margin-left:auto;background:linear-gradient(135deg,#2764e7,#5c52e7);border-color:transparent;color:#fff;box-shadow:0 14px 28px -22px #315bd1}.btn.green{background:#0b956c;border-color:#0b956c;color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}.phonebox{padding:19px;border:1px solid #dce6f5;border-radius:18px;background:linear-gradient(135deg,#fbfdff,#f5f9ff)}.phoneentry{display:grid;grid-template-columns:1fr auto;gap:9px}.lookupstate{margin-top:13px;padding:12px 13px;border-radius:13px;font-size:12px;line-height:1.6}.lookupstate.ok{background:#effbf7;border:1px solid #c8efdf;color:#197458}.lookupstate.warn{background:#fff8eb;border:1px solid #f5dfb3;color:#845b12}.lookupstate.bad{background:#fff2f4;border:1px solid #f6ced6;color:#a62e47}.coursebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.coursebar b{font-size:14px}.coursebar span{font-size:11px;color:var(--muted)}.courses{display:grid;gap:10px}.course{border:1px solid #e2e8f0;border-radius:17px;padding:14px;background:#fbfcfe}.coursetop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.coursetop b{font-size:13px}.remove{width:30px;height:30px;border:1px solid #f0d5dc;background:#fff5f7;color:#c23f58;border-radius:9px;cursor:pointer}.coursegrid{display:grid;grid-template-columns:1.5fr 1fr .7fr;gap:9px}.catalog-note{font-size:11px;color:#667991;background:#f3f7ff;border:1px solid #dce8ff;border-radius:12px;padding:10px 12px;margin-bottom:12px}.catalog-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#eef4ff;color:#2d63df;font-size:10px;font-weight:800}.review{display:grid;gap:10px}.reviewsec{border:1px solid #e3e9f1;border-radius:15px;padding:14px}.reviewsec h3{font-size:13px;margin:0 0 9px}.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.r{background:#f8fafc;border-radius:10px;padding:10px}.r small{display:block;font-size:10px;color:#98a4b6;margin-bottom:2px}.r b{font-size:12px}.consent{display:flex;gap:10px;align-items:flex-start;padding:13px;border:1px solid #dce4ee;background:#fbfcfe;border-radius:14px;margin-top:14px}.consent input{margin-top:3px}.consent span{font-size:12px;color:#63738a;line-height:1.6}.success{text-align:center;padding:22px 10px 10px}.successicon{width:78px;height:78px;border-radius:25px;background:#eafbf5;color:#07936b;display:grid;place-items:center;font-size:31px;margin:auto}.success h2{font-size:24px;margin:15px 0 5px}.success p{font-size:13px;color:#7f8ca0;line-height:1.7;max-width:500px;margin:0 auto}.studentcode{display:inline-flex;flex-direction:column;gap:2px;background:#15233f;color:#fff;border-radius:16px;padding:13px 22px;margin:18px auto}.studentcode small{font-size:10px;color:#aebbd1}.studentcode b{font-size:19px;letter-spacing:.03em}.links{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:15px}.notice{padding:12px 13px;border-radius:13px;background:#fffaf0;border:1px solid #f5e0b7;color:#805d1d;font-size:11px;line-height:1.65;margin-top:12px}.spinner{display:inline-block;width:14px;height:14px;border:2px solid #dbe5f5;border-top-color:#3164dd;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.pdpa{display:grid;gap:13px}.pdpa-box{border:1px solid #e1e7ef;border-radius:16px;padding:15px;background:#fbfcfe}.pdpa-box h3{margin:0 0 7px;font-size:14px}.pdpa-box p,.pdpa-box li{font-size:12px;color:#5f7087;line-height:1.7}.pdpa-box ul{margin:7px 0 0;padding-left:20px}.pdpa-version{font-size:10px;color:#92a0b3}.pdpa-check{display:flex;gap:10px;align-items:flex-start;border:1px solid #dce4ee;border-radius:14px;padding:13px;background:#fff}.pdpa-check input{margin-top:3px}.pdpa-check span{font-size:12px;color:#5f7087;line-height:1.6}
+@media(max-width:900px){.shell{grid-template-columns:1fr;max-width:800px;padding:14px}.aside{position:relative;top:0;height:auto;min-height:320px}.hero{margin-top:30px}.aside-foot{position:relative;left:auto;right:auto;bottom:auto;margin-top:25px}.benefits{grid-template-columns:repeat(3,1fr)}.benefit{display:block}.benefit i{margin-bottom:7px}}@media(max-width:600px){body{font-size:14px}.fieldgrid,.coursegrid,.rgrid{grid-template-columns:1fr}.benefits{grid-template-columns:1fr}.progress{overflow:auto}.pstep{min-width:42px}.pstep span{display:none}.card{padding:18px}.phoneentry{grid-template-columns:1fr}.shell{padding:8px}.aside{border-radius:22px}.main{padding-bottom:18px}.hero h1{font-size:28px}.cardhead h2{font-size:20px}}
 </style>
 </head>
 <body>
 <div class="shell">
 <aside class="aside">
-  <div class="brand"><div class="logo">AW</div><div><b>AreWarin Biology</b><small>Legacy Student Registration</small></div></div>
+  <div class="brand"><div class="logo">AW</div><div><b>AreWarin Biology</b><small>Legacy Student Registration · V1.1</small></div></div>
   <div class="hero"><div class="eyebrow">RETURNING STUDENT</div><h1>เคยเรียนกับเรา<br>ก่อนมีระบบใหม่?</h1><p>กรอกข้อมูลเพียงครั้งเดียว เพื่อสร้าง Student Profile ในระบบ AreWarin และเก็บประวัติคอร์สเดิมของคุณไว้เป็นข้อมูลกลาง</p></div>
   <div class="benefits">
     <div class="benefit"><i class="fa-solid fa-id-card"></i><div><b>มี Student ID</b><span>สร้างรหัสนักเรียนสำหรับใช้ในระบบใหม่</span></div></div>
@@ -32,7 +33,8 @@
     <div class="pstep active" data-p="1"><div class="pnum">1</div><span>ตรวจเบอร์</span></div>
     <div class="pstep" data-p="2"><div class="pnum">2</div><span>ข้อมูลนักเรียน</span></div>
     <div class="pstep" data-p="3"><div class="pnum">3</div><span>คอร์สเดิม</span></div>
-    <div class="pstep" data-p="4"><div class="pnum">4</div><span>ตรวจสอบ</span></div>
+    <div class="pstep" data-p="4"><div class="pnum">4</div><span>PDPA</span></div>
+    <div class="pstep" data-p="5"><div class="pnum">5</div><span>ตรวจสอบ</span></div>
   </div>
 
   <section id="step1" class="card">
@@ -62,18 +64,31 @@
   </section>
 
   <section id="step3" class="card hidden">
-    <div class="cardhead"><div class="cardicon"><i class="fa-solid fa-book-open-reader"></i></div><div><div class="kicker">STEP 03</div><h2>คอร์สที่เคยเรียน</h2><p>กรอกเท่าที่จำได้ ข้อมูลนี้เป็นประวัติก่อนระบบใหม่ และ Manager สามารถตรวจแก้ภายหลังได้</p></div></div>
+    <div class="cardhead"><div class="cardicon"><i class="fa-solid fa-book-open-reader"></i></div><div><div class="kicker">STEP 03</div><h2>คอร์สที่เคยเรียน</h2><p>เลือกจากรายการคอร์ส AreWarin ที่มีอยู่ในระบบ เพื่อให้ประวัติเดิมเชื่อมกับ Course Catalog ได้ถูกต้อง</p></div></div>
+    <div class="catalog-note"><i class="fa-solid fa-circle-info"></i> ระบบจะแสดงทั้งคอร์สที่เปิดอยู่และคอร์สเก่าที่ปิดรับแล้ว หากไม่พบชื่อคอร์ส สามารถเลือก “ไม่พบในรายการ / กรอกเอง” ได้</div>
     <div class="coursebar"><div><b>ประวัติคอร์ส</b><span>เพิ่มได้สูงสุด 10 รายการ</span></div><button id="addCourse" class="btn" type="button"><i class="fa-solid fa-plus"></i> เพิ่มคอร์ส</button></div>
     <div id="courses" class="courses"></div>
-    <div class="notice">หากจำชื่อคอร์สไม่ได้ทั้งหมด สามารถกรอกชื่อวิชาโดยประมาณ เช่น “A-Level Biology”, “สอวน. ชีววิทยา”, “ชีววิทยา ม.ปลาย” และระบุผู้สอน/ปีที่เรียนเท่าที่จำได้</div>
-    <div class="actions"><button class="btn" onclick="go(2)"><i class="fa-solid fa-arrow-left"></i> กลับ</button><button class="btn primary" onclick="review()">ตรวจสอบข้อมูล <i class="fa-solid fa-arrow-right"></i></button></div>
+    <div class="notice">เลือกชื่อคอร์สให้ใกล้เคียงกับที่เคยเรียนที่สุด และระบุปี/ช่วงเวลาที่เรียนเท่าที่จำได้ Manager สามารถตรวจสอบและแก้ไขภายหลังได้</div>
+    <div class="actions"><button class="btn" onclick="go(2)"><i class="fa-solid fa-arrow-left"></i> กลับ</button><button class="btn primary" onclick="validateCourses()">PDPA <i class="fa-solid fa-arrow-right"></i></button></div>
   </section>
 
-  <section id="step4" class="card hidden">
-    <div class="cardhead"><div class="cardicon"><i class="fa-solid fa-list-check"></i></div><div><div class="kicker">STEP 04</div><h2>ตรวจสอบก่อนบันทึก</h2><p>ข้อมูลจะสร้าง Student Profile ใหม่ในระบบ AreWarin</p></div></div>
+  <section id="step5" class="card hidden">
+    <div class="cardhead"><div class="cardicon"><i class="fa-solid fa-shield-halved"></i></div><div><div class="kicker">STEP 04</div><h2>ประกาศความเป็นส่วนตัว (PDPA)</h2><p>อ่านรายละเอียดการเก็บ ใช้ และดูแลข้อมูลส่วนบุคคลก่อนยืนยัน</p></div></div>
+    <div class="pdpa">
+      <div class="pdpa-box"><h3>ข้อมูลที่เราเก็บ</h3><p>ข้อมูลระบุตัวตนและข้อมูลติดต่อ เช่น ชื่อ ชื่อเล่น เบอร์โทร อีเมล LINE ID โรงเรียน/มหาวิทยาลัย ระดับชั้น คณะ/สาขา จังหวัด และข้อมูลผู้ปกครอง รวมถึงประวัติคอร์สที่เคยเรียนกับ AreWarin</p></div>
+      <div class="pdpa-box"><h3>วัตถุประสงค์</h3><ul><li>สร้างและดูแล Student Profile ในระบบ AreWarin</li><li>ตรวจสอบประวัติการเรียนเดิมและเชื่อมกับคอร์ส/คลาสในระบบใหม่</li><li>ใช้เพื่อการติดต่อ การจัดการเรียน การบริการหลังการเรียน และงานธุรการที่เกี่ยวข้อง</li><li>ใช้เพื่อป้องกันข้อมูลซ้ำและรักษาความถูกต้องของฐานข้อมูลนักเรียน</li></ul></div>
+      <div class="pdpa-box"><h3>การเข้าถึงและการเก็บรักษา</h3><p>ข้อมูลจะถูกจำกัดการเข้าถึงตามสิทธิ์ของระบบ เช่น Manager/Admin และบุคลากรที่เกี่ยวข้องกับการจัดการเรียน ข้อมูลจะไม่ถูกเปิดเผยต่อบุคคลภายนอกโดยไม่มีฐานทางกฎหมายหรือเหตุจำเป็นในการให้บริการ</p></div>
+      <div class="pdpa-box"><h3>สิทธิของเจ้าของข้อมูล</h3><p>คุณสามารถติดต่อ AreWarin เพื่อขอเข้าถึง แก้ไข หรือสอบถามเกี่ยวกับการใช้ข้อมูลส่วนบุคคลได้ ทั้งนี้ การลบข้อมูลบางรายการอาจต้องพิจารณาข้อมูลที่จำเป็นต่อประวัติการเรียน การเงิน หรือข้อกำหนดทางกฎหมายที่เกี่ยวข้อง</p></div>
+      <div class="pdpa-version">Privacy Notice version: AW-PDPA-LEGACY-2026-01</div>
+      <label class="pdpa-check"><input id="pdpaConsent" type="checkbox"><span>ฉันได้อ่านและรับทราบประกาศความเป็นส่วนตัวข้างต้น และยินยอมให้ AreWarin ใช้ข้อมูลที่กรอกเพื่อสร้าง Student Profile และจัดเก็บประวัติการเรียนตามวัตถุประสงค์ที่ระบุ</span></label>
+    </div>
+    <div class="actions"><button class="btn" onclick="go(3)"><i class="fa-solid fa-arrow-left"></i> กลับ</button><button class="btn primary" onclick="acceptPDPA()">ตรวจสอบข้อมูล <i class="fa-solid fa-arrow-right"></i></button></div>
+  </section>
+
+  <section id="step5" class="card hidden">
+    <div class="cardhead"><div class="cardicon"><i class="fa-solid fa-list-check"></i></div><div><div class="kicker">STEP 05</div><h2>ตรวจสอบก่อนบันทึก</h2><p>ข้อมูลจะสร้าง Student Profile ใหม่ในระบบ AreWarin</p></div></div>
     <div id="review" class="review"></div>
-    <label class="consent"><input id="consent" type="checkbox"><span>ฉันยืนยันว่าเป็นนักเรียนเก่าของ AreWarin และข้อมูลที่กรอกเป็นข้อมูลของฉัน/ผู้เรียนที่ฉันมีสิทธิ์ให้ข้อมูล รวมทั้งยินยอมให้ AreWarin ใช้ข้อมูลนี้เพื่อจัดทำ Student Profile และประวัติการเรียนในระบบ</span></label>
-    <div class="actions"><button class="btn" onclick="go(3)"><i class="fa-solid fa-arrow-left"></i> แก้ไข</button><button id="submitBtn" class="btn green" onclick="submitProfile()"><i class="fa-solid fa-floppy-disk"></i> บันทึกเข้าระบบ</button></div>
+    <div class="actions"><button class="btn" onclick="go(4)"><i class="fa-solid fa-arrow-left"></i> กลับ</button><button id="submitBtn" class="btn green" onclick="submitProfile()"><i class="fa-solid fa-floppy-disk"></i> บันทึกเข้าระบบ</button></div>
   </section>
 
   <section id="success" class="card hidden">
@@ -85,16 +100,24 @@
 <script>
 const cfg=window.AREWARIN_CONFIG||{};
 const sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
-const S={step:1,phone:'',phoneKey:'',checked:false,courses:[]};
+const PDPA_VERSION='AW-PDPA-LEGACY-2026-01';
+const S={step:1,phone:'',phoneKey:'',checked:false,courses:[],catalog:[],pdpaAccepted:false};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 function normPhone(v){return String(v||'').replace(/\D/g,'')}
 function showLookup(kind,html){const el=$('lookupState');el.className='lookupstate '+kind;el.innerHTML=html}
 function go(n){
  S.step=n;
- ['step1','step2','step3','step4','success'].forEach((id,i)=>$(id).classList.toggle('hidden',id!==('step'+n)));
+ ['step1','step2','step3','step4','step5','success'].forEach(id=>$(id).classList.toggle('hidden',id!==('step'+n)));
  document.querySelectorAll('.pstep').forEach(x=>{const p=+x.dataset.p;x.classList.toggle('active',p===n);x.classList.toggle('done',p<n)});
  scrollTo({top:0,behavior:'smooth'})
+}
+async function loadCatalog(){
+ try{
+   const {data,error}=await sb.rpc('legacy_self_course_catalog');
+   if(error)throw error;
+   S.catalog=Array.isArray(data)?data:[];
+ }catch(e){console.warn('[Legacy catalog]',e);S.catalog=[]}
 }
 async function checkPhone(){
  const key=normPhone($('phone').value);
@@ -105,16 +128,13 @@ async function checkPhone(){
    if(error)throw error;
    if(data?.exists){
      S.checked=false;
-     if(data.kind==='legacy'){
-       showLookup('warn','<b><i class="fa-solid fa-circle-info"></i> เบอร์นี้มี Student Profile นักเรียนเก่าอยู่แล้ว</b><br>ไม่ต้องลงทะเบียนซ้ำ หากต้องการแก้ข้อมูล กรุณาติดต่อ AreWarin');
-     }else{
-       showLookup('ok','<b><i class="fa-solid fa-circle-check"></i> คุณมีข้อมูลในระบบใหม่แล้ว</b><br>ไม่ต้องกรอกข้อมูลนักเรียนเก่า สามารถสมัครเรียนหรือเข้าสู่ Student Hub ได้ตามปกติ');
-     }
+     if(data.kind==='legacy')showLookup('warn','<b><i class="fa-solid fa-circle-info"></i> เบอร์นี้มี Student Profile นักเรียนเก่าอยู่แล้ว</b><br>ไม่ต้องลงทะเบียนซ้ำ หากต้องการแก้ข้อมูล กรุณาติดต่อ AreWarin');
+     else showLookup('ok','<b><i class="fa-solid fa-circle-check"></i> คุณมีข้อมูลในระบบใหม่แล้ว</b><br>ไม่ต้องกรอกข้อมูลนักเรียนเก่า สามารถสมัครเรียนหรือเข้าสู่ Student Hub ได้ตามปกติ');
      return
    }
    S.phone=$('phone').value.trim();S.phoneKey=key;S.checked=true;$('phoneDisplay').value=S.phone;
    showLookup('ok','<b><i class="fa-solid fa-circle-check"></i> ยังไม่พบ Student Profile จากเบอร์นี้</b><br>หากคุณเคยเรียนกับ AreWarin ก่อนมีระบบใหม่ สามารถกรอกข้อมูลต่อได้');
-   setTimeout(()=>go(2),600)
+   setTimeout(()=>go(2),500)
  }catch(e){showLookup('bad','<b>ตรวจสอบไม่สำเร็จ</b><br>'+esc(e.message||e))}
  finally{btn.disabled=false;btn.innerHTML='ตรวจสอบ'}
 }
@@ -126,34 +146,66 @@ function validateProfile(){
  if(!S.courses.length)addCourse();
  go(3)
 }
+function catalogOptions(selected=''){
+ const rows=['<option value="">— เลือกคอร์สที่เคยเรียน —</option>'];
+ S.catalog.forEach(c=>rows.push(`<option value="${c.id}" ${String(selected)===String(c.id)?'selected':''}>${esc(c.name)}${c.tutor_name?' · '+esc(c.tutor_name):''}${c.active?'':' · คอร์สเก่า'}</option>`));
+ rows.push(`<option value="__custom__" ${selected==='__custom__'?'selected':''}>ไม่พบในรายการ / กรอกเอง</option>`);
+ return rows.join('')
+}
 function addCourse(v={}){
  if(S.courses.length>=10)return Swal.fire('สูงสุด 10 คอร์ส','','info');
- const id=crypto.randomUUID();S.courses.push({id,...v});renderCourses()
+ const id=crypto.randomUUID();
+ S.courses.push({id,course_id:v.course_id||'',course_name:v.course_name||'',tutor_id:v.tutor_id||'',tutor_name:v.tutor_name||'',academic_year:v.academic_year||'',study_period:v.study_period||'',custom:!!v.custom});
+ renderCourses()
 }
 function removeCourse(id){S.courses=S.courses.filter(x=>x.id!==id);renderCourses()}
 function renderCourses(){
- $('courses').innerHTML=S.courses.length?S.courses.map((c,i)=>`<div class="course" data-id="${c.id}"><div class="coursetop"><b>คอร์สที่ ${i+1}</b><button class="remove" onclick="removeCourse('${c.id}')"><i class="fa-solid fa-xmark"></i></button></div><div class="coursegrid"><div class="field"><label>ชื่อคอร์ส / วิชา <span class="req">*</span></label><input class="input c-name" value="${esc(c.course_name||'')}" placeholder="เช่น A-Level Biology"></div><div class="field"><label>ผู้สอน</label><input class="input c-tutor" value="${esc(c.tutor_name||'')}" placeholder="เช่น พี่อาร์"></div><div class="field"><label>ปีที่เรียน</label><input class="input c-year" type="number" min="2000" max="2600" value="${esc(c.academic_year||'')}" placeholder="2567"></div></div><div class="field" style="margin-top:8px"><label>ช่วงเวลา / หมายเหตุ</label><input class="input c-period" value="${esc(c.study_period||'')}" placeholder="เช่น ปิดเทอม ม.5 / เรียนประมาณ 20 ชั่วโมง"></div></div>`).join(''):'<div class="lookupstate warn">ยังไม่มีประวัติคอร์ส หากจำไม่ได้ สามารถเพิ่ม 1 รายการเป็นชื่อวิชาโดยประมาณได้</div>';
- document.querySelectorAll('.course').forEach(el=>{const x=S.courses.find(a=>a.id===el.dataset.id);['name','tutor','year','period'].forEach(k=>{const inp=el.querySelector('.c-'+k);if(inp)inp.oninput=()=>{x[k==='name'?'course_name':k==='tutor'?'tutor_name':k==='year'?'academic_year':'study_period']=inp.value}})})
+ $('courses').innerHTML=S.courses.length?S.courses.map((c,i)=>`<div class="course" data-id="${c.id}">
+   <div class="coursetop"><div><b>คอร์สที่ ${i+1}</b> ${c.course_id?'<span class="catalog-badge"><i class="fa-solid fa-link"></i>&nbsp; เชื่อม Catalog</span>':''}</div><button class="remove" onclick="removeCourse('${c.id}')"><i class="fa-solid fa-xmark"></i></button></div>
+   <div class="field"><label>เลือกคอร์ส <span class="req">*</span></label><select class="c-select">${catalogOptions(c.custom?'__custom__':c.course_id)}</select></div>
+   <div class="field c-custom-wrap ${c.custom?'':'hidden'}" style="margin-top:9px"><label>ชื่อคอร์ส / วิชา</label><input class="input c-custom" value="${esc(c.course_name||'')}" placeholder="กรอกชื่อคอร์สที่เคยเรียน"></div>
+   <div class="coursegrid" style="margin-top:9px"><div class="field"><label>ผู้สอน</label><input class="input c-tutor" value="${esc(c.tutor_name||'')}" placeholder="ดึงจาก Catalog อัตโนมัติ หรือกรอกเอง"></div><div class="field"><label>ปีที่เรียน</label><input class="input c-year" type="number" min="2000" max="2600" value="${esc(c.academic_year||'')}" placeholder="2567"></div><div class="field"><label>ช่วงเวลา</label><input class="input c-period" value="${esc(c.study_period||'')}" placeholder="เช่น ปิดเทอม"></div></div>
+ </div>`).join(''):'<div class="lookupstate warn">ยังไม่มีประวัติคอร์ส กรุณาเพิ่มอย่างน้อย 1 รายการ</div>';
+
+ document.querySelectorAll('.course').forEach(el=>{
+   const x=S.courses.find(a=>a.id===el.dataset.id),sel=el.querySelector('.c-select'),customWrap=el.querySelector('.c-custom-wrap'),custom=el.querySelector('.c-custom'),tutor=el.querySelector('.c-tutor'),year=el.querySelector('.c-year'),period=el.querySelector('.c-period');
+   sel.onchange=()=>{
+     if(sel.value==='__custom__'){
+       x.custom=true;x.course_id='';x.tutor_id='';x.course_name=custom.value||'';customWrap.classList.remove('hidden');tutor.readOnly=false
+     }else if(sel.value){
+       const c=S.catalog.find(a=>String(a.id)===String(sel.value));
+       x.custom=false;x.course_id=c?.id||'';x.course_name=c?.name||'';x.tutor_id=c?.tutor_id||'';x.tutor_name=c?.tutor_name||'';customWrap.classList.add('hidden');tutor.value=x.tutor_name;tutor.readOnly=!!x.tutor_name
+     }else{
+       x.custom=false;x.course_id='';x.course_name='';x.tutor_id='';x.tutor_name='';customWrap.classList.add('hidden');tutor.value='';tutor.readOnly=false
+     }
+   };
+   custom.oninput=()=>{x.course_name=custom.value};
+   tutor.oninput=()=>{x.tutor_name=tutor.value};
+   year.oninput=()=>{x.academic_year=year.value};
+   period.oninput=()=>{x.study_period=period.value};
+   if(x.course_id&&x.tutor_name)tutor.readOnly=true;
+ })
 }
 $('addCourse').onclick=()=>addCourse();
 function profile(){return{fullname:$('fullname').value.trim(),nickname:$('nickname').value.trim(),phone:S.phone,email:$('email').value.trim(),line_id:$('lineId').value.trim(),school:$('school').value.trim(),grade:$('grade').value.trim(),faculty:$('faculty').value.trim(),province:$('province').value.trim(),guardian_name:$('guardianName').value.trim(),guardian_phone:$('guardianPhone').value.trim()}}
-function validCourses(){return S.courses.map(c=>({course_name:String(c.course_name||'').trim(),tutor_name:String(c.tutor_name||'').trim(),academic_year:c.academic_year?Number(c.academic_year):null,study_period:String(c.study_period||'').trim()})).filter(c=>c.course_name)}
+function validCourses(){return S.courses.map(c=>({course_id:c.course_id||null,course_name:String(c.course_name||'').trim(),tutor_id:c.tutor_id||null,tutor_name:String(c.tutor_name||'').trim(),academic_year:c.academic_year?Number(c.academic_year):null,study_period:String(c.study_period||'').trim()})).filter(c=>c.course_name)}
+function validateCourses(){const courses=validCourses();if(!courses.length)return Swal.fire('เพิ่มประวัติคอร์ส','กรุณาเลือกหรือกรอกคอร์สที่เคยเรียนอย่างน้อย 1 รายการ','warning');go(4)}
+function acceptPDPA(){if(!$('pdpaConsent').checked)return Swal.fire('PDPA','กรุณาอ่านและยืนยันประกาศความเป็นส่วนตัวก่อนดำเนินการต่อ','warning');S.pdpaAccepted=true;review()}
 function review(){
- const courses=validCourses();if(!courses.length)return Swal.fire('เพิ่มประวัติคอร์ส','กรุณากรอกชื่อคอร์สหรือวิชาที่เคยเรียนอย่างน้อย 1 รายการ','warning');
- const p=profile();
- $('review').innerHTML=`<div class="reviewsec"><h3><i class="fa-solid fa-user mr-1"></i> ข้อมูลนักเรียน</h3><div class="rgrid"><div class="r"><small>ชื่อ-นามสกุล</small><b>${esc(p.fullname)}</b></div><div class="r"><small>ชื่อเล่น</small><b>${esc(p.nickname)}</b></div><div class="r"><small>เบอร์โทร</small><b>${esc(p.phone)}</b></div><div class="r"><small>โรงเรียน / มหาวิทยาลัย</small><b>${esc(p.school||'—')}</b></div><div class="r"><small>ระดับชั้น</small><b>${esc(p.grade||'—')}</b></div><div class="r"><small>LINE ID</small><b>${esc(p.line_id||'—')}</b></div></div></div><div class="reviewsec"><h3><i class="fa-solid fa-book mr-1"></i> ประวัติคอร์สเดิม ${courses.length} รายการ</h3>${courses.map((c,i)=>`<div class="r" style="margin-top:${i?6:0}px"><b>${i+1}. ${esc(c.course_name)}</b><div class="hint">${esc([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ไม่ได้ระบุรายละเอียด')}</div></div>`).join('')}</div>`;
- go(4)
+ const courses=validCourses(),p=profile();
+ $('review').innerHTML=`<div class="reviewsec"><h3><i class="fa-solid fa-user"></i> ข้อมูลนักเรียน</h3><div class="rgrid"><div class="r"><small>ชื่อ-นามสกุล</small><b>${esc(p.fullname)}</b></div><div class="r"><small>ชื่อเล่น</small><b>${esc(p.nickname)}</b></div><div class="r"><small>เบอร์โทร</small><b>${esc(p.phone)}</b></div><div class="r"><small>โรงเรียน / มหาวิทยาลัย</small><b>${esc(p.school||'—')}</b></div><div class="r"><small>ระดับชั้น</small><b>${esc(p.grade||'—')}</b></div><div class="r"><small>LINE ID</small><b>${esc(p.line_id||'—')}</b></div></div></div><div class="reviewsec"><h3><i class="fa-solid fa-book"></i> ประวัติคอร์สเดิม ${courses.length} รายการ</h3>${courses.map((c,i)=>`<div class="r" style="margin-top:${i?7:0}px"><b>${i+1}. ${esc(c.course_name)}</b>${c.course_id?' <span class="catalog-badge">Catalog</span>':''}<div class="hint">${esc([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ไม่ได้ระบุรายละเอียด')}</div></div>`).join('')}</div><div class="reviewsec"><h3><i class="fa-solid fa-shield-halved"></i> PDPA</h3><div class="hint">รับทราบและยินยอมตาม Privacy Notice ${PDPA_VERSION}</div></div>`;
+ go(5)
 }
 async function submitProfile(){
- if(!$('consent').checked)return Swal.fire('ยืนยันข้อมูล','กรุณาอ่านและยอมรับข้อความยืนยันก่อนบันทึก','warning');
+ if(!S.pdpaAccepted)return Swal.fire('PDPA','กรุณายืนยันประกาศความเป็นส่วนตัวก่อนบันทึก','warning');
  const btn=$('submitBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> กำลังบันทึก';
  try{
-   const payload={profile:profile(),courses:validCourses(),consent:true,source:'legacy_self_register_v1',website:''};
+   const payload={profile:profile(),courses:validCourses(),consent:true,pdpa_version:PDPA_VERSION,pdpa_accepted:true,user_agent:navigator.userAgent.slice(0,500),source:'legacy_self_register_v1_1',website:''};
    const {data,error}=await sb.rpc('legacy_self_register',{p_payload:payload});
-   if(error)throw error;
-   if(!data?.ok)throw new Error(data?.message||'บันทึกไม่สำเร็จ');
-   ['step1','step2','step3','step4'].forEach(id=>$(id).classList.add('hidden'));$('success').classList.remove('hidden');document.querySelectorAll('.pstep').forEach(x=>{x.classList.remove('active');x.classList.add('done')});$('successCode').textContent=data.student_code||'—';$('successCourses').textContent='บันทึกประวัติคอร์สเดิม '+Number(data.course_count||0)+' รายการ';scrollTo({top:0,behavior:'smooth'})
+   if(error)throw error;if(!data?.ok)throw new Error(data?.message||'บันทึกไม่สำเร็จ');
+   ['step1','step2','step3','step4','step5'].forEach(id=>$(id).classList.add('hidden'));$('success').classList.remove('hidden');document.querySelectorAll('.pstep').forEach(x=>{x.classList.remove('active');x.classList.add('done')});$('successCode').textContent=data.student_code||'—';$('successCourses').textContent='บันทึกประวัติคอร์สเดิม '+Number(data.course_count||0)+' รายการ';scrollTo({top:0,behavior:'smooth'})
  }catch(e){Swal.fire('บันทึกไม่สำเร็จ',e.message||String(e),'error');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> บันทึกเข้าระบบ'}
 }
+loadCatalog();
 </script>
 </body></html>
