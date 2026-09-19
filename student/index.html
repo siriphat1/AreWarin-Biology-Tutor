@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="22.1.0-catalog-fixed">
-<title>AreWarin Biology · Student OS V22.1</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="22.2.0-stable-ui">
+<title>AreWarin Biology · Student OS V22.2</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1993,8 +1993,127 @@ body{font-family:"Prompt",system-ui,sans-serif!important}
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="22.1.0-catalog-fixed">
-<!-- LIVE BUILD: 22.1.0-catalog-fixed --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+
+<style id="arewarin-student-os-v222-stability">
+/* ==========================================================
+   V22.2 Stability + Typography
+   - restore missing courseCard
+   - rebuild schedule/course/learning screens
+   - normalize readable font sizes across desktop/mobile
+========================================================== */
+body{font-size:14px!important}
+.os22-brand b{font-size:15px!important}.os22-brand span{font-size:10px!important}
+.os22-mainnav button{font-size:12px!important;font-weight:650!important}
+.os22-mainnav button i{font-size:12px!important}
+.os22-search>input{font-size:12px!important}
+.os22-user b{font-size:12px!important;max-width:140px!important}.os22-user small{font-size:9px!important}
+.os22-page-title small{font-size:9px!important}.os22-page-title h1{font-size:26px!important}
+.os22-services button{min-width:74px!important;height:58px!important}
+.os22-services button i{font-size:14px!important}.os22-services button span{font-size:10px!important}
+.os22-panel-head h3{font-size:15px!important}.os22-panel-head button,.os22-panel-head>span{font-size:11px!important}
+.os22-welcome-copy>small{font-size:11px!important}.os22-welcome-copy h2{font-size:34px!important}
+.os22-welcome-actions button{font-size:11px!important}
+.os22-next-class>span{font-size:10px!important}.os22-next-class>b{font-size:14px!important}.os22-next-class>small{font-size:10px!important}.os22-next-class>button{font-size:10px!important}
+.os22-kpis span{font-size:10px!important}.os22-kpis b{font-size:26px!important}.os22-kpis small{font-size:9px!important}
+.os22-learn-info b{font-size:12px!important}.os22-learn-info small{font-size:9px!important}
+.os22-task-list b{font-size:11px!important}.os22-task-list small{font-size:9px!important}
+.os22-shortcuts span{font-size:10px!important}
+.os22-latest b{font-size:12px!important}.os22-latest small,.os22-library-card small{font-size:9px!important}.os22-library-card b{font-size:12px!important}
+
+/* General legacy feature content - readable and consistent */
+.os22-content .section-head h2,
+.os22-content .v21-card-head h3{font-size:16px!important}
+.os22-content .section-head p,
+.os22-content .name,
+.os22-content .service-row p{font-size:11px!important;line-height:1.6!important}
+.os22-content .sub{font-size:10px!important}
+.os22-content .btn{font-size:11px!important;min-height:38px!important;padding-left:13px!important;padding-right:13px!important}
+.os22-content .chip{font-size:9px!important}
+.os22-content .table{font-size:11px!important}.os22-content .table th{font-size:10px!important}
+.os22-content .v21-page-hero h2,
+.os22-content .student-service-hero h2,
+.os22-content .course-center-hero h2,
+.os22-content .catalog-hero h2{font-size:20px!important}
+.os22-content .v21-time-metrics article small{font-size:10px!important}.os22-content .v21-time-metrics article em{font-size:9px!important}
+.os22-content .v21-hour-course-head b{font-size:11px!important}.os22-content .v21-hour-course-head small{font-size:9px!important}
+
+/* Catalog V22.1 typography */
+.os221-catalog-head small{font-size:9px!important}.os221-catalog-head h2{font-size:22px!important}.os221-catalog-head>a{font-size:10px!important}
+.os221-promo-row>span,.os221-promo-row b{font-size:10px!important}
+.os221-section-head h3{font-size:15px!important}.os221-section-head>span{font-size:10px!important}
+.os221-rec-copy b{font-size:12px!important}.os221-rec-copy span{font-size:9px!important}.os221-rec-copy small{font-size:10px!important}
+.os221-badges span{font-size:9px!important}
+.os221-course-main h3{font-size:16px!important;min-height:45px!important}
+.os221-tutor b{font-size:11px!important}.os221-tutor small{font-size:9px!important}
+.os221-packages b,.os221-packages em{font-size:10px!important}
+.os221-price small{font-size:9px!important}.os221-price strong{font-size:15px!important}
+.os221-cta{font-size:11px!important;min-height:38px!important}
+
+/* Courses / Learning */
+.os222-course-page{display:grid;gap:12px}
+.os222-page-head{
+  min-height:82px;padding:16px 18px;border:1px solid var(--os-line);border-radius:19px;
+  background:#fff;box-shadow:var(--os-shadow);display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.os222-page-head small{display:block;font-size:9px;letter-spacing:.13em;color:#97a3b5;font-weight:750}
+.os222-page-head h2{margin:3px 0 0;font-size:22px;color:#26344c}
+.os222-mycourse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.os222-mycourse{overflow:hidden;background:#fff;border:1px solid #e5eaf2;border-radius:18px;box-shadow:var(--os-shadow);min-width:0}
+.os222-mycourse-cover{position:relative;aspect-ratio:16/8.4;background:#eaf0f8 center/cover no-repeat;overflow:hidden}
+.os222-cover-fallback{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#eef3ff,#e6f8fa);color:#3157ff;font-size:27px}
+.os222-mycourse-badges{position:absolute;left:10px;top:10px}.os222-mycourse-badges span{display:inline-flex;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.94);color:#536177;font-size:9px;font-weight:700}.os222-mycourse-badges .pending{background:#fff3dd;color:#a66708}.os222-mycourse-badges .renew{background:#fff0de;color:#c46c05}.os222-mycourse-badges .new{background:#e8fbf4;color:#087b58}
+.os222-mycourse-body{padding:14px;display:grid;gap:10px}.os222-mycourse-body h3{font-size:16px;line-height:1.45;margin:0;color:#25344b;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.os222-course-meta{display:flex;justify-content:space-between;gap:8px;color:#8390a4;font-size:10px}
+.os222-course-progress{height:6px;border-radius:99px;background:#e9edf4;overflow:hidden}.os222-course-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3157ff,#28c5d9)}
+.os222-course-foot{display:flex;justify-content:space-between;align-items:center;gap:8px}.os222-course-foot>small{font-size:10px;color:#8390a4}
+.os222-course-actions{display:flex;gap:6px;justify-content:flex-end}.os222-pending-note{padding:9px;border-radius:10px;background:#fff7e8;color:#986310;font-size:10px}
+.os222-page-empty{grid-column:1/-1;min-height:170px;display:grid;place-items:center;align-content:center;gap:9px;color:#8d9aae}.os222-page-empty i{font-size:25px}.os222-page-empty b{font-size:13px}
+
+/* Schedule */
+.os222-schedule-page{display:grid;gap:12px}
+.os222-next{
+  min-height:136px;padding:18px;border-radius:21px;background:linear-gradient(135deg,#101a35,#173170 65%,#3157ff);
+  color:#fff;display:grid;grid-template-columns:150px minmax(0,1fr) auto;align-items:center;gap:18px;
+  box-shadow:0 20px 50px -38px rgba(12,25,65,.72)
+}
+.os222-next-date{padding-right:18px;border-right:1px solid rgba(255,255,255,.16)}
+.os222-next-date small{display:block;font-size:10px;color:#b9c8eb}.os222-next-date strong{display:block;font-size:32px;line-height:1.05;margin:3px 0}.os222-next-date span{font-size:10px;color:#cbd6ef}
+.os222-next-copy h2{font-size:20px;margin:0 0 6px}.os222-next-copy p{font-size:11px;margin:0;color:#cad5ed}
+.os222-next-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.os222-next-actions .btn.primary{background:#fff!important;color:#172033!important}
+.os222-no-next{font-size:11px;color:#8d99ab}
+.os222-schedule-panel,.os222-request-panel{padding:15px!important}
+.os222-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.os222-section-title h3{font-size:15px;margin:0;color:#34435a}.os222-section-title span{font-size:10px;color:#95a1b3}
+.os222-schedule-list{display:grid;gap:7px}
+.os222-schedule-row{
+  display:grid;grid-template-columns:62px 85px minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  min-height:66px;padding:9px 10px;border:1px solid #edf0f5;border-radius:12px;background:#fbfcfe
+}
+.os222-schedule-date{text-align:center;padding-right:9px;border-right:1px solid #e7ebf1}.os222-schedule-date b{display:block;font-size:18px;color:#26344c;line-height:1}.os222-schedule-date span{display:block;font-size:9px;color:#8d99aa;margin-top:3px}
+.os222-schedule-time b{display:block;font-size:12px;color:#35455c}.os222-schedule-time span{display:block;font-size:9px;color:#98a3b4;margin-top:2px}
+.os222-schedule-copy{min-width:0}.os222-schedule-copy b{display:block;font-size:12px;color:#35455c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os222-schedule-copy span{display:block;font-size:9px;color:#8d99aa;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.os222-status{padding:5px 8px;border-radius:999px;background:#edf2f8;color:#68778d;font-size:9px;font-weight:700;white-space:nowrap}.os222-status.completed{background:#e8fbf4;color:#087b58}.os222-status.in_progress{background:#eaf0ff;color:#3157ff}.os222-status.cancelled{background:#fff0f1;color:#d34f62}.os222-status.rescheduled{background:#fff5e5;color:#b36e0d}
+.os222-request-list{display:grid;gap:6px}.os222-request-list>div{padding:9px 10px;border-radius:11px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:10px}.os222-request-list b{display:block;font-size:11px}.os222-request-list small{display:block;font-size:9px;color:#8d99aa;margin-top:2px}.os222-request-list em{font-size:9px;font-style:normal;color:#68778d}.os222-request-list em.approved{color:#087b58}.os222-request-list em.rejected{color:#d34f62}
+
+@media(max-width:1100px){
+  .os222-mycourse-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .os222-schedule-row{grid-template-columns:55px 78px minmax(0,1fr) auto}.os222-schedule-row>.btn{grid-column:3/5;justify-self:start}
+}
+@media(max-width:720px){
+  body{font-size:13px!important}
+  .os22-page-title h1{font-size:20px!important}
+  .os22-services button{min-width:62px!important;height:52px!important}.os22-services button span{font-size:9px!important}
+  .os221-course-main h3{font-size:14px!important;min-height:auto!important}.os221-tutor b{font-size:10px!important}.os221-price strong{font-size:14px!important}.os221-cta{font-size:10px!important}
+  .os222-page-head{min-height:68px;padding:12px 13px;border-radius:16px}.os222-page-head h2{font-size:18px}.os222-page-head small{font-size:8px}
+  .os222-mycourse-grid{grid-template-columns:1fr;gap:9px}
+  .os222-mycourse{display:grid;grid-template-columns:126px minmax(0,1fr);border-radius:15px}.os222-mycourse-cover{height:100%;min-height:150px;aspect-ratio:auto}.os222-mycourse-body{padding:11px}.os222-mycourse-body h3{font-size:14px}.os222-course-meta,.os222-course-foot>small,.os222-pending-note{font-size:9px}.os222-course-foot{display:block}.os222-course-actions{margin-top:8px;justify-content:flex-start}
+  .os222-next{grid-template-columns:1fr;gap:11px;padding:15px;border-radius:18px}.os222-next-date{border-right:0;border-bottom:1px solid rgba(255,255,255,.16);padding:0 0 10px}.os222-next-date strong{font-size:28px}.os222-next-copy h2{font-size:17px}.os222-next-actions{justify-content:flex-start}
+  .os222-schedule-row{grid-template-columns:48px minmax(0,1fr) auto;gap:8px}.os222-schedule-time{display:none}.os222-schedule-copy b{font-size:11px}.os222-schedule-copy span{font-size:9px}.os222-schedule-row>.btn{grid-column:2/4}.os222-status{font-size:8px}
+}
+</style>
+
+</head><body class="aw-student-v156" data-student-build="22.2.0-stable-ui">
+<!-- LIVE BUILD: 22.2.0-stable-ui --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2414,8 +2533,79 @@ function dashboard(){
     </div>
   </div>`;
 }
-function coursesHtml(){const rows=visibleEnroll();return `<div class="grid course-grid">${rows.map(courseCard).join('')||'<div class="empty">ยังไม่มีคอร์สในบัญชีนี้</div>'}</div>`}
-function learningHtml(){if(S.courseId)return courseLearning(S.courseId);const rows=activeEnroll().filter(e=>topics(e.course_id).length);return `<section class="v21-page-hero replay"><div><span>REPLAY & LEARNING</span><h2>เรียนย้อนหลัง</h2><p>ทบทวนบทเรียน ดูวิดีโอย้อนหลัง เปิดเอกสารประกอบ และเรียนต่อจากจุดเดิม</p></div><div class="v21-page-icon"><i class="fa-solid fa-circle-play"></i></div></section><div class="grid course-grid v21-course-grid">${rows.map(courseCard).join('')||'<div class="v21-empty page"><i class="fa-solid fa-video-slash"></i><b>ยังไม่มีคอร์สย้อนหลัง</b><span>เมื่อผู้สอนเพิ่มวิดีโอหรือบทเรียน ระบบจะแสดงที่นี่</span></div>'}</div>`}
+
+function courseCard(e){
+  const c=course(e.course_id);
+  if(!c)return '';
+  const pending=e.status==='pending',
+        pct=courseProgress(c.id),
+        newC=!pending&&(S.data.topics||[]).filter(t=>String(t.course_id)===String(c.id)).some(isNewTopic),
+        cover=c.cover_url||'',
+        remain=Math.max(0,n(e.hours_total)-n(e.hours_used)),
+        renew=renewalReady(e),
+        completed=topics(c.id).filter(t=>progress(t.id)?.status==='completed').length,
+        totalTopics=topics(c.id).length;
+
+  return `<article class="os222-mycourse ${pending?'pending':''}">
+    <div class="os222-mycourse-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}">
+      ${!cover?'<div class="os222-cover-fallback"><i class="fa-solid fa-dna"></i></div>':''}
+      <div class="os222-mycourse-badges">
+        ${pending?'<span class="pending">รอเปิดใช้งาน</span>':renew?'<span class="renew">ใกล้หมดคอร์ส</span>':newC?'<span class="new">มีบทใหม่</span>':'<span>กำลังเรียน</span>'}
+      </div>
+    </div>
+    <div class="os222-mycourse-body">
+      <h3>${esc(c.title||'คอร์ส')}</h3>
+      ${pending?`
+        <div class="os222-pending-note">รอ Manager ยืนยันและเปิดคอร์ส</div>
+        <div class="os222-course-actions">
+          <button class="btn primary" data-go-pay>ดูสถานะ</button>
+          <button class="btn soft" data-go-catalog>ดูคอร์สอื่น</button>
+        </div>
+      `:`
+        <div class="os222-course-meta">
+          <span>${e.hours_unlimited?'ไม่จำกัดชั่วโมง':`เหลือ ${remain.toFixed(1)} ชม.`}</span>
+          <span>${completed}/${totalTopics} บท</span>
+        </div>
+        <div class="os222-course-progress"><i style="width:${pct}%"></i></div>
+        <div class="os222-course-foot">
+          <small>ความคืบหน้า ${pct}%</small>
+          <div class="os222-course-actions">
+            <button class="btn primary" data-open-course="${c.id}">${pct?'เรียนต่อ':'เริ่มเรียน'}</button>
+            ${renew?`<button class="btn renew-btn" data-renew="${c.id}">ต่อคอร์ส</button>`:''}
+          </div>
+        </div>
+      `}
+    </div>
+  </article>`;
+}
+
+
+function coursesHtml(){
+  const rows=visibleEnroll();
+  return `<div class="os222-course-page">
+    <section class="os222-page-head">
+      <div><small>MY COURSES</small><h2>คอร์สของฉัน</h2></div>
+      <button class="btn primary" data-go-catalog><i class="fa-solid fa-plus"></i> ลงคอร์สเพิ่ม</button>
+    </section>
+    <div class="os222-mycourse-grid">
+      ${rows.map(courseCard).join('')||'<div class="os22-panel os222-page-empty"><i class="fa-solid fa-graduation-cap"></i><b>ยังไม่มีคอร์สในบัญชีนี้</b><button class="btn primary" data-go-catalog>ดูคอร์สที่เปิดรับ</button></div>'}
+    </div>
+  </div>`;
+}
+
+function learningHtml(){
+  if(S.courseId)return courseLearning(S.courseId);
+  const rows=activeEnroll().filter(e=>topics(e.course_id).length);
+  return `<div class="os222-course-page">
+    <section class="os222-page-head">
+      <div><small>REPLAY & LEARNING</small><h2>เรียนย้อนหลัง</h2></div>
+      <button class="btn soft" data-tab-jump="courses">คอร์สของฉัน</button>
+    </section>
+    <div class="os222-mycourse-grid">
+      ${rows.map(courseCard).join('')||'<div class="os22-panel os222-page-empty"><i class="fa-solid fa-video-slash"></i><b>ยังไม่มีบทเรียนย้อนหลัง</b></div>'}
+    </div>
+  </div>`;
+}
 function courseLearning(courseId){const c=course(courseId),ts=topics(courseId);if(!S.lessonId)S.lessonId=ts.find(t=>progress(t.id)?.status!=='completed')?.id||ts[0]?.id;const current=ts.find(t=>String(t.id)===String(S.lessonId))||ts[0];return `<button class="btn small" data-back-learning>← กลับหน้าคอร์ส</button><div class="lesson-layout" style="margin-top:12px"><aside class="card lesson-nav"><div class="section-head"><div><h2>${esc(c.title)}</h2><p>เรียนแล้ว ${courseProgress(courseId)}%</p></div></div><div class="progress"><i style="width:${courseProgress(courseId)}%"></i></div><div style="margin-top:13px">${ts.map((t,i)=>`<article class="lesson-item ${String(t.id)===String(current?.id)?'active':''} ${progress(t.id)?.status==='completed'?'done':''}" data-lesson="${t.id}"><div class="name">${progress(t.id)?.status==='completed'?'✓ ':''}บทที่ ${i+1} · ${esc(t.title)} ${isNewTopic(t)?'<span class="chip amber">ใหม่</span>':''}</div><div class="sub">${assets(t.id).length} สื่อ</div></article>`).join('')||'<div class="empty">ยังไม่มีบทเรียน</div>'}</div></aside><main class="card lesson-player">${current?lessonPlayer(current,ts):'<div class="empty">ยังไม่มีบทเรียน</div>'}</main></div>`}
 function youtube(url){const m=String(url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);return m?`https://www.youtube.com/embed/${m[1]}`:''}function lessonPlayer(t,ts){const as=assets(t.id),idx=ts.findIndex(x=>x.id===t.id),done=progress(t.id)?.status==='completed';return `<div class="section-head"><div><span class="chip">บทที่ ${idx+1}</span><h2 style="margin-top:8px">${esc(t.title)}</h2><p>${esc(t.description||'')}</p></div>${done?'<span class="chip green">เรียนจบแล้ว</span>':''}</div>${as.map(assetHtml).join('')||'<div class="empty">ยังไม่มีวิดีโอหรือชีท</div>'}<div style="display:flex;justify-content:space-between;gap:8px;margin-top:16px"><button class="btn" data-prev ${idx<=0?'disabled':''}>← บทก่อนหน้า</button><button class="btn ${done?'success':'primary'}" data-complete="${t.id}">${done?'เรียนจบแล้ว':'มาร์คว่าเรียนจบ'}</button><button class="btn" data-next ${idx>=ts.length-1?'disabled':''}>บทถัดไป →</button></div>`}
 function assetHtml(a){if(a.asset_type==='youtube'){const u=youtube(a.url);return `<article class="asset"><div class="asset-head"><div><div class="name">${esc(a.title)}</div><div class="sub">YouTube · ${esc(a.description||'')}</div></div></div>${u?`<div class="video-frame"><iframe src="${esc(u)}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`:`<a class="btn small primary" href="${esc(a.url)}" target="_blank" rel="noopener">เปิด YouTube</a>`}</article>`}if(a.asset_type==='external_video')return `<article class="asset"><div class="name">${esc(a.title)}</div><div class="sub">${esc(a.description||'')}</div><a class="btn small primary" target="_blank" rel="noopener" href="${esc(a.url)}">เปิดวิดีโอ</a></article>`;if(a.asset_type==='external_link')return `<article class="asset"><div class="name">${esc(a.title)}</div><a class="btn small primary" target="_blank" rel="noopener" href="${esc(a.url)}">เปิดลิงก์</a></article>`;const signed=S.signed[a.id];if(a.asset_type==='video_upload')return `<article class="asset"><div class="name">${esc(a.title)}</div>${signed?`<div class="video-frame"><video controls preload="metadata" src="${esc(signed)}"></video></div>`:`<button class="btn small primary" data-load-asset="${a.id}">โหลดวิดีโอ</button>`}</article>`;return `<article class="asset"><div class="name">${esc(a.title)}</div><div class="sub">${esc(a.description||'ชีท/เอกสาร')}</div>${signed?`<a class="btn small primary" target="_blank" rel="noopener" href="${esc(signed)}">เปิดชีท</a>`:`<button class="btn small" data-load-asset="${a.id}">เปิดชีท</button>`}</article>`}
@@ -2547,8 +2737,67 @@ function catalogHtml(){
 function notifyRow(x){return `<article class="notify ${x.is_read?'':'unread'}"><div class="name">${esc(x.title)}</div><div class="sub">${esc(x.body||'')} · ${date(x.created_at)}</div>${x.is_read?'':`<button class="btn small" data-read="${x.id}" style="margin-top:7px">อ่านแล้ว</button>`}</article>`}function notificationsHtml(){return `<section class="card"><div class="section-head"><div><h2>การแจ้งเตือน</h2><p>บทเรียนใหม่ รหัสคอร์ส ยอดชำระ และผลอนุมัติ</p></div></div>${S.data.notifications.map(notifyRow).join('')||'<div class="empty">ไม่มีแจ้งเตือน</div>'}</section>`}
 
 function nextSchedule(){return (S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled'].includes(x.status)&&new Date(x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at))[0]}
-function scheduleHtml(){const rows=(S.data?.v16_schedule||[]).slice().sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),next=nextSchedule();return `${next?`<section class="next-class next-class-live"><div><span class="section-kicker">NEXT LIVE CLASS</span><h2>${esc(next.title||course(next.course_id)?.title||'คาบเรียนถัดไป')}</h2><p>${dateTime(next.start_at)} · ${next.mode==='online'?'เรียนออนไลน์':esc(next.location||'สถานที่เรียนจะแจ้งภายหลัง')} · ${Math.max(.5,(new Date(next.end_at)-new Date(next.start_at))/3600000).toFixed(1)} ชม.${next.tutor_name?' · '+esc(next.tutor_name):''}</p></div><div class="inline-actions">${next.source!=='tutor_os_v19'?`<button class="btn soft" data-reschedule="${next.id}">ขอเลื่อนเวลา</button>`:''}<button class="btn" data-tab-jump="attendance">ดูประวัติเรียน</button></div></section>`:`<section class="card"><div class="section-head"><div><span class="section-kicker">LIVE CLASS SCHEDULE</span><h2>ตารางนัดเรียนของฉัน</h2><p>คอร์สนี้เป็นแบบสอนสด เมื่อผู้สอนจัดตารางแล้วจะมาแสดงที่นี่อัตโนมัติ</p></div></div><div class="empty">ยังไม่มีคาบที่นัดไว้</div></section>`}<section class="card"><div class="section-head"><div><span class="section-kicker">MY SCHEDULE</span><h2>ตารางนัดเรียนทั้งหมด</h2><p>ตารางที่ผู้สอนจัดใน Tutor OS · แก้ไขแล้วอัปเดตที่นี่อัตโนมัติ</p></div></div><div class="schedule-list">${rows.map(x=>`<article class="schedule-row ${x.status}"><div class="schedule-date"><b>${new Intl.DateTimeFormat('th-TH',{day:'2-digit'}).format(new Date(x.start_at))}</b><span>${new Intl.DateTimeFormat('th-TH',{month:'short'}).format(new Date(x.start_at))}</span></div><div class="schedule-copy"><b>${esc(x.title||course(x.course_id)?.title||'คาบเรียน')}</b><span>${dateTime(x.start_at)} – ${new Intl.DateTimeFormat('th-TH',{timeStyle:'short'}).format(new Date(x.end_at))}</span><small>${x.mode==='online'?'เรียนออนไลน์':`สถานที่เรียน: ${esc(x.location||'จะแจ้งภายหลัง')}`} ${x.tutor_name?'· '+esc(x.tutor_name):''}</small></div><span class="chip ${x.status==='completed'?'green':x.status==='cancelled'?'amber':'gray'}">${esc(({scheduled:'นัดเรียน',rescheduled:'เลื่อนแล้ว',in_progress:'กำลังเรียน',completed:'เรียนแล้ว',cancelled:'ยกเลิก'})[x.status]||x.status)}</span>${['scheduled','rescheduled'].includes(x.status)&&new Date(x.start_at)>new Date()&&x.source!=='tutor_os_v19'?`<button class="btn small" data-reschedule="${x.id}">ขอเลื่อน</button>`:''}</article>`).join('')||'<div class="empty">ยังไม่มีตารางเรียน</div>'}</div></section>${(S.data?.v16_reschedule_requests||[]).length?`<section class="card service-list-card"><div class="section-head"><div><h2>คำขอเลื่อนเรียน</h2></div></div>${S.data.v16_reschedule_requests.map(r=>`<div class="service-row"><div><b>${dateTime(r.requested_start_at)}</b><p>${esc(r.reason||'')}</p></div><span class="chip ${r.status==='approved'?'green':r.status==='rejected'?'amber':'gray'}">${esc(r.status)}</span></div>`).join('')}</section>`:''}`}
 
+function scheduleHtml(){
+  const rows=(S.data?.v16_schedule||[]).slice().sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),
+        next=nextSchedule(),
+        requests=S.data?.v16_reschedule_requests||[];
+
+  const scheduleRows=rows.map(x=>{
+    const start=new Date(x.start_at),
+          end=x.end_at?new Date(x.end_at):null,
+          future=start>new Date(),
+          canMove=['scheduled','rescheduled'].includes(x.status)&&future&&x.source!=='tutor_os_v19',
+          status=({scheduled:'นัดเรียน',rescheduled:'เลื่อนแล้ว',in_progress:'กำลังเรียน',completed:'เรียนแล้ว',cancelled:'ยกเลิก'})[x.status]||x.status;
+
+    return `<article class="os222-schedule-row ${esc(x.status||'')}">
+      <div class="os222-schedule-date">
+        <b>${new Intl.DateTimeFormat('th-TH',{day:'2-digit'}).format(start)}</b>
+        <span>${new Intl.DateTimeFormat('th-TH',{month:'short'}).format(start)}</span>
+      </div>
+      <div class="os222-schedule-time">
+        <b>${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(start)}</b>
+        <span>${end?'– '+new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(end):''}</span>
+      </div>
+      <div class="os222-schedule-copy">
+        <b>${esc(x.title||course(x.course_id)?.title||'คาบเรียน')}</b>
+        <span>${x.mode==='online'?'ออนไลน์':esc(x.location||'สถานที่จะแจ้งภายหลัง')}${x.tutor_name?' · '+esc(x.tutor_name):''}</span>
+      </div>
+      <span class="os222-status ${esc(x.status||'')}">${esc(status)}</span>
+      ${canMove?`<button class="btn soft" data-reschedule="${x.id}">ขอเลื่อน</button>`:''}
+    </article>`;
+  }).join('');
+
+  return `<div class="os222-schedule-page">
+    ${next?`<section class="os222-next">
+      <div class="os222-next-date">
+        <small>คลาสถัดไป</small>
+        <strong>${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(next.start_at))}</strong>
+        <span>${new Intl.DateTimeFormat('th-TH',{weekday:'short',day:'numeric',month:'short'}).format(new Date(next.start_at))}</span>
+      </div>
+      <div class="os222-next-copy">
+        <h2>${esc(next.title||course(next.course_id)?.title||'คาบเรียน')}</h2>
+        <p>${next.mode==='online'?'เรียนออนไลน์':esc(next.location||'สถานที่จะแจ้งภายหลัง')}${next.tutor_name?' · '+esc(next.tutor_name):''}</p>
+      </div>
+      <div class="os222-next-actions">
+        ${next.source!=='tutor_os_v19'?`<button class="btn primary" data-reschedule="${next.id}">ขอเลื่อนเวลา</button>`:''}
+        <button class="btn soft" data-tab-jump="attendance">เวลาเรียน</button>
+      </div>
+    </section>`:`<section class="os222-page-head"><div><small>SCHEDULE</small><h2>ตารางเรียน</h2></div><span class="os222-no-next">ยังไม่มีคลาสถัดไป</span></section>`}
+
+    <section class="os22-panel os222-schedule-panel">
+      <div class="os222-section-title"><h3>ตารางทั้งหมด</h3><span>${rows.length} รายการ</span></div>
+      <div class="os222-schedule-list">${scheduleRows||'<div class="os222-page-empty"><i class="fa-regular fa-calendar"></i><b>ยังไม่มีตารางเรียน</b></div>'}</div>
+    </section>
+
+    ${requests.length?`<section class="os22-panel os222-request-panel">
+      <div class="os222-section-title"><h3>คำขอเลื่อนเรียน</h3><span>${requests.length} รายการ</span></div>
+      <div class="os222-request-list">
+        ${requests.map(r=>`<div><span><b>${dateTime(r.requested_start_at)}</b><small>${esc(r.reason||'')}</small></span><em class="${esc(r.status||'')}">${esc(({approved:'อนุมัติ',rejected:'ไม่อนุมัติ',pending:'รอตรวจ'})[r.status]||r.status)}</em></div>`).join('')}
+      </div>
+    </section>`:''}
+  </div>`;
+}
 function assignmentsHtml(){const rows=(S.data?.v16_assignments||[]),subs=S.data?.v16_assignment_submissions||[];return `<section class="student-service-hero"><div><span class="section-kicker">HOMEWORK CENTER</span><h2>การบ้านและงานที่ได้รับมอบหมาย</h2><p>ส่งข้อความ ลิงก์ หรือไฟล์ให้ผู้สอนตรวจ และติดตามคะแนน/Feedback ได้ในหน้าเดียว</p></div><div class="service-count"><b>${rows.filter(a=>!subs.some(s=>s.assignment_id===a.id&&['submitted','graded'].includes(s.status))).length}</b><span>งานที่ต้องทำ</span></div></section><div class="assignment-grid">${rows.map(a=>{const sub=subs.find(s=>s.assignment_id===a.id),overdue=a.due_at&&new Date(a.due_at)<new Date()&&!sub;return `<article class="assignment-card ${sub?.status==='graded'?'graded':overdue?'overdue':''}"><div class="assignment-top"><span class="chip ${sub?.status==='graded'?'green':overdue?'amber':'gray'}">${sub?.status==='graded'?'ตรวจแล้ว':sub?'ส่งแล้ว':overdue?'เลยกำหนด':'รอส่ง'}</span><small>${a.due_at?'กำหนด '+dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></div><h3>${esc(a.title)}</h3><p>${esc(a.description||'')}</p>${sub?.status==='graded'?`<div class="feedback-box"><b>${sub.score??'—'} / ${a.max_score??100}</b><span>${esc(sub.feedback||'ผู้สอนตรวจงานแล้ว')}</span></div>`:sub?`<div class="message success">ส่งเมื่อ ${dateTime(sub.submitted_at)} · รอผู้สอนตรวจ</div>`:`<button class="btn primary wide" data-submit-assignment="${a.id}">ส่งงาน</button>`}</article>`}).join('')||'<div class="card empty">ยังไม่มีการบ้าน</div>'}</div>`}
 
 function studyTimeHtml(){const active=activeEnroll(),lessons=S.data?.v171_recent_lessons||[],unlimited=active.some(e=>e.hours_unlimited),remaining=active.reduce((sum,e)=>sum+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),used=active.reduce((sum,e)=>sum+n(e.hours_used),0);return `<section class="v21-page-hero time"><div><span>STUDY TIME CENTER</span><h2>เวลาเรียน</h2><p>ดูชั่วโมงคงเหลือ ประวัติการเข้าเรียน เวลาที่ Tutor บันทึก และการตัดชั่วโมงแบบโปร่งใส</p></div><div class="v21-page-icon"><i class="fa-solid fa-stopwatch"></i></div></section><div class="v21-time-metrics"><article><span><i class="fa-regular fa-clock"></i></span><small>ชั่วโมงคงเหลือ</small><b>${unlimited?'∞':remaining.toFixed(2)}</b><em>${unlimited?'แพ็กเกจไม่จำกัด':'ชั่วโมง'}</em></article><article><span><i class="fa-solid fa-hourglass-half"></i></span><small>ใช้ไปทั้งหมด</small><b>${used.toFixed(2)}</b><em>ชั่วโมง</em></article><article><span><i class="fa-solid fa-user-check"></i></span><small>เข้าเรียนแล้ว</small><b>${v20Attended()}</b><em>ครั้ง</em></article><article><span><i class="fa-solid fa-arrows-rotate"></i></span><small>การอัปเดต</small><b>LIVE</b><em>Tutor OS sync</em></article></div><section class="v21-card v21-time-course"><div class="v21-card-head"><div><span>COURSE HOURS</span><h3>ชั่วโมงแยกตามคอร์ส</h3></div></div><div class="v21-hour-courses">${active.map(e=>{const c=course(e.course_id),total=n(e.hours_total),used=n(e.hours_used),remain=Math.max(0,total-used),pct=e.hours_unlimited?0:(total?Math.min(100,Math.round(used/total*100)):0);return `<article><div class="v21-hour-course-head"><div><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${e.hours_unlimited?'ไม่จำกัดชั่วโมง':`ใช้ ${used.toFixed(1)} / ${total.toFixed(1)} ชม.`}</small></div><strong>${e.hours_unlimited?'∞':remain.toFixed(1)}</strong></div>${!e.hours_unlimited?`<div class="v21-hour-bar"><i style="width:${pct}%"></i></div>`:''}</article>`}).join('')||'<div class="v21-empty small">ยังไม่มีคอร์ส Active</div>'}</div></section>${attendanceHtml()}`}
@@ -2900,8 +3149,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "22.1.0-catalog-fixed";
-console.info("[AreWarin Student] V22.1 catalog-fixed loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "22.2.0-stable-ui";
+console.info("[AreWarin Student] V22.2 stable-ui loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -3184,7 +3433,7 @@ console.info("[AreWarin Student] V22.1 catalog-fixed loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V22.1 mobile navigation loaded");
+console.info("[AreWarin Student] V22.2 mobile navigation loaded");
 </script>
 
 
