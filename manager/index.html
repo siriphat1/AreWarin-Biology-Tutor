@@ -30787,7 +30787,7 @@
   }
 </style>
 
-<meta name="arewarin-manager-build" content="25.0-legacy-tutor-os-bridge">
+<meta name="arewarin-manager-build" content="25.1-legacy-multicourse-shared-hours">
 
 <style id="aw-group-class-visibility-v24-5">
   .aw-group-main-nav{
@@ -30957,6 +30957,27 @@
 .aw-li-link-btn:hover{background:#e4efff}
 .aw-li-current-empty{padding:9px 10px;border:1px dashed #cfdae8;border-radius:10px;background:#fff;color:#8291a5;font-size:7.7px;line-height:1.55}
 @media(max-width:700px){.aw-li-course-pick{grid-template-columns:1fr}.aw-li-wallet{grid-template-columns:1fr}.aw-li-wallet-actions{justify-content:flex-start}}
+</style>
+
+
+<style id="aw-legacy-multicourse-v251-css">
+.aw-li-multi-block{border:1px solid #dde6f1;border-radius:13px;background:#fff;padding:11px;margin-top:9px}
+.aw-li-multi-title{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.aw-li-multi-title b{font-size:9.3px;color:#33465f}.aw-li-multi-title span{font-size:7.1px;color:#8b99ab;line-height:1.45}
+.aw-li-course-choices{display:grid;gap:6px;max-height:230px;overflow:auto}
+.aw-li-course-choice{display:grid;grid-template-columns:auto 44px 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid #e5eaf1;border-radius:10px;background:#fbfcfe;cursor:pointer}
+.aw-li-course-choice:hover{border-color:#cdd9e9;background:#f8fbff}.aw-li-course-choice.disabled{opacity:.58;cursor:not-allowed}
+.aw-li-course-choice input{width:15px;height:15px;accent-color:#2563eb}
+.aw-li-choice-img{width:44px;height:34px;border-radius:8px;overflow:hidden;background:#eef3f8;display:grid;place-items:center;color:#93a2b5}
+.aw-li-choice-img img{width:100%;height:100%;object-fit:cover}
+.aw-li-choice-name b{display:block;font-size:8.5px;color:#33455d}.aw-li-choice-name span{display:block;font-size:7px;color:#8897aa;margin-top:2px}
+.aw-li-choice-source{font-size:6.8px;font-weight:850;border-radius:999px;padding:4px 6px;white-space:nowrap;background:#eef4ff;color:#2d63c4}
+.aw-li-choice-source.other{background:#f4f1ff;color:#6553b8}.aw-li-choice-source.current{background:#eafaf4;color:#087c60}.aw-li-choice-source.nomap{background:#fff5e8;color:#9b650a}
+.aw-li-multi-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.aw-li-selected-count{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#edf5ff;color:#3264b5;font-size:7.3px;font-weight:850}
+.aw-li-share-note{margin-top:9px;padding:9px 10px;border-radius:10px;border:1px solid #d8e7f8;background:#f4f9ff;color:#617a98;font-size:7.5px;line-height:1.6}
+.aw-li-share-note b{color:#315f9e}
+@media(max-width:700px){.aw-li-multi-footer{grid-template-columns:1fr}.aw-li-course-choice{grid-template-columns:auto 38px 1fr}.aw-li-choice-source{grid-column:3}}
 </style>
 
 </head>
@@ -35804,19 +35825,50 @@ function renderDetail(){
 
       <div class="aw-li-wallets">${current.length?current.map(currentWalletHtml).join(''):'<div class="aw-li-current-empty"><b>ยังไม่มีคอร์สปัจจุบันใน Tutor OS</b><br>ประวัติคอร์สที่นักเรียนกรอกเป็นเพียง History จึงยังไม่แสดงในหน้าจัดตารางสอน จนกว่า Manager จะกำหนดคอร์สปัจจุบันด้านล่าง</div>'}</div>
 
-      <div class="aw-li-course-pick">
-        <label>คอร์สที่กำลังเรียน
-          <select id="legacyCurrentCourse">${catalogOptions(d)}</select>
-        </label>
-        <label>ผู้สอน
+      <div class="aw-li-multi-block">
+        <div class="aw-li-multi-title">
+          <div><b>1 · เลือกจากคอร์สที่น้องกรอกมา</b><span>กดเลือกได้หลายคอร์ส หากบางคอร์สยังเรียนไม่จบ</span></div>
+          <span class="aw-li-selected-count"><i class="fas fa-check-double"></i> <span id="legacySelectedCount">0</span> คอร์ส</span>
+        </div>
+        <div class="aw-li-course-choices">
+          ${courses.length?courses.map(c=>{
+            const mapped=!!c.course_id,active=currentIds.has(String(c.course_id));
+            return `<label class="aw-li-course-choice ${(!mapped||active)?'disabled':''}">
+              <input type="checkbox" class="legacy-course-check" value="${h(c.course_id||'')}" data-tutor="${h(c.tutor_id||'')}" ${(!mapped||active)?'disabled':''}>
+              <span class="aw-li-choice-img">${c.image_url?`<img src="${h(c.image_url)}" alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-book&quot;></i>'">`:'<i class="fas fa-book"></i>'}</span>
+              <span class="aw-li-choice-name"><b>${h(c.course_name||'คอร์ส')}</b><span>${h([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ข้อมูลจาก Legacy')}</span></span>
+              <span class="aw-li-choice-source ${active?'current':mapped?'':'nomap'}">${active?'กำลังเรียน':mapped?'จากประวัติ':'ยังไม่เชื่อม Catalog'}</span>
+            </label>`
+          }).join(''):'<div class="aw-li-current-empty">น้องไม่ได้ระบุประวัติคอร์ส</div>'}
+        </div>
+      </div>
+
+      <div class="aw-li-multi-block">
+        <div class="aw-li-multi-title"><div><b>2 · คอร์สอื่น ๆ ในระบบ</b><span>ใช้กรณีคอร์สปัจจุบันไม่ได้อยู่ในประวัติเดิม หรือกำลังเรียนเพิ่มอีกคอร์ส</span></div></div>
+        <div class="aw-li-course-choices">
+          ${(d.catalog||[]).filter(c=>!currentIds.has(String(c.id))&&!courses.some(x=>String(x.course_id||'')===String(c.id))).map(c=>`<label class="aw-li-course-choice">
+            <input type="checkbox" class="legacy-course-check" value="${c.id}" data-tutor="${h(c.tutor_id||'')}">
+            <span class="aw-li-choice-img">${c.image_url?`<img src="${h(c.image_url)}" alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-book&quot;></i>'">`:'<i class="fas fa-book"></i>'}</span>
+            <span class="aw-li-choice-name"><b>${h(c.name)}</b><span>${h(c.tutor_name||'ไม่ระบุ Tutor')}</span></span>
+            <span class="aw-li-choice-source other">คอร์สอื่น</span>
+          </label>`).join('')||'<div class="aw-li-current-empty">ไม่มีคอร์สอื่นที่เพิ่มได้</div>'}
+        </div>
+      </div>
+
+      <div class="aw-li-multi-footer">
+        <label style="display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800">ผู้สอน Override (ไม่บังคับ)
           <select id="legacyCurrentTutor">${tutorOptions(d)}</select>
         </label>
+        <label style="display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800">หมายเหตุ
+          <input id="legacyCurrentNote" class="aw-li-current-note" style="min-height:0" placeholder="เช่น เรียนต่อจากก่อนมีระบบ / เรียนกับพี่อาร์">
+        </label>
       </div>
-      <textarea id="legacyCurrentNote" class="aw-li-current-note" placeholder="หมายเหตุ (ไม่บังคับ) เช่น นักเรียนเก่า เรียนต่อจากก่อนมีระบบ / เรียนส่วนตัวกับพี่อาร์"></textarea>
+
       <div class="aw-li-current-actions">
-        <div class="aw-li-current-help"><i class="fas fa-circle-info"></i> การเพิ่มตรงนี้สร้าง <b>Active Course Wallet</b> สำหรับ Tutor OS เท่านั้น ไม่สร้าง Enrollment/การชำระเงินย้อนหลัง และยังไม่กำหนด Hour Wallet อัตโนมัติ</div>
-        <button class="aw-li-btn green" id="legacyActivateCourse"><i class="fas fa-user-plus"></i> เพิ่มเป็นคอร์สกำลังเรียน</button>
+        <div class="aw-li-current-help"><i class="fas fa-circle-info"></i> ระบบจะสร้าง <b>Active Course Wallet</b> ให้ทุกคอร์สที่เลือก จึงรองรับนักเรียนที่กำลังเรียนพร้อมกันหลายคอร์ส โดยไม่สร้าง Enrollment/Payment ย้อนหลัง</div>
+        <button class="aw-li-btn green" id="legacyActivateCourses"><i class="fas fa-user-plus"></i> เพิ่มคอร์สที่เลือกทั้งหมด</button>
       </div>
+      <div class="aw-li-share-note"><i class="fas fa-share-nodes"></i> <b>กรณีแชร์เวลาเรียนระหว่างหลายคอร์ส:</b> Manager เลือกคอร์สปัจจุบันให้ครบตรงนี้ก่อน จากนั้น <b>Tutor ต้องเป็นผู้สร้าง Shared Hour Pool เอง</b> ใน Tutor OS → นักเรียน & CRM → “แชร์เวลาเรียน” เพื่อกำหนดจำนวนชั่วโมงจริง</div>
       ${current.length?`<div style="margin-top:8px;text-align:right"><a class="aw-li-btn blue" href="../tutor-os/?section=schedule"><i class="fas fa-calendar-plus"></i> ไปจัดตารางใน Tutor OS</a></div>`:''}
     </div>
 
@@ -35831,40 +35883,43 @@ function renderDetail(){
     </div>
   </div>`;
 
-  const courseSel=by('legacyCurrentCourse'),tutorSel=by('legacyCurrentTutor');
-  courseSel?.addEventListener('change',()=>{
-    const opt=courseSel.selectedOptions?.[0],tid=opt?.dataset?.tutor||'';
-    if(tid&&tutorSel)tutorSel.value=tid
-  });
+  const tutorSel=by('legacyCurrentTutor');
+  const refreshSelectedCount=()=>{
+    const n=root.querySelectorAll('.legacy-course-check:checked').length;
+    if(by('legacySelectedCount'))by('legacySelectedCount').textContent=String(n)
+  };
+  root.querySelectorAll('.legacy-course-check').forEach(x=>x.addEventListener('change',refreshSelectedCount));
   root.querySelectorAll('[data-use-history-course]').forEach(btn=>btn.onclick=()=>{
-    if(courseSel){courseSel.value=btn.dataset.useHistoryCourse||'';courseSel.dispatchEvent(new Event('change'))}
-    const tid=btn.dataset.useHistoryTutor||'';if(tid&&tutorSel)tutorSel.value=tid;
+    const chk=root.querySelector(`.legacy-course-check[value="${CSS.escape(btn.dataset.useHistoryCourse||'')}"]`);
+    if(chk&&!chk.disabled){chk.checked=true;refreshSelectedCount()}
     root.querySelector('.aw-li-current')?.scrollIntoView({behavior:'smooth',block:'center'})
   });
   root.querySelectorAll('[data-wallet-action]').forEach(btn=>btn.onclick=()=>setCurrentStatus(btn.dataset.walletId,btn.dataset.walletAction));
-  by('legacyActivateCourse').onclick=activateCurrentCourse;
+  by('legacyActivateCourses').onclick=activateCurrentCourses;
   by('legacySetPending').onclick=()=>review('pending');
   by('legacyReject').onclick=()=>review('rejected');
   by('legacyVerify').onclick=()=>review('verified')
 }
-async function activateCurrentCourse(){
+async function activateCurrentCourses(){
   const c=db();if(!c||!LI.selected)return;
-  const courseId=by('legacyCurrentCourse')?.value||'',tutorId=by('legacyCurrentTutor')?.value||null,note=by('legacyCurrentNote')?.value?.trim()||null;
-  if(!courseId)return Swal.fire('เลือกคอร์สปัจจุบัน','กรุณาเลือกคอร์สที่นักเรียนกำลังเรียน','warning');
-  const btn=by('legacyActivateCourse');if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังเพิ่มเข้า Tutor OS'}
-  const {data,error}=await c.rpc('legacy_self_manager_activate_current_course',{p_student_id:LI.selected,p_course_id:courseId,p_tutor_id:tutorId,p_note:note});
-  if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> เพิ่มเป็นคอร์สกำลังเรียน'}
+  const checks=[...document.querySelectorAll('#legacyIntakeDetail .legacy-course-check:checked')];
+  if(!checks.length)return Swal.fire('เลือกคอร์สปัจจุบัน','กรุณาเลือกอย่างน้อย 1 คอร์สจากประวัติหรือคอร์สอื่นในระบบ','warning');
+  const overrideTutor=by('legacyCurrentTutor')?.value||null;
+  const note=by('legacyCurrentNote')?.value?.trim()||null;
+  const items=checks.map(x=>({course_id:x.value,tutor_id:overrideTutor||x.dataset.tutor||null}));
+  const btn=by('legacyActivateCourses');if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังเพิ่ม '+items.length+' คอร์ส'}
+  const {data,error}=await c.rpc('legacy_self_manager_activate_current_courses',{p_student_id:LI.selected,p_items:items,p_tutor_id:overrideTutor,p_note:note});
+  if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> เพิ่มคอร์สที่เลือกทั้งหมด'}
   if(error||!data?.ok)return Swal.fire('เพิ่มคอร์สไม่สำเร็จ',error?.message||data?.message||'Unknown error','error');
   await selectStudent(LI.selected,true);
+  const success=Number(data.success_count||0),failed=Number(data.failed_count||0);
   const r=await Swal.fire({
-    icon:'success',
-    title:'นักเรียนพร้อมใช้งานใน Tutor OS แล้ว',
-    html:`<div style="font-size:12px;line-height:1.7">คอร์ส <b>${h(data.course_name||'')}</b><br>ผู้สอน <b>${h(data.tutor_name||'')}</b><br><br>ตอนนี้นักเรียนจะปรากฏในรายการจัดตารางสอนของผู้สอนคนนี้</div>`,
-    showCancelButton:true,
-    confirmButtonText:'ไปจัดตารางสอน',
-    cancelButtonText:'ตรวจข้อมูลต่อ'
+    icon:failed?'warning':'success',
+    title:failed?'เพิ่มคอร์สได้บางรายการ':'นักเรียนพร้อมใช้งานใน Tutor OS แล้ว',
+    html:`<div style="font-size:12px;line-height:1.7">เพิ่มสำเร็จ <b>${success}</b> คอร์ส${failed?`<br>ไม่สำเร็จ <b>${failed}</b> คอร์ส`:''}<br><br>นักเรียนสามารถมีหลายคอร์สพร้อมกันได้ และแต่ละคอร์สจะขึ้นในหน้าจัดตารางสอน</div>`,
+    showCancelButton:true,confirmButtonText:'ไป Tutor OS',cancelButtonText:'ตรวจข้อมูลต่อ'
   });
-  if(r.isConfirmed)location.href='../tutor-os/?section=schedule'
+  if(r.isConfirmed)location.href='../tutor-os/?section=students'
 }
 async function setCurrentStatus(id,status){
   const c=db();if(!c||!id)return;
