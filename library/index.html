@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AreWarin Library · ห้องสมุดดิจิทัล</title>
-<meta name="arewarin-library-build" content="1.0.0">
+<meta name="arewarin-library-build" content="1.1-no-ts">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -40,7 +40,18 @@ function booksHtml(){if(!S.catalog.length)return '<div class="empty"><i class="f
 function bindCatalog(){document.getElementById('logout').onclick=logout;document.getElementById('adminToggle')?.addEventListener('click',async()=>{S.admin=!S.admin;if(S.admin)await loadAdmin();render()});let t;document.getElementById('search').oninput=e=>{clearTimeout(t);S.search=e.target.value;t=setTimeout(refreshCatalog,350)};document.getElementById('category').onchange=e=>{S.category=e.target.value;refreshCatalog()};document.getElementById('newOnly').onchange=e=>{S.newOnly=e.target.checked;refreshCatalog()};document.querySelectorAll('[data-cat]').forEach(x=>x.onclick=()=>{S.category=x.dataset.cat;refreshCatalog()});document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openReader(x.dataset.open));document.querySelectorAll('[data-fav]').forEach(x=>x.onclick=e=>{e.stopPropagation();toggleFav(x.dataset.fav)})}
 async function refreshCatalog(){await loadCatalog();document.querySelector('#bookGrid').innerHTML=booksHtml();document.querySelectorAll('[data-open]').forEach(x=>x.onclick=()=>openReader(x.dataset.open));document.querySelectorAll('[data-fav]').forEach(x=>x.onclick=e=>{e.stopPropagation();toggleFav(x.dataset.fav)});document.querySelectorAll('.cat').forEach(x=>x.classList.toggle('active',x.dataset.cat===S.category))}
 async function toggleFav(id){const {error}=await sb.rpc('library_toggle_favorite',{p_item_id:id});if(error)return toast(error.message,'error');await refreshCatalog()}
-async function readerToken(id){const r=await fetch(`${CONFIG.url}/functions/v1/library-reader`,{method:'POST',headers:{'Content-Type':'application/json','apikey':CONFIG.key,'Authorization':`Bearer ${S.session.access_token}`},body:JSON.stringify({item_id:id})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw new Error(d.message||'ไม่สามารถเปิดหนังสือได้');return d}
+async function readerToken(id){
+  const {data:meta,error:metaError}=await sb.rpc('library_open_item',{p_item_id:id});
+  if(metaError||!meta?.ok)throw new Error(metaError?.message||meta?.message||'ไม่สามารถเปิดหนังสือได้');
+
+  const {data:signed,error:signError}=await sb.storage
+    .from('library-books')
+    .createSignedUrl(meta.file_path,90);
+
+  if(signError||!signed?.signedUrl)throw new Error(signError?.message||'สร้างลิงก์อ่านหนังสือไม่สำเร็จ');
+
+  return {...meta,signed_url:signed.signedUrl};
+}
 async function openReader(id){try{Swal.fire({title:'กำลังเตรียมหนังสือ',allowOutsideClick:false,didOpen:()=>Swal.showLoading(),showConfirmButton:false});const d=await readerToken(id);Swal.close();S.reader={...d,item_id:id};S.page=d.last_page||1;S.scale=1.25;app.insertAdjacentHTML('beforeend',readerHtml());bindReader();const task=pdfjsLib.getDocument({url:d.signed_url});S.pdf=await task.promise;S.page=Math.min(Math.max(1,S.page),S.pdf.numPages);await renderPage()}catch(e){Swal.close();Swal.fire('เปิดหนังสือไม่ได้',e.message,'error')}}
 function readerHtml(){return `<div id="reader" class="reader"><div class="reader-head"><div class="title"><b>${esc(S.reader.title)}</b><span>อ่านภายใน AreWarin Library · ${esc(S.reader.watermark||'')}</span></div><div class="reader-tools"><button id="prev"><i class="fa-solid fa-chevron-left"></i></button><span id="pageLabel" style="font-size:10px;color:#fff">—</span><button id="next"><i class="fa-solid fa-chevron-right"></i></button><button id="zoomOut">−</button><button id="zoomIn">+</button><button id="closeReader"><i class="fa-solid fa-xmark"></i></button></div></div><div class="reader-body" id="readerBody"><div id="pageWrap" class="page-wrap"><canvas id="pdfCanvas"></canvas><div id="wm" class="watermark"></div></div><div id="readerLoading" class="reader-loading hidden">กำลังโหลดหน้า…</div></div></div>`}
 function bindReader(){const r=document.getElementById('reader');r.oncontextmenu=e=>e.preventDefault();document.addEventListener('keydown',readerKeys,true);document.getElementById('closeReader').onclick=closeReader;document.getElementById('prev').onclick=()=>changePage(-1);document.getElementById('next').onclick=()=>changePage(1);document.getElementById('zoomOut').onclick=()=>{S.scale=Math.max(.7,S.scale-.15);renderPage()};document.getElementById('zoomIn').onclick=()=>{S.scale=Math.min(2.2,S.scale+.15);renderPage()};const wm=esc(S.reader.watermark||'AreWarin Library');document.getElementById('wm').style.backgroundImage=`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='320' height='180'><text x='25' y='90' transform='rotate(-25 160 90)' fill='%23172944' font-size='15' font-family='Arial'>${wm}</text></svg>`)}")`}
