@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="21.3.0-rpc-debug">
-<title>AreWarin Biology · Student Hub V21.3</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="21.4.0-auto-link">
+<title>AreWarin Biology · Student Hub V21.4</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1681,8 +1681,8 @@ body{
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="21.3.0-rpc-debug">
-<!-- LIVE BUILD: 21.3.0-rpc-debug --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+</head><body class="aw-student-v156" data-student-build="21.4.0-auto-link">
+<!-- LIVE BUILD: 21.4.0-auto-link --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2097,6 +2097,30 @@ async function load(renderNow=true){
     if(renderNow)S.signed={};
     if(renderNow||S.tab!=='learning')render();
   }catch(e){
+    // V21.4: Existing students can have a valid Supabase Auth login but an
+    // old os_students row with auth_user_id still NULL. Try one safe automatic
+    // link using the authenticated email/phone before showing the claim screen.
+    if(
+      e?.rpc==='student_v11_bootstrap' &&
+      e?.code==='P0001' &&
+      /not linked/i.test(String(e?.message||'')) &&
+      !S._autoLinkAttempted
+    ){
+      S._autoLinkAttempted=true;
+      try{
+        const linked=await rpc('student_auto_link_current_account');
+        console.info('[AreWarin Student][AUTO LINK]',linked);
+        if(linked?.ok && linked?.student_id){
+          return await load(renderNow);
+        }
+      }catch(autoLinkErr){
+        console.warn('[AreWarin Student][AUTO LINK SKIPPED]',{
+          code:autoLinkErr?.code||null,
+          message:autoLinkErr?.message||null,
+          details:autoLinkErr?.details||null
+        });
+      }
+    }
     {
     const diag=[
       e.rpc?`RPC: ${e.rpc}`:'',
@@ -2109,10 +2133,10 @@ async function load(renderNow=true){
       details:e.details||null,hint:e.hint||null
     });
     app.innerHTML=`<div class="loading"><div class="auth-card">
-      <h2>เปิด Student Portal ไม่สำเร็จ</h2>
+      <h2>${e?.code==='P0001'?'เชื่อมบัญชีนักเรียน':'เปิด Student Portal ไม่สำเร็จ'}</h2>
       <div class="message error"><b>${esc(e.message||'Unknown error')}</b>${diag?`<pre style="white-space:pre-wrap;margin:8px 0 0;font:500 10px/1.6 ui-monospace,monospace">${esc(diag)}</pre>`:''}</div>
       <button class="btn wide" id="copyStudentDiagnostic" type="button">คัดลอกข้อมูล Error</button>
-      <form id="claim" style="margin-top:10px"><div class="field"><label>เบอร์โทรเพื่อเชื่อมบัญชี</label><input class="input" name="phone" required></div><button class="btn primary wide">เชื่อมบัญชี</button></form>
+      <form id="claim" style="margin-top:10px"><div class="field"><label>เบอร์โทรนักเรียน</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="เช่น 08xxxxxxxx" required></div><button class="btn primary wide">เชื่อมบัญชีและเข้าใช้งาน</button></form>
       <button class="btn wide" data-logout style="margin-top:8px">ออกจากระบบ</button>
     </div></div>`;
     const copyBtn=$('#copyStudentDiagnostic');
@@ -2125,6 +2149,7 @@ async function load(renderNow=true){
       ev.preventDefault();
       const {error}=await sb.rpc('claim_student_account_by_phone',{p_phone:normalizePhone(new FormData(ev.currentTarget).get('phone'))});
       if(error)return toast(error.message,true);
+      S._autoLinkAttempted=false;
       await load();
     };
     $('[data-logout]').onclick=logout;
@@ -2280,8 +2305,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "21.3.0-rpc-debug";
-console.info("[AreWarin Student] V21.3 manager-minimal loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "21.4.0-auto-link";
+console.info("[AreWarin Student] V21.4 auto-link loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -2564,7 +2589,7 @@ console.info("[AreWarin Student] V21.3 manager-minimal loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V21.3 mobile navigation loaded");
+console.info("[AreWarin Student] V21.4 mobile navigation loaded");
 </script>
 
 
