@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="21.5.0-identity-gate">
-<title>AreWarin Biology · Student Hub V21.5</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="22.0.0-fresh-student-os">
+<title>AreWarin Biology · Student OS V22</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1681,8 +1681,173 @@ body{
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="21.5.0-identity-gate">
-<!-- LIVE BUILD: 21.5.0-identity-gate --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+
+<style id="arewarin-student-os-v22">
+/* ==========================================================
+   AreWarin Student OS V22 · FRESH UI
+   New front-end shell, same real backend/RPC features.
+   ========================================================== */
+:root{
+  --os-bg:#f4f6fb;
+  --os-surface:#ffffff;
+  --os-ink:#172033;
+  --os-muted:#8490a6;
+  --os-line:#e7ebf2;
+  --os-blue:#3157ff;
+  --os-cyan:#28c5d9;
+  --os-navy:#101a35;
+  --os-green:#12a979;
+  --os-amber:#ef9f2f;
+  --os-radius:22px;
+  --os-shadow:0 18px 50px -38px rgba(28,40,78,.42);
+}
+html,body{background:var(--os-bg)!important;color:var(--os-ink)!important}
+body{font-family:"Prompt",system-ui,sans-serif!important}
+
+/* ---------- AUTH ---------- */
+.os22-auth{min-height:100vh;display:grid;grid-template-columns:minmax(360px,.9fr) minmax(440px,1.1fr);background:#eef2fb}
+.os22-auth-visual{position:relative;overflow:hidden;min-height:100vh;padding:34px 42px;color:#fff;background:
+  radial-gradient(circle at 18% 20%,rgba(68,214,232,.35),transparent 28%),
+  radial-gradient(circle at 78% 72%,rgba(104,91,255,.42),transparent 32%),
+  linear-gradient(145deg,#101a35 0%,#172554 48%,#253aa7 100%)}
+.os22-auth-brand{display:flex;gap:11px;align-items:center;position:relative;z-index:2}
+.os22-mark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:#fff;color:#15213e;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.12);overflow:hidden}
+.os22-mark img{width:100%;height:100%;object-fit:cover}
+.os22-auth-brand b{display:block;font-size:15px}.os22-auth-brand span{display:block;font-size:9px;color:#c8d2ed;margin-top:2px}
+.os22-auth-art{position:absolute;inset:18% 8% 24%;display:grid;place-items:center}
+.os22-core{position:relative;z-index:2;width:112px;height:112px;border-radius:34px;display:grid;place-items:center;background:rgba(255,255,255,.95);color:#3157ff;font-size:34px;box-shadow:0 35px 80px rgba(4,8,30,.32)}
+.os22-orbit{position:absolute;border:1px solid rgba(255,255,255,.25);border-radius:50%}
+.os22-orbit.one{width:320px;height:320px}.os22-orbit.two{width:480px;height:240px;transform:rotate(-18deg)}
+.os22-auth-copy{position:absolute;left:42px;right:42px;bottom:48px;z-index:2}
+.os22-auth-copy small{font-size:9px;letter-spacing:.18em;color:#9eeaf2;font-weight:700}
+.os22-auth-copy h1{font-size:42px;line-height:1.08;margin:8px 0 7px;letter-spacing:-.03em}
+.os22-auth-copy p{font-size:12px;color:#ccd6ef;margin:0}
+.os22-auth-formwrap{display:grid;place-items:center;padding:30px;background:#f8faff}
+.os22-auth-card{width:min(480px,100%);background:#fff;border:1px solid #e6ebf3;border-radius:28px;padding:28px;box-shadow:0 30px 80px -55px rgba(15,23,42,.55)}
+.os22-auth-head span,.os22-auth-label{font-size:8px;letter-spacing:.14em;color:#8a96aa;font-weight:700}
+.os22-auth-head h2,.os22-auth-card>h2{font-size:25px;margin:4px 0 18px}
+.os22-auth-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;background:#f3f5fa;border-radius:13px;margin-bottom:18px}
+.os22-auth-tabs button{border:0;border-radius:10px;padding:9px 6px;background:transparent;color:#8490a6;font-size:9px;font-weight:700;cursor:pointer}
+.os22-auth-tabs button.active{background:#fff;color:#172033;box-shadow:0 7px 18px -13px rgba(15,23,42,.55)}
+.os22-auth-card .field{margin-bottom:11px}.os22-auth-card .field label{font-size:8px;color:#6f7d92;font-weight:650}
+.os22-auth-card .input{min-height:45px;border-radius:13px;border:1px solid #dfe5ee;background:#fbfcfe;font-size:10px}
+.os22-login-row{display:flex;justify-content:flex-end;margin:-2px 0 11px}
+.os22-back-home{display:block;text-align:center;margin-top:16px;font-size:8px;color:#8b96a9}
+.os22-auth-summary{display:grid;grid-template-columns:90px 1fr;gap:8px;margin:14px 0 18px;padding:14px;border-radius:14px;background:#f7f9fc}
+.os22-auth-summary span{font-size:8px;color:#94a0b2}.os22-auth-summary b{font-size:9px;color:#334155}
+
+/* ---------- APP ---------- */
+.os22-app{min-height:100vh;background:var(--os-bg);padding-bottom:30px}
+.os22-header{position:sticky;top:0;z-index:50;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;min-height:72px;padding:10px max(20px,calc((100vw - 1480px)/2));background:rgba(244,246,251,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(225,230,239,.88)}
+.os22-brand{display:flex;align-items:center;gap:9px;min-width:148px}
+.os22-brand .os22-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#101a35,#3157ff);color:#fff;box-shadow:none}
+.os22-brand b{display:block;font-size:12px}.os22-brand span{display:block;color:#93a0b4;font-size:7px;margin-top:1px}
+.os22-mainnav{justify-self:center;display:flex;gap:4px;padding:4px;background:#e9edf5;border-radius:16px}
+.os22-mainnav button{height:40px;padding:0 14px;border:0;border-radius:12px;background:transparent;color:#758197;font-size:9px;font-weight:650;cursor:pointer;display:flex;align-items:center;gap:7px}
+.os22-mainnav button i{font-size:10px}.os22-mainnav button.active{background:#fff;color:#172033;box-shadow:0 8px 18px -14px rgba(15,23,42,.55)}
+.os22-head-actions{display:flex;align-items:center;gap:7px}
+.os22-search{position:relative;width:190px}.os22-search>i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca7b8;font-size:9px;z-index:2}
+.os22-search>input{width:100%;height:39px;padding:0 12px 0 31px;border-radius:12px;border:1px solid #e1e6ee;background:#fff;outline:none;font-size:9px}
+.os22-iconbtn{position:relative;width:39px;height:39px;border:1px solid #e1e6ee;border-radius:12px;background:#fff;color:#5f6c81;cursor:pointer}
+.os22-iconbtn b{position:absolute;right:-3px;top:-3px;min-width:16px;height:16px;border-radius:99px;background:#ef476f;color:#fff;font-size:7px;display:grid;place-items:center}
+.os22-user{height:42px;border:0;background:transparent;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.os22-user>img,.os22-user>span{width:34px;height:34px;border-radius:12px;object-fit:cover;background:#172033;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}
+.os22-user b{display:block;font-size:8.5px;max-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.os22-user small{display:block;font-size:6.5px;color:#94a0b2;margin-top:1px}
+
+.os22-pagebar{width:min(1480px,calc(100% - 40px));margin:18px auto 0;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.os22-page-title small{font-size:7px;letter-spacing:.15em;color:#9ba6b7;font-weight:700}.os22-page-title h1{font-size:21px;margin:3px 0 0}
+.os22-services{display:flex;gap:5px;overflow:auto;scrollbar-width:none}.os22-services::-webkit-scrollbar{display:none}
+.os22-services button{position:relative;min-width:62px;height:52px;border:1px solid #e2e7ef;border-radius:15px;background:#fff;color:#6f7c91;cursor:pointer;display:grid;place-items:center;align-content:center;gap:3px;box-shadow:0 12px 28px -25px rgba(15,23,42,.35)}
+.os22-services button i{font-size:11px}.os22-services button span{font-size:6.5px;font-weight:650}.os22-services button.active{background:#172033;color:#fff;border-color:#172033}.os22-services button em{position:absolute;right:5px;top:5px;width:14px;height:14px;border-radius:50%;background:#ef476f;color:#fff;font-size:6px;font-style:normal;display:grid;place-items:center}
+.os22-content{width:min(1480px,calc(100% - 40px));margin:14px auto 0}
+.os22-mobile-dock{display:none}
+
+/* ---------- DASHBOARD ---------- */
+.os22-dashboard{display:grid;gap:12px}
+.os22-welcome{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;min-height:166px;padding:20px;border-radius:26px;background:
+  radial-gradient(circle at 10% 20%,rgba(44,197,217,.18),transparent 28%),
+  linear-gradient(135deg,#111a31,#172554 60%,#2543bd);color:#fff;box-shadow:0 22px 55px -40px rgba(10,18,52,.65)}
+.os22-welcome-copy{display:flex;flex-direction:column;justify-content:center;padding-left:7px}
+.os22-welcome-copy>small{font-size:8px;color:#b9c9ed}.os22-welcome-copy h2{font-size:31px;margin:4px 0 14px;letter-spacing:-.03em}
+.os22-welcome-actions{display:flex;gap:7px}.os22-welcome-actions button{border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 11px;background:rgba(255,255,255,.10);color:#fff;font-size:8px;font-weight:650;cursor:pointer}.os22-welcome-actions button:first-child{background:#fff;color:#172033}
+.os22-next-class{padding:15px 17px;border-radius:19px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;justify-content:center}
+.os22-next-class>span{font-size:7.5px;color:#b9c9ed}.os22-next-class>strong{font-size:28px;line-height:1.05;margin:5px 0 4px}.os22-next-class>b{font-size:10px}.os22-next-class>small{font-size:7px;color:#cbd7f2;margin-top:3px}.os22-next-class>button{align-self:flex-start;margin-top:10px;padding:0;border:0;background:transparent;color:#fff;font-size:7.5px;font-weight:650;cursor:pointer}
+.os22-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.os22-kpis button{min-height:102px;padding:15px;border:1px solid var(--os-line);border-radius:19px;background:#fff;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;box-shadow:var(--os-shadow)}
+.os22-kpis>button>i{width:38px;height:38px;border-radius:12px;background:#eff4ff;color:#3157ff;display:grid;place-items:center;font-size:12px}
+.os22-kpis button:nth-child(2)>i{background:#ecfbf6;color:#0f9d73}.os22-kpis button:nth-child(3)>i{background:#fff6e8;color:#dd8a17}.os22-kpis button:nth-child(4)>i{background:#f3efff;color:#7853d9}
+.os22-kpis span{display:block;font-size:7px;color:#95a1b3;font-weight:650}.os22-kpis b{font-size:23px;line-height:1.05;color:#26344c}.os22-kpis small{font-size:6.5px;color:#a5afbd;margin-left:4px}
+.os22-board{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.72fr);gap:12px}
+.os22-panel{min-width:0;padding:14px;border-radius:19px;background:#fff;border:1px solid var(--os-line);box-shadow:var(--os-shadow)}
+.os22-span2{min-width:0}.os22-panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.os22-panel-head h3{font-size:11px;margin:0;color:#34435a}.os22-panel-head button,.os22-panel-head>span{border:0;background:transparent;color:#3157ff;font-size:7px;font-weight:700;cursor:pointer}
+.os22-learning-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.os22-learn-card{border:1px solid #edf0f5;background:#fbfcfe;border-radius:13px;padding:7px;display:grid;grid-template-columns:72px 1fr;gap:9px;text-align:left;cursor:pointer;min-width:0}
+.os22-learn-cover{height:50px;border-radius:9px;background:#e9eef8 center/cover no-repeat;display:grid;place-items:center}.os22-learn-cover span{width:25px;height:25px;border-radius:50%;background:rgba(16,26,53,.78);color:#fff;display:grid;place-items:center;font-size:7px}
+.os22-learn-info{min-width:0;align-self:center}.os22-learn-info b{display:block;font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#39495f}.os22-learn-info small{display:block;font-size:6.5px;color:#9aa6b6;margin-top:2px}.os22-learn-info>div{height:4px;background:#e8edf5;border-radius:99px;overflow:hidden;margin-top:6px}.os22-learn-info>div i{display:block;height:100%;background:linear-gradient(90deg,#3157ff,#28c5d9)}
+.os22-task-list{display:grid;gap:6px}.os22-task-list>button{display:grid;grid-template-columns:31px 1fr 18px;gap:8px;align-items:center;padding:8px;border:1px solid #edf0f5;border-radius:11px;background:#fff;text-align:left;cursor:pointer}.os22-task-list>button>i{width:31px;height:31px;border-radius:9px;background:#fff4df;color:#de8a15;display:grid;place-items:center;font-size:9px}.os22-task-list b{display:block;font-size:8px;color:#415169;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os22-task-list small{display:block;font-size:6.5px;color:#9ca7b7;margin-top:2px}.os22-task-list em{color:#a2adbc;font-size:7px}
+.os22-shortcuts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.os22-shortcuts button,.os22-shortcuts a{min-height:67px;padding:8px;border:1px solid #edf0f5;border-radius:12px;background:#fbfcfe;color:#5b697f;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;cursor:pointer}.os22-shortcuts i{font-size:12px;color:#3157ff}.os22-shortcuts span{font-size:7px;font-weight:700}
+.os22-latest{display:grid;grid-template-columns:38px 1fr auto;gap:9px;align-items:center}.os22-latest-icon{width:38px;height:38px;border-radius:11px;background:#eff4ff;color:#3157ff;display:grid;place-items:center;font-size:10px}.os22-latest b{display:block;font-size:8.5px;color:#39495f}.os22-latest small{display:block;font-size:6.5px;color:#9da7b5;margin-top:2px}.os22-latest strong{font-size:8px;color:#0e9c71}
+.os22-library-card{min-height:73px;padding:12px;border-radius:19px;background:linear-gradient(135deg,#1b2747,#3157ff);color:#fff;display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:9px;box-shadow:0 20px 45px -36px rgba(23,37,94,.65)}.os22-library-card>i{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.12);display:grid;place-items:center}.os22-library-card b{display:block;font-size:9px}.os22-library-card small{display:block;font-size:6.5px;color:#cbd5ef;margin-top:2px}.os22-library-card span{font-size:8px}
+.os22-empty{padding:14px;color:#98a4b6;font-size:8px;text-align:center}.os22-empty.good{color:#159a71}
+
+/* ---------- Feature pages: compact/minimal, preserve functionality ---------- */
+.os22-content .v21-page-hero,.os22-content .course-center-hero,.os22-content .student-service-hero,.os22-content .catalog-hero,.os22-content .payment-overview,.os22-content .payment-clear-state,.os22-content .latest-lesson-card{
+  min-height:0!important;padding:15px 17px!important;border-radius:18px!important;background:#fff!important;color:#172033!important;border:1px solid var(--os-line)!important;box-shadow:var(--os-shadow)!important
+}
+.os22-content .v21-page-hero:before,.os22-content .v21-page-hero:after{display:none!important}
+.os22-content .section-kicker,.os22-content .v21-page-hero>div>span,.os22-content .course-center-hero p,.os22-content .student-service-hero p,.os22-content .catalog-hero p,.os22-content .v21-page-hero p,.os22-content .section-head p,.os22-content .v21-card-head span{display:none!important}
+.os22-content .v21-page-hero h2,.os22-content .course-center-hero h2,.os22-content .student-service-hero h2,.os22-content .catalog-hero h2{font-size:16px!important;margin:0!important;color:#26344c!important}
+.os22-content .v21-page-icon{width:38px!important;height:38px!important;border-radius:11px!important;background:#eff4ff!important;color:#3157ff!important;font-size:13px!important}
+.os22-content .card,.os22-content .v21-card,.os22-content .course-card,.os22-content .catalog-course,.os22-content .assignment-card,.os22-content .wallet-card,.os22-content .request-grid>article,.os22-content .notify,.os22-content .asset,.os22-content .lesson-nav,.os22-content .lesson-player{
+  background:#fff!important;border:1px solid var(--os-line)!important;border-radius:18px!important;box-shadow:var(--os-shadow)!important
+}
+.os22-content .section-head h2,.os22-content .v21-card-head h3{font-size:12px!important;color:#334155!important}
+.os22-content .course-grid,.os22-content .catalog-grid,.os22-content .wallet-grid,.os22-content .request-grid{gap:10px!important}
+.os22-content .catalog-cover{height:130px!important}.os22-content .catalog-body{padding:13px!important}.os22-content .catalog-body>p,.os22-content .catalog-target{display:none!important}
+.os22-content .assignment-card{padding:13px!important}.os22-content .assignment-card h3{font-size:10px!important}.os22-content .assignment-card p{font-size:7.5px!important;display:-webkit-box!important;-webkit-line-clamp:1!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+.os22-content .table{font-size:8px!important}.os22-content .table th{font-size:7px!important;color:#8490a5!important}.os22-content .table td{padding:9px 8px!important}
+.os22-content .btn{border-radius:11px!important;font-size:8px!important;min-height:36px!important}.os22-content .btn.primary{background:#3157ff!important}
+.os22-content .chip{font-size:6.5px!important;border-radius:99px!important}
+.os22-content .v21-time-metrics{gap:9px!important}.os22-content .v21-time-metrics article{min-height:100px!important;padding:12px!important;border-radius:17px!important}.os22-content .v21-time-metrics article b{font-size:22px!important}
+.os22-content .v21-library-hero{min-height:140px!important;padding:20px!important;border-radius:20px!important;background:linear-gradient(135deg,#101a35,#3157ff)!important}.os22-content .v21-library-hero h2{font-size:22px!important}.os22-content .v21-library-hero p{display:none!important}
+.os22-content .v21-library-stats article{padding:11px!important}.os22-content .v21-library-links span{display:none!important}
+.os22-content .payment-overview p,.os22-content .payment-clear-state p{display:none!important}
+
+/* ---------- Requests / support ---------- */
+.os22-content .request-grid{display:grid!important;grid-template-columns:1fr 1fr!important}.os22-content .request-row{padding:10px!important;border-radius:11px!important}.os22-content .request-row b{font-size:8px!important}.os22-content .request-row p{font-size:7px!important}
+.os22-content .notify{padding:11px!important;margin-bottom:7px!important}.os22-content .notify .name{font-size:9px!important}.os22-content .notify .sub{font-size:7px!important}
+
+/* ---------- Account ---------- */
+.os22-account-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}.os22-profile-panel{grid-row:span 2}
+.os22-profile-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.os22-profile-form .field{margin:0}.os22-profile-form .field label{font-size:7px;color:#8490a5}.os22-profile-form .input{height:39px;border-radius:11px;border:1px solid #dfe5ee;background:#fbfcfe;font-size:8.5px}.os22-profile-form .btn{grid-column:1/-1}
+.os22-simple-list{display:grid;gap:6px}.os22-simple-list>div{display:flex;justify-content:space-between;align-items:center;padding:9px;background:#f8fafc;border-radius:10px}.os22-simple-list b{display:block;font-size:8px}.os22-simple-list small{display:block;font-size:6.5px;color:#98a4b5}.os22-simple-list button{border:0;background:transparent;color:#ef476f;font-size:7px;cursor:pointer}
+.os22-account-meta{display:grid;gap:7px}.os22-account-meta>div{padding:9px;border-radius:10px;background:#f8fafc}.os22-account-meta span{display:block;font-size:6.5px;color:#98a4b5}.os22-account-meta b{display:block;font-size:8px;margin-top:2px}
+
+/* ---------- Existing modal/toast keep functional ---------- */
+.modal-card{border-radius:22px!important;border:1px solid #e5eaf2!important;box-shadow:0 30px 80px rgba(15,23,42,.18)!important}
+.toast{border-radius:13px!important}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1050px){
+  .os22-header{grid-template-columns:auto 1fr auto;padding-inline:14px}.os22-mainnav button{padding:0 9px}.os22-mainnav button span{display:none}.os22-search{display:none}.os22-user>div{display:none}
+  .os22-pagebar,.os22-content{width:calc(100% - 24px)}
+  .os22-welcome{grid-template-columns:1fr 280px}.os22-board{grid-template-columns:1fr}.os22-account-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .os22-header{min-height:58px;grid-template-columns:auto 1fr;padding:8px 12px}.os22-mainnav{display:none}.os22-head-actions{justify-self:end}.os22-user{display:none}.os22-brand .os22-mark{width:34px;height:34px}.os22-brand b{font-size:10px}
+  .os22-pagebar{margin-top:10px;display:block}.os22-page-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}.os22-page-title small{display:none}.os22-page-title h1{font-size:17px;margin:0}
+  .os22-services{padding-bottom:2px}.os22-services button{min-width:56px;height:48px;border-radius:13px}.os22-services button span{font-size:6px}
+  .os22-content{margin-top:9px;padding-bottom:78px}.os22-mobile-dock{position:fixed;z-index:80;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:5px;border-radius:18px;background:rgba(16,26,53,.96);box-shadow:0 16px 45px rgba(15,23,42,.28);backdrop-filter:blur(18px)}
+  .os22-mobile-dock button{height:48px;border:0;border-radius:13px;background:transparent;color:#aebbd5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:6px;font-weight:650}.os22-mobile-dock button i{font-size:11px}.os22-mobile-dock button.active{background:#fff;color:#172033}
+  .os22-welcome{grid-template-columns:1fr;min-height:0;padding:16px;border-radius:20px}.os22-welcome-copy h2{font-size:24px}.os22-next-class{min-height:112px}
+  .os22-kpis{grid-template-columns:1fr 1fr;gap:7px}.os22-kpis button{min-height:82px;padding:10px}.os22-kpis>button>i{width:34px;height:34px}.os22-kpis b{font-size:19px}
+  .os22-board{gap:9px}.os22-panel{border-radius:16px;padding:12px}.os22-learning-row{grid-template-columns:1fr}.os22-shortcuts{grid-template-columns:repeat(3,1fr)}
+  .os22-content .request-grid{grid-template-columns:1fr!important}.os22-profile-form{grid-template-columns:1fr}.os22-auth{grid-template-columns:1fr}.os22-auth-visual{display:none}.os22-auth-formwrap{min-height:100vh;padding:16px}.os22-auth-card{padding:22px;border-radius:22px}
+}
+</style>
+
+</head><body class="aw-student-v156" data-student-build="22.0.0-fresh-student-os">
+<!-- LIVE BUILD: 22.0.0-fresh-student-os --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -1766,11 +1931,83 @@ function friendly(e){
   if(e?.status===500)return m&&m!=='Internal Server Error'?`ระบบสมัครสมาชิก: ${m}`:'ระบบสมัครสมาชิกมีปัญหาภายใน กรุณาตรวจ Edge Function log';
   return m||'เกิดข้อผิดพลาด';
 }
+
 function authHtml(){
-  if(S.signupResult)return `<div class="auth auth-v2"><section class="auth-hero auth-hero-success"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>บัญชีนักเรียนเชื่อมสำเร็จ</small></div></div><div class="auth-copy"><span class="auth-kicker">WELCOME TO AREWARIN</span><h1>พร้อมเริ่มเรียนแล้ว</h1><p>บัญชีของคุณเชื่อมกับข้อมูลนักเรียน คอร์ส ชั่วโมงเรียน และการชำระเงินเรียบร้อยแล้ว</p><div class="auth-feature-grid"><div><b>คอร์ส</b><span>ดูสิทธิ์และบทเรียน</span></div><div><b>ชั่วโมง</b><span>อัปเดตจาก Tutor OS</span></div><div><b>ชำระเงิน</b><span>ติดตามสถานะได้ทันที</span></div></div></div><div class="auth-footnote">AreWarin Biology · Student Experience</div></section><section class="auth-panel"><div class="auth-card auth-card-v2"><div class="auth-card-head"><span class="auth-icon success">✓</span><div><span class="auth-kicker">ACCOUNT READY</span><h2>สมัครสำเร็จ</h2><p>ยินดีต้อนรับเข้าสู่ระบบนักเรียน</p></div></div><div class="message success"><b>${esc(S.signupResult.display_name)}</b><br>Student ID: ${esc(S.signupResult.student_code||'—')}<br>อีเมล: ${esc(S.signupResult.email)}</div><button class="btn primary wide auth-main-btn" id="enter">เข้าสู่ระบบนักเรียน</button><button class="btn wide" id="later" style="margin-top:8px">กลับหน้าเข้าสู่ระบบ</button></div></section></div>`;
-  if(S.mode==='recovery')return `<div class="auth auth-v2"><section class="auth-hero"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Account Recovery</small></div></div><div class="auth-copy"><span class="auth-kicker">SECURE RECOVERY</span><h1>ตั้งรหัสใหม่ด้วย PIN ส่วนตัว</h1><p>ใช้เบอร์โทร อีเมล และ PIN 4 หลักที่ตั้งไว้ตอนสมัคร เพื่อสร้างรหัสผ่านใหม่โดยไม่ต้องเปิดอีเมล</p><div class="auth-feature-grid"><div><b>ปลอดภัย</b><span>ยืนยันด้วยข้อมูลส่วนตัว</span></div><div><b>รวดเร็ว</b><span>ไม่ต้องรอลิงก์อีเมล</span></div><div><b>เชื่อมบัญชีเดิม</b><span>ข้อมูลคอร์สไม่หาย</span></div></div></div><div class="auth-footnote">ข้อมูลนักเรียนได้รับการเชื่อมกับระบบหลัก</div></section><section class="auth-panel"><form class="auth-card auth-card-v2" id="recovery"><div class="auth-card-head"><span class="auth-icon">↺</span><div><span class="auth-kicker">RECOVER ACCOUNT</span><h2>เปลี่ยนรหัสผ่าน</h2><p>กรอกข้อมูลให้ตรงกับบัญชีนักเรียน</p></div></div><div id="msg"></div><div class="field"><label>เบอร์โทรที่ใช้สมัครเรียน</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" required placeholder="เช่น 0812345678"></div><div class="field"><label>อีเมลบัญชีนักเรียน</label><input class="input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required placeholder="••••"></div><div class="field"><label>รหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="password" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><div class="field"><label>ยืนยันรหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="confirm" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><button class="btn primary wide auth-main-btn">เปลี่ยนรหัสและเข้าสู่ระบบ</button><button type="button" class="btn wide" id="back" style="margin-top:8px">กลับหน้าเข้าสู่ระบบ</button></form></section></div>`;
+  if(S.signupResult)return `<div class="os22-auth">
+    <section class="os22-auth-visual">
+      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
+      <div class="os22-auth-art"><div class="os22-orbit one"></div><div class="os22-orbit two"></div><div class="os22-core"><i class="fa-solid fa-check"></i></div></div>
+      <div class="os22-auth-copy"><small>ACCOUNT READY</small><h1>พร้อมเรียนแล้ว</h1><p>บัญชีเชื่อมกับข้อมูลนักเรียนเรียบร้อย</p></div>
+    </section>
+    <section class="os22-auth-formwrap">
+      <div class="os22-auth-card">
+        <span class="os22-auth-label">สมัครสำเร็จ</span>
+        <h2>${esc(S.signupResult.display_name)}</h2>
+        <div class="os22-auth-summary"><span>Student ID</span><b>${esc(S.signupResult.student_code||'—')}</b><span>อีเมล</span><b>${esc(S.signupResult.email)}</b></div>
+        <button class="btn primary wide" id="enter">เข้า Student OS</button>
+        <button class="btn wide" id="later" style="margin-top:8px">กลับหน้า Login</button>
+      </div>
+    </section>
+  </div>`;
+
+  if(S.mode==='recovery')return `<div class="os22-auth">
+    <section class="os22-auth-visual">
+      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
+      <div class="os22-auth-art"><div class="os22-orbit one"></div><div class="os22-orbit two"></div><div class="os22-core"><i class="fa-solid fa-key"></i></div></div>
+      <div class="os22-auth-copy"><small>RECOVERY</small><h1>ตั้งรหัสใหม่</h1><p>ใช้ข้อมูลเดิมของนักเรียน</p></div>
+    </section>
+    <section class="os22-auth-formwrap">
+      <form class="os22-auth-card" id="recovery">
+        <div class="os22-auth-head"><span>กู้บัญชี</span><h2>เปลี่ยนรหัสผ่าน</h2></div>
+        <div id="msg"></div>
+        <div class="field"><label>เบอร์โทร</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" required></div>
+        <div class="field"><label>อีเมล</label><input class="input" type="email" name="email" autocomplete="email" required></div>
+        <div class="field"><label>PIN 4 หลัก</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required></div>
+        <div class="field"><label>รหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="password" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
+        <div class="field"><label>ยืนยันรหัสผ่าน</label><div class="password-wrap"><input class="input" type="password" name="confirm" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
+        <button class="btn primary wide">บันทึกรหัสใหม่</button>
+        <button type="button" class="btn wide" id="back" style="margin-top:8px">กลับ</button>
+      </form>
+    </section>
+  </div>`;
+
   const signup=S.mode==='signup',quick=S.mode==='quick';
-  return `<div class="auth auth-v2"><section class="auth-hero"><div class="auth-brandline"><div class="logo">A</div><div><strong>AreWarin Student</strong><small>Biology Learning Hub</small></div></div><div class="auth-copy"><span class="auth-kicker">AREWARIN BIOLOGY</span><h1>${quick?'เช็กชั่วโมงได้ทันที':'ทุกอย่างสำหรับการเรียน อยู่ในที่เดียว'}</h1><p>${quick?'ใช้ Student Code และ PIN 4 หลัก เพื่อดูชั่วโมงคงเหลือและกลุ่มเรียนโดยไม่เปิดข้อมูลส่วนตัว':'ดูคอร์ส ชั่วโมงเรียน บทเรียนย้อนหลัง การชำระเงิน และการต่อคอร์สจากข้อมูลเดียวกับระบบสมัครเรียน'}</p><div class="auth-feature-grid"><div><b>Realtime Hours</b><span>ชั่วโมงอัปเดตหลังตัดคาบ</span></div><div><b>Course Center</b><span>ต่อคอร์สและสมัครเพิ่ม</span></div><div><b>Payment Status</b><span>ติดตามสถานะการชำระ</span></div></div></div><div class="auth-trust"><span>✓ ข้อมูลชุดเดียวกับระบบสมัครเรียน</span><span>✓ Student Code ส่วนตัว</span><span>✓ เชื่อมกับ Tutor OS</span></div></section><section class="auth-panel"><form class="auth-card auth-card-v2" id="auth-form"><div class="auth-card-head"><span class="auth-icon">${quick?'◷':signup?'＋':'→'}</span><div><span class="auth-kicker">STUDENT ACCESS</span><h2>${quick?'เช็กชั่วโมงเรียน':signup?'สร้างบัญชีนักเรียน':'เข้าสู่ระบบ'}</h2><p>${quick?'สำหรับนักเรียนที่มี Student Code และ PIN แล้ว':signup?'ใช้เบอร์ที่สมัครเรียนเพื่อเชื่อมข้อมูลเดิม':'เข้าสู่ระบบเพื่อดูคอร์ส ชั่วโมง และการชำระเงินของคุณ'}</p></div></div><div class="tabs auth-tabs"><button type="button" data-mode="login" class="${!signup&&!quick?'active':''}"><span>เข้าสู่ระบบ</span><small>บัญชีเดิม</small></button><button type="button" data-mode="signup" class="${signup?'active':''}"><span>สมัครบัญชี</span><small>สร้างบัญชีนักเรียน</small></button><button type="button" data-mode="quick" class="${quick?'active':''}"><span>เช็กชั่วโมง</span><small>ไม่ต้อง Login</small></button></div><div id="msg"></div>${quick?quickHoursFields():signup?signupFields():`<div class="field"><label>อีเมล</label><input class="input auth-input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div><div class="field"><label>รหัสผ่าน</label><div class="password-wrap"><input class="input auth-input" type="password" name="password" autocomplete="current-password" required placeholder="กรอกรหัสผ่าน"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div><div class="login-row"><label class="login-hint"><span class="status-dot"></span>ใช้บัญชีเดียวกับข้อมูลที่สมัครเรียน</label><button class="text-btn" type="button" id="forgot">ลืมรหัส / ใช้ PIN</button></div><button class="btn primary wide auth-main-btn">เข้าสู่ระบบนักเรียน</button><div class="auth-divider"><span>หรือ</span></div><button class="btn wide auth-quick-btn" type="button" data-mode="quick">เช็กชั่วโมงโดยไม่เข้าสู่ระบบ</button>`}<a class="auth-home-link" href="../">← กลับหน้าสมัครเรียนหลัก</a><div class="auth-security"><span>🔒</span><p><b>ข้อมูลเชื่อมจากระบบหลักของ AreWarin</b><br>คอร์ส ชั่วโมง และสถานะชำระเงินจะอัปเดตตามข้อมูลที่สถาบันยืนยัน</p></div></form></section></div>`;
+  return `<div class="os22-auth">
+    <section class="os22-auth-visual">
+      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
+      <div class="os22-auth-art">
+        <div class="os22-orbit one"></div><div class="os22-orbit two"></div>
+        <div class="os22-core"><i class="fa-solid ${quick?'fa-stopwatch':signup?'fa-user-plus':'fa-graduation-cap'}"></i></div>
+      </div>
+      <div class="os22-auth-copy">
+        <small>STUDENT SPACE</small>
+        <h1>${quick?'เช็กชั่วโมง':'เรียน. ทบทวน. ติดตาม.'}</h1>
+        <p>${quick?'ใช้ Student Code + PIN':'ทุกอย่างที่ใช้จริง อยู่ในระบบเดียว'}</p>
+      </div>
+    </section>
+
+    <section class="os22-auth-formwrap">
+      <form class="os22-auth-card" id="auth-form">
+        <div class="os22-auth-head"><span>AreWarin Biology</span><h2>${quick?'เช็กชั่วโมง':signup?'สร้างบัญชี':'เข้าสู่ระบบ'}</h2></div>
+
+        <div class="os22-auth-tabs">
+          <button type="button" data-mode="login" class="${!signup&&!quick?'active':''}">Login</button>
+          <button type="button" data-mode="signup" class="${signup?'active':''}">สมัครบัญชี</button>
+          <button type="button" data-mode="quick" class="${quick?'active':''}">Quick Check</button>
+        </div>
+
+        <div id="msg"></div>
+
+        ${quick?quickHoursFields():signup?signupFields():`
+          <div class="field"><label>อีเมล</label><input class="input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div>
+          <div class="field"><label>รหัสผ่าน</label><div class="password-wrap"><input class="input" type="password" name="password" autocomplete="current-password" required placeholder="••••••••"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
+          <div class="os22-login-row"><button class="text-btn" type="button" id="forgot">ลืมรหัส / PIN</button></div>
+          <button class="btn primary wide">เข้าสู่ระบบ</button>
+        `}
+        <a class="os22-back-home" href="../">กลับหน้าหลัก</a>
+      </form>
+    </section>
+  </div>`;
 }
 function quickHoursFields(){const r=S.quickResult;if(r?.ok){const cs=r.courses||[],gs=r.groups||[];return `<div class="message success"><b>${esc(r.display_name||'นักเรียน')}</b><br>${esc(r.student_code||'')}</div><div class="quick-hour-grid">${cs.map(c=>`<article class="quick-hour-card"><div><b>${esc(c.course_name||'คอร์ส')}</b><span>${c.unlimited?'แพ็กเกจไม่จำกัด':`ใช้แล้ว ${n(c.used_hours).toFixed(2)} / ${n(c.total_hours).toFixed(2)} ชม.`}</span></div><strong>${c.unlimited?'∞':n(c.remaining_hours).toFixed(2)}</strong><small>${c.unlimited?'ไม่จำกัดชั่วโมง':'ชม. คงเหลือ'}</small></article>`).join('')||'<div class="message">ยังไม่มีคอร์ส Active</div>'}</div>${gs.length?`<div class="message" style="margin-top:10px"><b>กลุ่มเรียน</b><br>${gs.map(g=>`${esc(g.group_code)} · ${esc(g.name)}`).join('<br>')}</div>`:''}<button class="btn primary wide" type="button" id="quickAgain">เช็กอีกรหัส</button><button class="btn wide" type="button" data-mode="login" style="margin-top:8px">เข้าสู่ Student Portal</button>`}return `<div class="field"><label>Student Code</label><input class="input" name="student_code" required placeholder="เช่น AWS-2026-000001" autocomplete="off"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" name="pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"></div><button class="btn primary wide">ตรวจสอบชั่วโมง</button><div class="sub" style="margin-top:10px;line-height:1.6">ระบบจะแสดงเฉพาะคอร์ส ชั่วโมงคงเหลือ และกลุ่มเรียน ไม่แสดงเบอร์โทร อีเมล หรือที่อยู่</div>`}
 function signupFields(){
@@ -1849,36 +2086,68 @@ function signupFields(){
     <div class="signup-privacy">🔒 บัญชีจะเชื่อมกับ Student ID นี้เท่านั้น และไม่เปลี่ยนข้อมูลคอร์สเดิม</div>`;
 }
 function libraryUrl(){return window.AREWARIN_LIBRARY_URL||'../library/'}
+
 function shell(content){
- const s=S.data.student||{},brand=S.data.site_branding||{},p=appProfile(),display=s.nickname||s.first_name||s.display_name||'นักเรียน',avatar=s.profile_image_url||s.avatar_url||s.photo_url||p.profile_image_url||p.avatar_url||p.photo_url||'',u=unread();
- const nav=[
-  ['dashboard','fa-house','ภาพรวม'],
-  ['attendance','fa-stopwatch','เวลาเรียน'],
-  ['schedule','fa-calendar-days','ตาราง'],
-  ['learning','fa-circle-play','ย้อนหลัง'],
-  ['assignments','fa-list-check','การบ้าน'],
-  ['courses','fa-graduation-cap','คอร์ส'],
-  ['catalog','fa-bag-shopping','ลงคอร์ส'],
-  ['library','fa-book-open-reader','Library']
- ];
- const labels={dashboard:'ภาพรวม',attendance:'เวลาเรียน',schedule:'ตารางเรียน',learning:'เรียนย้อนหลัง',assignments:'การบ้าน',courses:'คอร์สของฉัน',catalog:'ลงคอร์สเพิ่ม',library:'Library',wallet:'ชั่วโมงคงเหลือ',payments:'การชำระเงิน',notifications:'ข่าวสาร'};
- return `<div class="portal v21-portal">
-   <aside class="side v21-side">
-    <div class="brand v21-brand"><div class="logo">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</div><div><strong>${esc(brand.site_name_en||'AreWarin')}</strong><small>STUDY HUB</small></div></div>
-    <div class="v21-profile"><div class="v21-profile-avatar">${avatar?`<img src="${esc(avatar)}" alt="">`:esc(String(display).slice(0,1))}</div><div><b>${esc(display)}</b><span>${esc(s.student_code||'Student')} · ${esc(s.education_level||s.grade||'นักเรียน')}</span></div><button type="button" data-refresh title="รีเฟรช">↻</button></div>
-    <div class="v21-side-label">MY STUDY</div>
-    <nav class="nav v21-nav">${nav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><span class="v21-nav-icon"><i class="fa-solid ${x[1]}"></i></span><em>${x[2]}</em>${x[0]==='assignments'&&studyHomeworkCount()?`<span class="v21-nav-count">${studyHomeworkCount()}</span>`:''}</button>`).join('')}</nav>
-    <div class="v21-side-spacer"></div>
-    <div class="v21-side-label">ACCOUNT</div>
-    <div class="v21-side-utils"><button data-tab-jump="payments"><i class="fa-solid fa-credit-card"></i><span>การชำระเงิน</span></button><button data-tab-jump="notifications"><i class="fa-regular fa-bell"></i><span>ข่าวสาร</span>${u?`<b>${u}</b>`:''}</button></div>
-    <div class="v21-side-foot"><a href="${esc(libraryUrl())}" class="v21-library-mini"><i class="fa-solid fa-book-open"></i><span><b>AreWarin Library</b><small>คลังความรู้และสื่อการเรียน</small></span><i class="fa-solid fa-arrow-up-right-from-square"></i></a><button class="v21-logout" data-logout><i class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ</button></div>
-   </aside>
-   <main class="main v21-main">
-    <header class="top v21-top"><div class="v21-top-copy"><span class="v21-kicker">AREWARIN BIOLOGY · STUDENT STUDY HUB</span><h1>${S.tab==='dashboard'?`${esc(display)} · Study Hub`:labels[S.tab]||'Study Hub'}</h1><p>''</p></div><div class="v21-top-actions"><div class="v21-search"><i class="fa-solid fa-magnifying-glass"></i><input id="studentGlobalSearch" placeholder="ค้นหาคอร์ส ตารางเรียน..."><div id="studentSearchResults" class="v20-search-results"></div></div><button class="v21-circle" data-tab-jump="notifications" title="แจ้งเตือน"><i class="fa-regular fa-bell"></i>${u?`<span>${u}</span>`:''}</button><button class="v21-circle" data-refresh title="รีเฟรช"><i class="fa-solid fa-rotate-right"></i></button></div></header>
-    <div class="content v21-content">${content}</div>
-   </main>
-   <nav class="v21-mobile-nav">${[['dashboard','fa-house','Hub'],['attendance','fa-stopwatch','เวลา'],['learning','fa-circle-play','ย้อนหลัง'],['assignments','fa-list-check','การบ้าน'],['courses','fa-graduation-cap','คอร์ส']].map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
-  </div>`
+  const s=S.data.student||{},brand=S.data.site_branding||{},p=appProfile(),
+        display=s.nickname||s.first_name||s.display_name||'นักเรียน',
+        avatar=s.profile_image_url||s.avatar_url||s.photo_url||p.profile_image_url||p.avatar_url||p.photo_url||'',
+        u=unread();
+
+  const mainNav=[
+    ['dashboard','fa-house','วันนี้'],
+    ['schedule','fa-calendar-days','ตาราง'],
+    ['learning','fa-circle-play','เรียน'],
+    ['assignments','fa-list-check','การบ้าน'],
+    ['courses','fa-graduation-cap','คอร์ส']
+  ];
+  const serviceNav=[
+    ['attendance','fa-stopwatch','เวลาเรียน'],
+    ['catalog','fa-bag-shopping','ลงคอร์ส'],
+    ['wallet','fa-wallet','ชั่วโมง'],
+    ['payments','fa-credit-card','ชำระเงิน'],
+    ['requests','fa-headset','คำขอ'],
+    ['library','fa-book-open-reader','Library'],
+    ['notifications','fa-bell','แจ้งเตือน'],
+    ['account','fa-user-gear','บัญชี']
+  ];
+  const labels={
+    dashboard:'วันนี้',schedule:'ตารางเรียน',learning:'เรียนย้อนหลัง',
+    assignments:'การบ้าน',courses:'คอร์สของฉัน',attendance:'เวลาเรียน',
+    catalog:'ลงคอร์สเพิ่ม',wallet:'ชั่วโมงคอร์ส',payments:'การชำระเงิน',
+    requests:'คำขอ / Support',library:'Library',notifications:'แจ้งเตือน',account:'บัญชี'
+  };
+
+  return `<div class="os22-app">
+    <header class="os22-header">
+      <div class="os22-brand">
+        <div class="os22-mark">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</div>
+        <div><b>${esc(brand.site_name_en||'AreWarin')}</b><span>Student OS</span></div>
+      </div>
+
+      <nav class="os22-mainnav">
+        ${mainNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}
+      </nav>
+
+      <div class="os22-head-actions">
+        <div class="os22-search"><i class="fa-solid fa-magnifying-glass"></i><input id="studentGlobalSearch" placeholder="ค้นหา"><div id="studentSearchResults" class="v20-search-results"></div></div>
+        <button class="os22-iconbtn" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<b>${u}</b>`:''}</button>
+        <button class="os22-user" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button>
+      </div>
+    </header>
+
+    <div class="os22-pagebar">
+      <div class="os22-page-title"><small>STUDENT OS</small><h1>${labels[S.tab]||'Student OS'}</h1></div>
+      <div class="os22-services">
+        ${serviceNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}" title="${x[2]}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span>${x[0]==='notifications'&&u?`<em>${u}</em>`:''}</button>`).join('')}
+      </div>
+    </div>
+
+    <main class="os22-content">${content}</main>
+
+    <nav class="os22-mobile-dock">
+      ${mainNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}
+    </nav>
+  </div>`;
 }
 function activeEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused'].includes(e.status))}
 function visibleEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused','pending','completed'].includes(e.status))}
@@ -1906,96 +2175,97 @@ function studySubmissions(){return Array.isArray(S.data?.v16_assignment_submissi
 function studyHomeworkCount(){const subs=studySubmissions();return studyAssignments().filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).length}
 function studyLessonHomework(){return (S.data?.v171_recent_lessons||[]).filter(x=>String(x.homework||x.assignment||x.teacher_note||'').trim()).slice(0,4)}
 function studyVideoCount(courseId){return topics(courseId).filter(t=>assets(t.id).some(a=>['video','youtube','vimeo'].includes(String(a.asset_type||a.type||'').toLowerCase())||/youtu|vimeo|\.mp4/i.test(String(a.url||a.external_url||a.file_url||'')))).length}
+
 function dashboard(){
- const s=S.data.student||{},display=s.nickname||s.first_name||s.display_name||'นักเรียน',
- active=activeEnroll(),
- up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),
- nx=up[0],
- lessons=S.data?.v171_recent_lessons||[],latest=lessons[0],
- unlim=active.some(e=>e.hours_unlimited),
- remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
- att=v20Attended(),
- assign=studyAssignments(),subs=studySubmissions(),
- todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
- homeNotes=studyLessonHomework(),
- replay=active.filter(e=>topics(e.course_id).length).slice(0,3),
- dateLabel=new Intl.DateTimeFormat('th-TH',{weekday:'short',day:'numeric',month:'short'}).format(new Date());
+  const s=S.data.student||{},display=s.nickname||s.first_name||s.display_name||'นักเรียน',
+        active=activeEnroll(),
+        up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),
+        nx=up[0],
+        lessons=S.data?.v171_recent_lessons||[],
+        latest=lessons[0],
+        unlim=active.some(e=>e.hours_unlimited),
+        remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
+        assign=studyAssignments(),subs=studySubmissions(),
+        todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
+        noteTasks=studyLessonHomework(),
+        replay=active.filter(e=>topics(e.course_id).length).slice(0,4),
+        nowLabel=new Intl.DateTimeFormat('th-TH',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
 
- return `<div class="v212-dashboard">
-  <section class="v212-hero">
-   <div class="v212-hero-copy">
-    <span>${esc(dateLabel)}</span>
-    <h2>${esc(display)}</h2>
-    <div class="v212-hero-actions">
-     <button data-tab-jump="attendance"><i class="fa-solid fa-stopwatch"></i> เวลาเรียน</button>
-     <button data-tab-jump="learning"><i class="fa-solid fa-circle-play"></i> เรียนย้อนหลัง</button>
+  return `<div class="os22-dashboard">
+    <section class="os22-welcome">
+      <div class="os22-welcome-copy">
+        <small>${esc(nowLabel)}</small>
+        <h2>${esc(display)}</h2>
+        <div class="os22-welcome-actions">
+          <button data-tab-jump="learning"><i class="fa-solid fa-play"></i> เรียนต่อ</button>
+          <button data-tab-jump="schedule"><i class="fa-regular fa-calendar"></i> ตารางเรียน</button>
+        </div>
+      </div>
+      <div class="os22-next-class">
+        <span><i class="fa-solid fa-bolt"></i> คลาสถัดไป</span>
+        ${nx?`
+          <strong>${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at))}</strong>
+          <b>${esc(nx.title||course(nx.course_id)?.title||'คาบเรียน')}</b>
+          <small>${new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short'}).format(new Date(nx.start_at))}${nx.tutor_name?' · '+esc(nx.tutor_name):''}</small>
+          <button data-tab-jump="schedule">รายละเอียด <i class="fa-solid fa-arrow-right"></i></button>
+        `:`<strong>—</strong><b>ยังไม่มีนัดเรียน</b><button data-tab-jump="schedule">ดูตาราง</button>`}
+      </div>
+    </section>
+
+    <section class="os22-kpis">
+      <button data-tab-jump="attendance"><i class="fa-regular fa-clock"></i><div><span>คงเหลือ</span><b>${unlim?'∞':remain.toFixed(1)}</b><small>ชั่วโมง</small></div></button>
+      <button data-tab-jump="attendance"><i class="fa-solid fa-user-check"></i><div><span>เข้าเรียน</span><b>${v20Attended()}</b><small>ครั้ง</small></div></button>
+      <button data-tab-jump="assignments"><i class="fa-solid fa-list-check"></i><div><span>งานค้าง</span><b>${todo.length||noteTasks.length}</b><small>รายการ</small></div></button>
+      <button data-tab-jump="courses"><i class="fa-solid fa-layer-group"></i><div><span>คอร์ส</span><b>${active.length}</b><small>กำลังเรียน</small></div></button>
+    </section>
+
+    <div class="os22-board">
+      <section class="os22-panel os22-span2">
+        <div class="os22-panel-head"><h3>เรียนต่อ</h3><button data-tab-jump="learning">ดูทั้งหมด</button></div>
+        <div class="os22-learning-row">
+          ${replay.map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id),vc=studyVideoCount(e.course_id),cover=c?.cover_url||'';return `
+            <button class="os22-learn-card" data-open-course="${e.course_id}">
+              <div class="os22-learn-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}"><span><i class="fa-solid fa-play"></i></span></div>
+              <div class="os22-learn-info"><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${vc?vc+' วิดีโอ':topics(e.course_id).length+' บทเรียน'}</small><div><i style="width:${pct}%"></i></div></div>
+            </button>`}).join('')||'<div class="os22-empty">ยังไม่มีบทเรียนย้อนหลัง</div>'}
+        </div>
+      </section>
+
+      <section class="os22-panel">
+        <div class="os22-panel-head"><h3>การบ้าน</h3><button data-tab-jump="assignments">ทั้งหมด</button></div>
+        <div class="os22-task-list">
+          ${todo.slice(0,4).map(a=>`<button data-tab-jump="assignments"><i class="fa-regular fa-file-lines"></i><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><em><i class="fa-solid fa-chevron-right"></i></em></button>`).join('')
+          ||noteTasks.slice(0,4).map(x=>`<button data-tab-jump="assignments"><i class="fa-regular fa-note-sticky"></i><span><b>${esc(x.title||x.course_name||'งานจากคาบล่าสุด')}</b><small>${date(x.session_date||x.created_at)}</small></span><em><i class="fa-solid fa-chevron-right"></i></em></button>`).join('')
+          ||'<div class="os22-empty good"><i class="fa-solid fa-check"></i> ไม่มีงานค้าง</div>'}
+        </div>
+      </section>
+
+      <section class="os22-panel">
+        <div class="os22-panel-head"><h3>ทางลัด</h3></div>
+        <div class="os22-shortcuts">
+          <button data-tab-jump="attendance"><i class="fa-solid fa-stopwatch"></i><span>เวลาเรียน</span></button>
+          <button data-tab-jump="catalog"><i class="fa-solid fa-plus"></i><span>ลงคอร์ส</span></button>
+          <button data-tab-jump="payments"><i class="fa-regular fa-credit-card"></i><span>ชำระเงิน</span></button>
+          <button data-tab-jump="requests"><i class="fa-solid fa-headset"></i><span>Support</span></button>
+          <a href="${esc(libraryUrl())}"><i class="fa-solid fa-book-open-reader"></i><span>Library</span></a>
+          <button data-tab-jump="account"><i class="fa-solid fa-user-gear"></i><span>บัญชี</span></button>
+        </div>
+      </section>
+
+      <section class="os22-panel os22-span2">
+        <div class="os22-panel-head"><h3>คาบล่าสุด</h3><button data-tab-jump="attendance">ประวัติ</button></div>
+        ${latest?`<div class="os22-latest">
+          <div class="os22-latest-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <div><b>${esc(latest.title||latest.course_name||'คาบเรียน')}</b><small>${date(latest.session_date||latest.created_at)}${latest.tutor_name?' · '+esc(latest.tutor_name):''}</small></div>
+          <strong>${n(latest.deducted_hours).toFixed(2)} ชม.</strong>
+        </div>`:'<div class="os22-empty">ยังไม่มีบันทึกการเรียน</div>'}
+      </section>
+
+      <a class="os22-library-card" href="${esc(libraryUrl())}">
+        <i class="fa-solid fa-book-open-reader"></i><div><b>Library</b><small>เปิดคลังสื่อ</small></div><span><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+      </a>
     </div>
-   </div>
-   <div class="v212-next">${nx?`
-    <small>คลาสถัดไป</small>
-    <div class="v212-next-time">${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at))}</div>
-    <b>${esc(nx.title||course(nx.course_id)?.title||'คาบเรียน')}</b>
-    <span>${new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short'}).format(new Date(nx.start_at))}${nx.tutor_name?' · '+esc(nx.tutor_name):''}</span>
-    <button data-tab-jump="schedule">เปิดตาราง <i class="fa-solid fa-arrow-right"></i></button>`:`
-    <small>คลาสถัดไป</small>
-    <b>ยังไม่มีนัดเรียน</b>
-    <button data-tab-jump="schedule">ดูตาราง</button>`}
-   </div>
-  </section>
-
-  <section class="v212-stats">
-   <button data-tab-jump="attendance"><span class="v212-stat-icon blue"><i class="fa-regular fa-clock"></i></span><div><small>คงเหลือ</small><b>${unlim?'∞':remain.toFixed(1)}</b><em>ชม.</em></div></button>
-   <button data-tab-jump="attendance"><span class="v212-stat-icon green"><i class="fa-solid fa-user-check"></i></span><div><small>เข้าเรียน</small><b>${att}</b><em>ครั้ง</em></div></button>
-   <button data-tab-jump="assignments"><span class="v212-stat-icon amber"><i class="fa-solid fa-list-check"></i></span><div><small>การบ้าน</small><b>${todo.length||homeNotes.length}</b><em>รายการ</em></div></button>
-   <button data-tab-jump="courses"><span class="v212-stat-icon violet"><i class="fa-solid fa-graduation-cap"></i></span><div><small>คอร์ส</small><b>${active.length}</b><em>กำลังเรียน</em></div></button>
-  </section>
-
-  <div class="v212-grid">
-   <section class="v212-card v212-wide">
-    <div class="v212-card-head"><h3>เรียนต่อ</h3><button data-tab-jump="learning">ทั้งหมด</button></div>
-    <div class="v212-replay">${replay.map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id),vc=studyVideoCount(e.course_id),cover=c?.cover_url||'';return `
-     <article>
-      <button class="v212-cover" data-open-course="${e.course_id}" style="${cover?`background-image:url('${esc(cover)}')`:''}">
-       <span><i class="fa-solid fa-play"></i></span>
-      </button>
-      <div><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${vc?vc+' วิดีโอ':topics(e.course_id).length+' บทเรียน'}</small><div class="v212-progress"><i style="width:${pct}%"></i></div></div>
-      <button class="v212-open" data-open-course="${e.course_id}"><i class="fa-solid fa-chevron-right"></i></button>
-     </article>`}).join('')||'<div class="v212-empty">ยังไม่มีบทเรียนย้อนหลัง</div>'}</div>
-   </section>
-
-   <section class="v212-card">
-    <div class="v212-card-head"><h3>การบ้าน</h3><button data-tab-jump="assignments">ทั้งหมด</button></div>
-    <div class="v212-list">${todo.slice(0,3).map(a=>`
-     <button data-tab-jump="assignments"><span class="v212-list-icon"><i class="fa-solid fa-file-pen"></i></span><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><i class="fa-solid fa-chevron-right"></i></button>`).join('')||homeNotes.slice(0,3).map(x=>`
-     <button data-tab-jump="assignments"><span class="v212-list-icon"><i class="fa-solid fa-note-sticky"></i></span><span><b>${esc(x.title||x.course_name||'งานจากคาบล่าสุด')}</b><small>${date(x.session_date||x.created_at)}</small></span><i class="fa-solid fa-chevron-right"></i></button>`).join('')||'<div class="v212-empty">ไม่มีงานค้าง</div>'}</div>
-   </section>
-
-   <section class="v212-card">
-    <div class="v212-card-head"><h3>ทางลัด</h3></div>
-    <div class="v212-tools">
-     <button data-tab-jump="schedule"><i class="fa-solid fa-calendar-days"></i><span>ตาราง</span></button>
-     <button data-tab-jump="courses"><i class="fa-solid fa-graduation-cap"></i><span>คอร์ส</span></button>
-     <button data-tab-jump="catalog"><i class="fa-solid fa-bag-shopping"></i><span>ลงคอร์ส</span></button>
-     <a href="${esc(libraryUrl())}"><i class="fa-solid fa-book-open-reader"></i><span>Library</span></a>
-    </div>
-   </section>
-
-   <section class="v212-card v212-wide">
-    <div class="v212-card-head"><h3>คาบล่าสุด</h3><button data-tab-jump="attendance">ประวัติ</button></div>
-    ${latest?`<div class="v212-latest">
-     <span class="v212-latest-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
-     <div><b>${esc(latest.title||latest.course_name||'คาบเรียน')}</b><small>${date(latest.session_date||latest.created_at)}${latest.tutor_name?' · '+esc(latest.tutor_name):''}</small></div>
-     <strong>${n(latest.deducted_hours).toFixed(2)} ชม.</strong>
-    </div>`:'<div class="v212-empty">ยังไม่มีบันทึกการเรียน</div>'}
-   </section>
-
-   <a class="v212-library" href="${esc(libraryUrl())}">
-    <span><i class="fa-solid fa-book-open-reader"></i></span>
-    <div><b>Library</b><small>คลังสื่อการเรียน</small></div>
-    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-   </a>
-  </div>
- </div>`
+  </div>`;
 }
 function coursesHtml(){const rows=visibleEnroll();return `<div class="grid course-grid">${rows.map(courseCard).join('')||'<div class="empty">ยังไม่มีคอร์สในบัญชีนี้</div>'}</div>`}
 function learningHtml(){if(S.courseId)return courseLearning(S.courseId);const rows=activeEnroll().filter(e=>topics(e.course_id).length);return `<section class="v21-page-hero replay"><div><span>REPLAY & LEARNING</span><h2>เรียนย้อนหลัง</h2><p>ทบทวนบทเรียน ดูวิดีโอย้อนหลัง เปิดเอกสารประกอบ และเรียนต่อจากจุดเดิม</p></div><div class="v21-page-icon"><i class="fa-solid fa-circle-play"></i></div></section><div class="grid course-grid v21-course-grid">${rows.map(courseCard).join('')||'<div class="v21-empty page"><i class="fa-solid fa-video-slash"></i><b>ยังไม่มีคอร์สย้อนหลัง</b><span>เมื่อผู้สอนเพิ่มวิดีโอหรือบทเรียน ระบบจะแสดงที่นี่</span></div>'}</div>`}
@@ -2023,6 +2293,50 @@ function studyTimeHtml(){const active=activeEnroll(),lessons=S.data?.v171_recent
 function homeworkHubHtml(){const rows=studyAssignments(),notes=studyLessonHomework();if(rows.length)return assignmentsHtml();return `<section class="v21-page-hero homework"><div><span>HOMEWORK CENTER</span><h2>การบ้าน</h2><p>รวมงานจาก Assignment และคำแนะนำหลังเรียนจาก Tutor ไว้ในหน้าเดียว</p></div><div class="v21-page-icon"><i class="fa-solid fa-list-check"></i></div></section><div class="v21-note-homework">${notes.map((x,i)=>`<article><div class="v21-note-no">${String(i+1).padStart(2,'0')}</div><div><span>${esc(x.course_name||x.title||'จากคาบเรียน')}</span><h3>${esc(x.homework||x.assignment||x.teacher_note||'')}</h3><p>${date(x.session_date||x.created_at)} · ${esc(x.tutor_name||'AreWarin Tutor')}</p></div><button data-tab-jump="attendance">ดูคาบเรียน</button></article>`).join('')||'<div class="v21-empty page"><i class="fa-solid fa-check-double"></i><b>ไม่มีการบ้านค้าง</b><span>เมื่อ Tutor มอบหมายงานหรือคำแนะนำ จะมาแสดงที่นี่ทันที</span></div>'}</div>`}
 function libraryHtml(){const active=activeEnroll(),topicTotal=active.reduce((sum,e)=>sum+topics(e.course_id).length,0),assetTotal=active.reduce((sum,e)=>sum+topics(e.course_id).reduce((a,t)=>a+assets(t.id).length,0),0);return `<section class="v21-library-page"><div class="v21-library-hero"><div><span>AREWARIN KNOWLEDGE LIBRARY</span><h2>Library</h2><p>ใช้ Library เป็นพื้นที่อ่านเพิ่ม ค้นเอกสาร เปิดสื่อประกอบ และต่อยอดจากหัวข้อที่เรียนกับ Tutor</p><div><a class="v21-primary" href="${esc(libraryUrl())}"><i class="fa-solid fa-book-open-reader"></i> เปิดระบบ Library</a><button class="v21-secondary" data-tab-jump="learning"><i class="fa-solid fa-circle-play"></i> กลับไปเรียนย้อนหลัง</button></div></div><div class="v21-library-art"><i class="fa-solid fa-book-open"></i><span>LEARN<br>EXPLORE<br>GROW</span></div></div><div class="v21-library-stats"><article><b>${active.length}</b><span>คอร์สที่เชื่อมอยู่</span></article><article><b>${topicTotal}</b><span>บทเรียนใน Study Hub</span></article><article><b>${assetTotal}</b><span>สื่อประกอบที่เข้าถึงได้</span></article></div><div class="v21-library-links"><button data-tab-jump="learning"><i class="fa-solid fa-video"></i><div><b>วิดีโอ & บทเรียน</b><span>สื่อที่ผูกกับคอร์สของคุณ</span></div><i class="fa-solid fa-arrow-right"></i></button><button data-tab-jump="courses"><i class="fa-solid fa-graduation-cap"></i><div><b>คอร์สของฉัน</b><span>ดูคอร์สและความคืบหน้า</span></div><i class="fa-solid fa-arrow-right"></i></button><a href="${esc(libraryUrl())}"><i class="fa-solid fa-magnifying-glass"></i><div><b>ค้นใน Library</b><span>เปิดคลังความรู้เต็มรูปแบบ</span></div><i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></section>`}
 
+
+function accountHtml(){
+  const s=S.data.student||{},p=appProfile(),parents=S.data?.v16_parent_links||[],devices=S.data?.v16_devices||[];
+  return `<div class="os22-account-grid">
+    <section class="os22-panel os22-profile-panel">
+      <div class="os22-panel-head"><h3>ข้อมูลนักเรียน</h3><span>${esc(s.student_code||'Student')}</span></div>
+      <form id="profile" class="os22-profile-form">
+        <div class="field"><label>ชื่อเล่น</label><input class="input" name="nickname" value="${esc(s.nickname||'')}"></div>
+        <div class="field"><label>ชื่อที่แสดง</label><input class="input" name="display_name" value="${esc(s.display_name||'')}"></div>
+        <div class="field"><label>โรงเรียน</label><input class="input" name="school" value="${esc(s.school||'')}"></div>
+        <div class="field"><label>ระดับชั้น</label><input class="input" name="grade" value="${esc(s.grade||s.education_level||'')}"></div>
+        <button class="btn primary" type="submit">บันทึก</button>
+      </form>
+    </section>
+
+    <section class="os22-panel">
+      <div class="os22-panel-head"><h3>ความปลอดภัย</h3></div>
+      <form id="changePasswordForm" class="os22-profile-form">
+        <div class="field"><label>รหัสผ่านใหม่</label><input class="input" type="password" name="password" minlength="8" required></div>
+        <div class="field"><label>ยืนยันรหัสผ่าน</label><input class="input" type="password" name="confirm" minlength="8" required></div>
+        <button class="btn primary" type="submit">เปลี่ยนรหัสผ่าน</button>
+      </form>
+      <button class="btn wide" id="logoutOtherDevices" style="margin-top:8px">ออกจากระบบอุปกรณ์อื่น</button>
+    </section>
+
+    <section class="os22-panel">
+      <div class="os22-panel-head"><h3>ผู้ปกครอง</h3><button id="newParentLink">สร้างรหัส</button></div>
+      <div class="os22-simple-list">
+        ${parents.map(x=>`<div><span><b>${esc(x.parent_name||'ผู้ปกครอง')}</b><small>${esc(x.relationship||'')}</small></span><button data-revoke-parent="${x.id}">ยกเลิก</button></div>`).join('')||'<div class="os22-empty">ยังไม่มีการเชื่อมผู้ปกครอง</div>'}
+      </div>
+    </section>
+
+    <section class="os22-panel">
+      <div class="os22-panel-head"><h3>บัญชี</h3></div>
+      <div class="os22-account-meta">
+        <div><span>อีเมล</span><b>${esc(S.session?.user?.email||s.email||'—')}</b></div>
+        <div><span>Student ID</span><b>${esc(s.student_code||'—')}</b></div>
+      </div>
+      <button class="btn wide" data-logout style="margin-top:12px">ออกจากระบบ</button>
+    </section>
+  </div>`;
+}
+
+
 function render(){
   clearInterval(S.timer);
   const map={
@@ -2036,7 +2350,9 @@ function render(){
     library:libraryHtml,
     wallet:walletHtml,
     payments:paymentsHtml,
-    notifications:notificationsHtml
+    requests:requestsHtml,
+    notifications:notificationsHtml,
+    account:accountHtml
   };
   const page=map[S.tab]||dashboard;
   app.innerHTML=shell(page());
@@ -2137,7 +2453,9 @@ async function load(renderNow=true){
       'enrollments','courses','open_courses','topics','assets','progress',
       'notifications','hour_ledger','hour_pools','payment_requests','core_payments',
       'attendance','sessions','groups','codes','v16_schedule','v16_reschedule_requests',
-      'v16_assignments','v16_assignment_submissions','v171_recent_lessons','home_banners','active_promotions'
+      'v16_assignments','v16_assignment_submissions','v171_recent_lessons',
+      'v16_support_tickets','v16_support_messages','v16_parent_links','v16_devices',
+      'home_banners','active_promotions'
     ];
     optionalArrays.forEach(k=>{if(!Array.isArray(S.data?.[k]))S.data[k]=[]});
 
@@ -2320,8 +2638,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "21.5.0-identity-gate";
-console.info("[AreWarin Student] V21.5 identity-gate loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "22.0.0-fresh-student-os";
+console.info("[AreWarin Student] V22 fresh Student OS loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -2604,7 +2922,7 @@ console.info("[AreWarin Student] V21.5 identity-gate loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V21.5 mobile navigation loaded");
+console.info("[AreWarin Student] V22 mobile navigation loaded");
 </script>
 
 
