@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="22.3.0-manager-sync">
-<title>AreWarin Biology · Student OS V22.3</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="23.0.0-adaptive-workspace">
+<title>AreWarin Biology · Student OS V23</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2112,8 +2112,36 @@ body{font-size:14px!important}
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="22.3.0-manager-sync">
-<!-- LIVE BUILD: 22.3.0-manager-sync --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+
+<style id="arewarin-student-os-v23">
+:root{--23-bg:#f4f6fa;--23-card:#fff;--23-ink:#182238;--23-muted:#7e8a9f;--23-line:#e5e9f0;--23-blue:#3157ff;--23-cyan:#23c2d6;--23-navy:#121c36;--23-green:#0da477;--23-amber:#e6921c;--23-violet:#7457d9;--23-shadow:0 18px 48px -38px rgba(20,31,64,.42)}
+html,body{background:var(--23-bg)!important;color:var(--23-ink)!important}body{font-family:"Prompt",system-ui,sans-serif!important;font-size:14px!important}body.os23-lock{overflow:hidden}
+.os23-app{min-height:100vh;padding-bottom:32px;background:radial-gradient(circle at 2% 0%,rgba(49,87,255,.055),transparent 28rem),radial-gradient(circle at 100% 10%,rgba(35,194,214,.045),transparent 30rem),var(--23-bg)}
+.os23-header{position:sticky;top:0;z-index:70;min-height:68px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;padding:9px max(18px,calc((100vw - 1460px)/2));background:rgba(244,246,250,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(224,229,238,.88)}
+.os23-brand{border:0;background:transparent;display:flex;align-items:center;gap:9px;cursor:pointer;text-align:left;padding:0}.os23-brandmark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#121c36,#3157ff);color:#fff;font-weight:800;font-size:13px}.os23-brandmark img{width:100%;height:100%;object-fit:cover}.os23-brand>span:last-child b{display:block;font-size:13px;color:#1c2942}.os23-brand>span:last-child small{display:block;font-size:9px;color:#93a0b3;margin-top:1px}
+.os23-primary{justify-self:center;display:flex;gap:3px;padding:4px;border:1px solid #e2e6ee;background:#eceff5;border-radius:15px}.os23-primary button{height:38px;padding:0 13px;border:0;border-radius:11px;background:transparent;color:#69768b;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:650;cursor:pointer;transition:.18s}.os23-primary button.active{background:#fff;color:#182238;box-shadow:0 8px 20px -16px rgba(17,28,54,.6)}
+.os23-actions{display:flex;align-items:center;gap:6px}.os23-command-trigger{height:38px;padding:0 9px 0 11px;border:1px solid #dfe5ee;border-radius:11px;background:#fff;color:#69768a;display:flex;align-items:center;gap:7px;font-size:10px;cursor:pointer}.os23-command-trigger kbd{border:1px solid #e3e7ee;border-bottom-width:2px;border-radius:6px;background:#f7f8fa;padding:2px 5px;font:600 8px/1 system-ui;color:#99a3b3}.os23-icon{position:relative;width:38px;height:38px;border:1px solid #dfe5ee;border-radius:11px;background:#fff;color:#5e6b80;display:grid;place-items:center;cursor:pointer}.os23-icon em{position:absolute;right:-4px;top:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#e94d6d;color:#fff;font-size:7px;font-style:normal;display:grid;place-items:center}.os23-profile{height:42px;padding:3px 5px;border:0;background:transparent;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}.os23-profile>img,.os23-profile>span{width:34px;height:34px;border-radius:11px;object-fit:cover;background:#182238;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}.os23-profile b{display:block;font-size:10.5px;max-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-profile small{display:block;font-size:8px;color:#95a0b0}
+.os23-workspace-head{width:min(1460px,calc(100% - 36px));margin:17px auto 0;display:flex;align-items:end;justify-content:space-between;gap:14px}.os23-workspace-head>div:first-child>span{font-size:8px;letter-spacing:.15em;color:#99a4b5;font-weight:750}.os23-workspace-head h1{font-size:22px;margin:3px 0 0}.os23-workspace-tools button{height:36px;border:1px solid #e0e5ed;border-radius:11px;background:#fff;color:#5d6a7f;padding:0 10px;display:flex;align-items:center;gap:6px;font-size:9px}.os23-content{width:min(1460px,calc(100% - 36px));margin:12px auto 0}.os23-mobile-dock{display:none}
+.os23-eyebrow{display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:.13em;color:#93a0b2;font-weight:750}.os23-panel{min-width:0;padding:14px;border:1px solid var(--23-line);border-radius:20px;background:#fff;box-shadow:var(--23-shadow)}.os23-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.os23-panel-head>div>span{font-size:7.5px;letter-spacing:.13em;color:#a0aaba;font-weight:750}.os23-panel-head h3{font-size:14px;margin:2px 0 0}.os23-panel-head>button{border:0;background:transparent;color:#3157ff;font-size:9px;font-weight:700}.os23-progressbar{height:5px;border-radius:99px;background:#e9edf4;overflow:hidden}.os23-progressbar i{display:block;height:100%;background:linear-gradient(90deg,#3157ff,#23c2d6)}.os23-empty{display:grid;place-items:center;align-content:center;gap:7px;min-height:120px;text-align:center;color:#95a1b2;font-size:10px}.os23-empty i{font-size:20px}.os23-empty.compact{min-height:86px}.os23-empty.large{min-height:180px}.os23-empty.success{color:#0b946c}
+.os23-page-hero.compact{min-height:90px;padding:16px 18px;border:1px solid var(--23-line);border-radius:20px;background:#fff;box-shadow:var(--23-shadow);display:flex;align-items:center;justify-content:space-between;gap:12px}.os23-page-hero h2{font-size:21px;margin:4px 0 2px}.os23-page-hero p{font-size:10px;color:#8490a3;margin:0}
+.os23-dashboard{display:grid;gap:11px}.os23-adaptive-hero{min-height:166px;padding:19px 21px;border-radius:25px;background:radial-gradient(circle at 8% 18%,rgba(35,194,214,.17),transparent 25%),radial-gradient(circle at 82% 20%,rgba(93,93,255,.18),transparent 26%),linear-gradient(135deg,#111a32,#172554 58%,#2947c7);color:#fff;display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:16px;box-shadow:0 24px 58px -42px rgba(15,28,75,.75)}.os23-hero-main{display:flex;flex-direction:column;justify-content:center}.os23-adaptive-hero .os23-eyebrow{color:#a8e8ef}.os23-hero-main h2{font-size:30px;margin:6px 0}.os23-hero-main p{font-size:11px;color:#c9d5ee;margin:0}.os23-hero-actions{display:flex;gap:7px;margin-top:15px}.os23-hero-actions button{min-height:37px;padding:0 12px;border:1px solid rgba(255,255,255,.17);border-radius:10px;background:rgba(255,255,255,.09);color:#fff;font-size:9.5px;font-weight:700}.os23-hero-actions button.primary{background:#fff;color:#182238}.os23-hero-side{padding:16px;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(255,255,255,.09);display:flex;flex-direction:column;justify-content:center}.os23-hero-side small{font-size:9px;color:#bfd0ed}.os23-hero-side strong{font-size:25px;margin:5px 0 2px}.os23-hero-side span{font-size:9px;color:#cad6ed}
+.os23-bento{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.os23-stat{min-height:93px;padding:13px;border:1px solid var(--23-line);border-radius:18px;background:#fff;box-shadow:var(--23-shadow);display:flex;align-items:center;gap:11px;text-align:left;cursor:pointer}.os23-stat>i{width:36px;height:36px;border-radius:11px;background:#eef3ff;color:#3157ff;display:grid;place-items:center}.os23-stat>i.amber{background:#fff4e2;color:#df8c19}.os23-stat>i.violet{background:#f2efff;color:#7457d9}.os23-stat small{display:block;font-size:8.5px;color:#8f9bad}.os23-stat b{font-size:21px}.os23-stat em{font-size:8px;color:#a0aaba;font-style:normal;margin-left:3px}.os23-ring,.os23-mini-ring{--p:0;position:relative;border-radius:50%;background:conic-gradient(#3157ff calc(var(--p)*1%),#e9edf4 0);display:grid;place-items:center;flex:none}.os23-ring{width:42px;height:42px}.os23-ring:after,.os23-mini-ring:after{content:"";position:absolute;border-radius:50%;background:#fff}.os23-ring:after{inset:5px}.os23-ring span,.os23-mini-ring b{position:relative;z-index:1;font-size:8px}.os23-mini-ring{width:38px;height:38px}.os23-mini-ring:after{inset:4px}
+.os23-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.42fr) minmax(290px,.72fr);gap:11px}.os23-continue-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.os23-course-strip{display:grid;grid-template-columns:72px minmax(0,1fr) 27px;gap:9px;align-items:center;padding:7px;border:1px solid #edf0f5;border-radius:12px;background:#fbfcfe}.os23-strip-cover{position:relative;width:72px;height:51px;border:0;border-radius:9px;background:#eaf0f7 center/cover no-repeat;color:#3157ff;display:grid;place-items:center;overflow:hidden}.os23-strip-cover>span{position:absolute;width:25px;height:25px;border-radius:50%;background:rgba(18,28,54,.75);color:#fff;display:grid;place-items:center;font-size:7px}.os23-strip-copy{min-width:0}.os23-strip-copy>small{display:block;font-size:6.5px;color:#3157ff;font-weight:750}.os23-strip-copy>b{display:block;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-strip-copy>span{display:block;font-size:7.5px;color:#99a4b4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 5px}.os23-more{width:27px;height:27px;border:1px solid #e4e8ef;border-radius:9px;background:#fff;color:#7c8798}
+.os23-timeline{display:grid;gap:4px}.os23-timeline>button{display:grid;grid-template-columns:42px 29px minmax(0,1fr);gap:7px;align-items:center;padding:7px 4px;border:0;border-bottom:1px solid #f0f2f5;background:transparent;text-align:left}.os23-timeline time{font-size:8px;color:#8793a5}.os23-timeline>button>i{width:29px;height:29px;border-radius:9px;background:#edf3ff;color:#3157ff;display:grid;place-items:center;font-size:8px}.os23-timeline>button>i.amber{background:#fff4df;color:#dc8915}.os23-timeline b{display:block;font-size:8.5px}.os23-timeline small{display:block;font-size:7px;color:#9aa5b5}
+.os23-tasklist{display:grid;gap:5px}.os23-tasklist>button{display:grid;grid-template-columns:30px 1fr 12px;gap:7px;align-items:center;padding:8px;border:1px solid #edf0f4;border-radius:10px;background:#fff;text-align:left}.os23-tasklist>button>i{width:30px;height:30px;border-radius:9px;background:#fff4df;color:#db8919;display:grid;place-items:center;font-size:8px}.os23-tasklist b{display:block;font-size:8.5px}.os23-tasklist small{display:block;font-size:7px;color:#9ca6b5}.os23-tasklist em{font-size:14px;color:#a2acba;font-style:normal}.os23-progress-courses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.os23-progress-courses>button{display:grid;grid-template-columns:38px 1fr 12px;gap:8px;align-items:center;padding:8px;border:1px solid #edf0f4;border-radius:11px;background:#fbfcfe;text-align:left}.os23-progress-courses>button>span:nth-child(2){min-width:0}.os23-progress-courses>button>span:nth-child(2)>b{display:block;font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-progress-courses small{display:block;font-size:7px;color:#9aa5b5}.os23-latest{display:grid;grid-template-columns:36px 1fr auto;gap:8px;align-items:center}.os23-latest>i{width:36px;height:36px;border-radius:11px;background:#eef3ff;color:#3157ff;display:grid;place-items:center}.os23-latest b{font-size:9px}.os23-latest small{display:block;font-size:7px;color:#9ba6b6}.os23-latest strong{font-size:9px;color:#0b9970}
+.os23-course-page{display:grid;gap:11px}.os23-workspace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.os23-workspace-card{overflow:hidden;border:1px solid var(--23-line);border-radius:18px;background:#fff;box-shadow:var(--23-shadow)}.os23-workspace-cover{position:relative;aspect-ratio:16/8.6;background:#eaf0f8 center/cover no-repeat;display:grid;place-items:center;color:#3157ff;font-size:24px}.os23-workspace-badges{position:absolute;left:9px;top:9px}.os23-workspace-badges span{padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.94);font-size:7px;font-weight:800}.os23-card-menu{position:absolute;right:9px;top:9px;width:29px;height:29px;border:1px solid rgba(255,255,255,.5);border-radius:9px;background:rgba(255,255,255,.9)}.os23-workspace-body{padding:13px;display:grid;gap:8px}.os23-workspace-body>small{font-size:7px;color:#9ca7b7}.os23-workspace-body h3{font-size:14px;line-height:1.45;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.os23-workspace-next{padding:8px 9px;border-radius:10px;background:#f7f9fc}.os23-workspace-next span{display:block;font-size:7px;color:#9ba6b7}.os23-workspace-next b{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-workspace-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.os23-workspace-metrics span{padding:7px;border-radius:9px;background:#fafbfc;text-align:center}.os23-workspace-metrics b{display:block;font-size:11px}.os23-workspace-metrics small{display:block;font-size:6.5px;color:#98a3b3}.os23-card-nextclass{display:flex;gap:6px;color:#6e7b8f;font-size:8px}.os23-workspace-actions{display:flex;gap:6px}.os23-pending{padding:8px;border-radius:10px;background:#fff5e5;color:#9e6714;font-size:8px}
+.os23-study-shell{display:grid;gap:9px}.os23-study-top{min-height:56px;padding:8px 10px;border:1px solid var(--23-line);border-radius:16px;background:#fff;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;box-shadow:var(--23-shadow)}.os23-study-back,.os23-study-actions button{height:36px;border:1px solid #e2e7ee;border-radius:10px;background:#f9fafc;color:#617087;display:flex;align-items:center;gap:6px;padding:0 10px;font-size:8px}.os23-study-title small{display:block;font-size:6.5px;color:#3157ff}.os23-study-title b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-study-actions{display:flex;gap:5px}.os23-study-workspace{display:grid;grid-template-columns:235px minmax(0,1fr) 225px;gap:9px;align-items:start}.os23-chapters,.os23-player,.os23-study-notes{border:1px solid var(--23-line);border-radius:18px;background:#fff;box-shadow:var(--23-shadow)}.os23-chapters,.os23-study-notes{position:sticky;top:78px;max-height:calc(100vh - 95px);overflow:auto}.os23-chapters{padding:10px}.os23-chapter-head{display:flex;justify-content:space-between;padding:2px 3px 8px}.os23-chapter-head span{font-size:7px;letter-spacing:.13em;color:#9da7b6}.os23-chapter-head b{font-size:7.5px}.os23-chapter-progress{height:4px;background:#ebeff4;border-radius:99px;overflow:hidden;margin-bottom:8px}.os23-chapter-progress i{display:block;height:100%;background:linear-gradient(90deg,#3157ff,#23c2d6)}.os23-chapter-list{display:grid;gap:4px}.os23-chapter-list button{display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center;padding:7px;border:0;border-radius:9px;background:transparent;text-align:left}.os23-chapter-list button.active{background:#eef3ff;color:#2749d9}.os23-chapter-list button>span{width:28px;height:28px;border-radius:8px;background:#f0f3f7;display:grid;place-items:center;font-size:7px}.os23-chapter-list button.active>span{background:#3157ff;color:#fff}.os23-chapter-list button.done>span{background:#e7faf3;color:#0b966d}.os23-chapter-list b{display:block;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os23-chapter-list small{display:block;font-size:6.5px;color:#9ca6b6}.os23-player{padding:14px;min-height:520px}.os23-player-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px}.os23-player-head span{padding:4px 7px;border-radius:999px;background:#eef3ff;color:#3157ff;font-size:7px}.os23-player-head h2{font-size:18px;margin:6px 0 0}.os23-player-head p{font-size:9px;color:#8894a7}.os23-player-head em{padding:5px 8px;border-radius:999px;background:#e7faf3;color:#0b966d;font-size:7px;font-style:normal}.os23-assets{display:grid;gap:9px}.os23-player .asset{border:1px solid #e8ecf2!important;border-radius:13px!important;background:#fbfcfe!important;padding:10px!important;box-shadow:none!important}.os23-player-nav{display:flex;justify-content:space-between;gap:7px;margin-top:13px}.os23-study-notes{padding:11px}.os23-notes-head{display:flex;justify-content:space-between}.os23-notes-head>span{font-size:7px;letter-spacing:.13em;color:#99a5b5}.os23-notes-head button{width:31px;height:31px;border:1px solid #e3e7ee;border-radius:9px;background:#fff}.os23-notes-head button.active{background:#fff5dd;color:#d68a16}.os23-note-topic{padding:10px 0}.os23-note-topic small{display:block;font-size:6.5px;color:#9ca6b5}.os23-note-topic b{font-size:9px}.os23-study-notes textarea{width:100%;min-height:190px;padding:10px;border:1px solid #e1e6ee;border-radius:11px;background:#fbfcfe;resize:vertical;outline:none;font:400 9px/1.65 "Prompt",sans-serif}.os23-note-save{width:100%;min-height:35px;margin-top:7px;border:0;border-radius:10px;background:#182238;color:#fff;font-size:8px}.os23-note-save.saved{background:#0b9a71}.os23-note-hint{display:flex;gap:6px;padding:9px;margin-top:8px;border-radius:10px;background:#f5f7fa;color:#8b96a6;font-size:6.5px}
+body.os23-focus .os23-header,body.os23-focus .os23-workspace-head,body.os23-focus .os23-mobile-dock{display:none!important}body.os23-focus .os23-content{width:calc(100% - 18px);margin-top:9px}body.os23-study-dark{background:#0e1422!important}body.os23-study-dark .os23-app{background:#0e1422!important}body.os23-study-dark .os23-study-top,body.os23-study-dark .os23-chapters,body.os23-study-dark .os23-player,body.os23-study-dark .os23-study-notes{background:#141c2c!important;border-color:#263147!important;color:#dfe6f2!important}body.os23-study-dark .os23-study-title b,body.os23-study-dark .os23-player-head h2,body.os23-study-dark .os23-note-topic b,body.os23-study-dark .os23-chapter-list button{color:#dce4f0!important}body.os23-study-dark .os23-chapter-list button.active{background:#26355c!important;color:#fff!important}body.os23-study-dark .os23-player .asset{background:#111927!important;border-color:#263147!important;color:#dce4f0!important}body.os23-study-dark .os23-study-notes textarea{background:#101827!important;border-color:#2b3750!important;color:#dce4f0!important}
+.os23-service-layer,.os23-context-layer{position:fixed;inset:0;z-index:100;pointer-events:none;visibility:hidden}.os23-service-layer.open,.os23-context-layer.open{pointer-events:auto;visibility:visible}.os23-layer-backdrop{position:absolute;inset:0;border:0;background:rgba(11,18,35,.32);backdrop-filter:blur(3px);opacity:0;transition:.18s}.open>.os23-layer-backdrop{opacity:1}.os23-service-sheet,.os23-context-sheet{position:absolute;right:0;top:0;bottom:0;width:min(410px,92vw);padding:18px;background:#fff;box-shadow:-24px 0 70px rgba(13,23,49,.14);transform:translateX(104%);transition:.22s}.open>.os23-service-sheet,.open>.os23-context-sheet{transform:translateX(0)}.os23-sheet-head{display:flex;justify-content:space-between;margin-bottom:14px}.os23-sheet-head span{font-size:7px;letter-spacing:.13em;color:#9aa5b5}.os23-sheet-head h2{font-size:19px;margin:3px 0}.os23-sheet-head button,.os23-context-close{width:35px;height:35px;border:1px solid #e3e7ee;border-radius:10px;background:#f9fafb}.os23-service-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.os23-service-grid>button{position:relative;min-height:87px;padding:11px;border:1px solid #e8ecf2;border-radius:14px;background:#fbfcfe;display:grid;grid-template-columns:35px 1fr;gap:9px;align-items:center;text-align:left}.os23-service-grid>button>i{width:35px;height:35px;border-radius:10px;background:#eef3ff;color:#3157ff;display:grid;place-items:center}.os23-service-grid b{display:block;font-size:9.5px}.os23-service-grid small{display:block;font-size:7px;color:#9aa5b5}.os23-service-grid>button>em{position:absolute;right:8px;top:8px;width:16px;height:16px;border-radius:99px;background:#e94d6d;color:#fff;display:grid;place-items:center;font-size:7px;font-style:normal}.os23-context-sheet{padding:0;overflow:auto}.os23-context-close{position:absolute;right:12px;top:12px;z-index:3}.os23-context-cover{height:210px;background:#e9eff8 center/cover no-repeat;display:grid;place-items:center;color:#3157ff;font-size:35px}.os23-context-body{padding:18px}.os23-context-body h2{font-size:20px}.os23-context-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.os23-context-progress>div{padding:10px;border-radius:11px;background:#f7f9fc;text-align:center}.os23-context-progress b{display:block;font-size:16px}.os23-context-progress span{font-size:7px;color:#96a2b3}.os23-context-next{display:flex;gap:8px;align-items:center;padding:10px;margin-top:12px;border-radius:11px;background:#f7f9fc}.os23-context-actions{display:flex;gap:7px;margin-top:14px}
+.os23-command-layer{position:fixed;inset:0;z-index:120;visibility:hidden;pointer-events:none}.os23-command-layer.open{visibility:visible;pointer-events:auto}.os23-command-backdrop{position:absolute;inset:0;border:0;background:rgba(11,18,35,.38);backdrop-filter:blur(5px)}.os23-command{position:absolute;left:50%;top:12%;width:min(620px,calc(100% - 24px));transform:translateX(-50%);background:#fff;border:1px solid #e1e6ee;border-radius:18px;box-shadow:0 35px 100px rgba(15,23,42,.22);overflow:hidden}.os23-command-input{height:58px;padding:0 13px;display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;border-bottom:1px solid #edf0f4}.os23-command-input input{height:100%;border:0;outline:0;font:500 12px "Prompt",sans-serif}.os23-command-input kbd{padding:4px 6px;border:1px solid #e0e5ec;border-radius:6px;background:#f7f8fa;color:#8b96a7;font:600 8px system-ui}.os23-command-results{max-height:430px;overflow:auto;padding:7px}.os23-command-results>button{width:100%;display:grid;grid-template-columns:34px 1fr 20px;gap:8px;align-items:center;padding:8px;border:0;border-radius:10px;background:transparent;text-align:left}.os23-command-results>button:hover{background:#f3f6ff}.os23-command-results>button>i{width:34px;height:34px;border-radius:10px;background:#eef3ff;color:#3157ff;display:grid;place-items:center}.os23-command-results b{display:block;font-size:9px}.os23-command-results small{display:block;font-size:7px;color:#9aa5b5}.os23-command-results em{font-style:normal}.os23-command-foot{height:35px;padding:0 11px;border-top:1px solid #edf0f4;background:#fafbfc;display:flex;align-items:center;gap:12px;color:#9aa5b5;font-size:7px}
+.os23-content .card,.os23-content .v21-card,.os23-content .wallet-card,.os23-content .assignment-card,.os23-content .catalog-course,.os23-content .notify{border-radius:18px!important;border:1px solid var(--23-line)!important;box-shadow:var(--23-shadow)!important;background:#fff!important}.os23-content .btn{border-radius:10px!important;font-size:9px!important;min-height:36px!important}.os23-content .btn.primary{background:#3157ff!important;color:#fff!important}.os23-content .table{font-size:9px!important}.os23-content .table th{font-size:8px!important}.os23-content .chip{font-size:7px!important}
+@media(max-width:1120px){.os23-header{grid-template-columns:auto 1fr auto;padding-inline:12px}.os23-primary button{padding:0 9px}.os23-command-trigger span,.os23-command-trigger kbd,.os23-profile>div{display:none}.os23-command-trigger{width:38px;padding:0;display:grid;place-items:center}.os23-workspace-head,.os23-content{width:calc(100% - 24px)}.os23-bento{grid-template-columns:repeat(2,1fr)}.os23-dashboard-grid{grid-template-columns:1fr}.os23-workspace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.os23-study-workspace{grid-template-columns:220px minmax(0,1fr)}.os23-study-notes{position:static;grid-column:1/-1;max-height:none}.os23-study-notes textarea{min-height:120px}}
+@media(max-width:760px){.os23-app{padding-bottom:82px}.os23-header{min-height:58px;grid-template-columns:1fr auto;padding:8px 11px}.os23-primary{display:none}.os23-brandmark{width:34px;height:34px}.os23-profile{display:none}.os23-gridbtn{display:none}.os23-icon,.os23-command-trigger{width:36px;height:36px}.os23-workspace-head{margin-top:10px}.os23-workspace-head>div:first-child>span{display:none}.os23-workspace-head h1{font-size:18px}.os23-workspace-tools button span{display:none}.os23-workspace-tools button{width:36px;padding:0;display:grid;place-items:center}.os23-content{margin-top:9px}.os23-mobile-dock{position:fixed;z-index:80;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:5px;border-radius:18px;background:rgba(18,28,54,.96);box-shadow:0 16px 44px rgba(15,23,42,.26)}.os23-mobile-dock button{height:48px;border:0;border-radius:13px;background:transparent;color:#aab8d0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:7px}.os23-mobile-dock button.active{background:#fff;color:#182238}.os23-adaptive-hero{grid-template-columns:1fr;min-height:0;padding:16px;border-radius:20px}.os23-hero-main h2{font-size:24px}.os23-bento{gap:7px}.os23-stat{min-height:82px;padding:10px}.os23-continue-grid,.os23-progress-courses{grid-template-columns:1fr}.os23-panel{border-radius:16px;padding:12px}.os23-workspace-grid{grid-template-columns:1fr}.os23-workspace-card{display:grid;grid-template-columns:128px minmax(0,1fr)}.os23-workspace-cover{height:100%;min-height:175px;aspect-ratio:auto}.os23-workspace-body{padding:10px}.os23-workspace-body h3{font-size:12px}.os23-workspace-next,.os23-card-nextclass{display:none}.os23-page-hero.compact{min-height:70px;padding:12px}.os23-page-hero h2{font-size:17px}.os23-page-hero p{display:none}.os23-study-top{position:sticky;top:0;z-index:50}.os23-study-actions button span,.os23-study-back span{display:none}.os23-study-actions button,.os23-study-back{width:36px;padding:0;display:grid;place-items:center}.os23-study-workspace{grid-template-columns:1fr}.os23-chapters{position:static;max-height:none;order:2}.os23-player{order:1;padding:11px;min-height:0}.os23-study-notes{order:3}.os23-player-nav{display:grid;grid-template-columns:1fr 1.2fr 1fr}.os23-service-sheet,.os23-context-sheet{top:auto;left:0;right:0;bottom:0;width:100%;max-height:82vh;border-radius:22px 22px 0 0;transform:translateY(104%)}.open>.os23-service-sheet,.open>.os23-context-sheet{transform:translateY(0)}.os23-command{top:8%;width:calc(100% - 16px)}}
+@media(max-width:430px){.os23-workspace-card{grid-template-columns:112px minmax(0,1fr)}.os23-workspace-cover{min-height:166px}.os23-service-grid{grid-template-columns:1fr 1fr}}
+</style>
+
+</head><body class="aw-student-v156" data-student-build="23.0.0-adaptive-workspace">
+<!-- LIVE BUILD: 23.0.0-adaptive-workspace --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2353,66 +2381,76 @@ function signupFields(){
 }
 function libraryUrl(){return window.AREWARIN_LIBRARY_URL||'../library/'}
 
+
+/* =========================================================
+   V23 · ADAPTIVE WORKSPACE UI HELPERS
+========================================================= */
+function os23StudentKey(){return String(S.data?.student?.id||S.session?.user?.id||'guest')}
+function os23NoteKey(topicId){return `aw_student_note:${os23StudentKey()}:${topicId}`}
+function os23GetNote(topicId){try{return localStorage.getItem(os23NoteKey(topicId))||''}catch(_){return ''}}
+function os23SaveNote(topicId,value){try{localStorage.setItem(os23NoteKey(topicId),String(value||''));return true}catch(_){return false}}
+function os23BookmarkKey(){return `aw_student_bookmarks:${os23StudentKey()}`}
+function os23Bookmarks(){try{return new Set(JSON.parse(localStorage.getItem(os23BookmarkKey())||'[]').map(String))}catch(_){return new Set()}}
+function os23IsBookmarked(topicId){return os23Bookmarks().has(String(topicId))}
+function os23ToggleBookmark(topicId){const s=os23Bookmarks(),id=String(topicId);s.has(id)?s.delete(id):s.add(id);try{localStorage.setItem(os23BookmarkKey(),JSON.stringify([...s]))}catch(_){}return s.has(id)}
+function os23TodayKey(v){const d=v instanceof Date?v:new Date(v);if(Number.isNaN(d.getTime()))return '';return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function os23TodayTimeline(){
+  const today=os23TodayKey(new Date()),items=[];
+  (S.data?.v16_schedule||[]).forEach(x=>{if(!x.start_at||os23TodayKey(x.start_at)!==today)return;const dt=new Date(x.start_at);items.push({at:dt,time:new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(dt),icon:'fa-chalkboard-user',title:x.title||course(x.course_id)?.title||'คาบเรียน',sub:x.mode==='online'?'ออนไลน์':(x.location||x.tutor_name||'AreWarin'),tab:'schedule',tone:'blue'})});
+  const subs=studySubmissions();
+  studyAssignments().forEach(a=>{if(!a.due_at||os23TodayKey(a.due_at)!==today)return;const sent=subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status));if(sent)return;const dt=new Date(a.due_at);items.push({at:dt,time:new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(dt),icon:'fa-list-check',title:a.title||'การบ้าน',sub:'กำหนดส่งวันนี้',tab:'assignments',tone:'amber'})});
+  return items.sort((a,b)=>a.at-b.at)
+}
+function os23AvgProgress(){const rows=activeEnroll().filter(e=>topics(e.course_id).length);return rows.length?Math.round(rows.reduce((s,e)=>s+courseProgress(e.course_id),0)/rows.length):0}
+function os23CourseNextClass(courseId){return (S.data?.v16_schedule||[]).filter(x=>String(x.course_id||'')===String(courseId)&&['scheduled','rescheduled'].includes(x.status)&&new Date(x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at))[0]||null}
+function os23OpenServices(){const x=$('#os23ServiceLayer');if(x){x.classList.add('open');document.body.classList.add('os23-lock')}}
+function os23CloseServices(){$('#os23ServiceLayer')?.classList.remove('open');document.body.classList.remove('os23-lock')}
+function os23CloseContext(){$('#os23ContextLayer')?.classList.remove('open');document.body.classList.remove('os23-lock')}
+function os23OpenCourseContext(courseId){
+  const layer=$('#os23ContextLayer'),box=$('#os23ContextContent'),c=course(courseId),e=(S.data?.enrollments||[]).find(x=>String(x.course_id)===String(courseId));if(!layer||!box||!c)return;
+  const pct=courseProgress(courseId),ts=topics(courseId),done=ts.filter(t=>progress(t.id)?.status==='completed').length,nx=os23CourseNextClass(courseId),remain=e?.hours_unlimited?null:Math.max(0,n(e?.hours_total)-n(e?.hours_used));
+  box.innerHTML=`<div class="os23-context-cover" style="${c.cover_url?`background-image:url('${esc(c.cover_url)}')`:''}">${!c.cover_url?'<i class="fa-solid fa-dna"></i>':''}</div>
+  <div class="os23-context-body"><span class="os23-eyebrow">COURSE WORKSPACE</span><h2>${esc(c.title||e?.course_label||'คอร์ส')}</h2>
+  <div class="os23-context-progress"><div><b>${pct}%</b><span>ความคืบหน้า</span></div><div><b>${done}/${ts.length}</b><span>บทเรียน</span></div><div><b>${e?.hours_unlimited?'∞':remain?.toFixed(1)??'—'}</b><span>ชม. คงเหลือ</span></div></div>
+  <div class="os23-progressbar"><i style="width:${pct}%"></i></div>${nx?`<div class="os23-context-next"><i class="fa-regular fa-calendar"></i><div><span>คลาสถัดไป</span><b>${dateTime(nx.start_at)}</b></div></div>`:''}
+  <div class="os23-context-actions"><button class="btn primary" id="os23ContextLearn"><i class="fa-solid fa-play"></i> ${pct?'เรียนต่อ':'เริ่มเรียน'}</button><button class="btn soft" id="os23ContextHours"><i class="fa-regular fa-clock"></i> เวลาเรียน</button></div></div>`;
+  layer.classList.add('open');document.body.classList.add('os23-lock');
+  $('#os23ContextLearn').onclick=()=>{os23CloseContext();S.tab='learning';S.courseId=String(courseId);S.lessonId=null;render()};
+  $('#os23ContextHours').onclick=()=>{os23CloseContext();S.tab='attendance';render()}
+}
+function os23CommandItems(){
+  const rows=[],push=(label,sub,icon,action,keywords='')=>rows.push({label,sub,icon,action,keywords:(label+' '+sub+' '+keywords).toLowerCase()});
+  [['วันนี้','ภาพรวมและสิ่งที่ต้องทำ','fa-house','dashboard'],['ตารางเรียน','คลาสถัดไปและคำขอเลื่อน','fa-calendar-days','schedule'],['เรียนย้อนหลัง','วิดีโอและเอกสาร','fa-circle-play','learning'],['การบ้าน','งานค้างและการส่งงาน','fa-list-check','assignments'],['คอร์สของฉัน','Course Workspace','fa-graduation-cap','courses'],['เวลาเรียน','Attendance และชั่วโมง','fa-stopwatch','attendance'],['ลงคอร์สเพิ่ม','Course Catalog','fa-bag-shopping','catalog'],['ชั่วโมงคอร์ส','Course Wallet','fa-wallet','wallet'],['การชำระเงิน','Payment Center','fa-credit-card','payments'],['คำขอ / Support','Support Ticket','fa-headset','requests'],['Library','คลังสื่อการเรียน','fa-book-open-reader','library'],['แจ้งเตือน','Notifications','fa-bell','notifications'],['บัญชี','Profile และ Security','fa-user-gear','account']].forEach(x=>push(x[0],x[1],x[2],{tab:x[3]}));
+  (S.data?.courses||[]).forEach(c=>push(c.title||c.name||'คอร์ส','คอร์สของฉัน','fa-graduation-cap',{tab:'learning',courseId:String(c.id)},'course'));
+  (S.data?.topics||[]).forEach(t=>push(t.title||'บทเรียน',course(t.course_id)?.title||'บทเรียน','fa-circle-play',{tab:'learning',courseId:String(t.course_id),lessonId:String(t.id)},'lesson replay video'));
+  studyAssignments().forEach(a=>push(a.title||'การบ้าน',a.due_at?`ส่ง ${dateTime(a.due_at)}`:'การบ้าน','fa-file-pen',{tab:'assignments'},'homework assignment'));
+  return rows
+}
+function os23RenderCommandResults(q=''){const box=$('#os23CommandResults');if(!box)return;const query=String(q||'').trim().toLowerCase(),rows=os23CommandItems().filter(x=>!query||x.keywords.includes(query)).slice(0,12);box.innerHTML=rows.map((x,i)=>`<button data-os23-command="${i}"><i class="fa-solid ${x.icon}"></i><span><b>${esc(x.label)}</b><small>${esc(x.sub)}</small></span><em>↵</em></button>`).join('')||'<div class="os23-command-empty">ไม่พบรายการ</div>';box._rows=rows}
+function os23OpenCommand(){const layer=$('#os23CommandLayer'),input=$('#os23CommandInput');if(!layer)return;layer.classList.add('open');document.body.classList.add('os23-lock');os23RenderCommandResults('');setTimeout(()=>input?.focus(),30)}
+function os23CloseCommand(){$('#os23CommandLayer')?.classList.remove('open');document.body.classList.remove('os23-lock')}
+function os23RunCommand(index){const box=$('#os23CommandResults'),item=box?._rows?.[Number(index)];if(!item)return;os23CloseCommand();const a=item.action||{};S.tab=a.tab||'dashboard';S.courseId=a.courseId||null;S.lessonId=a.lessonId||null;render()}
+function os23ToggleFocus(force){const on=typeof force==='boolean'?force:!document.body.classList.contains('os23-focus');document.body.classList.toggle('os23-focus',on);try{localStorage.setItem('aw_student_focus',on?'1':'0')}catch(_){}}
+function os23ToggleStudyDark(force){const on=typeof force==='boolean'?force:!document.body.classList.contains('os23-study-dark');document.body.classList.toggle('os23-study-dark',on);try{localStorage.setItem('aw_student_study_dark',on?'1':'0')}catch(_){}return on}
+function os23ApplyStudyPrefs(){if(S.tab!=='learning'||!S.courseId){document.body.classList.remove('os23-focus','os23-study-dark');return}try{document.body.classList.toggle('os23-focus',localStorage.getItem('aw_student_focus')==='1');document.body.classList.toggle('os23-study-dark',localStorage.getItem('aw_student_study_dark')==='1')}catch(_){}}
+
+
 function shell(content){
-  const s=S.data.student||{},brand=S.data.site_branding||{},p=appProfile(),
-        display=s.nickname||s.first_name||s.display_name||'นักเรียน',
-        avatar=s.profile_image_url||s.avatar_url||s.photo_url||p.profile_image_url||p.avatar_url||p.photo_url||'',
-        u=unread();
-
-  const mainNav=[
-    ['dashboard','fa-house','วันนี้'],
-    ['schedule','fa-calendar-days','ตาราง'],
-    ['learning','fa-circle-play','เรียน'],
-    ['assignments','fa-list-check','การบ้าน'],
-    ['courses','fa-graduation-cap','คอร์ส']
-  ];
-  const serviceNav=[
-    ['attendance','fa-stopwatch','เวลาเรียน'],
-    ['catalog','fa-bag-shopping','ลงคอร์ส'],
-    ['wallet','fa-wallet','ชั่วโมง'],
-    ['payments','fa-credit-card','ชำระเงิน'],
-    ['requests','fa-headset','คำขอ'],
-    ['library','fa-book-open-reader','Library'],
-    ['notifications','fa-bell','แจ้งเตือน'],
-    ['account','fa-user-gear','บัญชี']
-  ];
-  const labels={
-    dashboard:'วันนี้',schedule:'ตารางเรียน',learning:'เรียนย้อนหลัง',
-    assignments:'การบ้าน',courses:'คอร์สของฉัน',attendance:'เวลาเรียน',
-    catalog:'ลงคอร์สเพิ่ม',wallet:'ชั่วโมงคอร์ส',payments:'การชำระเงิน',
-    requests:'คำขอ / Support',library:'Library',notifications:'แจ้งเตือน',account:'บัญชี'
-  };
-
-  return `<div class="os22-app">
-    <header class="os22-header">
-      <div class="os22-brand">
-        <div class="os22-mark">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</div>
-        <div><b>${esc(brand.site_name_en||'AreWarin')}</b><span>Student OS</span></div>
-      </div>
-
-      <nav class="os22-mainnav">
-        ${mainNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}
-      </nav>
-
-      <div class="os22-head-actions">
-        <div class="os22-search"><i class="fa-solid fa-magnifying-glass"></i><input id="studentGlobalSearch" placeholder="ค้นหา"><div id="studentSearchResults" class="v20-search-results"></div></div>
-        <button class="os22-iconbtn" id="os22SyncNow" title="ซิงก์ข้อมูลล่าสุด"><i class="fa-solid fa-rotate"></i></button><button class="os22-iconbtn" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<b>${u}</b>`:''}</button>
-        <button class="os22-user" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button>
-      </div>
-    </header>
-
-    <div class="os22-pagebar">
-      <div class="os22-page-title"><small>STUDENT OS</small><h1>${labels[S.tab]||'Student OS'}</h1></div>
-      <div class="os22-services">
-        ${serviceNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}" title="${x[2]}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span>${x[0]==='notifications'&&u?`<em>${u}</em>`:''}</button>`).join('')}
-      </div>
-    </div>
-
-    <main class="os22-content">${content}</main>
-
-    <nav class="os22-mobile-dock">
-      ${mainNav.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}
-    </nav>
+  const s=S.data.student||{},brand=S.data.site_branding||{},p=appProfile(),display=s.nickname||s.first_name||s.display_name||'นักเรียน',avatar=s.profile_image_url||s.avatar_url||s.photo_url||p.profile_image_url||p.avatar_url||p.photo_url||'',u=unread(),
+  primary=[['dashboard','fa-house','วันนี้'],['schedule','fa-calendar-days','ตาราง'],['learning','fa-circle-play','เรียน'],['assignments','fa-list-check','การบ้าน'],['courses','fa-graduation-cap','คอร์ส']],
+  services=[['attendance','fa-stopwatch','เวลาเรียน','Attendance และประวัติ'],['catalog','fa-bag-shopping','ลงคอร์ส','ดูคอร์สที่เปิดรับ'],['wallet','fa-wallet','ชั่วโมง','Course Wallet'],['payments','fa-credit-card','ชำระเงิน','Payment Center'],['requests','fa-headset','Support','คำขอและ Ticket'],['library','fa-book-open-reader','Library','คลังสื่อ'],['notifications','fa-bell','แจ้งเตือน','รายการล่าสุด'],['account','fa-user-gear','บัญชี','Profile & Security']],
+  labels={dashboard:'วันนี้',schedule:'ตารางเรียน',learning:'เรียนย้อนหลัง',assignments:'การบ้าน',courses:'คอร์สของฉัน',attendance:'เวลาเรียน',catalog:'ลงคอร์สเพิ่ม',wallet:'ชั่วโมงคอร์ส',payments:'การชำระเงิน',requests:'คำขอ / Support',library:'Library',notifications:'แจ้งเตือน',account:'บัญชี'};
+  return `<div class="os23-app"><header class="os23-header">
+    <button class="os23-brand" data-tab-jump="dashboard"><span class="os23-brandmark">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</span><span><b>${esc(brand.site_name_en||'AreWarin')}</b><small>Student OS</small></span></button>
+    <nav class="os23-primary">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
+    <div class="os23-actions"><button class="os23-command-trigger" id="os23CommandBtn"><i class="fa-solid fa-magnifying-glass"></i><span>ค้นหา</span><kbd>⌘ K</kbd></button><button class="os23-icon" id="os22SyncNow"><i class="fa-solid fa-rotate"></i></button><button class="os23-icon" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<em>${u}</em>`:''}</button><button class="os23-icon os23-gridbtn" id="os23ServiceBtn"><i class="fa-solid fa-border-all"></i></button><button class="os23-profile" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button></div>
+  </header>
+  <div class="os23-workspace-head"><div><span>STUDENT WORKSPACE</span><h1>${labels[S.tab]||'Student OS'}</h1></div><div class="os23-workspace-tools"><button id="os23ServiceBtnSecondary"><i class="fa-solid fa-border-all"></i><span>บริการ</span></button></div></div>
+  <main class="os23-content">${content}</main>
+  <nav class="os23-mobile-dock">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
+  <div class="os23-service-layer" id="os23ServiceLayer"><button class="os23-layer-backdrop" id="os23ServiceBackdrop"></button><aside class="os23-service-sheet"><div class="os23-sheet-head"><div><span>QUICK SERVICES</span><h2>บริการทั้งหมด</h2></div><button id="os23ServiceClose"><i class="fa-solid fa-xmark"></i></button></div><div class="os23-service-grid">${services.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span><b>${x[2]}</b><small>${x[3]}</small></span>${x[0]==='notifications'&&u?`<em>${u}</em>`:''}</button>`).join('')}</div></aside></div>
+  <div class="os23-context-layer" id="os23ContextLayer"><button class="os23-layer-backdrop" id="os23ContextBackdrop"></button><aside class="os23-context-sheet"><button class="os23-context-close" id="os23ContextClose"><i class="fa-solid fa-xmark"></i></button><div id="os23ContextContent"></div></aside></div>
+  <div class="os23-command-layer" id="os23CommandLayer"><button class="os23-command-backdrop" id="os23CommandBackdrop"></button><section class="os23-command"><div class="os23-command-input"><i class="fa-solid fa-magnifying-glass"></i><input id="os23CommandInput" placeholder="ค้นหาคอร์ส บทเรียน การบ้าน หรือเมนู"><kbd>ESC</kbd></div><div class="os23-command-results" id="os23CommandResults"></div><div class="os23-command-foot"><span>↑↓ เลือก</span><span>Enter เปิด</span><span>Ctrl/⌘ + K ค้นหา</span></div></section></div>
   </div>`;
 }
 function activeEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused'].includes(e.status))}
@@ -2442,172 +2480,41 @@ function studyHomeworkCount(){const subs=studySubmissions();return studyAssignme
 function studyLessonHomework(){return (S.data?.v171_recent_lessons||[]).filter(x=>String(x.homework||x.assignment||x.teacher_note||'').trim()).slice(0,4)}
 function studyVideoCount(courseId){return topics(courseId).filter(t=>assets(t.id).some(a=>['video','youtube','vimeo'].includes(String(a.asset_type||a.type||'').toLowerCase())||/youtu|vimeo|\.mp4/i.test(String(a.url||a.external_url||a.file_url||'')))).length}
 
+
 function dashboard(){
-  const s=S.data.student||{},display=s.nickname||s.first_name||s.display_name||'นักเรียน',
-        active=activeEnroll(),
-        up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),
-        nx=up[0],
-        lessons=S.data?.v171_recent_lessons||[],
-        latest=lessons[0],
-        unlim=active.some(e=>e.hours_unlimited),
-        remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
-        assign=studyAssignments(),subs=studySubmissions(),
-        todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
-        noteTasks=studyLessonHomework(),
-        replay=active.filter(e=>topics(e.course_id).length).slice(0,4),
-        nowLabel=new Intl.DateTimeFormat('th-TH',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
-
-  return `<div class="os22-dashboard">
-    <section class="os22-welcome">
-      <div class="os22-welcome-copy">
-        <small>${esc(nowLabel)}</small>
-        <h2>${esc(display)}</h2>
-        <div class="os22-welcome-actions">
-          <button data-tab-jump="learning"><i class="fa-solid fa-play"></i> เรียนต่อ</button>
-          <button data-tab-jump="schedule"><i class="fa-regular fa-calendar"></i> ตารางเรียน</button>
-        </div>
-      </div>
-      <div class="os22-next-class">
-        <span><i class="fa-solid fa-bolt"></i> คลาสถัดไป</span>
-        ${nx?`
-          <strong>${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at))}</strong>
-          <b>${esc(nx.title||course(nx.course_id)?.title||'คาบเรียน')}</b>
-          <small>${new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short'}).format(new Date(nx.start_at))}${nx.tutor_name?' · '+esc(nx.tutor_name):''}</small>
-          <button data-tab-jump="schedule">รายละเอียด <i class="fa-solid fa-arrow-right"></i></button>
-        `:`<strong>—</strong><b>ยังไม่มีนัดเรียน</b><button data-tab-jump="schedule">ดูตาราง</button>`}
-      </div>
-    </section>
-
-    <section class="os22-kpis">
-      <button data-tab-jump="attendance"><i class="fa-regular fa-clock"></i><div><span>คงเหลือ</span><b>${unlim?'∞':remain.toFixed(1)}</b><small>ชั่วโมง</small></div></button>
-      <button data-tab-jump="attendance"><i class="fa-solid fa-user-check"></i><div><span>เข้าเรียน</span><b>${v20Attended()}</b><small>ครั้ง</small></div></button>
-      <button data-tab-jump="assignments"><i class="fa-solid fa-list-check"></i><div><span>งานค้าง</span><b>${todo.length||noteTasks.length}</b><small>รายการ</small></div></button>
-      <button data-tab-jump="courses"><i class="fa-solid fa-layer-group"></i><div><span>คอร์ส</span><b>${active.length}</b><small>กำลังเรียน</small></div></button>
-    </section>
-
-    <div class="os22-board">
-      <section class="os22-panel os22-span2">
-        <div class="os22-panel-head"><h3>เรียนต่อ</h3><button data-tab-jump="learning">ดูทั้งหมด</button></div>
-        <div class="os22-learning-row">
-          ${replay.map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id),vc=studyVideoCount(e.course_id),cover=c?.cover_url||'';return `
-            <button class="os22-learn-card" data-open-course="${e.course_id}">
-              <div class="os22-learn-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}"><span><i class="fa-solid fa-play"></i></span></div>
-              <div class="os22-learn-info"><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${vc?vc+' วิดีโอ':topics(e.course_id).length+' บทเรียน'}</small><div><i style="width:${pct}%"></i></div></div>
-            </button>`}).join('')||'<div class="os22-empty">ยังไม่มีบทเรียนย้อนหลัง</div>'}
-        </div>
-      </section>
-
-      <section class="os22-panel">
-        <div class="os22-panel-head"><h3>การบ้าน</h3><button data-tab-jump="assignments">ทั้งหมด</button></div>
-        <div class="os22-task-list">
-          ${todo.slice(0,4).map(a=>`<button data-tab-jump="assignments"><i class="fa-regular fa-file-lines"></i><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><em><i class="fa-solid fa-chevron-right"></i></em></button>`).join('')
-          ||noteTasks.slice(0,4).map(x=>`<button data-tab-jump="assignments"><i class="fa-regular fa-note-sticky"></i><span><b>${esc(x.title||x.course_name||'งานจากคาบล่าสุด')}</b><small>${date(x.session_date||x.created_at)}</small></span><em><i class="fa-solid fa-chevron-right"></i></em></button>`).join('')
-          ||'<div class="os22-empty good"><i class="fa-solid fa-check"></i> ไม่มีงานค้าง</div>'}
-        </div>
-      </section>
-
-      <section class="os22-panel">
-        <div class="os22-panel-head"><h3>ทางลัด</h3></div>
-        <div class="os22-shortcuts">
-          <button data-tab-jump="attendance"><i class="fa-solid fa-stopwatch"></i><span>เวลาเรียน</span></button>
-          <button data-tab-jump="catalog"><i class="fa-solid fa-plus"></i><span>ลงคอร์ส</span></button>
-          <button data-tab-jump="payments"><i class="fa-regular fa-credit-card"></i><span>ชำระเงิน</span></button>
-          <button data-tab-jump="requests"><i class="fa-solid fa-headset"></i><span>Support</span></button>
-          <a href="${esc(libraryUrl())}"><i class="fa-solid fa-book-open-reader"></i><span>Library</span></a>
-          <button data-tab-jump="account"><i class="fa-solid fa-user-gear"></i><span>บัญชี</span></button>
-        </div>
-      </section>
-
-      <section class="os22-panel os22-span2">
-        <div class="os22-panel-head"><h3>คาบล่าสุด</h3><button data-tab-jump="attendance">ประวัติ</button></div>
-        ${latest?`<div class="os22-latest">
-          <div class="os22-latest-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
-          <div><b>${esc(latest.title||latest.course_name||'คาบเรียน')}</b><small>${date(latest.session_date||latest.created_at)}${latest.tutor_name?' · '+esc(latest.tutor_name):''}</small></div>
-          <strong>${n(latest.deducted_hours).toFixed(2)} ชม.</strong>
-        </div>`:'<div class="os22-empty">ยังไม่มีบันทึกการเรียน</div>'}
-      </section>
-
-      <a class="os22-library-card" href="${esc(libraryUrl())}">
-        <i class="fa-solid fa-book-open-reader"></i><div><b>Library</b><small>เปิดคลังสื่อ</small></div><span><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-      </a>
-    </div>
-  </div>`;
+  const s=S.data.student||{},display=s.nickname||s.first_name||s.display_name||'นักเรียน',active=activeEnroll(),
+  up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),nx=up[0],
+  lessons=S.data?.v171_recent_lessons||[],latest=lessons[0],unlim=active.some(e=>e.hours_unlimited),remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
+  assign=studyAssignments(),subs=studySubmissions(),todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
+  replay=active.filter(e=>topics(e.course_id).length).sort((a,b)=>courseProgress(b.course_id)-courseProgress(a.course_id)),timeline=os23TodayTimeline(),avg=os23AvgProgress(),now=new Date(),nxHours=nx?(new Date(nx.start_at)-now)/36e5:null,urgent=todo[0]&&todo[0].due_at?((new Date(todo[0].due_at)-now)/36e5)<=24:false;
+  let hero={eyebrow:'NEXT ACTION',icon:'fa-sparkles',title:'พร้อมเรียนต่อ',sub:'เลือกคอร์สล่าสุดแล้วเรียนต่อจากจุดเดิม',action:'เรียนต่อ',actionAttr:replay[0]?`data-open-course="${replay[0].course_id}"`:'data-tab-jump="courses"',side:'Study Workspace',sideSub:`${avg}% ภาพรวม`};
+  if(nx&&nxHours!==null&&nxHours<=8)hero={eyebrow:'NEXT CLASS',icon:'fa-chalkboard-user',title:nx.title||course(nx.course_id)?.title||'คาบเรียน',sub:`${dateTime(nx.start_at)}${nx.tutor_name?' · '+nx.tutor_name:''}`,action:'เปิดตาราง',actionAttr:'data-tab-jump="schedule"',side:new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at)),sideSub:new Intl.DateTimeFormat('th-TH',{weekday:'short',day:'numeric',month:'short'}).format(new Date(nx.start_at))};
+  else if(urgent)hero={eyebrow:'DUE SOON',icon:'fa-list-check',title:todo[0].title||'การบ้านใกล้ถึงกำหนด',sub:todo[0].due_at?`ส่ง ${dateTime(todo[0].due_at)}`:'มีงานที่ต้องทำ',action:'เปิดการบ้าน',actionAttr:'data-tab-jump="assignments"',side:'ภายใน 24 ชม.',sideSub:'อย่าลืมส่งงาน'};
+  else if(replay[0]){const c=course(replay[0].course_id),pct=courseProgress(replay[0].course_id);hero={eyebrow:'CONTINUE LEARNING',icon:'fa-circle-play',title:c?.title||replay[0].course_label||'เรียนต่อ',sub:`เรียนแล้ว ${pct}% · กลับไปต่อจากบทล่าสุด`,action:'เรียนต่อ',actionAttr:`data-open-course="${replay[0].course_id}"`,side:`${pct}%`,sideSub:'Course progress'}}
+  return `<div class="os23-dashboard">
+  <section class="os23-adaptive-hero"><div class="os23-hero-main"><span class="os23-eyebrow"><i class="fa-solid ${hero.icon}"></i> ${hero.eyebrow}</span><h2>${esc(hero.title)}</h2><p>${esc(hero.sub)}</p><div class="os23-hero-actions"><button class="primary" ${hero.actionAttr}><i class="fa-solid fa-arrow-right"></i>${hero.action}</button><button data-tab-jump="schedule"><i class="fa-regular fa-calendar"></i> ตารางวันนี้</button></div></div><div class="os23-hero-side"><small>${esc(display)}</small><strong>${esc(hero.side)}</strong><span>${esc(hero.sideSub)}</span></div></section>
+  <section class="os23-bento"><button class="os23-stat" data-tab-jump="attendance"><i class="fa-regular fa-clock"></i><span><small>ชั่วโมงคงเหลือ</small><b>${unlim?'∞':remain.toFixed(1)}</b><em>${unlim?'Unlimited':'ชม.'}</em></span></button><button class="os23-stat" data-tab-jump="assignments"><i class="fa-solid fa-list-check amber"></i><span><small>งานที่ต้องทำ</small><b>${todo.length}</b><em>รายการ</em></span></button><button class="os23-stat" data-tab-jump="courses"><i class="fa-solid fa-layer-group violet"></i><span><small>คอร์สกำลังเรียน</small><b>${active.length}</b><em>คอร์ส</em></span></button><button class="os23-stat" data-tab-jump="learning"><div class="os23-ring" style="--p:${avg}"><span>${avg}%</span></div><span><small>Progress เฉลี่ย</small><b>${avg}%</b><em>จากบทเรียน</em></span></button></section>
+  <div class="os23-dashboard-grid">
+    <section class="os23-panel os23-wide"><div class="os23-panel-head"><div><span>CONTINUE</span><h3>เรียนต่อ</h3></div><button data-tab-jump="learning">ทั้งหมด</button></div><div class="os23-continue-grid">${replay.slice(0,4).map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id),cover=c?.cover_url||'',ts=topics(e.course_id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0];return `<article class="os23-course-strip"><button class="os23-strip-cover" data-open-course="${e.course_id}" style="${cover?`background-image:url('${esc(cover)}')`:''}">${!cover?'<i class="fa-solid fa-dna"></i>':''}<span><i class="fa-solid fa-play"></i></span></button><div class="os23-strip-copy"><small>${pct}% COMPLETE</small><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><span>${nextTopic?`ต่อไป · ${esc(nextTopic.title)}`:`${ts.length} บทเรียน`}</span><div class="os23-progressbar"><i style="width:${pct}%"></i></div></div><button class="os23-more" data-course-detail="${e.course_id}"><i class="fa-solid fa-ellipsis"></i></button></article>`}).join('')||'<div class="os23-empty"><i class="fa-solid fa-circle-play"></i><b>ยังไม่มีบทเรียนย้อนหลัง</b></div>'}</div></section>
+    <section class="os23-panel"><div class="os23-panel-head"><div><span>TODAY</span><h3>Timeline วันนี้</h3></div><button data-tab-jump="schedule">ตาราง</button></div><div class="os23-timeline">${timeline.slice(0,6).map(x=>`<button data-tab-jump="${x.tab}"><time>${esc(x.time)}</time><i class="fa-solid ${x.icon} ${x.tone}"></i><span><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></span></button>`).join('')||'<div class="os23-empty compact"><i class="fa-regular fa-calendar-check"></i><b>วันนี้ไม่มีนัดหรือกำหนดส่ง</b></div>'}</div></section>
+    <section class="os23-panel"><div class="os23-panel-head"><div><span>TO DO</span><h3>การบ้าน</h3></div><button data-tab-jump="assignments">ทั้งหมด</button></div><div class="os23-tasklist">${todo.slice(0,4).map(a=>`<button data-tab-jump="assignments"><i class="fa-regular fa-file-lines"></i><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><em>›</em></button>`).join('')||'<div class="os23-empty compact success"><i class="fa-solid fa-check"></i><b>ไม่มีงานค้าง</b></div>'}</div></section>
+    <section class="os23-panel os23-wide"><div class="os23-panel-head"><div><span>PROGRESS</span><h3>ภาพรวมการเรียน</h3></div><button data-tab-jump="courses">คอร์สของฉัน</button></div><div class="os23-progress-courses">${active.slice(0,5).map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id);return `<button data-course-detail="${e.course_id}"><span class="os23-mini-ring" style="--p:${pct}"><b>${pct}</b></span><span><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${topics(e.course_id).filter(t=>progress(t.id)?.status==='completed').length}/${topics(e.course_id).length} บทเรียน</small></span><i class="fa-solid fa-chevron-right"></i></button>`}).join('')||'<div class="os23-empty compact">ยังไม่มีข้อมูล Progress</div>'}</div></section>
+    <section class="os23-panel"><div class="os23-panel-head"><div><span>LATEST</span><h3>คาบล่าสุด</h3></div><button data-tab-jump="attendance">ประวัติ</button></div>${latest?`<div class="os23-latest"><i class="fa-solid fa-chalkboard-user"></i><div><b>${esc(latest.title||latest.course_name||'คาบเรียน')}</b><small>${date(latest.session_date||latest.created_at)}${latest.tutor_name?' · '+esc(latest.tutor_name):''}</small></div><strong>${n(latest.deducted_hours).toFixed(2)} ชม.</strong></div>`:'<div class="os23-empty compact">ยังไม่มีบันทึกการเรียน</div>'}</section>
+  </div></div>`;
 }
 
 function courseCard(e){
-  const c=course(e.course_id);
-  if(!c)return '';
-  const pending=e.status==='pending',
-        pct=courseProgress(c.id),
-        newC=!pending&&(S.data.topics||[]).filter(t=>String(t.course_id)===String(c.id)).some(isNewTopic),
-        cover=c.cover_url||'',
-        remain=Math.max(0,n(e.hours_total)-n(e.hours_used)),
-        renew=renewalReady(e),
-        completed=topics(c.id).filter(t=>progress(t.id)?.status==='completed').length,
-        totalTopics=topics(c.id).length;
-
-  return `<article class="os222-mycourse ${pending?'pending':''}">
-    <div class="os222-mycourse-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}">
-      ${!cover?'<div class="os222-cover-fallback"><i class="fa-solid fa-dna"></i></div>':''}
-      <div class="os222-mycourse-badges">
-        ${pending?'<span class="pending">รอเปิดใช้งาน</span>':renew?'<span class="renew">ใกล้หมดคอร์ส</span>':newC?'<span class="new">มีบทใหม่</span>':'<span>กำลังเรียน</span>'}
-      </div>
-    </div>
-    <div class="os222-mycourse-body">
-      <h3>${esc(c.title||'คอร์ส')}</h3>
-      ${pending?`
-        <div class="os222-pending-note">รอ Manager ยืนยันและเปิดคอร์ส</div>
-        <div class="os222-course-actions">
-          <button class="btn primary" data-go-pay>ดูสถานะ</button>
-          <button class="btn soft" data-go-catalog>ดูคอร์สอื่น</button>
-        </div>
-      `:`
-        <div class="os222-course-meta">
-          <span>${e.hours_unlimited?'ไม่จำกัดชั่วโมง':`เหลือ ${remain.toFixed(1)} ชม.`}</span>
-          <span>${completed}/${totalTopics} บท</span>
-        </div>
-        <div class="os222-course-progress"><i style="width:${pct}%"></i></div>
-        <div class="os222-course-foot">
-          <small>ความคืบหน้า ${pct}%</small>
-          <div class="os222-course-actions">
-            <button class="btn primary" data-open-course="${c.id}">${pct?'เรียนต่อ':'เริ่มเรียน'}</button>
-            ${renew?`<button class="btn renew-btn" data-renew="${c.id}">ต่อคอร์ส</button>`:''}
-          </div>
-        </div>
-      `}
-    </div>
-  </article>`;
+  const c=course(e.course_id);if(!c)return '';const pending=e.status==='pending',pct=courseProgress(c.id),cover=c.cover_url||'',remain=e.hours_unlimited?null:Math.max(0,n(e.hours_total)-n(e.hours_used)),renew=renewalReady(e),ts=topics(c.id),done=ts.filter(t=>progress(t.id)?.status==='completed').length,nx=os23CourseNextClass(c.id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0];
+  return `<article class="os23-workspace-card ${pending?'pending':''}"><div class="os23-workspace-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}">${!cover?'<i class="fa-solid fa-dna"></i>':''}<div class="os23-workspace-badges"><span>${pending?'รอเปิดใช้งาน':renew?'ใกล้หมดคอร์ส':'ACTIVE'}</span></div><button data-course-detail="${c.id}" class="os23-card-menu"><i class="fa-solid fa-ellipsis"></i></button></div><div class="os23-workspace-body"><small>${esc(c.course_type||'COURSE')}</small><h3>${esc(c.title||e.course_label||'คอร์ส')}</h3>${pending?`<div class="os23-pending">รอ Manager เปิดคอร์ส</div>`:`<div class="os23-workspace-next"><span>เรียนต่อ</span><b>${nextTopic?esc(nextTopic.title):'เลือกบทเรียน'}</b></div><div class="os23-progressbar"><i style="width:${pct}%"></i></div><div class="os23-workspace-metrics"><span><b>${pct}%</b><small>Progress</small></span><span><b>${done}/${ts.length}</b><small>บทเรียน</small></span><span><b>${e.hours_unlimited?'∞':remain.toFixed(1)}</b><small>ชม. เหลือ</small></span></div>${nx?`<div class="os23-card-nextclass"><i class="fa-regular fa-calendar"></i><span>${dateTime(nx.start_at)}</span></div>`:''}`}<div class="os23-workspace-actions">${pending?`<button class="btn primary" data-go-pay>ดูสถานะ</button>`:`<button class="btn primary" data-open-course="${c.id}"><i class="fa-solid fa-play"></i> ${pct?'เรียนต่อ':'เริ่มเรียน'}</button>`}${renew?`<button class="btn soft" data-renew="${c.id}">ต่อคอร์ส</button>`:''}</div></div></article>`;
 }
 
+function coursesHtml(){const rows=visibleEnroll(),active=rows.filter(x=>['active','paused'].includes(x.status)),pending=rows.filter(x=>x.status==='pending');return `<div class="os23-course-page"><section class="os23-page-hero compact"><div><span class="os23-eyebrow">COURSE WORKSPACE</span><h2>คอร์สของฉัน</h2><p>${active.length} คอร์สกำลังเรียน${pending.length?` · ${pending.length} รอเปิดใช้งาน`:''}</p></div><button class="btn primary" data-go-catalog><i class="fa-solid fa-plus"></i> ลงคอร์สเพิ่ม</button></section><div class="os23-workspace-grid">${rows.map(courseCard).join('')||'<div class="os23-panel os23-empty large"><i class="fa-solid fa-graduation-cap"></i><b>ยังไม่มีคอร์สในบัญชีนี้</b><button class="btn primary" data-go-catalog>ดูคอร์สที่เปิดรับ</button></div>'}</div></div>`}
 
-function coursesHtml(){
-  const rows=visibleEnroll();
-  return `<div class="os222-course-page">
-    <section class="os222-page-head">
-      <div><small>MY COURSES</small><h2>คอร์สของฉัน</h2></div>
-      <button class="btn primary" data-go-catalog><i class="fa-solid fa-plus"></i> ลงคอร์สเพิ่ม</button>
-    </section>
-    <div class="os222-mycourse-grid">
-      ${rows.map(courseCard).join('')||'<div class="os22-panel os222-page-empty"><i class="fa-solid fa-graduation-cap"></i><b>ยังไม่มีคอร์สในบัญชีนี้</b><button class="btn primary" data-go-catalog>ดูคอร์สที่เปิดรับ</button></div>'}
-    </div>
-  </div>`;
-}
+function learningHtml(){if(S.courseId)return courseLearning(S.courseId);const rows=activeEnroll().filter(e=>topics(e.course_id).length);return `<div class="os23-course-page"><section class="os23-page-hero compact"><div><span class="os23-eyebrow">LEARNING SPACE</span><h2>เรียนย้อนหลัง</h2><p>วิดีโอ เอกสาร และ Progress ของทุกคอร์ส</p></div><button class="btn soft" data-tab-jump="courses">คอร์สของฉัน</button></section><div class="os23-workspace-grid">${rows.map(courseCard).join('')||'<div class="os23-panel os23-empty large"><i class="fa-solid fa-video-slash"></i><b>ยังไม่มีบทเรียนย้อนหลัง</b></div>'}</div></div>`}
 
-function learningHtml(){
-  if(S.courseId)return courseLearning(S.courseId);
-  const rows=activeEnroll().filter(e=>topics(e.course_id).length);
-  return `<div class="os222-course-page">
-    <section class="os222-page-head">
-      <div><small>REPLAY & LEARNING</small><h2>เรียนย้อนหลัง</h2></div>
-      <button class="btn soft" data-tab-jump="courses">คอร์สของฉัน</button>
-    </section>
-    <div class="os222-mycourse-grid">
-      ${rows.map(courseCard).join('')||'<div class="os22-panel os222-page-empty"><i class="fa-solid fa-video-slash"></i><b>ยังไม่มีบทเรียนย้อนหลัง</b></div>'}
-    </div>
-  </div>`;
-}
-function courseLearning(courseId){const c=course(courseId),ts=topics(courseId);if(!S.lessonId)S.lessonId=ts.find(t=>progress(t.id)?.status!=='completed')?.id||ts[0]?.id;const current=ts.find(t=>String(t.id)===String(S.lessonId))||ts[0];return `<button class="btn small" data-back-learning>← กลับหน้าคอร์ส</button><div class="lesson-layout" style="margin-top:12px"><aside class="card lesson-nav"><div class="section-head"><div><h2>${esc(c.title)}</h2><p>เรียนแล้ว ${courseProgress(courseId)}%</p></div></div><div class="progress"><i style="width:${courseProgress(courseId)}%"></i></div><div style="margin-top:13px">${ts.map((t,i)=>`<article class="lesson-item ${String(t.id)===String(current?.id)?'active':''} ${progress(t.id)?.status==='completed'?'done':''}" data-lesson="${t.id}"><div class="name">${progress(t.id)?.status==='completed'?'✓ ':''}บทที่ ${i+1} · ${esc(t.title)} ${isNewTopic(t)?'<span class="chip amber">ใหม่</span>':''}</div><div class="sub">${assets(t.id).length} สื่อ</div></article>`).join('')||'<div class="empty">ยังไม่มีบทเรียน</div>'}</div></aside><main class="card lesson-player">${current?lessonPlayer(current,ts):'<div class="empty">ยังไม่มีบทเรียน</div>'}</main></div>`}
-function youtube(url){const m=String(url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);return m?`https://www.youtube.com/embed/${m[1]}`:''}function lessonPlayer(t,ts){const as=assets(t.id),idx=ts.findIndex(x=>x.id===t.id),done=progress(t.id)?.status==='completed';return `<div class="section-head"><div><span class="chip">บทที่ ${idx+1}</span><h2 style="margin-top:8px">${esc(t.title)}</h2><p>${esc(t.description||'')}</p></div>${done?'<span class="chip green">เรียนจบแล้ว</span>':''}</div>${as.map(assetHtml).join('')||'<div class="empty">ยังไม่มีวิดีโอหรือชีท</div>'}<div style="display:flex;justify-content:space-between;gap:8px;margin-top:16px"><button class="btn" data-prev ${idx<=0?'disabled':''}>← บทก่อนหน้า</button><button class="btn ${done?'success':'primary'}" data-complete="${t.id}">${done?'เรียนจบแล้ว':'มาร์คว่าเรียนจบ'}</button><button class="btn" data-next ${idx>=ts.length-1?'disabled':''}>บทถัดไป →</button></div>`}
+function courseLearning(courseId){const c=course(courseId),ts=topics(courseId);if(!S.lessonId)S.lessonId=ts.find(t=>progress(t.id)?.status!=='completed')?.id||ts[0]?.id;const current=ts.find(t=>String(t.id)===String(S.lessonId))||ts[0],pct=courseProgress(courseId),bookmark=current?os23IsBookmarked(current.id):false;return `<div class="os23-study-shell"><div class="os23-study-top"><button class="os23-study-back" data-back-learning><i class="fa-solid fa-arrow-left"></i><span>คอร์ส</span></button><div class="os23-study-title"><small>${pct}% COMPLETE</small><b>${esc(c?.title||'คอร์ส')}</b></div><div class="os23-study-actions"><button data-study-theme><i class="fa-regular fa-moon"></i><span>Dark</span></button><button data-focus-study><i class="fa-solid fa-expand"></i><span>Focus</span></button></div></div><div class="os23-study-workspace"><aside class="os23-chapters"><div class="os23-chapter-head"><span>CHAPTERS</span><b>${ts.length} บท</b></div><div class="os23-chapter-progress"><i style="width:${pct}%"></i></div><div class="os23-chapter-list">${ts.map((t,i)=>`<button class="${String(t.id)===String(current?.id)?'active':''} ${progress(t.id)?.status==='completed'?'done':''}" data-lesson="${t.id}"><span>${progress(t.id)?.status==='completed'?'<i class="fa-solid fa-check"></i>':String(i+1).padStart(2,'0')}</span><div><b>${esc(t.title)}</b><small>${assets(t.id).length} สื่อ${os23IsBookmarked(t.id)?' · ★':''}</small></div></button>`).join('')||'<div class="os23-empty compact">ยังไม่มีบทเรียน</div>'}</div></aside><main class="os23-player">${current?lessonPlayer(current,ts):'<div class="os23-empty large">ยังไม่มีบทเรียน</div>'}</main><aside class="os23-study-notes">${current?`<div class="os23-notes-head"><span>NOTES</span><button data-bookmark-topic="${current.id}" class="${bookmark?'active':''}"><i class="${bookmark?'fa-solid':'fa-regular'} fa-bookmark"></i></button></div><div class="os23-note-topic"><small>บทปัจจุบัน</small><b>${esc(current.title)}</b></div><textarea id="os23LessonNote" placeholder="จดประเด็นสำคัญ...">${esc(os23GetNote(current.id))}</textarea><button class="os23-note-save" id="os23SaveNote" data-topic="${current.id}"><i class="fa-solid fa-check"></i> บันทึกโน้ต</button><div class="os23-note-hint"><i class="fa-solid fa-mobile-screen"></i><span>โน้ตและ Bookmark เก็บในอุปกรณ์นี้</span></div>`:''}</aside></div></div>`}
+function youtube(url){const m=String(url||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);return m?`https://www.youtube.com/embed/${m[1]}`:''}
+function lessonPlayer(t,ts){const as=assets(t.id),idx=ts.findIndex(x=>x.id===t.id),done=progress(t.id)?.status==='completed';return `<div class="os23-player-head"><div><span>บทที่ ${idx+1}</span><h2>${esc(t.title)}</h2>${t.description?`<p>${esc(t.description)}</p>`:''}</div>${done?'<em><i class="fa-solid fa-check"></i> เรียนจบแล้ว</em>':''}</div><div class="os23-assets">${as.map(assetHtml).join('')||'<div class="os23-empty large"><i class="fa-regular fa-circle-play"></i><b>ยังไม่มีวิดีโอหรือชีท</b></div>'}</div><div class="os23-player-nav"><button class="btn soft" data-prev ${idx<=0?'disabled':''}><i class="fa-solid fa-arrow-left"></i> ก่อนหน้า</button><button class="btn ${done?'success':'primary'}" data-complete="${t.id}">${done?'<i class="fa-solid fa-check"></i> เรียนจบแล้ว':'มาร์คว่าเรียนจบ'}</button><button class="btn soft" data-next ${idx>=ts.length-1?'disabled':''}>ถัดไป <i class="fa-solid fa-arrow-right"></i></button></div>`}
 function assetHtml(a){if(a.asset_type==='youtube'){const u=youtube(a.url);return `<article class="asset"><div class="asset-head"><div><div class="name">${esc(a.title)}</div><div class="sub">YouTube · ${esc(a.description||'')}</div></div></div>${u?`<div class="video-frame"><iframe src="${esc(u)}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`:`<a class="btn small primary" href="${esc(a.url)}" target="_blank" rel="noopener">เปิด YouTube</a>`}</article>`}if(a.asset_type==='external_video')return `<article class="asset"><div class="name">${esc(a.title)}</div><div class="sub">${esc(a.description||'')}</div><a class="btn small primary" target="_blank" rel="noopener" href="${esc(a.url)}">เปิดวิดีโอ</a></article>`;if(a.asset_type==='external_link')return `<article class="asset"><div class="name">${esc(a.title)}</div><a class="btn small primary" target="_blank" rel="noopener" href="${esc(a.url)}">เปิดลิงก์</a></article>`;const signed=S.signed[a.id];if(a.asset_type==='video_upload')return `<article class="asset"><div class="name">${esc(a.title)}</div>${signed?`<div class="video-frame"><video controls preload="metadata" src="${esc(signed)}"></video></div>`:`<button class="btn small primary" data-load-asset="${a.id}">โหลดวิดีโอ</button>`}</article>`;return `<article class="asset"><div class="name">${esc(a.title)}</div><div class="sub">${esc(a.description||'ชีท/เอกสาร')}</div>${signed?`<a class="btn small primary" target="_blank" rel="noopener" href="${esc(signed)}">เปิดชีท</a>`:`<button class="btn small" data-load-asset="${a.id}">เปิดชีท</button>`}</article>`}
 function attendanceHtml(){const ledger=S.data.hour_ledger||[],groups=S.data.groups||[],lessons=S.data.v171_recent_lessons||[];const netUsed=ledger.reduce((a,x)=>a+n(x.hours_delta),0),active=activeEnroll(),remaining=active.reduce((sum,e)=>sum+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),unlimited=active.some(e=>e.hours_unlimited),latest=lessons[0];return `<div class="grid metrics attendance-metrics-v171" style="margin-bottom:16px"><div class="card metric"><small>ชั่วโมงคงเหลือ</small><strong>${unlimited?'∞':remaining.toFixed(1)}</strong><em>${unlimited?'แพ็กเกจรายปี':'ชั่วโมงปัจจุบัน'}</em></div><div class="card metric"><small>ใช้ไปสุทธิ</small><strong>${Math.max(0,netUsed).toFixed(1)}</strong><em>จาก Hour Ledger</em></div><div class="card metric"><small>เรียนล่าสุด</small><strong>${latest?n(latest.deducted_hours).toFixed(1):'—'}</strong><em>${latest?'ชั่วโมง · '+date(latest.session_date):'ยังไม่มีคาบ'}</em></div><div class="card metric"><small>Realtime</small><strong>ON</strong><em>Tutor OS → Student</em></div></div>${latest?`<section class="latest-lesson-card"><div><span class="section-kicker">LATEST LESSON</span><h2>${esc(latest.title||latest.course_name||'คาบเรียนล่าสุด')}</h2><p>${date(latest.session_date)} · ${latest.actual_start_at?new Intl.DateTimeFormat('th-TH',{timeStyle:'short'}).format(new Date(latest.actual_start_at)):String(latest.start_time||'').slice(0,5)} ${latest.actual_end_at?'– '+new Intl.DateTimeFormat('th-TH',{timeStyle:'short'}).format(new Date(latest.actual_end_at)):latest.end_time?'– '+String(latest.end_time).slice(0,5):''}</p></div><div class="latest-lesson-stats"><div><small>ผู้สอน</small><b>${esc(latest.tutor_name||'AreWarin Tutor')}</b></div><div><small>ตัดชั่วโมง</small><b>${n(latest.deducted_hours).toFixed(2)} ชม.</b></div><div><small>สถานะ</small><b>${statusThai(latest.attendance_status)}</b></div></div></section>`:''}${groups.length?`<section class="card" style="margin-bottom:16px"><div class="section-head"><div><h2>กลุ่มเรียนของฉัน</h2><p>Group Locker ใช้สำหรับจัดรายชื่อผู้สอน ชั่วโมงยังคิดแยกเป็นรายบุคคล</p></div></div>${groups.map(g=>`<span class="group-inline">👥 ${esc(g.group_code)} · ${esc(g.name)}</span>`).join('')}</section>`:''}<section class="card"><div class="section-head"><div><h2>ประวัติการเข้าเรียน</h2><p>ติวเตอร์ลงเวลา เริ่ม–จบ และตัดชั่วโมงแล้วข้อมูลจะเข้าหน้านี้แบบเรียลไทม์</p></div></div><div class="table-wrap"><table class="table"><thead><tr><th>วันที่</th><th>คอร์ส/คาบ</th><th>เวลา</th><th>สถานะ</th><th>ตัดชม.</th><th>หมายเหตุ</th></tr></thead><tbody>${(lessons.length?lessons:S.data.attendance).map(a=>{const ss=lessons.length?a:S.data.sessions.find(x=>x.id===a.session_id),g=groups.find(x=>String(x.id)===String(ss?.group_id)),st=lessons.length?a.attendance_status:a.status,dh=lessons.length?a.deducted_hours:a.deducted_hours;const start=ss?.actual_start_at?new Intl.DateTimeFormat('th-TH',{timeStyle:'short'}).format(new Date(ss.actual_start_at)):String(ss?.start_time||'').slice(0,5),end=ss?.actual_end_at?new Intl.DateTimeFormat('th-TH',{timeStyle:'short'}).format(new Date(ss.actual_end_at)):String(ss?.end_time||'').slice(0,5);return `<tr><td>${date(ss?.session_date||a.created_at)}</td><td><div class="name">${esc(ss?.title||'คาบเรียน')}</div><div class="sub">${esc(lessons.length?(ss?.course_name||''):course(ss?.course_id)?.title||'')}${g?' · '+esc(g.group_code):''}</div></td><td>${start||'—'}${end?'–'+end:''}</td><td><span class="chip ${st==='present'?'green':st==='late'?'amber':'gray'}">${statusThai(st)}</span></td><td><b>${n(dh).toFixed(2)}</b> ชม.</td><td>${esc(ss?.note||a.note||'—')}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">ยังไม่มีประวัติ</td></tr>'}</tbody></table></div></section>`}
 
@@ -2906,6 +2813,7 @@ function startStudentLiveSync(){
 }
 
 function render(){
+  if(S.tab!=='learning'||!S.courseId)document.body.classList.remove('os23-focus','os23-study-dark');
   clearInterval(S.timer);
   const map={
     dashboard,
@@ -2933,6 +2841,24 @@ function showModal(title,body,actions=''){modal.classList.remove('hidden');modal
 async function openLesson(id){S.lessonId=String(id);try{const p=await rpc('student_v8_open_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p)}catch(e){toast(e.message,true)}render()}async function completeLesson(id){try{const p=await rpc('student_v8_complete_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p);toast('บันทึกว่าเรียนจบแล้ว');const ts=topics(S.courseId),idx=ts.findIndex(t=>String(t.id)===String(id));if(idx<ts.length-1)S.lessonId=ts[idx+1].id;render()}catch(e){toast(e.message,true)}}async function loadAsset(id){const a=S.data.assets.find(x=>String(x.id)===String(id));try{const {data,error}=await sb.storage.from(a.bucket||'tutor-os-assets').createSignedUrl(a.storage_path,3600);if(error)throw error;S.signed[id]=data.signedUrl;render()}catch(e){toast(e.message,true)}}
 function uploadSlip(id){const p=S.data.payment_requests.find(x=>x.id===id);showModal('อัปโหลดสลิป',`<form id="slip"><div class="message">${esc(p.title)} · ${money(p.amount)}</div><div class="field"><label>ไฟล์สลิป</label><input class="input" type="file" name="file" accept="image/*,application/pdf" required></div><div class="field"><label>หมายเหตุ</label><textarea class="textarea" name="note"></textarea></div></form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="send-slip">อัปโหลดและยืนยัน</button>`);$('#send-slip').onclick=async()=>{const f=$('#slip'),file=f.file.files[0];if(!file)return toast('กรุณาเลือกสลิป',true);const path=`${S.session.user.id}/${id}/${Date.now()}-${file.name.replace(/[^\w.ก-๙-]+/g,'-')}`;try{const {error}=await sb.storage.from('portal-slips').upload(path,file,{contentType:file.type||undefined});if(error)throw error;await rpc('student_v8_submit_slip',{p_payment_request_id:id,p_storage_path:path,p_original_filename:file.name,p_amount:p.amount,p_note:new FormData(f).get('note')||''});modal.classList.add('hidden');toast('ส่งสลิปแล้ว รอแอดมินตรวจ');await load()}catch(e){await sb.storage.from('portal-slips').remove([path]);toast(e.message,true)}}}
 function bindPortal(){
+  os23ApplyStudyPrefs();
+  $('#os23ServiceBtn')?.addEventListener('click',os23OpenServices);
+  $('#os23ServiceBtnSecondary')?.addEventListener('click',os23OpenServices);
+  $('#os23ServiceClose')?.addEventListener('click',os23CloseServices);
+  $('#os23ServiceBackdrop')?.addEventListener('click',os23CloseServices);
+  $('#os23ContextClose')?.addEventListener('click',os23CloseContext);
+  $('#os23ContextBackdrop')?.addEventListener('click',os23CloseContext);
+  $('#os23CommandBtn')?.addEventListener('click',os23OpenCommand);
+  $('#os23CommandBackdrop')?.addEventListener('click',os23CloseCommand);
+  $('#os23CommandInput')?.addEventListener('input',e=>os23RenderCommandResults(e.currentTarget.value));
+  $('#os23CommandResults')?.addEventListener('click',e=>{const b=e.target.closest('[data-os23-command]');if(b)os23RunCommand(b.dataset.os23Command)});
+  $$('[data-course-detail]').forEach(b=>b.onclick=e=>{e.stopPropagation();os23OpenCourseContext(b.dataset.courseDetail)});
+  $('[data-focus-study]')?.addEventListener('click',()=>os23ToggleFocus());
+  $('[data-study-theme]')?.addEventListener('click',()=>{const on=os23ToggleStudyDark();const b=$('[data-study-theme]');if(b)b.classList.toggle('active',on)});
+  $('#os23SaveNote')?.addEventListener('click',()=>{const b=$('#os23SaveNote'),ta=$('#os23LessonNote');if(b&&ta&&os23SaveNote(b.dataset.topic,ta.value)){toast('บันทึกโน้ตแล้ว');b.classList.add('saved');setTimeout(()=>b.classList.remove('saved'),800)}});
+  $('[data-bookmark-topic]')?.addEventListener('click',e=>{const b=e.currentTarget,on=os23ToggleBookmark(b.dataset.bookmarkTopic);b.classList.toggle('active',on);b.innerHTML=`<i class="${on?'fa-solid':'fa-regular'} fa-bookmark"></i>`;toast(on?'บันทึก Bookmark แล้ว':'นำ Bookmark ออกแล้ว')});
+  document.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='k'){e.preventDefault();os23OpenCommand();return}if(e.key==='Escape'){os23CloseCommand();os23CloseServices();os23CloseContext()}};
+
   const syncBtn=$('#os22SyncNow');
   if(syncBtn)syncBtn.onclick=async()=>{
     syncBtn.disabled=true;
@@ -3216,8 +3142,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "22.3.0-manager-sync";
-console.info("[AreWarin Student] V22.3 manager-sync loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "23.0.0-adaptive-workspace";
+console.info("[AreWarin Student] V23 adaptive-workspace loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -3500,7 +3426,7 @@ console.info("[AreWarin Student] V22.3 manager-sync loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V22.3 mobile navigation loaded");
+console.info("[AreWarin Student] V23 mobile navigation loaded");
 
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible' && S.session?.user && S.data?.student?.id && !S.courseId){
