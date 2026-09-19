@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="22.2.0-stable-ui">
-<title>AreWarin Biology · Student OS V22.2</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="22.3.0-manager-sync">
+<title>AreWarin Biology · Student OS V22.3</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2112,8 +2112,8 @@ body{font-size:14px!important}
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="22.2.0-stable-ui">
-<!-- LIVE BUILD: 22.2.0-stable-ui --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+</head><body class="aw-student-v156" data-student-build="22.3.0-manager-sync">
+<!-- LIVE BUILD: 22.3.0-manager-sync --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2396,7 +2396,7 @@ function shell(content){
 
       <div class="os22-head-actions">
         <div class="os22-search"><i class="fa-solid fa-magnifying-glass"></i><input id="studentGlobalSearch" placeholder="ค้นหา"><div id="studentSearchResults" class="v20-search-results"></div></div>
-        <button class="os22-iconbtn" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<b>${u}</b>`:''}</button>
+        <button class="os22-iconbtn" id="os22SyncNow" title="ซิงก์ข้อมูลล่าสุด"><i class="fa-solid fa-rotate"></i></button><button class="os22-iconbtn" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<b>${u}</b>`:''}</button>
         <button class="os22-user" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button>
       </div>
     </header>
@@ -2848,6 +2848,63 @@ function accountHtml(){
 }
 
 
+
+let OS22_SYNC_TIMER=null;
+let OS22_SYNC_CHANNEL=null;
+let OS22_SYNC_BUSY=false;
+
+async function studentSyncNow(reason='manual'){
+  if(OS22_SYNC_BUSY||!S.session?.user)return;
+  OS22_SYNC_BUSY=true;
+  try{
+    await load(false);
+    console.info('[AreWarin Student][SYNC]',reason,new Date().toISOString());
+  }catch(e){
+    console.warn('[AreWarin Student][SYNC FAILED]',reason,e?.message||e);
+  }finally{
+    OS22_SYNC_BUSY=false;
+  }
+}
+
+function stopStudentLiveSync(){
+  if(OS22_SYNC_TIMER){clearInterval(OS22_SYNC_TIMER);OS22_SYNC_TIMER=null}
+  if(OS22_SYNC_CHANNEL){
+    try{sb.removeChannel(OS22_SYNC_CHANNEL)}catch(_){}
+    OS22_SYNC_CHANNEL=null;
+  }
+}
+
+function startStudentLiveSync(){
+  stopStudentLiveSync();
+  const sid=S.data?.student?.id;
+  if(!sid||!S.session?.user)return;
+
+  // Fallback polling: Manager changes appear even when Realtime publication
+  // is not enabled for a table.
+  OS22_SYNC_TIMER=setInterval(()=>{
+    if(document.visibilityState==='visible' && !S.courseId){
+      studentSyncNow('poll');
+    }
+  },15000);
+
+  // Realtime: instant refresh when Manager/Tutor OS changes this student's
+  // course wallet or hour pool. If Realtime is unavailable, polling still works.
+  try{
+    OS22_SYNC_CHANNEL=sb.channel('student-os-sync-'+sid)
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'os_student_course_enrollments',
+        filter:`student_id=eq.${sid}`
+      },()=>studentSyncNow('course-wallet'))
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'os_hour_pools',
+        filter:`student_id=eq.${sid}`
+      },()=>studentSyncNow('hour-pool'))
+      .subscribe();
+  }catch(e){
+    console.warn('[AreWarin Student] realtime sync unavailable; polling enabled',e);
+  }
+}
+
 function render(){
   clearInterval(S.timer);
   const map={
@@ -2875,7 +2932,16 @@ function tlv(id,v){return id+String(v.length).padStart(2,'0')+v}function crc16(s
 function showModal(title,body,actions=''){modal.classList.remove('hidden');modal.innerHTML=`<div class="modal"><div class="modal-head"><h3>${esc(title)}</h3><button class="btn small" data-close>✕</button></div><div class="modal-body">${body}</div><div class="modal-actions">${actions||'<button class="btn" data-close>ปิด</button>'}</div></div>`;$$('[data-close]',modal).forEach(b=>b.onclick=()=>modal.classList.add('hidden'))}
 async function openLesson(id){S.lessonId=String(id);try{const p=await rpc('student_v8_open_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p)}catch(e){toast(e.message,true)}render()}async function completeLesson(id){try{const p=await rpc('student_v8_complete_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p);toast('บันทึกว่าเรียนจบแล้ว');const ts=topics(S.courseId),idx=ts.findIndex(t=>String(t.id)===String(id));if(idx<ts.length-1)S.lessonId=ts[idx+1].id;render()}catch(e){toast(e.message,true)}}async function loadAsset(id){const a=S.data.assets.find(x=>String(x.id)===String(id));try{const {data,error}=await sb.storage.from(a.bucket||'tutor-os-assets').createSignedUrl(a.storage_path,3600);if(error)throw error;S.signed[id]=data.signedUrl;render()}catch(e){toast(e.message,true)}}
 function uploadSlip(id){const p=S.data.payment_requests.find(x=>x.id===id);showModal('อัปโหลดสลิป',`<form id="slip"><div class="message">${esc(p.title)} · ${money(p.amount)}</div><div class="field"><label>ไฟล์สลิป</label><input class="input" type="file" name="file" accept="image/*,application/pdf" required></div><div class="field"><label>หมายเหตุ</label><textarea class="textarea" name="note"></textarea></div></form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="send-slip">อัปโหลดและยืนยัน</button>`);$('#send-slip').onclick=async()=>{const f=$('#slip'),file=f.file.files[0];if(!file)return toast('กรุณาเลือกสลิป',true);const path=`${S.session.user.id}/${id}/${Date.now()}-${file.name.replace(/[^\w.ก-๙-]+/g,'-')}`;try{const {error}=await sb.storage.from('portal-slips').upload(path,file,{contentType:file.type||undefined});if(error)throw error;await rpc('student_v8_submit_slip',{p_payment_request_id:id,p_storage_path:path,p_original_filename:file.name,p_amount:p.amount,p_note:new FormData(f).get('note')||''});modal.classList.add('hidden');toast('ส่งสลิปแล้ว รอแอดมินตรวจ');await load()}catch(e){await sb.storage.from('portal-slips').remove([path]);toast(e.message,true)}}}
-function bindPortal(){$$('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;if(S.tab!=='learning'){S.courseId=null;S.lessonId=null}render()});$$('[data-tab-jump]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tabJump;render()});$$('[data-go-catalog]').forEach(b=>b.onclick=()=>{S.tab='catalog';render()});$$('[data-view-owned]').forEach(b=>b.onclick=()=>{S.tab='courses';render()});$$('[data-logout]').forEach(b=>b.onclick=logout);$('[data-refresh]')?.addEventListener('click',()=>load());$$('[data-open-course]').forEach(b=>b.onclick=()=>{S.tab='learning';S.courseId=String(b.dataset.openCourse);S.lessonId=null;render()});$$('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson));$('[data-back-learning]')?.addEventListener('click',()=>{S.courseId=null;S.lessonId=null;render()});$('[data-complete]')?.addEventListener('click',e=>completeLesson(e.currentTarget.dataset.complete));$('[data-prev]')?.addEventListener('click',()=>{const ts=topics(S.courseId),i=ts.findIndex(t=>String(t.id)===String(S.lessonId));if(i>0)openLesson(ts[i-1].id)});$('[data-next]')?.addEventListener('click',()=>{const ts=topics(S.courseId),i=ts.findIndex(t=>String(t.id)===String(S.lessonId));if(i<ts.length-1)openLesson(ts[i+1].id)});$$('[data-load-asset]').forEach(b=>b.onclick=()=>loadAsset(b.dataset.loadAsset));$$('[data-upload-slip]').forEach(b=>b.onclick=()=>uploadSlip(b.dataset.uploadSlip));$$('[data-refresh-payment]').forEach(b=>b.onclick=async()=>{try{await rpc('student_v8_refresh_payment',{p_payment_request_id:b.dataset.refreshPayment});toast('สร้าง QR ใหม่แล้ว');await load()}catch(e){toast(e.message,true)}});$$('[data-enroll]').forEach(b=>b.onclick=()=>{const [cid,type]=b.dataset.enroll.split(':');const c=course(cid);if(!confirm(`${type==='renewal'?'ต่อ':'สมัคร'}คอร์ส ${c?.title||''} ผ่านระบบสมัครเรียนหลักใช่หรือไม่?`))return;location.href=`../?student=old&course=${encodeURIComponent(cid)}&source=student-portal&type=${encodeURIComponent(type)}`});$$('[data-renew]').forEach(b=>b.onclick=()=>{S.tab='catalog';render()});$('[data-go-pay]')?.addEventListener('click',()=>{S.tab='payments';render()});$('#open-installment-plan')?.addEventListener('click',()=>{if(typeof window.__AREWARIN_OPEN_INSTALLMENTS__==='function')window.__AREWARIN_OPEN_INSTALLMENTS__();else toast('กำลังเตรียมข้อมูลแผนชำระ กรุณาลองอีกครั้ง',true)});$$('[data-read]').forEach(b=>b.onclick=async()=>{await rpc('student_v8_mark_notification_read',{p_id:String(b.dataset.read)});await load()});$('#profile')?.addEventListener('submit',saveProfile);$$('[data-reschedule]').forEach(b=>b.onclick=()=>openReschedule(b.dataset.reschedule));$$('[data-submit-assignment]').forEach(b=>b.onclick=()=>openAssignmentSubmit(b.dataset.submitAssignment));$$('[data-receipt-token]').forEach(b=>b.onclick=()=>window.open(`${CONFIG.url}/functions/v1/get-receipt?token=${encodeURIComponent(b.dataset.receiptToken)}`,'_blank'));$('#newSupportTicket')?.addEventListener('click',openSupportTicket);$('#newRequestTicket')?.addEventListener('click',openSupportTicket);$$('[data-ticket]').forEach(b=>b.onclick=()=>openTicket(b.dataset.ticket));$('#newParentLink')?.addEventListener('click',createParentLink);$$('[data-revoke-parent]').forEach(b=>b.onclick=()=>revokeParentLink(b.dataset.revokeParent));$('#changePasswordForm')?.addEventListener('submit',changePassword);$('#logoutOtherDevices')?.addEventListener('click',logoutOtherDevices);bindPwaInstall();bindV20Banner();bindV20Search()}
+function bindPortal(){
+  const syncBtn=$('#os22SyncNow');
+  if(syncBtn)syncBtn.onclick=async()=>{
+    syncBtn.disabled=true;
+    const old=syncBtn.innerHTML;
+    syncBtn.innerHTML='<i class="fa-solid fa-rotate fa-spin"></i>';
+    await studentSyncNow('manual');
+    if(syncBtn?.isConnected){syncBtn.disabled=false;syncBtn.innerHTML=old}
+  };
+$$('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;if(S.tab!=='learning'){S.courseId=null;S.lessonId=null}render()});$$('[data-tab-jump]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tabJump;render()});$$('[data-go-catalog]').forEach(b=>b.onclick=()=>{S.tab='catalog';render()});$$('[data-view-owned]').forEach(b=>b.onclick=()=>{S.tab='courses';render()});$$('[data-logout]').forEach(b=>b.onclick=logout);$('[data-refresh]')?.addEventListener('click',()=>load());$$('[data-open-course]').forEach(b=>b.onclick=()=>{S.tab='learning';S.courseId=String(b.dataset.openCourse);S.lessonId=null;render()});$$('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson));$('[data-back-learning]')?.addEventListener('click',()=>{S.courseId=null;S.lessonId=null;render()});$('[data-complete]')?.addEventListener('click',e=>completeLesson(e.currentTarget.dataset.complete));$('[data-prev]')?.addEventListener('click',()=>{const ts=topics(S.courseId),i=ts.findIndex(t=>String(t.id)===String(S.lessonId));if(i>0)openLesson(ts[i-1].id)});$('[data-next]')?.addEventListener('click',()=>{const ts=topics(S.courseId),i=ts.findIndex(t=>String(t.id)===String(S.lessonId));if(i<ts.length-1)openLesson(ts[i+1].id)});$$('[data-load-asset]').forEach(b=>b.onclick=()=>loadAsset(b.dataset.loadAsset));$$('[data-upload-slip]').forEach(b=>b.onclick=()=>uploadSlip(b.dataset.uploadSlip));$$('[data-refresh-payment]').forEach(b=>b.onclick=async()=>{try{await rpc('student_v8_refresh_payment',{p_payment_request_id:b.dataset.refreshPayment});toast('สร้าง QR ใหม่แล้ว');await load()}catch(e){toast(e.message,true)}});$$('[data-enroll]').forEach(b=>b.onclick=()=>{const [cid,type]=b.dataset.enroll.split(':');const c=course(cid);if(!confirm(`${type==='renewal'?'ต่อ':'สมัคร'}คอร์ส ${c?.title||''} ผ่านระบบสมัครเรียนหลักใช่หรือไม่?`))return;location.href=`../?student=old&course=${encodeURIComponent(cid)}&source=student-portal&type=${encodeURIComponent(type)}`});$$('[data-renew]').forEach(b=>b.onclick=()=>{S.tab='catalog';render()});$('[data-go-pay]')?.addEventListener('click',()=>{S.tab='payments';render()});$('#open-installment-plan')?.addEventListener('click',()=>{if(typeof window.__AREWARIN_OPEN_INSTALLMENTS__==='function')window.__AREWARIN_OPEN_INSTALLMENTS__();else toast('กำลังเตรียมข้อมูลแผนชำระ กรุณาลองอีกครั้ง',true)});$$('[data-read]').forEach(b=>b.onclick=async()=>{await rpc('student_v8_mark_notification_read',{p_id:String(b.dataset.read)});await load()});$('#profile')?.addEventListener('submit',saveProfile);$$('[data-reschedule]').forEach(b=>b.onclick=()=>openReschedule(b.dataset.reschedule));$$('[data-submit-assignment]').forEach(b=>b.onclick=()=>openAssignmentSubmit(b.dataset.submitAssignment));$$('[data-receipt-token]').forEach(b=>b.onclick=()=>window.open(`${CONFIG.url}/functions/v1/get-receipt?token=${encodeURIComponent(b.dataset.receiptToken)}`,'_blank'));$('#newSupportTicket')?.addEventListener('click',openSupportTicket);$('#newRequestTicket')?.addEventListener('click',openSupportTicket);$$('[data-ticket]').forEach(b=>b.onclick=()=>openTicket(b.dataset.ticket));$('#newParentLink')?.addEventListener('click',createParentLink);$$('[data-revoke-parent]').forEach(b=>b.onclick=()=>revokeParentLink(b.dataset.revokeParent));$('#changePasswordForm')?.addEventListener('submit',changePassword);$('#logoutOtherDevices')?.addEventListener('click',logoutOtherDevices);bindPwaInstall();bindV20Banner();bindV20Search()}
 
 function openReschedule(id){const ev=(S.data.v16_schedule||[]).find(x=>x.id===id);showModal('ขอเลื่อนเวลาเรียน',`<form id="rescheduleForm"><div class="message">${esc(ev?.title||'คาบเรียน')} · ${dateTime(ev?.start_at)}</div><div class="field"><label>วันและเวลาใหม่ที่สะดวก</label><input class="input" type="datetime-local" name="start_at" required></div><div class="field"><label>เหตุผล / เวลาสำรอง</label><textarea class="textarea" name="reason" required></textarea></div></form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="submitReschedule">ส่งคำขอ</button>`);$('#submitReschedule').onclick=async()=>{const f=$('#rescheduleForm'),fd=new FormData(f),start=fd.get('start_at');try{await rpc('student_v16_request_reschedule',{p_event_id:id,p_requested_start_at:new Date(start).toISOString(),p_reason:String(fd.get('reason')||'')});modal.classList.add('hidden');toast('ส่งคำขอเลื่อนเรียนแล้ว');await load()}catch(e){toast(e.message,true)}}}
 function openAssignmentSubmit(id){const a=(S.data.v16_assignments||[]).find(x=>x.id===id);showModal('ส่งงาน',`<form id="assignmentSubmitForm"><div class="message">${esc(a?.title||'Assignment')}</div><div class="field"><label>คำตอบ / ลิงก์งาน</label><textarea class="textarea" name="text" placeholder="พิมพ์คำตอบ หรือลิงก์ Google Drive/Canva ฯลฯ"></textarea></div><div class="field"><label>ไฟล์แนบ (ถ้ามี)</label><input class="input" type="file" name="files" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx"></div></form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="sendAssignment">ส่งงาน</button>`);$('#sendAssignment').onclick=async()=>{const f=$('#assignmentSubmitForm'),fd=new FormData(f),files=[...f.files.files],paths=[];try{for(const file of files){const path=`${S.session.user.id}/${id}/${Date.now()}-${file.name.replace(/[^\\w.ก-๙-]+/g,'-')}`;const {error}=await sb.storage.from('student-assignment-files').upload(path,file,{contentType:file.type||undefined});if(error)throw error;paths.push(path)}await rpc('student_v16_submit_assignment',{p_assignment_id:id,p_submission_text:String(fd.get('text')||''),p_file_paths:paths});modal.classList.add('hidden');toast('ส่งงานเรียบร้อย');await load()}catch(e){toast(e.message,true)}}}
@@ -2972,6 +3038,7 @@ async function load(renderNow=true){
 
     if(renderNow)S.signed={};
     if(renderNow||S.tab!=='learning')render();
+    startStudentLiveSync();
   }catch(e){
     const diag=[
       e.rpc?`RPC: ${e.rpc}`:'',
@@ -3149,8 +3216,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "22.2.0-stable-ui";
-console.info("[AreWarin Student] V22.2 stable-ui loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "22.3.0-manager-sync";
+console.info("[AreWarin Student] V22.3 manager-sync loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -3433,7 +3500,19 @@ console.info("[AreWarin Student] V22.2 stable-ui loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V22.2 mobile navigation loaded");
+console.info("[AreWarin Student] V22.3 mobile navigation loaded");
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && S.session?.user && S.data?.student?.id && !S.courseId){
+    studentSyncNow('visibility');
+  }
+});
+window.addEventListener('focus',()=>{
+  if(S.session?.user && S.data?.student?.id && !S.courseId){
+    studentSyncNow('focus');
+  }
+});
+
 </script>
 
 
