@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f7f8fb">
   <title>AreWarin · นักเรียนเดิม</title>
-  <meta name="arewarin-legacy-build" content="23.2-system-delete">
+  <meta name="arewarin-legacy-build" content="23.1-safe-delete">
   <script src="../config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,7 +127,7 @@ function loginHtml(){
 function shell(){
   return `<div class="app">
     <aside class="side">
-      <div class="brand"><div class="logo">A</div><div><b>AreWarin</b><small>Legacy Student Records</small></div></div>
+      <div class="brand"><div class="logo">A</div><div><b>AreWarin</b><small>Legacy Student Records · V25.7</small></div></div>
       <div class="nav-label">Workspace</div>
       <nav class="nav">
         <button class="active"><i class="fas fa-users-viewfinder"></i><span>นักเรียนเดิม</span></button>
@@ -147,7 +147,7 @@ function shell(){
         <div class="toolbar">
           <div class="search"><i class="fas fa-magnifying-glass"></i><input id="searchInput" class="input" placeholder="ค้นหาชื่อ ชื่อเล่น Student ID เบอร์ โรงเรียน หรือคอร์ส"></div>
           <button id="legacyFilterBtn" class="btn"><i class="fas fa-clock-rotate-left"></i> เฉพาะนักเรียนเดิม</button>
-          <button id="newCourseBtn" class="btn green" disabled><i class="fas fa-book-medical"></i> เพิ่มประวัติคอร์ส</button>
+          <button id="assignCourseBtn" class="btn primary" disabled><i class="fas fa-graduation-cap"></i> เพิ่มคอร์สใช้งาน</button><button id="newCourseBtn" class="btn green" disabled><i class="fas fa-clock-rotate-left"></i> เพิ่มประวัติคอร์ส</button>
         </div>
         <div class="layout">
           <section class="card list-card"><div class="list-head"><b>รายชื่อนักเรียน</b><span id="studentCount" class="count">0</span></div><div id="studentList" class="student-list"></div></section>
@@ -201,20 +201,38 @@ function courseCard(c){
       </div>
     </div>
     <div class="row-actions">
-      ${legacy?`<button class="icon-btn" data-edit-course="${esc(c.id)}" title="แก้ไข"><i class="fas fa-pen"></i></button><button class="icon-btn danger" data-delete-course="${esc(c.id)}" title="ลบ"><i class="fas fa-trash"></i></button>`:''}
+      ${legacy&&c.course_id&&c.status==='active'?`<button class="icon-btn" data-promote-course="${esc(c.id)}" title="เปิดใน Student OS" style="color:#3157d9"><i class="fas fa-graduation-cap"></i></button>`:''}${legacy?`<button class="icon-btn" data-edit-course="${esc(c.id)}" title="แก้ไข"><i class="fas fa-pen"></i></button><button class="icon-btn danger" data-delete-course="${esc(c.id)}" title="ลบ"><i class="fas fa-trash"></i></button>`:''}
     </div>
   </div>`;
 }
+
+function currentCourseCard(c){
+  return `<div class="course-row">
+    <div class="course-icon" style="background:#e8f2ff;color:#3157d9"><i class="fas fa-graduation-cap"></i></div>
+    <div>
+      <h4>${esc(c.course_name||c.course_label||'คอร์ส')}</h4>
+      <div class="course-meta">${esc([c.tutor_name,c.status].filter(Boolean).join(' · '))}</div>
+      <div class="course-tags">
+        <span class="tag" style="background:#eaf7f1;color:#0b8061">STUDENT OS</span>
+        <span class="tag">${esc(c.status||'active')}</span>
+        <span class="tag">${Number(c.hours_total||0).toFixed(1)} ชม.</span>
+        <span class="tag">เหลือ ${Number(c.hours_remaining||0).toFixed(1)} ชม.</span>
+        ${c.has_hour_pool?'<span class="tag"><i class="fas fa-wallet"></i> Hour Wallet</span>':'<span class="tag" style="color:#b06b20">ไม่มี Hour Wallet</span>'}
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderDetail(){
-  const d=S.selected, box=document.getElementById('detail'), addBtn=document.getElementById('newCourseBtn');
-  if(!d){addBtn.disabled=true;box.innerHTML='<div class="card empty" style="padding:70px 20px"><i class="fas fa-address-card"></i>เลือกนักเรียนจากรายการด้านซ้ายเพื่อดูโปรไฟล์และคอร์สที่เคยเรียน</div>';return}
-  addBtn.disabled=false;
-  const s=d.student||{}, courses=d.courses||[], legacy=courses.filter(x=>x.source==='legacy'), sys=courses.filter(x=>x.source==='system'), linked=courses.filter(x=>x.course_id);
+  const d=S.selected, box=document.getElementById('detail'), addBtn=document.getElementById('newCourseBtn'), assignBtn=document.getElementById('assignCourseBtn');
+  if(!d){addBtn.disabled=true;if(assignBtn)assignBtn.disabled=true;box.innerHTML='<div class="card empty" style="padding:70px 20px"><i class="fas fa-address-card"></i>เลือกนักเรียนจากรายการด้านซ้ายเพื่อดูโปรไฟล์และคอร์สที่เคยเรียน</div>';return}
+  addBtn.disabled=false;if(assignBtn)assignBtn.disabled=false;
+  const s=d.student||{}, courses=d.courses||[], legacy=courses.filter(x=>x.source==='legacy'), sys=courses.filter(x=>x.source==='system'), linked=courses.filter(x=>x.course_id), current=d.current_courses||[], portalLinked=!!d.portal_linked;
   box.innerHTML=`<section class="card hero">
       <div class="hero-top"><div class="hero-person"><div class="hero-avatar">${esc(initials(s))}</div><div><span class="hero-badge"><i class="fas fa-star"></i> ${s.legacy_student?'RETURNING STUDENT':'STUDENT PROFILE'}</span><h2>${esc(s.nickname||s.display_name||s.fullname||'ไม่ระบุชื่อ')}</h2><div class="hero-sub">${esc(s.fullname||'')} ${s.student_code?'· '+esc(s.student_code):''}</div></div></div>
       <div class="hero-actions">
         <button id="editStudentBtn"><i class="fas fa-pen"></i> แก้ไข</button>
-        <button id="deleteStudentBtn" style="background:rgba(255,80,110,.14);border-color:rgba(255,170,185,.25);color:#ffd7df"><i class="fas fa-trash"></i> ลบนักเรียน</button>
+        ${s.legacy_student?'<button id="deleteStudentBtn" style="background:rgba(255,80,110,.14);border-color:rgba(255,170,185,.25);color:#ffd7df"><i class="fas fa-trash"></i> ลบนักเรียน</button>':''}
       </div></div>
       <div class="facts">
         <div class="fact"><small>เบอร์โทร</small><b>${esc(fmtPhone(s.phone))}</b></div>
@@ -224,7 +242,17 @@ function renderDetail(){
       </div>
     </section>
     <section class="card section">
-      <div class="section-head"><div><h3>คอร์สที่เคยเรียน</h3><p>รวมคอร์สก่อนระบบใหม่ และคอร์สที่พบจากระบบสมัครเรียนปัจจุบัน</p></div><button id="addCourseInline" class="btn green"><i class="fas fa-plus"></i> เพิ่มประวัติ</button></div>
+      <div class="section-head"><div><h3>คอร์สใช้งานใน Student OS</h3><p>ข้อมูลจาก <code>os_student_course_enrollments</code> — รายการในส่วนนี้เท่านั้นที่ Student Portal ใช้เป็นคอร์สจริง</p></div><button id="assignCourseInline" class="btn primary"><i class="fas fa-plus"></i> เพิ่มคอร์สใช้งาน</button></div>
+      <div class="course-summary">
+        <div class="course-kpi"><small>คอร์สใช้งาน</small><b>${current.filter(x=>['active','paused','pending'].includes(x.status)).length}</b></div>
+        <div class="course-kpi"><small>มี Hour Wallet</small><b>${current.filter(x=>x.has_hour_pool).length}</b></div>
+        <div class="course-kpi"><small>Student Portal</small><b style="font-size:11px;color:${portalLinked?'#087d61':'#c55c67'}">${portalLinked?'LINKED':'NOT LINKED'}</b></div>
+      </div>
+      ${!portalLinked?'<div style="margin:12px 0;padding:10px 12px;border-radius:12px;background:#fff4e7;color:#985d20;font-size:9px"><b>ยังไม่เชื่อมบัญชี Student OS</b><br>Manager สามารถสร้างคอร์สได้ แต่เด็กจะยังไม่เห็นจนกว่า <code>os_students.auth_user_id</code> จะเชื่อมกับบัญชีที่ Login</div>':''}
+      <div class="timeline">${current.length?current.map(currentCourseCard).join(''):'<div class="empty"><i class="fas fa-graduation-cap"></i>ยังไม่มีคอร์สใช้งานใน Student OS</div>'}</div>
+    </section>
+    <section class="card section">
+      <div class="section-head"><div><h3>ประวัติคอร์ส</h3><p>ประวัติก่อนระบบใหม่ใช้สำหรับอ้างอิงเท่านั้น ไม่ได้เปิดคอร์สใน Student OS อัตโนมัติ</p></div><button id="addCourseInline" class="btn green"><i class="fas fa-clock-rotate-left"></i> เพิ่มประวัติ</button></div>
       <div class="course-summary">
         <div class="course-kpi"><small>ทั้งหมด</small><b>${courses.length}</b></div>
         <div class="course-kpi"><small>ก่อนระบบใหม่</small><b>${legacy.length}</b></div>
@@ -245,7 +273,9 @@ function renderDetail(){
   document.getElementById('editStudentBtn').onclick=()=>openStudentModal(s);
   const deleteStudentBtn=document.getElementById('deleteStudentBtn');
   if(deleteStudentBtn)deleteStudentBtn.onclick=()=>openDeleteStudentModal(s,sys.length);
+  document.getElementById('assignCourseInline').onclick=()=>openAssignCourseModal();
   document.getElementById('addCourseInline').onclick=()=>openCourseModal();
+  box.querySelectorAll('[data-promote-course]').forEach(b=>b.onclick=()=>promoteLegacyCourse(b.dataset.promoteCourse));
   box.querySelectorAll('[data-edit-course]').forEach(b=>b.onclick=()=>openCourseModal((d.courses||[]).find(x=>x.id===b.dataset.editCourse)));
   box.querySelectorAll('[data-delete-course]').forEach(b=>b.onclick=()=>deleteCourse(b.dataset.deleteCourse));
 }
@@ -276,32 +306,24 @@ function openDeleteStudentModal(s,systemCourseCount=0){
   if(!s?.id)return;
   const display=s.nickname||s.display_name||s.fullname||'นักเรียน';
   const confirmText=s.student_code||display;
-  const isLegacy=!!s.legacy_student;
+  const systemWarning=systemCourseCount>0
+    ? `<div class="danger-box" style="margin-top:10px;background:#fffaf0;border-color:#f5dfb8;color:#8a611d">
+         <div class="danger-title"><i class="fas fa-shield-halved"></i> ตรวจพบข้อมูลจากระบบปัจจุบัน</div>
+         <p>นักเรียนคนนี้มีประวัติจาก Enrollment ${systemCourseCount} รายการ ระบบฐานข้อมูลจะตรวจซ้ำและ <b>ไม่อนุญาตให้ลบ</b> หากมี Enrollment, ชั่วโมง, Attendance, Group Class หรือบัญชี Student Hub ผูกอยู่</p>
+       </div>`:'';
 
-  const typeBox=isLegacy
-    ? `<div class="danger-box" style="margin-top:10px;background:#f7fbff;border-color:#d9e9fb;color:#315d88">
-         <div class="danger-title"><i class="fas fa-clock-rotate-left"></i> Legacy Student</div>
-         <p>จะลบ Student Profile และประวัติคอร์สก่อนระบบใหม่ของนักเรียนคนนี้</p>
-       </div>`
-    : `<div class="danger-box" style="margin-top:10px;background:#fffaf0;border-color:#f4dfb9;color:#845d18">
-         <div class="danger-title"><i class="fas fa-database"></i> SYSTEM Student</div>
-         <p>จะลบ Student Profile พร้อมข้อมูลฝั่งนักเรียน เช่น Course Wallet, ชั่วโมง, Attendance, ตารางเรียน, Group Class membership และ Student Hub records ที่ผูกกับ Profile นี้</p>
-         <p style="margin-top:6px"><b>ใบสมัครเรียน / Enrollment และข้อมูลการชำระเงินจะยังเก็บไว้</b> เพื่อไม่ให้ประวัติการเงินและ Audit หาย</p>
-         ${systemCourseCount?`<p style="margin-top:6px">พบประวัติจาก Enrollment ที่แสดงในหน้านี้ <b>${systemCourseCount}</b> รายการ</p>`:''}
-       </div>`;
-
-  openModal(isLegacy?'ลบนักเรียนเดิม':'ลบนักเรียนในระบบ',`
+  openModal('ลบนักเรียนเดิม',`
     <div class="danger-box">
       <div class="danger-title"><i class="fas fa-triangle-exclamation"></i> การลบนี้ถาวร</div>
-      <p>กำลังจะลบ <b>${esc(display)}</b> (${esc(s.student_code||'ไม่มี Student ID')}) ออกจากฐาน Student Profile</p>
-      <p style="margin-top:6px">หลังลบ นักเรียนจะหายจากหน้ารายชื่อนักเรียนทันที</p>
+      <p>จะลบ Student Profile ของ <b>${esc(display)}</b> ออกจาก <code>os_students</code> และลบประวัติคอร์สก่อนระบบใหม่ของนักเรียนคนนี้ที่อยู่ใน <code>legacy_student_course_history</code> ด้วย</p>
+      <p style="margin-top:6px"><b>ข้อมูลระบบปัจจุบันจะไม่ถูกลบ</b> — ถ้ามีข้อมูลเชื่อมอยู่ Backend จะบล็อกคำสั่งลบอัตโนมัติ</p>
     </div>
-    ${typeBox}
+    ${systemWarning}
     <label class="field full delete-confirm-label">
       <span>พิมพ์ <b>${esc(confirmText)}</b> เพื่อยืนยัน *</span>
       <input id="deleteStudentConfirm" class="input" autocomplete="off" placeholder="${esc(confirmText)}">
     </label>
-  `,isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student',async()=>{
+  `,'ลบนักเรียนถาวร',async()=>{
     const typed=(document.getElementById('deleteStudentConfirm')?.value||'').trim();
     if(typed!==String(confirmText).trim()){
       toast('ข้อความยืนยันไม่ตรง');
@@ -309,18 +331,18 @@ function openDeleteStudentModal(s,systemCourseCount=0){
     }
 
     const save=document.getElementById('saveModal');
-    if(save){save.disabled=true;save.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังลบข้อมูล';}
+    if(save){save.disabled=true;save.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังตรวจและลบ';}
 
     const {data,error}=await sb.rpc('legacy_students_manager_delete_student',{p_student_id:s.id});
     if(error){
-      if(save){save.disabled=false;save.textContent=isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student';}
+      if(save){save.disabled=false;save.textContent='ลบนักเรียนถาวร';}
       toast(errText(error));
       return;
     }
     if(!data?.ok){
-      if(save){save.disabled=false;save.textContent=isLegacy?'ลบนักเรียนถาวร':'ลบ SYSTEM Student';}
+      if(save){save.disabled=false;save.textContent='ลบนักเรียนถาวร';}
       const reasons=Array.isArray(data?.reasons)&&data.reasons.length
-        ? '\n\nรายละเอียด:\n- '+data.reasons.join('\n- ')
+        ? '\n\nเหตุผล:\n- '+data.reasons.join('\n- ')
         : '';
       alert((data?.message||'ไม่สามารถลบนักเรียนคนนี้ได้')+reasons);
       return;
@@ -328,10 +350,7 @@ function openDeleteStudentModal(s,systemCourseCount=0){
 
     closeModal();
     S.selected=null;
-    const preserved=Number(data?.preserved_enrollments||0);
-    toast(preserved>0
-      ? `ลบนักเรียนแล้ว · เก็บ Enrollment เดิมไว้ ${preserved} รายการ`
-      : 'ลบนักเรียนแล้ว');
+    toast('ลบนักเรียนแล้ว');
     await loadAll();
   });
 
@@ -339,10 +358,46 @@ function openDeleteStudentModal(s,systemCourseCount=0){
   if(save)save.className='btn danger-solid';
 }
 
+
+function openAssignCourseModal(prefill=null){
+  const s=S.selected?.student;if(!s)return;
+  const catalog=S.courses||[];
+  const selectedCourseId=prefill?.course_id||'';
+  openModal('เพิ่มคอร์สใช้งานใน Student OS',`<div style="margin-bottom:12px;padding:10px 12px;border-radius:12px;background:#eef5ff;color:#36527f;font-size:9px"><b>คอร์สใช้งานจริง</b><br>รายการนี้จะสร้าง Course Wallet ใน <code>os_student_course_enrollments</code> และจะขึ้นใน Student OS หลังซิงก์</div><div class="form-grid">
+    <label class="field full"><span>คอร์ส *</span><select id="aCatalog" class="select" required><option value="">— เลือกคอร์ส —</option>${catalog.map(x=>`<option value="${esc(x.id)}" ${String(selectedCourseId)===String(x.id)?'selected':''}>${esc(x.name)}${x.tutor_name?' · '+esc(x.tutor_name):''}</option>`).join('')}</select></label>
+    <label class="field"><span>Tutor</span><input id="aTutor" class="input" readonly></label>
+    <label class="field"><span>ชั่วโมงเริ่มต้น *</span><input id="aHours" type="number" min="0" step="0.25" class="input" value="${esc(prefill?.hours||30)}"></label>
+    <label class="field"><span>ราคา</span><input id="aPrice" type="number" min="0" step="0.01" class="input" value="0"></label>
+    <label class="field full"><span>หมายเหตุ</span><textarea id="aNote" class="textarea">${esc(prefill?.note||'เพิ่มจาก Legacy Student Records')}</textarea></label>
+  </div>`, 'เปิดคอร์สใน Student OS', async()=>{
+    const courseId=document.getElementById('aCatalog').value;
+    if(!courseId)return toast('กรุณาเลือกคอร์ส');
+    const row=catalog.find(x=>String(x.id)===String(courseId));
+    const hours=Number(document.getElementById('aHours').value||0);
+    const price=Number(document.getElementById('aPrice').value||0);
+    const {data,error}=await sb.rpc('legacy_students_manager_assign_current_course',{
+      p_student_id:s.id,p_course_id:courseId,p_tutor_id:row?.tutor_id||null,
+      p_hours_total:hours,p_price:price,p_note:document.getElementById('aNote').value||''
+    });
+    if(error)return toast(errText(error));
+    if(!data?.ok)return toast(data?.message||'เปิดคอร์สไม่สำเร็จ');
+    closeModal();
+    toast(data.student_auth_linked?'เปิดคอร์สใน Student OS แล้ว':'สร้างคอร์สแล้ว แต่บัญชี Student OS ยังไม่เชื่อม');
+    await selectStudent(s.id,true);
+  });
+  const syncTutor=()=>{const row=catalog.find(x=>String(x.id)===String(document.getElementById('aCatalog').value));document.getElementById('aTutor').value=row?.tutor_name||'—'};
+  document.getElementById('aCatalog').onchange=syncTutor;syncTutor();
+}
+async function promoteLegacyCourse(historyId){
+  const c=(S.selected?.courses||[]).find(x=>String(x.id)===String(historyId));
+  if(!c||!c.course_id)return toast('ประวัตินี้ยังไม่ได้เชื่อม Course Catalog');
+  openAssignCourseModal(c);
+}
+
 function openCourseModal(c=null){
   const s=S.selected?.student;if(!s)return;
   const catalog=S.courses||[];
-  openModal(c?'แก้ไขประวัติคอร์ส':'เพิ่มคอร์สที่เคยเรียน',`<div class="form-grid">
+  openModal(c?'แก้ไขประวัติคอร์ส':'เพิ่มประวัติคอร์ส',`<div style="margin-bottom:12px;padding:10px 12px;border-radius:12px;background:#fff6e8;color:#925f26;font-size:9px"><b>ประวัติเท่านั้น</b><br>ข้อมูลส่วนนี้ไม่ใช่ Course Wallet และจะไม่ขึ้นเป็นคอร์สใน Student OS จนกด <b>เพิ่มคอร์สใช้งาน</b></div><div class="form-grid">
     <label class="field full"><span>เลือกจากคอร์สปัจจุบัน (ถ้ามี)</span><select id="cCatalog" class="select"><option value="">— คอร์สเก่าที่ไม่มีใน Catalog —</option>${catalog.map(x=>`<option value="${esc(x.id)}" ${c?.course_id===x.id?'selected':''}>${esc(x.name)}${x.tutor_name?' · '+esc(x.tutor_name):''}</option>`).join('')}</select></label>
     <label class="field full"><span>ชื่อคอร์สที่เคยเรียน *</span><input id="cName" class="input" value="${esc(c?.course_name||'')}" placeholder="เช่น ชีววิทยา ม.ปลาย / สอวน. ชีววิทยา"></label>
     <label class="field"><span>ติวเตอร์</span><input id="cTutor" class="input" value="${esc(c?.tutor_name||'')}" placeholder="ชื่อผู้สอนเดิม"></label>
@@ -362,7 +417,16 @@ function openCourseModal(c=null){
 async function deleteCourse(id){if(!confirm('ลบประวัติคอร์สนี้หรือไม่?'))return;const {error}=await sb.rpc('legacy_students_manager_delete_course',{p_history_id:id});if(error)return toast(errText(error));toast('ลบแล้ว');await selectStudent(S.selected.student.id,true)}
 async function selectStudent(id,force=false){
   if(!force&&S.selected?.student?.id===id)return;
-  const {data,error}=await sb.rpc('legacy_students_manager_student_detail',{p_student_id:id});if(error)return toast(errText(error));S.selected=data;renderList();renderDetail();
+  const [detail,current]=await Promise.all([
+    sb.rpc('legacy_students_manager_student_detail',{p_student_id:id}),
+    sb.rpc('legacy_students_manager_current_courses',{p_student_id:id})
+  ]);
+  if(detail.error)return toast(errText(detail.error));
+  if(current.error)return toast('กรุณารัน SQL V25.7 ก่อน: '+errText(current.error));
+  S.selected=detail.data||{};
+  S.selected.current_courses=current.data?.current_courses||[];
+  S.selected.portal_linked=!!current.data?.student?.auth_linked;
+  renderList();renderDetail();
 }
 async function loadAll(preselect=null){
   S.loading=true;
@@ -387,6 +451,7 @@ function bind(){
   document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()};
   document.getElementById('refreshBtn').onclick=()=>loadAll();
   document.getElementById('newStudentBtn').onclick=()=>openStudentModal();
+  document.getElementById('assignCourseBtn').onclick=()=>openAssignCourseModal();
   document.getElementById('newCourseBtn').onclick=()=>openCourseModal();
   document.getElementById('searchInput').oninput=e=>{S.q=e.target.value;renderList()};
   document.getElementById('legacyFilterBtn').onclick=e=>{S.legacyOnly=!S.legacyOnly;e.currentTarget.classList.toggle('primary',S.legacyOnly);renderList()};
