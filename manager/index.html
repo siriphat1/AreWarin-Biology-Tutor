@@ -31452,7 +31452,12 @@
                 </div>
               </div>
 <input id="courseName" class="input" placeholder="ชื่อคอร์ส" required><select id="courseType" class="input"><option value="content">เนื้อหา</option><option value="exam">ตะลุยโจทย์/สอบ</option></select>
-              <input id="courseShort" class="input" placeholder="รายละเอียดสั้น"><textarea id="courseFull" class="input h-24" placeholder="รายละเอียดเต็ม"></textarea><input id="courseTarget" class="input" placeholder="เหมาะกับใคร"><textarea id="courseOutcomes" class="input h-24" placeholder="Learning outcomes — 1 ข้อต่อบรรทัด"></textarea><textarea id="courseSyllabus" class="input h-28" placeholder="เนื้อหา / Syllabus — 1 หัวข้อต่อบรรทัด"></textarea><select id="courseBadge" class="input"><option value="">ไม่มี Badge</option><option value="new">NEW</option><option value="recommend">แนะนำ</option><option value="star">Star</option></select>
+              <input id="courseShort" class="input" placeholder="รายละเอียดสั้น"><textarea id="courseFull" class="input h-24" placeholder="รายละเอียดเต็ม"></textarea><input id="courseTarget" class="input" placeholder="เหมาะกับใคร"><textarea id="courseOutcomes" class="input h-24" placeholder="Learning outcomes — 1 ข้อต่อบรรทัด"></textarea><textarea id="courseSyllabus" class="input h-36" placeholder="โครงสร้างบทเรียน เช่น&#10;บทที่ 1 Cell Biology&#10;- Cell membrane&#10;- Membrane transport&#10;บทที่ 2 Genetics&#10;- Mendelian inheritance&#10;- Pedigree"></textarea>
+              <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 px-3 py-2 text-[9px] leading-relaxed text-emerald-700">
+                <b><i class="fas fa-list-check mr-1"></i>Structured Syllabus:</b>
+                บรรทัดปกติ = บทใหม่ · บรรทัดที่ขึ้นต้นด้วย <code>-</code> = หัวข้อย่อย
+                <br>เมื่อสร้างคอร์สใหม่ ระบบจะนำข้อความนี้ไปสร้าง Chapter/Subtopic ให้อัตโนมัติ และ Tutor สามารถแก้ต่อใน Tutor OS ได้
+              </div><select id="courseBadge" class="input"><option value="">ไม่มี Badge</option><option value="new">NEW</option><option value="recommend">แนะนำ</option><option value="star">Star</option></select>
               <label class="text-xs font-bold">รูปคอร์ส</label><input id="courseImage" type="file" accept="image/*" class="input"><input id="courseImageUrl" class="input" placeholder="หรือ URL รูปเดิม"><label class="flex gap-2 items-center text-sm"><input id="courseUni" type="checkbox"> ราคา/เนื้อหาระดับมหาวิทยาลัย</label><label class="flex gap-2 items-center text-sm"><input id="courseActive" type="checkbox" checked> เปิดใช้งาน</label>
               <button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-[12px]">บันทึกคอร์ส</button>
             </form>
@@ -36133,5 +36138,82 @@ function boot(){document.querySelector('[data-section="studentservices"]')?.addE
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<script id="aw-v26-syllabus-importer">
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
+function db(){
+  try{if(typeof sb!=='undefined'&&sb?.from)return sb}catch(_){}
+  if(window.AreWarinAPI?.sb?.from)return window.AreWarinAPI.sb;
+  if(window.awSupabase?.from)return window.awSupabase;
+  if(window.supabaseClient?.from)return window.supabaseClient;
+  if(window.sb?.from)return window.sb;
+  const cfg=window.AREWARIN_CONFIG||{};
+  if(window.supabase?.createClient&&cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY){
+    if(!window.__awV26SyllabusClient)window.__awV26SyllabusClient=window.supabase.createClient(
+      cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true}}
+    );
+    return window.__awV26SyllabusClient;
+  }
+  return null;
+}
+function toast(msg,type='success'){
+  if(window.AWAlert?.toast)return window.AWAlert.toast(msg,type);
+  if(window.Swal?.fire)return Swal.fire({toast:true,position:'top-end',timer:2600,showConfirmButton:false,icon:type,title:String(msg)});
+  console.log('[V26 Syllabus]',msg);
+}
+async function findCourse(snapshot){
+  for(let i=0;i<10;i++){
+    const liveId=String($('courseId')?.value||'').trim();
+    if(liveId)return liveId;
+    await sleep(250);
+  }
+  const c=db();if(!c)return null;
+  let q=c.from('courses').select('id,title,name,tutor_id,created_at').order('created_at',{ascending:false}).limit(40);
+  if(snapshot.tutorId)q=q.eq('tutor_id',snapshot.tutorId);
+  const {data,error}=await q;
+  if(error)throw error;
+  const row=(data||[]).find(x=>norm(x.title||x.name)===norm(snapshot.name));
+  return row?.id||null;
+}
+async function sync(snapshot){
+  if(!snapshot.text.trim())return;
+  try{
+    const c=db();if(!c)throw new Error('Supabase client not ready');
+    const courseId=snapshot.courseId||await findCourse(snapshot);
+    if(!courseId)throw new Error('หา Course ID หลังบันทึกไม่พบ');
+    const {data,error}=await c.rpc('manager_v26_import_syllabus_text',{
+      p_course_id:courseId,p_text:snapshot.text,p_replace:false
+    });
+    if(error)throw error;
+    if(data?.skipped)toast('คอร์สมี Structured Syllabus อยู่แล้ว จึงไม่เขียนทับ','info');
+    else toast(`สร้าง Syllabus แล้ว ${data?.chapters||0} บท · ${data?.items||0} หัวข้อย่อย`);
+  }catch(e){
+    console.warn('[V26 Syllabus] import failed',e);
+    toast('คอร์สบันทึกแล้ว แต่ Structured Syllabus ยังไม่ถูกสร้าง: '+(e?.message||e),'warning');
+  }
+}
+function boot(){
+  const form=$('courseForm');if(!form||form.dataset.v26SyllabusBound)return;
+  form.dataset.v26SyllabusBound='1';
+  document.addEventListener('submit',e=>{
+    if(e.target?.id!=='courseForm')return;
+    const snapshot={
+      courseId:String($('courseId')?.value||'').trim(),
+      tutorId:String($('courseTutor')?.value||'').trim(),
+      name:String($('courseName')?.value||'').trim(),
+      text:String($('courseSyllabus')?.value||'')
+    };
+    if(!snapshot.text.trim())return;
+    setTimeout(()=>sync(snapshot),700);
+  },true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+
 </body>
 </html>
