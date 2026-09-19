@@ -4,7 +4,7 @@
   <!-- AREWARIN MANAGER V24.4 · PRODUCTION TAILWIND CSS · 2026-09-17 -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AreWarin Manager · Unified V17</title>
+  <title>AreWarin Manager · Unified V17 · V25.5 Course Layout Fix</title>
   <style id="aw-manager-tailwind-inline-v24-4">
 /*! tailwindcss v4.1.10 | MIT License | https://tailwindcss.com */
 @layer properties;
@@ -30981,13 +30981,22 @@
 </style>
 
 
-<style id="aw-course-list-hotfix-v253">
-/* V25.4: contain dynamically-rendered course artwork and prevent text from collapsing.
-   The native course cards are rendered by manager/app.js, so this hotfix is intentionally
-   scoped to #courseList and does not affect public course images or tutor avatars. */
+<style id="aw-course-list-hotfix-v255">
+/* V25.5: course-list layout repair.
+   V25.4 appended the package footer directly into a horizontal flex card.
+   That footer could consume the row width and squeeze the Thai title to one glyph per line.
+   V25.5 keeps the native card content in its own row and places the package controls below it. */
 #courseList > *{
   min-width:0!important;
   overflow:hidden!important;
+  display:block!important;
+}
+#courseList .aw-course-main-hotfix{
+  min-width:0!important;
+  width:100%!important;
+}
+#courseList .aw-course-main-hotfix > *{
+  min-width:0!important;
 }
 #courseList .aw-course-cover-hotfix{
   display:block!important;
@@ -31007,14 +31016,26 @@
   overflow:hidden!important;
   border-radius:12px!important;
 }
-#courseList > * :where(h1,h2,h3,h4,p,span,div){
+/* Never force Thai course names to break every character. */
+#courseList :where(h1,h2,h3,h4,p){
+  min-width:0!important;
+  width:auto!important;
+  max-width:100%!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  white-space:normal!important;
+}
+#courseList :where(span,div){
   min-width:0;
-  overflow-wrap:anywhere;
-  word-break:break-word;
+  word-break:normal;
+  overflow-wrap:break-word;
 }
 #courseList > * [data-aw-v4-footer]{
+  display:flex!important;
   width:100%!important;
   max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
 }
 @media(max-width:720px){
   #courseList .aw-course-cover-hotfix{
@@ -32561,7 +32582,19 @@
       };
       card.querySelectorAll('img').forEach(normalizeCourseArtwork);
 
-      let f=card.querySelector('[data-aw-v4-footer]');
+      // Keep the original course-card row isolated from the package footer.
+      // Moving existing nodes preserves their event listeners but prevents the footer
+      // from becoming another flex item that squeezes the course title column.
+      let main=card.querySelector(':scope > .aw-course-main-hotfix');
+      if(!main){
+        main=document.createElement('div');
+        main.className='aw-course-main-hotfix';
+        const existing=[...card.childNodes].filter(n=>!(n.nodeType===1 && n.matches?.('[data-aw-v4-footer]')));
+        existing.forEach(n=>main.appendChild(n));
+        card.prepend(main);
+      }
+
+      let f=card.querySelector(':scope > [data-aw-v4-footer]');
       if(!f){
         f=document.createElement('div');
         f.setAttribute('data-aw-v4-footer','1');
