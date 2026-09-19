@@ -127,7 +127,7 @@ function loginHtml(){
 function shell(){
   return `<div class="app">
     <aside class="side">
-      <div class="brand"><div class="logo">A</div><div><b>AreWarin</b><small>Legacy Student Records · V25.7</small></div></div>
+      <div class="brand"><div class="logo">A</div><div><b>AreWarin</b><small>Legacy Student Records · V25.8</small></div></div>
       <div class="nav-label">Workspace</div>
       <nav class="nav">
         <button class="active"><i class="fas fa-users-viewfinder"></i><span>นักเรียนเดิม</span></button>
@@ -216,9 +216,15 @@ function currentCourseCard(c){
         <span class="tag" style="background:#eaf7f1;color:#0b8061">STUDENT OS</span>
         <span class="tag">${esc(c.status||'active')}</span>
         <span class="tag">${Number(c.hours_total||0).toFixed(1)} ชม.</span>
+        <span class="tag">ใช้แล้ว ${Number(c.hours_used||0).toFixed(1)} ชม.</span>
         <span class="tag">เหลือ ${Number(c.hours_remaining||0).toFixed(1)} ชม.</span>
         ${c.has_hour_pool?'<span class="tag"><i class="fas fa-wallet"></i> Hour Wallet</span>':'<span class="tag" style="color:#b06b20">ไม่มี Hour Wallet</span>'}
       </div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center">
+      <button class="icon-btn" data-edit-current-course="${esc(c.id)}" title="แก้ไขคอร์สใช้งาน" style="color:#3157d9">
+        <i class="fas fa-pen"></i>
+      </button>
     </div>
   </div>`;
 }
@@ -275,6 +281,7 @@ function renderDetail(){
   if(deleteStudentBtn)deleteStudentBtn.onclick=()=>openDeleteStudentModal(s,sys.length);
   document.getElementById('assignCourseInline').onclick=()=>openAssignCourseModal();
   document.getElementById('addCourseInline').onclick=()=>openCourseModal();
+  box.querySelectorAll('[data-edit-current-course]').forEach(b=>b.onclick=()=>openEditCurrentCourseModal(b.dataset.editCurrentCourse));
   box.querySelectorAll('[data-promote-course]').forEach(b=>b.onclick=()=>promoteLegacyCourse(b.dataset.promoteCourse));
   box.querySelectorAll('[data-edit-course]').forEach(b=>b.onclick=()=>openCourseModal((d.courses||[]).find(x=>x.id===b.dataset.editCourse)));
   box.querySelectorAll('[data-delete-course]').forEach(b=>b.onclick=()=>deleteCourse(b.dataset.deleteCourse));
@@ -358,6 +365,69 @@ function openDeleteStudentModal(s,systemCourseCount=0){
   if(save)save.className='btn danger-solid';
 }
 
+
+
+function openEditCurrentCourseModal(enrollmentId){
+  const c=(S.selected?.current_courses||[]).find(x=>String(x.id)===String(enrollmentId));
+  if(!c)return toast('ไม่พบคอร์สใช้งาน');
+
+  openModal('แก้ไขคอร์สใช้งาน',`
+    <div style="margin-bottom:12px;padding:10px 12px;border-radius:12px;background:#eef5ff;color:#36527f;font-size:9px">
+      <b>แก้ไข Course Wallet จริง</b><br>
+      การเปลี่ยนชั่วโมง/สถานะในหน้านี้จะอัปเดต Student OS โดยตรง
+    </div>
+
+    <div class="form-grid">
+      <label class="field full"><span>คอร์ส</span>
+        <input class="input" value="${esc(c.course_name||c.course_label||'คอร์ส')}" readonly>
+      </label>
+
+      <label class="field"><span>Tutor</span>
+        <input class="input" value="${esc(c.tutor_name||c.tutor_label||'—')}" readonly>
+      </label>
+
+      <label class="field"><span>สถานะ *</span>
+        <select id="ecStatus" class="select">
+          <option value="active" ${c.status==='active'?'selected':''}>Active · กำลังเรียน</option>
+          <option value="paused" ${c.status==='paused'?'selected':''}>Paused · พักคอร์ส</option>
+          <option value="completed" ${c.status==='completed'?'selected':''}>Completed · เรียนจบ</option>
+        </select>
+      </label>
+
+      <label class="field"><span>ชั่วโมงทั้งหมด *</span>
+        <input id="ecHours" type="number" min="${Number(c.hours_used||0)}" step="0.25" class="input" value="${Number(c.hours_total||0)}">
+        <small>ใช้ไปแล้ว ${Number(c.hours_used||0).toFixed(1)} ชม. จึงตั้งต่ำกว่านี้ไม่ได้</small>
+      </label>
+
+      <label class="field"><span>ราคา</span>
+        <input id="ecPrice" type="number" min="0" step="0.01" class="input" value="${Number(c.price||0)}">
+      </label>
+
+      <label class="field full"><span>หมายเหตุ</span>
+        <textarea id="ecNote" class="textarea">${esc(c.note||'')}</textarea>
+      </label>
+    </div>
+  `,'บันทึกการแก้ไข',async()=>{
+    const hours=Number(document.getElementById('ecHours').value||0);
+    const used=Number(c.hours_used||0);
+    if(hours<used)return toast(`ชั่วโมงทั้งหมดต้องไม่น้อยกว่า ${used.toFixed(1)} ชม.`);
+
+    const {data,error}=await sb.rpc('legacy_students_manager_update_current_course',{
+      p_enrollment_id:c.id,
+      p_hours_total:hours,
+      p_price:Number(document.getElementById('ecPrice').value||0),
+      p_status:document.getElementById('ecStatus').value,
+      p_note:document.getElementById('ecNote').value||''
+    });
+
+    if(error)return toast(errText(error));
+    if(!data?.ok)return toast(data?.message||'แก้ไขคอร์สไม่สำเร็จ');
+
+    closeModal();
+    toast('อัปเดตคอร์สใน Student OS แล้ว');
+    await selectStudent(S.selected.student.id,true);
+  });
+}
 
 function openAssignCourseModal(prefill=null){
   const s=S.selected?.student;if(!s)return;
