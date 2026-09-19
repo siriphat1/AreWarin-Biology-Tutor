@@ -30787,7 +30787,7 @@
   }
 </style>
 
-<meta name="arewarin-manager-build" content="25.1-legacy-multicourse-shared-hours">
+<meta name="arewarin-manager-build" content="25.2-legacy-direct-schedule-bridge">
 
 <style id="aw-group-class-visibility-v24-5">
   .aw-group-main-nav{
@@ -35856,7 +35856,7 @@ function renderDetail(){
       </div>
 
       <div class="aw-li-multi-footer">
-        <label style="display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800">ผู้สอน Override (ไม่บังคับ)
+        <label style="display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800">ผู้สอนที่จะรับคอร์ส / จัดตาราง
           <select id="legacyCurrentTutor">${tutorOptions(d)}</select>
         </label>
         <label style="display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800">หมายเหตุ
@@ -35865,7 +35865,7 @@ function renderDetail(){
       </div>
 
       <div class="aw-li-current-actions">
-        <div class="aw-li-current-help"><i class="fas fa-circle-info"></i> ระบบจะสร้าง <b>Active Course Wallet</b> ให้ทุกคอร์สที่เลือก จึงรองรับนักเรียนที่กำลังเรียนพร้อมกันหลายคอร์ส โดยไม่สร้าง Enrollment/Payment ย้อนหลัง</div>
+        <div class="aw-li-current-help"><i class="fas fa-circle-info"></i> ระบบจะสร้าง <b>Active Course Wallet</b> ให้ทุกคอร์สที่เลือก และผูกกับ Tutor ที่เลือก หากบัญชี Manager นี้เชื่อมกับ Tutor ระบบจะเลือก “ติวเตอร์ของฉัน” ให้อัตโนมัติ</div>
         <button class="aw-li-btn green" id="legacyActivateCourses"><i class="fas fa-user-plus"></i> เพิ่มคอร์สที่เลือกทั้งหมด</button>
       </div>
       <div class="aw-li-share-note"><i class="fas fa-share-nodes"></i> <b>กรณีแชร์เวลาเรียนระหว่างหลายคอร์ส:</b> Manager เลือกคอร์สปัจจุบันให้ครบตรงนี้ก่อน จากนั้น <b>Tutor ต้องเป็นผู้สร้าง Shared Hour Pool เอง</b> ใน Tutor OS → นักเรียน & CRM → “แชร์เวลาเรียน” เพื่อกำหนดจำนวนชั่วโมงจริง</div>
@@ -35884,6 +35884,7 @@ function renderDetail(){
   </div>`;
 
   const tutorSel=by('legacyCurrentTutor');
+  if(tutorSel && d.my_tutor_id && [...tutorSel.options].some(o=>String(o.value)===String(d.my_tutor_id))) tutorSel.value=String(d.my_tutor_id);
   const refreshSelectedCount=()=>{
     const n=root.querySelectorAll('.legacy-course-check:checked').length;
     if(by('legacySelectedCount'))by('legacySelectedCount').textContent=String(n)

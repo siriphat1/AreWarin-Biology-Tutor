@@ -110,10 +110,37 @@
     return arr(state.data?.team).find((x) => String(x.id) === String(id));
   }
 
+  function mergeById(baseRows, extraRows) {
+    const map = new Map();
+    arr(baseRows).forEach((x) => {
+      if (x?.id != null) map.set(String(x.id), x);
+    });
+    arr(extraRows).forEach((x) => {
+      if (x?.id == null) return;
+      const key=String(x.id);
+      map.set(key, {...(map.get(key)||{}), ...x});
+    });
+    return [...map.values()];
+  }
+
+  async function applyLegacyScheduleBridge() {
+    try {
+      const bridge = await rpc('tutor_os_schedule_candidates_v252');
+      state.data.schedule_bridge = bridge || {};
+      state.data.enrollments = mergeById(state.data?.enrollments, bridge?.enrollments);
+      state.data.students = mergeById(state.data?.students, bridge?.students);
+      state.data.courses = mergeById(state.data?.courses, bridge?.courses);
+    } catch (e) {
+      console.warn('Legacy schedule bridge unavailable:', e);
+      state.data.schedule_bridge = {ok:false};
+    }
+  }
+
   function scopedEnrollmentLabel(e) {
     const s = studentById(e.student_id);
     const c = courseById(e.course_id);
-    return `${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}`;
+    const legacy = e?.source_kind === 'legacy' || !!s?.legacy_student;
+    return `${legacy ? '[Legacy] ' : ''}${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}`;
   }
 
   function sectionHeader(kicker, title, subtitle, right = '') {
@@ -183,19 +210,29 @@
   const sharedHours = () => arr(state.data?.shared_hours);
   function sharedPoolById(id){ return sharedHours().find((p)=>String(p.id)===String(id)); }
   function studentHourSummary(studentId, ens){
-    const seen=new Set(); let remain=0, unlimited=false, sharedCount=0;
+    const seen=new Set(), pools=arr(state.data?.hour_pools);
+    let remain=0, unlimited=false, sharedCount=0;
     ens.forEach((e)=>{
       const pid=e.hour_pool_id ? String(e.hour_pool_id) : '';
+      if(pid && seen.has(pid)) return;
+      if(pid) seen.add(pid);
+
       const sp=pid ? sharedPoolById(pid) : null;
       if(sp){
-        if(seen.has(pid)) return;
-        seen.add(pid); sharedCount++;
+        sharedCount++;
         if(sp.hours_unlimited){ unlimited=true; return; }
         remain += Math.max(0,num(sp.total_hours)-num(sp.used_hours));
-      }else{
-        if(e.hours_unlimited){unlimited=true;return}
-        remain += Math.max(0,num(e.hours_total)-num(e.hours_used));
+        return;
       }
+
+      const pool=pid ? pools.find((p)=>String(p.id)===pid) : null;
+      if(pool){
+        if(pool.unlimited){unlimited=true;return}
+        remain += Math.max(0,num(pool.total_hours)-num(pool.used_hours));
+        return;
+      }
+
+      remain += Math.max(0,num(e.hours_total)-num(e.hours_used));
     });
     return {remain,unlimited,sharedCount};
   }
@@ -299,12 +336,13 @@
 
   function scheduleHtml() {
     const rows = arr(state.data?.schedules).slice().sort((a,b) => new Date(a.start_at) - new Date(b.start_at));
+    const legacyReady = Number(state.data?.schedule_bridge?.legacy_count || 0);
     const now = new Date();
     const todayKey = bangkokDateKey(now);
     const today = rows.filter((x) => bangkokDateKey(x.start_at) === todayKey && x.status !== 'cancelled');
     const upcoming = rows.filter((x) => ['scheduled','rescheduled','in_progress'].includes(x.status) && new Date(x.end_at) >= now);
     const completed = rows.filter((x) => x.status === 'completed');
-    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', 'กำหนดตารางจาก Tutor OS โดยตรง แก้เวลาเองได้ และตารางนี้จะเป็นตารางที่นักเรียนเห็น', `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
+    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', `กำหนดตารางจาก Tutor OS โดยตรง · รองรับนักเรียนระบบสมัครและ Legacy${legacyReady ? ` · Legacy พร้อมจัดตาราง ${legacyReady} คอร์ส` : ''}`, `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
       <div class="schedule-hero"><section class="aw-card schedule-summary"><h3>ตารางที่ควบคุมโดย Tutor OS</h3><p>ไม่จำเป็นต้องยึดเวลาจากแบบสมัครเรียน เมื่อจัดตารางตรงนี้แล้ว Student Portal จะดึงเวลาจากตารางนี้อัตโนมัติ</p><div class="schedule-stat-grid"><div class="schedule-stat"><small>วันนี้</small><b>${today.length}</b></div><div class="schedule-stat"><small>กำลังจะถึง</small><b>${upcoming.length}</b></div><div class="schedule-stat"><small>สอนแล้ว</small><b>${completed.length}</b></div></div></section><section class="aw-card schedule-summary"><h3>การลงเวลา 2 แบบ</h3><p><b>Realtime</b> เริ่ม–จบคาบเพื่อจับเวลา หรือ <b>Manual</b> กรอกเวลาเข้า–ออกย้อนหลัง ระบบคำนวณชั่วโมงและตัด Hour Wallet ให้เหมือนกัน</p><div class="section-note" style="margin-top:12px">สถานะนักเรียนรองรับ เข้าเรียน / สาย / ลา / ขาด และสามารถบันทึกหัวข้อ “วันนี้สอนอะไร” พร้อมรายละเอียด/การบ้านได้</div></section></div>
       <section class="aw-card content-card"><div class="card-head"><div><h2>รายการตารางสอน</h2><p>${rows.length} รายการ</p></div></div>${scheduleRowsHtml(rows)}</section>`;
   }
@@ -536,6 +574,7 @@
     }
     try {
       state.data = await rpc('tutor_os_bootstrap_v18');
+      await applyLegacyScheduleBridge();
       try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (scheduleError) { console.warn('Schedule V19 unavailable:', scheduleError); state.data.schedules = []; }
       try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (sharedError) { console.warn('Shared hours unavailable:', sharedError); state.data.shared_hours = []; }
       showApp();
@@ -551,6 +590,7 @@
           await rpc('tutor_os_claim_accepted_application', { p_phone: pendingPhone });
           localStorage.removeItem('arewarin_tutor_pending_phone');
           state.data = await rpc('tutor_os_bootstrap_v18');
+          await applyLegacyScheduleBridge();
           try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (_) { state.data.schedules = []; }
           try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (_) { state.data.shared_hours = []; }
           showApp(); render(); setupRealtime(); return;
