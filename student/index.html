@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="23.0.0-adaptive-workspace">
-<title>AreWarin Biology · Student OS V23</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="23.2.0-first-impression">
+<title>AreWarin Biology · Student OS V23.2</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2140,8 +2140,242 @@ body.os23-focus .os23-header,body.os23-focus .os23-workspace-head,body.os23-focu
 @media(max-width:430px){.os23-workspace-card{grid-template-columns:112px minmax(0,1fr)}.os23-workspace-cover{min-height:166px}.os23-service-grid{grid-template-columns:1fr 1fr}}
 </style>
 
-</head><body class="aw-student-v156" data-student-build="23.0.0-adaptive-workspace">
-<!-- LIVE BUILD: 23.0.0-adaptive-workspace --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+
+<style id="arewarin-student-os-v231-smart-access">
+/* =========================================================
+   V23.1 · SMART ACCESS
+========================================================= */
+.os231-access{
+  min-height:100vh;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 12% 10%,rgba(49,87,255,.12),transparent 30rem),
+    radial-gradient(circle at 86% 82%,rgba(35,194,214,.11),transparent 32rem),
+    #f5f7fb;color:#182238
+}
+.os231-ambient{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.os231-ambient i{position:absolute;border-radius:50%;filter:blur(2px)}
+.os231-ambient .a{width:420px;height:420px;left:-170px;top:-180px;background:linear-gradient(145deg,rgba(49,87,255,.16),rgba(35,194,214,.06))}
+.os231-ambient .b{width:300px;height:300px;right:-100px;bottom:-100px;background:linear-gradient(145deg,rgba(116,87,217,.12),rgba(49,87,255,.04))}
+.os231-ambient .c{width:150px;height:150px;right:22%;top:14%;border:1px solid rgba(49,87,255,.09);background:rgba(255,255,255,.18)}
+
+.os231-top{
+  position:relative;z-index:3;width:min(1180px,calc(100% - 36px));height:76px;margin:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:14px
+}
+.os231-brand{border:0;background:transparent;display:flex;align-items:center;gap:10px;text-decoration:none;color:#182238;text-align:left;cursor:pointer}
+.os231-brand>span{width:40px;height:40px;border-radius:13px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(145deg,#121c36,#3157ff);color:#fff;font-weight:800;font-size:13px;box-shadow:0 13px 30px -20px rgba(24,34,56,.8)}
+.os231-brand>span img{width:100%;height:100%;object-fit:cover}
+.os231-brand b{display:block;font-size:13px}.os231-brand small{display:block;font-size:9px;color:#93a0b2;margin-top:1px}
+.os231-top-actions{display:flex;align-items:center;gap:8px}
+.os231-secure{display:flex;align-items:center;gap:6px;font-size:9px;color:#8190a5}.os231-secure i{color:#0b9a70}
+.os231-install{height:35px;padding:0 10px;border:1px solid #e0e5ed;border-radius:10px;background:#fff;color:#55647b;align-items:center;gap:6px;font-size:8px;font-weight:700;cursor:pointer}
+
+.os231-access-main{
+  position:relative;z-index:2;width:min(1020px,calc(100% - 36px));min-height:calc(100vh - 76px);
+  margin:auto;padding:35px 0 70px;display:grid;grid-template-columns:minmax(400px,470px) minmax(300px,1fr);gap:70px;align-items:center
+}
+.os231-card{
+  width:100%;padding:30px;border:1px solid rgba(224,229,238,.96);border-radius:27px;background:rgba(255,255,255,.93);
+  box-shadow:0 40px 100px -66px rgba(18,28,54,.55);backdrop-filter:blur(18px)
+}
+.os231-icon,.os231-success-icon{
+  width:48px;height:48px;border-radius:15px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#eef3ff,#e8f9fb);color:#3157ff;font-size:15px;margin-bottom:15px
+}
+.os231-icon.link{background:#eef3ff}.os231-success-icon{background:#e6f9f2;color:#0b996f}
+.os231-kicker{display:block;font-size:8px;letter-spacing:.16em;color:#98a4b5;font-weight:800}
+.os231-card h1{font-size:28px;line-height:1.15;margin:5px 0 6px;letter-spacing:-.025em;color:#1c2941}
+.os231-intro{font-size:10.5px;line-height:1.7;color:#8490a3;margin:0 0 18px}
+.os231-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;margin:0 0 17px;border-radius:13px;background:#f0f3f8}
+.os231-modes button{height:40px;border:0;border-radius:10px;background:transparent;color:#7d899c;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.os231-modes button.active{background:#fff;color:#23324a;box-shadow:0 8px 20px -16px rgba(15,23,42,.5)}
+.os231-slot .field{margin-bottom:10px}.os231-slot .field label{font-size:8px!important;color:#6f7d91!important}
+.os231-slot .input{min-height:43px!important;border-radius:11px!important;font-size:10px!important}
+
+.os231-field{margin-bottom:12px}
+.os231-field>label,.os231-label-row label{display:block;margin-bottom:5px;font-size:8.5px;color:#647187;font-weight:650}
+.os231-label-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.os231-label-row button{border:0;background:transparent;color:#3157ff;font-size:8px;font-weight:700;cursor:pointer}
+.os231-field>div:not(.os231-label-row){
+  position:relative;min-height:47px;border:1px solid #dfe5ee;border-radius:12px;background:#fbfcfe;
+  display:grid;grid-template-columns:34px 1fr auto;align-items:center;transition:.17s ease
+}
+.os231-field>div:not(.os231-label-row):focus-within{border-color:#9eb0ff;box-shadow:0 0 0 3px rgba(49,87,255,.07);background:#fff}
+.os231-field>div>i{justify-self:center;color:#9aa5b5;font-size:10px}
+.os231-field input{width:100%;height:45px;padding:0 9px 0 0;border:0;outline:0;background:transparent;color:#26344b;font:500 10.5px "Prompt",sans-serif}
+.os231-field input::placeholder{color:#b0b8c5}
+.os231-eye{width:42px;height:45px;border:0;background:transparent;color:#8d98aa;cursor:pointer}
+.os231-primary{
+  width:100%;min-height:47px;margin-top:4px;padding:0 14px;border:0;border-radius:12px;background:linear-gradient(135deg,#233cdb,#3157ff);
+  color:#fff;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:750;cursor:pointer;
+  box-shadow:0 15px 30px -22px rgba(49,87,255,.8);transition:.17s ease
+}
+.os231-primary:hover{transform:translateY(-1px);box-shadow:0 18px 35px -22px rgba(49,87,255,.9)}
+.os231-primary:disabled{opacity:.65;cursor:wait;transform:none}
+.os231-secondary{
+  width:100%;min-height:44px;border:1px solid #dfe5ee;border-radius:12px;background:#fff;color:#526078;
+  display:flex;align-items:center;justify-content:center;gap:7px;font-size:9px;font-weight:700;cursor:pointer
+}
+.os231-divider{position:relative;margin:16px 0;text-align:center}
+.os231-divider:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#edf0f4}
+.os231-divider span{position:relative;padding:0 9px;background:#fff;color:#a0aaba;font-size:7px}
+.os231-foot{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:18px;font-size:8px;color:#8a96a8}
+.os231-foot button,.os231-link{border:0;background:transparent;color:#3157ff;font-size:8px;font-weight:750;cursor:pointer}
+.os231-link{display:block;margin:14px auto 0}
+.os231-remembered{
+  display:grid;grid-template-columns:34px 1fr 30px;gap:8px;align-items:center;padding:8px;margin-bottom:12px;
+  border:1px solid #e9edf3;border-radius:11px;background:#f8fafc
+}
+.os231-avatar{width:34px;height:34px;border-radius:10px;background:#182238;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:800}
+.os231-remembered small{display:block;font-size:6.5px;color:#9aa5b5}.os231-remembered b{display:block;font-size:8.5px;color:#4a596f;margin-top:1px}
+.os231-remembered button{width:30px;height:30px;border:0;background:transparent;color:#a0aaba;cursor:pointer}
+
+.os231-context{align-self:center;padding:16px 0}
+.os231-context>span{font-size:8px;letter-spacing:.18em;color:#3157ff;font-weight:800}
+.os231-context h2{font-size:32px;line-height:1.3;margin:8px 0 22px;letter-spacing:-.035em;color:#17243e}
+.os231-context-list{display:grid;gap:12px}
+.os231-context-list>div{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center}
+.os231-context-list>div>i{width:38px;height:38px;border:1px solid #e3e8ef;border-radius:12px;background:rgba(255,255,255,.8);color:#3157ff;display:grid;place-items:center;font-size:11px}
+.os231-context-list b{display:block;font-size:10px;color:#45546b}.os231-context-list small{display:block;font-size:8px;color:#95a1b2;margin-top:2px}
+.os231-status{display:flex;align-items:center;gap:7px;margin-top:24px;color:#8290a4;font-size:8px}.os231-status i{width:7px;height:7px;border-radius:50%;background:#0caa7b;box-shadow:0 0 0 4px rgba(12,170,123,.09)}
+.os231-context.compact p{max-width:360px;font-size:10px;line-height:1.8;color:#8390a3}
+
+.os231-current-account{
+  display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;padding:9px 10px;margin-bottom:14px;
+  border:1px solid #e9edf3;border-radius:11px;background:#f8fafc
+}
+.os231-current-account>i{width:34px;height:34px;border-radius:9px;background:#eef3ff;color:#3157ff;display:grid;place-items:center}
+.os231-current-account small{display:block;font-size:6.5px;color:#99a4b4}.os231-current-account b{display:block;font-size:8.5px;color:#4b596e;margin-top:1px}
+.os231-privacy{display:flex;align-items:flex-start;gap:7px;padding:9px;margin-top:10px;border-radius:10px;background:#f5f7fa;color:#8793a4;font-size:7px;line-height:1.6}
+.os231-account-summary{display:grid;gap:6px;margin:16px 0}
+.os231-account-summary>div{padding:9px 10px;border-radius:10px;background:#f8fafc}
+.os231-account-summary span{display:block;font-size:6.5px;color:#99a4b4}.os231-account-summary b{display:block;font-size:9px;margin-top:2px;color:#425167}
+
+.os231-access .message{border-radius:10px!important;font-size:8.5px!important;line-height:1.6!important;margin:8px 0!important}
+.os231-access .auth-btn-spinner{width:13px!important;height:13px!important}
+.os231-access .quick-hour-grid{gap:7px!important}.os231-access .quick-hour-card{border-radius:11px!important;padding:10px!important}.os231-access .quick-hour-card b{font-size:9px!important}.os231-access .quick-hour-card span,.os231-access .quick-hour-card small{font-size:7px!important}.os231-access .quick-hour-card strong{font-size:15px!important}
+
+@media(max-width:900px){
+  .os231-access-main{grid-template-columns:minmax(0,500px);justify-content:center;gap:0;padding-top:22px}
+  .os231-context{display:none}
+}
+@media(max-width:600px){
+  .os231-top{width:calc(100% - 24px);height:66px}.os231-secure span{}.os231-secure{font-size:7px}.os231-install span{display:none}.os231-install{width:35px;padding:0;justify-content:center}
+  .os231-access-main{width:calc(100% - 20px);min-height:calc(100vh - 66px);padding:18px 0 40px;align-items:start}
+  .os231-card{padding:22px 18px;border-radius:22px}.os231-card h1{font-size:24px}.os231-intro{font-size:9.5px}
+  .os231-modes button{font-size:7px}.os231-modes button i{font-size:8px}
+  .os231-field>div:not(.os231-label-row){min-height:49px}.os231-field input{height:47px;font-size:11px}
+  .os231-primary{min-height:49px;font-size:10px}
+}
+</style>
+
+
+<style id="arewarin-student-os-v232-first-impression">
+/* =========================================================
+   V23.2 FIRST IMPRESSION
+   Pastel Bento + Course-first Home + Focus + Quick Note
+========================================================= */
+.os232-app{position:relative}
+.os232-ambient{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.os232-ambient i{position:absolute;border-radius:50%;filter:blur(1px);opacity:.55}
+.os232-ambient i:nth-child(1){width:380px;height:380px;left:-180px;top:80px;background:radial-gradient(circle,rgba(171,226,218,.22),transparent 68%)}
+.os232-ambient i:nth-child(2){width:430px;height:430px;right:-190px;top:260px;background:radial-gradient(circle,rgba(193,183,241,.18),transparent 68%)}
+.os232-ambient i:nth-child(3){width:320px;height:320px;left:35%;bottom:-160px;background:radial-gradient(circle,rgba(249,208,175,.15),transparent 68%)}
+.os232-app>.os23-header,.os232-app>.os23-workspace-head,.os232-app>.os23-content,.os232-app>.os23-mobile-dock{position:relative;z-index:2}
+
+.os232-home{display:grid;gap:13px}
+.os232-welcome{
+  min-height:245px;padding:16px;border-radius:28px;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(15px);
+  border:1px solid rgba(255,255,255,.94);box-shadow:0 22px 55px -42px rgba(30,43,71,.28);
+  display:grid;grid-template-columns:minmax(0,.85fr) minmax(420px,1.15fr);gap:17px;overflow:hidden
+}
+.os232-welcome-copy{padding:22px 14px 20px 22px;display:flex;flex-direction:column;justify-content:center}
+.os232-welcome-copy>span{font-size:9px;color:#8a978f;font-weight:650}
+.os232-welcome-copy h2{font-size:33px;line-height:1.16;margin:7px 0 8px;letter-spacing:-.035em;color:#263a34}
+.os232-welcome-copy p{max-width:520px;margin:0;color:#7d8b86;font-size:11px;line-height:1.75}
+.os232-welcome-actions{display:flex;gap:7px;margin-top:16px}
+.os232-welcome-actions button{min-height:39px;padding:0 13px;border:1px solid #dfe6e2;border-radius:12px;background:rgba(255,255,255,.8);color:#52645e;font-size:9px;font-weight:750;display:flex;align-items:center;gap:7px;cursor:pointer}
+.os232-welcome-actions button.primary{background:#244e44;color:#fff;border-color:#244e44;box-shadow:0 14px 26px -20px rgba(36,78,68,.8)}
+.os232-welcome-visual{position:relative;min-height:210px;border-radius:22px;background:linear-gradient(135deg,#dceeea,#eae5f5 58%,#f9e7db) center/cover no-repeat;overflow:hidden;display:flex;align-items:end;padding:17px}
+.os232-welcome-visual.has-image:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,30,28,.02),rgba(18,28,31,.52))}
+.os232-study-buddy{position:absolute;inset:0;display:grid;place-items:center}.os232-study-buddy>span{font-size:78px;filter:drop-shadow(0 16px 22px rgba(42,70,57,.12))}.os232-study-buddy>i{position:absolute;right:18%;bottom:18%;font-size:31px;color:rgba(41,78,68,.34)}
+.os232-visual-label{position:relative;z-index:2;padding:10px 12px;border:1px solid rgba(255,255,255,.32);border-radius:13px;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);color:#fff}
+.os232-welcome-visual:not(.has-image) .os232-visual-label{color:#3f5d54;background:rgba(255,255,255,.48)}
+.os232-visual-label small{display:block;font-size:6.5px;letter-spacing:.14em;font-weight:800}.os232-visual-label b{display:block;font-size:10px;margin-top:2px}
+
+.os232-section{padding:14px;border:1px solid rgba(231,234,238,.92);border-radius:22px;background:rgba(255,255,255,.79);backdrop-filter:blur(12px);box-shadow:0 16px 40px -36px rgba(25,37,65,.35)}
+.os232-section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:11px}
+.os232-section-head>div>span{display:block;font-size:7px;letter-spacing:.15em;color:#99a5a1;font-weight:800}.os232-section-head h2{font-size:16px;margin:2px 0 0;color:#344842}
+.os232-section-head>button{border:0;background:transparent;color:#536e66;font-size:8px;font-weight:750;cursor:pointer}.os232-section-head.small h2{font-size:14px}
+.os232-course-shelf{display:grid;grid-template-columns:1.45fr repeat(3,minmax(0,.75fr));gap:9px}
+.os232-course{min-width:0;border:1px solid rgba(226,231,230,.9);border-radius:17px;background:rgba(255,255,255,.88);overflow:hidden;box-shadow:0 15px 34px -31px rgba(28,45,42,.32);transition:box-shadow .22s ease,transform .1s ease;transform-style:preserve-3d}
+.os232-course:hover{box-shadow:0 24px 45px -31px rgba(28,45,42,.42)}
+.os232-course-image{position:relative;width:100%;height:118px;padding:0;border:0;background:#ddebe7 center/cover no-repeat;display:grid;place-items:center;overflow:hidden;cursor:pointer}
+.os232-course.featured .os232-course-image{height:150px}.os232-course-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(16,31,29,.42))}
+.os232-course-fallback{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(135deg,#d8ece7,#ebe5f4);color:#476b61;font-size:28px}
+.os232-course-status{position:absolute;left:9px;top:9px;z-index:2;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);font-size:6.5px;color:#466158;font-weight:800}
+.os232-play{position:absolute;z-index:2;width:31px;height:31px;border-radius:50%;background:rgba(255,255,255,.9);color:#244e44;display:grid;place-items:center;font-size:8px;box-shadow:0 9px 20px rgba(14,35,30,.15)}
+.os232-course-copy{padding:10px}.os232-course-copy>small{font-size:6px;letter-spacing:.12em;color:#9ca7a3;font-weight:800}.os232-course-copy h3{font-size:10.5px;line-height:1.45;margin:3px 0 2px;color:#3c514b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os232-course-copy>p{font-size:7px;color:#98a4a0;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.os232-course-meta{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;color:#899793;font-size:7px}.os232-course-meta button{border:0;background:transparent;color:#5e766f;font-size:6.5px;font-weight:750;cursor:pointer}
+.os232-no-course{min-height:115px;padding:18px;border:1px dashed #d9e2de;border-radius:16px;background:#f9fbfa;display:flex;align-items:center;justify-content:space-between;gap:16px}.os232-no-course>div:first-child{display:flex;align-items:center;gap:11px}.os232-no-course>div:first-child>i{width:42px;height:42px;border-radius:13px;background:#e6f3ef;color:#3d7464;display:grid;place-items:center}.os232-no-course b{display:block;font-size:10px}.os232-no-course small{display:block;font-size:8px;color:#91a09b;margin-top:2px}.os232-no-course>div:last-child{display:flex;gap:6px}.os232-no-course button{min-height:35px;padding:0 10px;border:1px solid #d8e3df;border-radius:10px;background:#fff;color:#526a63;font-size:8px;font-weight:700;cursor:pointer}
+
+.os232-mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.os232-mini-stats>button{min-height:82px;padding:11px;border:1px solid rgba(230,234,235,.95);border-radius:17px;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;box-shadow:0 13px 28px -26px rgba(26,41,57,.3)}
+.os232-mini-stats>button>i{width:34px;height:34px;border-radius:11px;background:#e8f2ff;color:#3157ff;display:grid;place-items:center}.os232-mini-stats>button>i.amber{background:#fff1de;color:#d98919}.os232-mini-stats>button>i.violet{background:#f0ebff;color:#7457d9}
+.os232-mini-stats small{display:block;font-size:7.5px;color:#98a4a0}.os232-mini-stats b{font-size:18px;color:#344841}.os232-mini-stats em{font-size:7px;color:#a0aaa7;font-style:normal;margin-left:3px}
+
+.os232-productivity{display:grid;grid-template-columns:1.2fr .8fr .8fr 1fr;gap:9px}
+.os232-bento{position:relative;min-height:200px;padding:15px;border:1px solid rgba(255,255,255,.7);border-radius:22px;overflow:hidden;box-shadow:0 16px 38px -31px rgba(31,49,44,.3);transition:transform .1s ease,box-shadow .22s ease;transform-style:preserve-3d}
+.os232-bento:hover{box-shadow:0 24px 45px -31px rgba(31,49,44,.42)}
+.os232-focus{background:#fff0f0;display:flex;flex-direction:column;align-items:center;justify-content:center}.os232-bento-top{position:absolute;left:14px;right:14px;top:12px;display:flex;align-items:center;justify-content:space-between}.os232-bento-top>span,.os232-vocab>span,.os232-exam>div>span,.os232-next>span{font-size:6.5px;letter-spacing:.14em;font-weight:800;opacity:.55}.os232-bento-top button,.os232-exam>div button{width:27px;height:27px;border:0;border-radius:8px;background:rgba(255,255,255,.5);color:#9d7474;cursor:pointer}
+.os232-plant{position:absolute;left:14px;top:42px;text-align:center}.os232-plant>span{display:block;font-size:31px}.os232-plant small{font-size:6px;color:#9d7777;background:rgba(255,255,255,.55);padding:2px 5px;border-radius:999px}
+.os232-pomo-tabs{display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.5);margin-top:15px}.os232-pomo-tabs button{padding:5px 10px;border:0;border-radius:999px;background:transparent;color:#ae8585;font-size:7px;font-weight:750}.os232-pomo-tabs button.active{background:#fff;color:#d76f6f;box-shadow:0 5px 15px -12px rgba(50,20,20,.4)}
+.os232-focus>strong{font-size:42px;font-weight:300;letter-spacing:-.04em;color:#d96c6c;margin:7px 0 0}.os232-focus>p{font-size:6.5px;color:#ae8888;margin:1px 0 8px}
+.os232-pomo-actions{display:flex;gap:7px}.os232-pomo-actions button{width:35px;height:35px;border:0;border-radius:50%;background:rgba(255,255,255,.72);color:#a77b7b;cursor:pointer}.os232-pomo-actions button:first-child,.os232-pomo-actions button#os232PomoPause{background:#d96c6c;color:#fff}.os232-pomo-actions .hidden{display:none!important}
+.os232-vocab{background:#e2f0cb;color:#315d43;display:flex;flex-direction:column;justify-content:center}.os232-vocab>strong{font-size:29px;line-height:1;margin:12px 0 5px}.os232-vocab>b{font-size:10px}.os232-vocab>small{align-self:flex-start;margin-top:11px;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.45);font-size:6.5px}.os232-vocab>i{position:absolute;right:-9px;bottom:-12px;font-size:90px;opacity:.07;transform:rotate(-20deg)}
+.os232-exam{background:#ffe5d9;color:#9d5e45}.os232-exam>div{display:flex;justify-content:space-between;align-items:center}.os232-exam>b{display:block;font-size:11px;margin-top:24px}.os232-exam>small{display:block;font-size:7px;opacity:.7;margin-top:3px}.os232-exam>p{font-size:7px;line-height:1.55;opacity:.72;margin:22px 0 0}.os232-exam>strong{position:absolute;right:15px;bottom:14px;font-size:30px}.os232-exam>strong em{font-size:6px;font-style:normal;margin-left:3px}
+.os232-next{background:#fcf4d9;color:#765f26;display:flex;flex-direction:column;justify-content:center}.os232-next>strong{font-size:29px;line-height:1;margin-top:14px}.os232-next>b{font-size:9px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os232-next>small{font-size:6.5px;opacity:.7;margin-top:3px}.os232-next>button{align-self:flex-start;margin-top:11px;border:0;border-radius:9px;background:rgba(255,255,255,.55);color:#806925;padding:6px 8px;font-size:6.5px;font-weight:750}.os232-next>i{font-size:27px;margin:18px 0 8px;opacity:.4}
+
+.os232-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.os232-white-card{padding:14px;border:1px solid rgba(230,234,235,.95);border-radius:20px;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);box-shadow:0 15px 34px -31px rgba(24,39,51,.3)}.os232-friendly-empty{min-height:98px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9aa6a2;text-align:center}.os232-friendly-empty>i{font-size:18px;color:#e3b95b;margin-bottom:6px}.os232-friendly-empty>b{font-size:9px;color:#62746e}.os232-friendly-empty>span{font-size:7px;margin-top:2px}.os232-friendly-empty.success>i{color:#0ca073}
+
+.os232-note-drawer{position:fixed;right:0;top:32%;z-index:86;display:flex;transform:translateX(calc(100% - 35px));transition:transform .28s cubic-bezier(.2,.8,.2,1)}.os232-note-drawer.open{transform:translateX(0)}
+.os232-note-tab{width:35px;height:116px;margin-top:13px;border:1px solid #dce8e3;border-right:0;border-radius:13px 0 0 13px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);color:#447164;display:flex;align-items:center;justify-content:center;gap:5px;writing-mode:vertical-rl;font-size:7px;font-weight:750;cursor:pointer;box-shadow:-7px 8px 23px -18px rgba(19,46,37,.35)}
+.os232-note-drawer>section{width:265px;height:310px;padding:13px;border:1px solid #dce8e3;border-radius:0 0 0 17px;background:rgba(255,255,255,.96);backdrop-filter:blur(18px);box-shadow:-14px 18px 40px -28px rgba(19,46,37,.35);display:flex;flex-direction:column}
+.os232-note-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #edf1ef}.os232-note-head span{display:block;font-size:6px;letter-spacing:.13em;color:#8fa099}.os232-note-head b{display:block;font-size:10px;color:#426158;margin-top:1px}.os232-note-head button{width:27px;height:27px;border:0;border-radius:8px;background:#f4f7f6;color:#85958f}
+.os232-note-drawer textarea{flex:1;width:100%;padding:9px 2px;border:0;outline:0;resize:none;background:transparent;color:#44554f;font:400 9px/1.7 "Prompt",sans-serif}.os232-note-drawer>section>small{font-size:6px;color:#95a39e}
+
+.os232-first-layer{position:fixed;inset:0;z-index:160;background:rgba(244,247,250,.78);backdrop-filter:blur(18px);display:grid;place-items:center;padding:18px}
+.os232-first-card{position:relative;width:min(660px,100%);padding:32px;border:1px solid rgba(255,255,255,.95);border-radius:30px;background:rgba(255,255,255,.94);box-shadow:0 40px 100px -55px rgba(25,46,41,.38);text-align:center;overflow:hidden}
+.os232-first-sparkles i{position:absolute;width:7px;height:7px;border-radius:50%;background:#8ed8c3;opacity:.55}.os232-first-sparkles i:nth-child(1){left:12%;top:16%}.os232-first-sparkles i:nth-child(2){right:13%;top:24%;background:#d6b7ef}.os232-first-sparkles i:nth-child(3){left:22%;bottom:19%;background:#f1c58e}.os232-first-sparkles i:nth-child(4){right:25%;bottom:13%}
+.os232-first-kicker{font-size:7px;letter-spacing:.17em;color:#75988e;font-weight:800}.os232-first-card h2{font-size:29px;margin:7px 0 6px;color:#28443c;letter-spacing:-.03em}.os232-first-card>p{max-width:500px;margin:0 auto;color:#83918d;font-size:10px;line-height:1.7}
+.os232-welcome-covers{height:150px;margin:22px auto 18px;display:flex;align-items:center;justify-content:center}.os232-welcome-cover{width:190px;height:120px;margin:0 -34px;border:5px solid #fff;border-radius:18px;background:#dfede9 center/cover no-repeat;color:#54766d;display:grid;place-items:center;font-size:23px;box-shadow:0 18px 38px -25px rgba(25,47,41,.4);transform:rotate(-6deg)}.os232-welcome-cover:nth-child(2){transform:rotate(3deg) translateY(-8px);z-index:3}.os232-welcome-cover:nth-child(3){transform:rotate(8deg)}.os232-welcome-cover:nth-child(4){transform:rotate(12deg)}
+.os232-welcome-empty{width:min(350px,100%);margin:20px auto;padding:24px;border-radius:18px;background:linear-gradient(135deg,#e7f3ef,#efebf8);color:#55736a}.os232-welcome-empty i{display:block;font-size:24px;margin-bottom:6px}.os232-welcome-empty b{font-size:10px}
+.os232-first-features{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}.os232-first-features>span{padding:10px;border-radius:13px;background:#f8faf9}.os232-first-features i{display:block;color:#50786d;font-size:12px}.os232-first-features b{display:block;font-size:8px;margin-top:5px}.os232-first-features small{display:block;font-size:6.5px;color:#98a59f;margin-top:1px}
+.os232-first-actions{display:flex;justify-content:center;gap:7px;margin-top:16px}.os232-first-actions button{min-height:39px;padding:0 13px;border:1px solid #dde7e3;border-radius:11px;background:#fff;color:#6f7f7a;font-size:8px;font-weight:750;cursor:pointer}.os232-first-actions button.primary{background:#284f44;color:#fff;border-color:#284f44}
+
+/* Correct inherited tiny sizes on the home screen */
+.os232-home button,.os232-home input,.os232-home textarea{font-family:"Prompt",sans-serif}
+
+@media(max-width:1100px){
+  .os232-course-shelf{grid-template-columns:repeat(3,1fr)}.os232-course.featured{grid-column:span 2}.os232-productivity{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .os232-welcome{grid-template-columns:1fr;min-height:0;padding:11px;border-radius:20px}.os232-welcome-copy{padding:15px 10px 6px}.os232-welcome-copy h2{font-size:25px}.os232-welcome-visual{min-height:180px}
+  .os232-course-shelf{display:flex;overflow:auto;scroll-snap-type:x mandatory;padding-bottom:3px;scrollbar-width:none}.os232-course-shelf::-webkit-scrollbar{display:none}.os232-course{flex:0 0 78%;scroll-snap-align:start}.os232-course.featured{grid-column:auto}.os232-course-image,.os232-course.featured .os232-course-image{height:145px}
+  .os232-mini-stats{grid-template-columns:1fr 1fr;gap:7px}.os232-mini-stats>button{min-height:76px}
+  .os232-productivity{grid-template-columns:1fr 1fr;gap:7px}.os232-bento{min-height:180px;border-radius:18px}.os232-focus{grid-column:span 2;min-height:210px}.os232-focus>strong{font-size:47px}
+  .os232-bottom-grid{grid-template-columns:1fr}
+  .os232-note-drawer{top:auto;bottom:76px;right:8px;display:block;transform:none;pointer-events:none}.os232-note-tab{pointer-events:auto;width:45px;height:45px;margin:0 0 0 auto;border:1px solid #dce8e3;border-radius:50%;writing-mode:horizontal-tb;box-shadow:0 11px 30px -17px rgba(19,46,37,.45)}.os232-note-tab span{display:none}.os232-note-drawer>section{position:absolute;right:0;bottom:54px;width:min(320px,calc(100vw - 24px));height:310px;border-radius:18px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.os232-note-drawer.open>section{opacity:1;transform:none;pointer-events:auto}
+  .os232-first-card{padding:25px 16px;border-radius:24px}.os232-first-card h2{font-size:24px}.os232-welcome-covers{height:125px}.os232-welcome-cover{width:145px;height:95px;margin:0 -26px}.os232-first-features{gap:5px}.os232-first-actions{flex-direction:column}.os232-first-actions button{width:100%}
+}
+@media(max-width:430px){
+  .os232-productivity{grid-template-columns:1fr}.os232-focus{grid-column:auto}.os232-bento{min-height:165px}.os232-course{flex-basis:88%}
+}
+</style>
+
+</head><body class="aw-student-v156" data-student-build="23.2.0-first-impression">
+<!-- LIVE BUILD: 23.2.0-first-impression --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2226,81 +2460,152 @@ function friendly(e){
   return m||'เกิดข้อผิดพลาด';
 }
 
+
+function os231RememberedEmail(){
+  try{return String(localStorage.getItem('aw_student_last_email')||'').trim().toLowerCase()}catch(_){return ''}
+}
+function os231RememberEmail(email){
+  try{if(email)localStorage.setItem('aw_student_last_email',String(email).trim().toLowerCase())}catch(_){}
+}
+function os231ForgetEmail(){
+  try{localStorage.removeItem('aw_student_last_email')}catch(_){}
+}
+function os231MaskEmail(email){
+  const x=String(email||''),parts=x.split('@');
+  if(parts.length!==2)return x;
+  const u=parts[0]||'',shown=u.length<=2?u:u.slice(0,2)+'•••';
+  return `${shown}@${parts[1]}`
+}
+function os231AccessBrand(){
+  const brand=S.data?.site_branding||{};
+  return {name:brand.site_name_en||'AreWarin',logo:brand.logo_url||''}
+}
+
+
 function authHtml(){
-  if(S.signupResult)return `<div class="os22-auth">
-    <section class="os22-auth-visual">
-      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
-      <div class="os22-auth-art"><div class="os22-orbit one"></div><div class="os22-orbit two"></div><div class="os22-core"><i class="fa-solid fa-check"></i></div></div>
-      <div class="os22-auth-copy"><small>ACCOUNT READY</small><h1>พร้อมเรียนแล้ว</h1><p>บัญชีเชื่อมกับข้อมูลนักเรียนเรียบร้อย</p></div>
-    </section>
-    <section class="os22-auth-formwrap">
-      <div class="os22-auth-card">
-        <span class="os22-auth-label">สมัครสำเร็จ</span>
-        <h2>${esc(S.signupResult.display_name)}</h2>
-        <div class="os22-auth-summary"><span>Student ID</span><b>${esc(S.signupResult.student_code||'—')}</b><span>อีเมล</span><b>${esc(S.signupResult.email)}</b></div>
-        <button class="btn primary wide" id="enter">เข้า Student OS</button>
-        <button class="btn wide" id="later" style="margin-top:8px">กลับหน้า Login</button>
-      </div>
-    </section>
+  const brand=os231AccessBrand(),remembered=os231RememberedEmail();
+
+  if(S.signupResult)return `<div class="os231-access">
+    <div class="os231-ambient"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+    <header class="os231-top">
+      <a class="os231-brand" href="../"><span>${brand.logo?`<img src="${esc(brand.logo)}" alt="">`:'A'}</span><div><b>${esc(brand.name)}</b><small>Student OS</small></div></a>
+      <span class="os231-secure"><i class="fa-solid fa-shield-halved"></i> Secure access</span>
+    </header>
+    <main class="os231-access-main">
+      <section class="os231-card os231-success-card">
+        <div class="os231-success-icon"><i class="fa-solid fa-check"></i></div>
+        <span class="os231-kicker">ACCOUNT READY</span>
+        <h1>พร้อมเรียนแล้ว</h1>
+        <p>บัญชีนี้เชื่อมกับ Student Profile เรียบร้อย</p>
+        <div class="os231-account-summary">
+          <div><span>นักเรียน</span><b>${esc(S.signupResult.display_name)}</b></div>
+          <div><span>Student ID</span><b>${esc(S.signupResult.student_code||'—')}</b></div>
+          <div><span>อีเมล</span><b>${esc(S.signupResult.email)}</b></div>
+        </div>
+        <button class="os231-primary" id="enter"><span>เข้า Student OS</span><i class="fa-solid fa-arrow-right"></i></button>
+        <button class="os231-link" id="later">กลับหน้าเข้าสู่ระบบ</button>
+      </section>
+    </main>
   </div>`;
 
-  if(S.mode==='recovery')return `<div class="os22-auth">
-    <section class="os22-auth-visual">
-      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
-      <div class="os22-auth-art"><div class="os22-orbit one"></div><div class="os22-orbit two"></div><div class="os22-core"><i class="fa-solid fa-key"></i></div></div>
-      <div class="os22-auth-copy"><small>RECOVERY</small><h1>ตั้งรหัสใหม่</h1><p>ใช้ข้อมูลเดิมของนักเรียน</p></div>
-    </section>
-    <section class="os22-auth-formwrap">
-      <form class="os22-auth-card" id="recovery">
-        <div class="os22-auth-head"><span>กู้บัญชี</span><h2>เปลี่ยนรหัสผ่าน</h2></div>
+  if(S.mode==='recovery')return `<div class="os231-access">
+    <div class="os231-ambient"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+    <header class="os231-top">
+      <button class="os231-brand" id="back"><span>${brand.logo?`<img src="${esc(brand.logo)}" alt="">`:'A'}</span><div><b>${esc(brand.name)}</b><small>Student OS</small></div></button>
+      <span class="os231-secure"><i class="fa-solid fa-shield-halved"></i> Account recovery</span>
+    </header>
+    <main class="os231-access-main">
+      <form class="os231-card" id="recovery">
+        <div class="os231-icon"><i class="fa-solid fa-key"></i></div>
+        <span class="os231-kicker">RECOVERY</span>
+        <h1>ตั้งรหัสใหม่</h1>
+        <p class="os231-intro">ยืนยันข้อมูลเดิมของนักเรียนก่อนเปลี่ยนรหัสผ่าน</p>
         <div id="msg"></div>
-        <div class="field"><label>เบอร์โทร</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" required></div>
-        <div class="field"><label>อีเมล</label><input class="input" type="email" name="email" autocomplete="email" required></div>
-        <div class="field"><label>PIN 4 หลัก</label><input class="input" inputmode="numeric" maxlength="4" name="pin" required></div>
-        <div class="field"><label>รหัสผ่านใหม่</label><div class="password-wrap"><input class="input" type="password" name="password" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
-        <div class="field"><label>ยืนยันรหัสผ่าน</label><div class="password-wrap"><input class="input" type="password" name="confirm" required autocomplete="new-password"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
-        <button class="btn primary wide">บันทึกรหัสใหม่</button>
-        <button type="button" class="btn wide" id="back" style="margin-top:8px">กลับ</button>
+        <div class="os231-field"><label>เบอร์โทรนักเรียน</label><div><i class="fa-solid fa-phone"></i><input name="phone" inputmode="tel" autocomplete="tel" required placeholder="08x xxx xxxx"></div></div>
+        <div class="os231-field"><label>อีเมล</label><div><i class="fa-regular fa-envelope"></i><input type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div></div>
+        <div class="os231-field"><label>PIN 4 หลัก</label><div><i class="fa-solid fa-hashtag"></i><input inputmode="numeric" maxlength="4" name="pin" required placeholder="••••"></div></div>
+        <div class="os231-field"><label>รหัสผ่านใหม่</label><div><i class="fa-solid fa-lock"></i><input type="password" name="password" required autocomplete="new-password" placeholder="อย่างน้อย 8 ตัว"><button class="os231-eye" type="button" data-toggle-password><i class="fa-regular fa-eye"></i></button></div></div>
+        <div class="os231-field"><label>ยืนยันรหัสผ่าน</label><div><i class="fa-solid fa-lock"></i><input type="password" name="confirm" required autocomplete="new-password" placeholder="พิมพ์ซ้ำอีกครั้ง"><button class="os231-eye" type="button" data-toggle-password><i class="fa-regular fa-eye"></i></button></div></div>
+        <button class="os231-primary" type="submit"><span>บันทึกรหัสใหม่</span><i class="fa-solid fa-arrow-right"></i></button>
+        <button class="os231-link" type="button" id="back2">กลับหน้าเข้าสู่ระบบ</button>
       </form>
-    </section>
+    </main>
   </div>`;
 
   const signup=S.mode==='signup',quick=S.mode==='quick';
-  return `<div class="os22-auth">
-    <section class="os22-auth-visual">
-      <div class="os22-auth-brand"><div class="os22-mark">A</div><div><b>AreWarin</b><span>Student OS</span></div></div>
-      <div class="os22-auth-art">
-        <div class="os22-orbit one"></div><div class="os22-orbit two"></div>
-        <div class="os22-core"><i class="fa-solid ${quick?'fa-stopwatch':signup?'fa-user-plus':'fa-graduation-cap'}"></i></div>
-      </div>
-      <div class="os22-auth-copy">
-        <small>STUDENT SPACE</small>
-        <h1>${quick?'เช็กชั่วโมง':'เรียน. ทบทวน. ติดตาม.'}</h1>
-        <p>${quick?'ใช้ Student Code + PIN':'ทุกอย่างที่ใช้จริง อยู่ในระบบเดียว'}</p>
-      </div>
-    </section>
+  const modeTitle=quick?'Quick Check':signup?'เชื่อมบัญชีนักเรียน':'Welcome back';
+  const modeSub=quick?'เช็กชั่วโมงคงเหลือด้วย Student ID + PIN':signup?'ค้นหา Student Profile เดิมก่อนสร้างบัญชี':'เข้าสู่ Student OS แล้วเรียนต่อจากจุดเดิม';
 
-    <section class="os22-auth-formwrap">
-      <form class="os22-auth-card" id="auth-form">
-        <div class="os22-auth-head"><span>AreWarin Biology</span><h2>${quick?'เช็กชั่วโมง':signup?'สร้างบัญชี':'เข้าสู่ระบบ'}</h2></div>
+  return `<div class="os231-access">
+    <div class="os231-ambient"><i class="a"></i><i class="b"></i><i class="c"></i></div>
 
-        <div class="os22-auth-tabs">
-          <button type="button" data-mode="login" class="${!signup&&!quick?'active':''}">Login</button>
-          <button type="button" data-mode="signup" class="${signup?'active':''}">สมัครบัญชี</button>
-          <button type="button" data-mode="quick" class="${quick?'active':''}">Quick Check</button>
+    <header class="os231-top">
+      <a class="os231-brand" href="../">
+        <span>${brand.logo?`<img src="${esc(brand.logo)}" alt="">`:'A'}</span>
+        <div><b>${esc(brand.name)}</b><small>Student OS</small></div>
+      </a>
+      <div class="os231-top-actions">
+        <button id="installPwa" class="os231-install" style="display:none"><i class="fa-solid fa-arrow-down-to-line"></i><span>ติดตั้งแอป</span></button>
+        <span class="os231-secure"><i class="fa-solid fa-shield-halved"></i> Secure access</span>
+      </div>
+    </header>
+
+    <main class="os231-access-main">
+      <section class="os231-card ${quick?'quick':''} ${signup?'signup':''}">
+        <div class="os231-icon"><i class="fa-solid ${quick?'fa-stopwatch':signup?'fa-link':'fa-graduation-cap'}"></i></div>
+        <span class="os231-kicker">${quick?'QUICK ACCESS':signup?'FIRST-TIME SETUP':'STUDENT ACCESS'}</span>
+        <h1>${modeTitle}</h1>
+        <p class="os231-intro">${modeSub}</p>
+
+        <div class="os231-modes">
+          <button type="button" data-mode="login" class="${!signup&&!quick?'active':''}"><i class="fa-solid fa-right-to-bracket"></i><span>Login</span></button>
+          <button type="button" data-mode="quick" class="${quick?'active':''}"><i class="fa-solid fa-stopwatch"></i><span>Quick Check</span></button>
+          <button type="button" data-mode="signup" class="${signup?'active':''}"><i class="fa-solid fa-link"></i><span>เชื่อมบัญชี</span></button>
         </div>
 
         <div id="msg"></div>
 
-        ${quick?quickHoursFields():signup?signupFields():`
-          <div class="field"><label>อีเมล</label><input class="input" type="email" name="email" autocomplete="email" required placeholder="name@example.com"></div>
-          <div class="field"><label>รหัสผ่าน</label><div class="password-wrap"><input class="input" type="password" name="password" autocomplete="current-password" required placeholder="••••••••"><button class="password-toggle" type="button" data-toggle-password>แสดง</button></div></div>
-          <div class="os22-login-row"><button class="text-btn" type="button" id="forgot">ลืมรหัส / PIN</button></div>
-          <button class="btn primary wide">เข้าสู่ระบบ</button>
+        ${quick?`<div class="os231-slot">${quickHoursFields()}</div>`:signup?`<div class="os231-slot">${signupFields()}</div>`:`
+          ${remembered?`<div class="os231-remembered">
+            <span class="os231-avatar">${esc(String(remembered).slice(0,1).toUpperCase())}</span>
+            <div><small>เคยเข้าใช้บนอุปกรณ์นี้</small><b>${esc(os231MaskEmail(remembered))}</b></div>
+            <button type="button" id="forgetAccount" title="ล้างบัญชีที่จำไว้"><i class="fa-solid fa-xmark"></i></button>
+          </div>`:''}
+
+          <div class="os231-field">
+            <label>อีเมล</label>
+            <div><i class="fa-regular fa-envelope"></i><input type="email" name="email" autocomplete="email" required value="${esc(remembered)}" placeholder="name@example.com"></div>
+          </div>
+
+          <div class="os231-field">
+            <div class="os231-label-row"><label>รหัสผ่าน</label><button type="button" id="forgot">ลืมรหัส / PIN</button></div>
+            <div><i class="fa-solid fa-lock"></i><input type="password" name="password" autocomplete="current-password" required placeholder="••••••••"><button class="os231-eye" type="button" data-toggle-password><i class="fa-regular fa-eye"></i></button></div>
+          </div>
+
+          <button class="os231-primary" type="submit"><span>เข้าสู่ระบบ</span><i class="fa-solid fa-arrow-right"></i></button>
+
+          <div class="os231-divider"><span>หรือเข้าแบบรวดเร็ว</span></div>
+
+          <button class="os231-secondary" type="button" data-mode="quick"><i class="fa-solid fa-id-card"></i><span>ใช้ Student ID + PIN</span></button>
         `}
-        <a class="os22-back-home" href="../">กลับหน้าหลัก</a>
-      </form>
-    </section>
+
+        <div class="os231-foot">
+          <span>${signup?'มีบัญชีแล้ว?':'ยังไม่มีบัญชีที่เชื่อม?'}</span>
+          <button type="button" data-mode="${signup?'login':'signup'}">${signup?'เข้าสู่ระบบ':'เชื่อม Student Profile'}</button>
+        </div>
+      </section>
+
+      <aside class="os231-context">
+        <span>AREWARIN STUDENT OS</span>
+        <h2>เรียนต่อได้ทันที<br>ไม่ต้องหาอะไรให้วุ่นวาย</h2>
+        <div class="os231-context-list">
+          <div><i class="fa-regular fa-calendar"></i><span><b>ตารางเดียว</b><small>คลาส การบ้าน และกำหนดส่ง</small></span></div>
+          <div><i class="fa-solid fa-circle-play"></i><span><b>เรียนต่อจากจุดเดิม</b><small>Replay, Progress และ Notes</small></span></div>
+          <div><i class="fa-regular fa-clock"></i><span><b>ชั่วโมงอัปเดตล่าสุด</b><small>ซิงก์จาก Manager และ Tutor OS</small></span></div>
+        </div>
+        <div class="os231-status"><i></i><span>Student services ready</span></div>
+      </aside>
+    </main>
   </div>`;
 }
 function quickHoursFields(){const r=S.quickResult;if(r?.ok){const cs=r.courses||[],gs=r.groups||[];return `<div class="message success"><b>${esc(r.display_name||'นักเรียน')}</b><br>${esc(r.student_code||'')}</div><div class="quick-hour-grid">${cs.map(c=>`<article class="quick-hour-card"><div><b>${esc(c.course_name||'คอร์ส')}</b><span>${c.unlimited?'แพ็กเกจไม่จำกัด':`ใช้แล้ว ${n(c.used_hours).toFixed(2)} / ${n(c.total_hours).toFixed(2)} ชม.`}</span></div><strong>${c.unlimited?'∞':n(c.remaining_hours).toFixed(2)}</strong><small>${c.unlimited?'ไม่จำกัดชั่วโมง':'ชม. คงเหลือ'}</small></article>`).join('')||'<div class="message">ยังไม่มีคอร์ส Active</div>'}</div>${gs.length?`<div class="message" style="margin-top:10px"><b>กลุ่มเรียน</b><br>${gs.map(g=>`${esc(g.group_code)} · ${esc(g.name)}`).join('<br>')}</div>`:''}<button class="btn primary wide" type="button" id="quickAgain">เช็กอีกรหัส</button><button class="btn wide" type="button" data-mode="login" style="margin-top:8px">เข้าสู่ Student Portal</button>`}return `<div class="field"><label>Student Code</label><input class="input" name="student_code" required placeholder="เช่น AWS-2026-000001" autocomplete="off"></div><div class="field"><label>PIN 4 หลัก</label><input class="input" name="pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"></div><button class="btn primary wide">ตรวจสอบชั่วโมง</button><div class="sub" style="margin-top:10px;line-height:1.6">ระบบจะแสดงเฉพาะคอร์ส ชั่วโมงคงเหลือ และกลุ่มเรียน ไม่แสดงเบอร์โทร อีเมล หรือที่อยู่</div>`}
@@ -2409,7 +2714,7 @@ function os23CloseContext(){$('#os23ContextLayer')?.classList.remove('open');doc
 function os23OpenCourseContext(courseId){
   const layer=$('#os23ContextLayer'),box=$('#os23ContextContent'),c=course(courseId),e=(S.data?.enrollments||[]).find(x=>String(x.course_id)===String(courseId));if(!layer||!box||!c)return;
   const pct=courseProgress(courseId),ts=topics(courseId),done=ts.filter(t=>progress(t.id)?.status==='completed').length,nx=os23CourseNextClass(courseId),remain=e?.hours_unlimited?null:Math.max(0,n(e?.hours_total)-n(e?.hours_used));
-  box.innerHTML=`<div class="os23-context-cover" style="${c.cover_url?`background-image:url('${esc(c.cover_url)}')`:''}">${!c.cover_url?'<i class="fa-solid fa-dna"></i>':''}</div>
+  box.innerHTML=`<div class="os23-context-cover" style="${os232CourseImage(c)?`background-image:url('${esc(os232CourseImage(c))}')`:''}">${!os232CourseImage(c)?'<i class="fa-solid fa-dna"></i>':''}</div>
   <div class="os23-context-body"><span class="os23-eyebrow">COURSE WORKSPACE</span><h2>${esc(c.title||e?.course_label||'คอร์ส')}</h2>
   <div class="os23-context-progress"><div><b>${pct}%</b><span>ความคืบหน้า</span></div><div><b>${done}/${ts.length}</b><span>บทเรียน</span></div><div><b>${e?.hours_unlimited?'∞':remain?.toFixed(1)??'—'}</b><span>ชม. คงเหลือ</span></div></div>
   <div class="os23-progressbar"><i style="width:${pct}%"></i></div>${nx?`<div class="os23-context-next"><i class="fa-regular fa-calendar"></i><div><span>คลาสถัดไป</span><b>${dateTime(nx.start_at)}</b></div></div>`:''}
@@ -2435,22 +2740,179 @@ function os23ToggleStudyDark(force){const on=typeof force==='boolean'?force:!doc
 function os23ApplyStudyPrefs(){if(S.tab!=='learning'||!S.courseId){document.body.classList.remove('os23-focus','os23-study-dark');return}try{document.body.classList.toggle('os23-focus',localStorage.getItem('aw_student_focus')==='1');document.body.classList.toggle('os23-study-dark',localStorage.getItem('aw_student_study_dark')==='1')}catch(_){}}
 
 
+
+/* =========================================================
+   V23.2 · FIRST IMPRESSION / ENGAGEMENT LAYER
+   Inspired by the user's pastel bento productivity portal.
+========================================================= */
+function os232CourseImage(c){
+  return c?.cover_url||c?.image_url||c?.cover_image_url||c?.thumbnail_url||c?.banner_url||c?.image||''
+}
+function os232Greeting(){
+  const h=new Date().getHours();
+  if(h<11)return 'อรุณสวัสดิ์';
+  if(h<16)return 'สวัสดีตอนบ่าย';
+  if(h<20)return 'สวัสดีตอนเย็น';
+  return 'คืนนี้มาเรียนกันต่อ'
+}
+function os232WelcomeKey(){return `aw_student_welcome_v232:${os23StudentKey()}`}
+function os232WelcomeSeen(){try{return localStorage.getItem(os232WelcomeKey())==='1'}catch(_){return true}}
+function os232MarkWelcome(){try{localStorage.setItem(os232WelcomeKey(),'1')}catch(_){}}
+function os232QuickNoteKey(){return `aw_student_quicknote:${os23StudentKey()}`}
+function os232QuickNote(){try{return localStorage.getItem(os232QuickNoteKey())||''}catch(_){return ''}}
+function os232SaveQuickNote(v){try{localStorage.setItem(os232QuickNoteKey(),String(v||''))}catch(_){}}
+function os232FocusCount(){try{return Number(localStorage.getItem(`aw_student_focus_count:${os23StudentKey()}`)||0)}catch(_){return 0}}
+function os232SetFocusCount(v){try{localStorage.setItem(`aw_student_focus_count:${os23StudentKey()}`,String(v))}catch(_){}}
+function os232Plant(){
+  const stages=['🌰','🌱','🌿','🪴','🌳','🌸'],count=os232FocusCount(),level=Math.min(stages.length,Math.floor(count/2)+1);
+  return {emoji:stages[level-1],level,count}
+}
+function os232Vocab(){
+  const rows=[
+    ['Cyto-','เซลล์','Cytoplasm'],['Bio-','ชีวิต','Biology'],['Photo-','แสง','Photosynthesis'],
+    ['Hemo-','เลือด','Hemoglobin'],['Neuro-','ประสาท','Neuron'],['Osteo-','กระดูก','Osteocyte'],
+    ['Cardio-','หัวใจ','Cardiology'],['Glyco-','น้ำตาล','Glycolysis'],['Hydro-','น้ำ','Hydrolysis'],
+    ['Mito-','เส้นด้าย/ไมโทซิส','Mitosis'],['Endo-','ภายใน','Endocytosis'],['Exo-','ภายนอก','Exocytosis']
+  ];
+  const d=new Date(),index=(d.getFullYear()*372+(d.getMonth()+1)*31+d.getDate())%rows.length;
+  return rows[index]
+}
+function os232ExamInfo(){
+  let title='ตั้งเป้าหมายสอบ',date='';
+  try{title=localStorage.getItem(`aw_exam_title:${os23StudentKey()}`)||title;date=localStorage.getItem(`aw_exam_date:${os23StudentKey()}`)||''}catch(_){}
+  const d=date?new Date(date+'T00:00:00'):null,days=d?Math.ceil((d-new Date())/86400000):null;
+  return {title,date,days}
+}
+function os232SetupExam(){
+  const x=os232ExamInfo();
+  showModal('ตั้งวันสอบ',`<form id="os232ExamForm">
+    <div class="field"><label>ชื่อการสอบ / เป้าหมาย</label><input class="input" name="title" value="${esc(x.title==='ตั้งเป้าหมายสอบ'?'':x.title)}" placeholder="เช่น A-Level Biology"></div>
+    <div class="field"><label>วันที่สอบ</label><input class="input" type="date" name="date" value="${esc(x.date)}" required></div>
+  </form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="os232ExamSave">บันทึก</button>`);
+  $('#os232ExamSave').onclick=()=>{
+    const f=$('#os232ExamForm'),fd=new FormData(f),title=String(fd.get('title')||'').trim()||'วันสอบของฉัน',date=String(fd.get('date')||'');
+    if(!date)return toast('กรุณาเลือกวันที่สอบ',true);
+    try{localStorage.setItem(`aw_exam_title:${os23StudentKey()}`,title);localStorage.setItem(`aw_exam_date:${os23StudentKey()}`,date)}catch(_){}
+    modal.classList.add('hidden');render()
+  }
+}
+function os232Pomo(){
+  if(!window.__AW_POMO_V232)window.__AW_POMO_V232={mode:'focus',seconds:25*60,left:25*60,running:false,timer:null};
+  return window.__AW_POMO_V232
+}
+function os232PomoRender(){
+  const p=os232Pomo(),m=Math.floor(p.left/60),s=p.left%60;
+  if($('#os232PomoDisplay'))$('#os232PomoDisplay').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  $('#os232PomoStart')?.classList.toggle('hidden',p.running);
+  $('#os232PomoPause')?.classList.toggle('hidden',!p.running)
+}
+function os232PomoMode(mode){
+  const p=os232Pomo();if(p.timer)clearInterval(p.timer);
+  p.mode=mode;p.seconds=(mode==='break'?5:25)*60;p.left=p.seconds;p.running=false;
+  $('#os232FocusTab')?.classList.toggle('active',mode==='focus');
+  $('#os232BreakTab')?.classList.toggle('active',mode==='break');
+  os232PomoRender()
+}
+function os232PomoStart(){
+  const p=os232Pomo();if(p.running)return;p.running=true;os232PomoRender();
+  p.timer=setInterval(()=>{
+    p.left=Math.max(0,p.left-1);os232PomoRender();
+    if(p.left<=0){
+      clearInterval(p.timer);p.timer=null;p.running=false;
+      if(p.mode==='focus'){os232SetFocusCount(os232FocusCount()+1);toast('Focus session สำเร็จ 🌱')}
+      else toast('พักครบแล้ว พร้อมกลับไปเรียนต่อ');
+      p.left=p.seconds;render()
+    }
+  },1000)
+}
+function os232PomoPause(){const p=os232Pomo();if(p.timer)clearInterval(p.timer);p.timer=null;p.running=false;os232PomoRender()}
+function os232PomoReset(){const p=os232Pomo();if(p.timer)clearInterval(p.timer);p.timer=null;p.running=false;p.left=p.seconds;os232PomoRender()}
+function os232WelcomeOverlay(){
+  if(S.tab!=='dashboard'||os232WelcomeSeen())return '';
+  const s=S.data.student||{},name=s.nickname||s.first_name||s.display_name||'นักเรียน',
+        rows=activeEnroll().slice(0,4),
+        first=rows[0],
+        covers=rows.map(e=>{const c=course(e.course_id),img=os232CourseImage(c);return `<div class="os232-welcome-cover" style="${img?`background-image:url('${esc(img)}')`:''}">${!img?'<i class="fa-solid fa-dna"></i>':''}</div>`}).join('');
+  return `<div class="os232-first-layer" id="os232FirstLayer">
+    <div class="os232-first-card">
+      <div class="os232-first-sparkles"><i></i><i></i><i></i><i></i></div>
+      <span class="os232-first-kicker">WELCOME TO YOUR LEARNING SPACE</span>
+      <h2>ยินดีต้อนรับ ${esc(name)}</h2>
+      <p>${rows.length?`คอร์สของคุณพร้อมแล้ว ${rows.length} คอร์ส เริ่มจากสิ่งที่อยากเรียนก่อนเลย`:'พื้นที่เรียนของคุณพร้อมแล้ว เมื่อ Manager เพิ่มคอร์ส คอร์สจะปรากฏที่หน้าแรกอัตโนมัติ'}</p>
+      ${rows.length?`<div class="os232-welcome-covers">${covers}</div>`:`<div class="os232-welcome-empty"><i class="fa-solid fa-wand-magic-sparkles"></i><b>Student Workspace พร้อมใช้งาน</b></div>`}
+      <div class="os232-first-features">
+        <span><i class="fa-solid fa-circle-play"></i><b>เรียนต่อ</b><small>จากจุดเดิม</small></span>
+        <span><i class="fa-solid fa-seedling"></i><b>Focus</b><small>จับเวลาอ่าน</small></span>
+        <span><i class="fa-solid fa-pen-nib"></i><b>Quick Note</b><small>จดได้ทุกหน้า</small></span>
+      </div>
+      <div class="os232-first-actions">
+        ${first?`<button class="primary" data-os232-first-course="${first.course_id}">เริ่มเรียนคอร์สแรก <i class="fa-solid fa-arrow-right"></i></button>`:`<button class="primary" id="os232FirstExplore">สำรวจ Student OS <i class="fa-solid fa-arrow-right"></i></button>`}
+        <button id="os232FirstClose">ไว้ก่อน</button>
+      </div>
+    </div>
+  </div>`
+}
+function os232BindTilt(){
+  if(!window.matchMedia?.('(pointer:fine)').matches)return;
+  $$('[data-os232-tilt]').forEach(card=>{
+    card.onmousemove=e=>{
+      const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      card.style.transform=`perspective(900px) rotateX(${(-y*3).toFixed(2)}deg) rotateY(${(x*3).toFixed(2)}deg) translateY(-2px)`
+    };
+    card.onmouseleave=()=>card.style.transform=''
+  })
+}
+function os232BindEngage(){
+  os232PomoRender();
+  os232BindTilt();
+  $('#os232PomoStart')?.addEventListener('click',os232PomoStart);
+  $('#os232PomoPause')?.addEventListener('click',os232PomoPause);
+  $('#os232PomoReset')?.addEventListener('click',os232PomoReset);
+  $('#os232FocusTab')?.addEventListener('click',()=>os232PomoMode('focus'));
+  $('#os232BreakTab')?.addEventListener('click',()=>os232PomoMode('break'));
+  $('#os232ExamEdit')?.addEventListener('click',os232SetupExam);
+  const note=$('#os232QuickNote');
+  if(note){note.value=os232QuickNote();note.oninput=()=>os232SaveQuickNote(note.value)}
+  $('#os232NoteTab')?.addEventListener('click',()=>$('#os232NoteDrawer')?.classList.toggle('open'));
+  $('#os232NoteClose')?.addEventListener('click',()=>$('#os232NoteDrawer')?.classList.remove('open'));
+  $('#os232FirstClose')?.addEventListener('click',()=>{os232MarkWelcome();$('#os232FirstLayer')?.remove()});
+  $('#os232FirstExplore')?.addEventListener('click',()=>{os232MarkWelcome();$('#os232FirstLayer')?.remove()});
+  $$('[data-os232-first-course]').forEach(b=>b.onclick=()=>{os232MarkWelcome();S.tab='learning';S.courseId=String(b.dataset.os232FirstCourse);S.lessonId=null;render()});
+}
+
+
 function shell(content){
   const s=S.data.student||{},brand=S.data.site_branding||{},p=appProfile(),display=s.nickname||s.first_name||s.display_name||'นักเรียน',avatar=s.profile_image_url||s.avatar_url||s.photo_url||p.profile_image_url||p.avatar_url||p.photo_url||'',u=unread(),
   primary=[['dashboard','fa-house','วันนี้'],['schedule','fa-calendar-days','ตาราง'],['learning','fa-circle-play','เรียน'],['assignments','fa-list-check','การบ้าน'],['courses','fa-graduation-cap','คอร์ส']],
   services=[['attendance','fa-stopwatch','เวลาเรียน','Attendance และประวัติ'],['catalog','fa-bag-shopping','ลงคอร์ส','ดูคอร์สที่เปิดรับ'],['wallet','fa-wallet','ชั่วโมง','Course Wallet'],['payments','fa-credit-card','ชำระเงิน','Payment Center'],['requests','fa-headset','Support','คำขอและ Ticket'],['library','fa-book-open-reader','Library','คลังสื่อ'],['notifications','fa-bell','แจ้งเตือน','รายการล่าสุด'],['account','fa-user-gear','บัญชี','Profile & Security']],
   labels={dashboard:'วันนี้',schedule:'ตารางเรียน',learning:'เรียนย้อนหลัง',assignments:'การบ้าน',courses:'คอร์สของฉัน',attendance:'เวลาเรียน',catalog:'ลงคอร์สเพิ่ม',wallet:'ชั่วโมงคอร์ส',payments:'การชำระเงิน',requests:'คำขอ / Support',library:'Library',notifications:'แจ้งเตือน',account:'บัญชี'};
-  return `<div class="os23-app"><header class="os23-header">
-    <button class="os23-brand" data-tab-jump="dashboard"><span class="os23-brandmark">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</span><span><b>${esc(brand.site_name_en||'AreWarin')}</b><small>Student OS</small></span></button>
-    <nav class="os23-primary">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
-    <div class="os23-actions"><button class="os23-command-trigger" id="os23CommandBtn"><i class="fa-solid fa-magnifying-glass"></i><span>ค้นหา</span><kbd>⌘ K</kbd></button><button class="os23-icon" id="os22SyncNow"><i class="fa-solid fa-rotate"></i></button><button class="os23-icon" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<em>${u}</em>`:''}</button><button class="os23-icon os23-gridbtn" id="os23ServiceBtn"><i class="fa-solid fa-border-all"></i></button><button class="os23-profile" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button></div>
-  </header>
-  <div class="os23-workspace-head"><div><span>STUDENT WORKSPACE</span><h1>${labels[S.tab]||'Student OS'}</h1></div><div class="os23-workspace-tools"><button id="os23ServiceBtnSecondary"><i class="fa-solid fa-border-all"></i><span>บริการ</span></button></div></div>
-  <main class="os23-content">${content}</main>
-  <nav class="os23-mobile-dock">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
-  <div class="os23-service-layer" id="os23ServiceLayer"><button class="os23-layer-backdrop" id="os23ServiceBackdrop"></button><aside class="os23-service-sheet"><div class="os23-sheet-head"><div><span>QUICK SERVICES</span><h2>บริการทั้งหมด</h2></div><button id="os23ServiceClose"><i class="fa-solid fa-xmark"></i></button></div><div class="os23-service-grid">${services.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span><b>${x[2]}</b><small>${x[3]}</small></span>${x[0]==='notifications'&&u?`<em>${u}</em>`:''}</button>`).join('')}</div></aside></div>
-  <div class="os23-context-layer" id="os23ContextLayer"><button class="os23-layer-backdrop" id="os23ContextBackdrop"></button><aside class="os23-context-sheet"><button class="os23-context-close" id="os23ContextClose"><i class="fa-solid fa-xmark"></i></button><div id="os23ContextContent"></div></aside></div>
-  <div class="os23-command-layer" id="os23CommandLayer"><button class="os23-command-backdrop" id="os23CommandBackdrop"></button><section class="os23-command"><div class="os23-command-input"><i class="fa-solid fa-magnifying-glass"></i><input id="os23CommandInput" placeholder="ค้นหาคอร์ส บทเรียน การบ้าน หรือเมนู"><kbd>ESC</kbd></div><div class="os23-command-results" id="os23CommandResults"></div><div class="os23-command-foot"><span>↑↓ เลือก</span><span>Enter เปิด</span><span>Ctrl/⌘ + K ค้นหา</span></div></section></div>
+  return `<div class="os23-app os232-app">
+    <div class="os232-ambient"><i></i><i></i><i></i></div>
+    <header class="os23-header">
+      <button class="os23-brand" data-tab-jump="dashboard"><span class="os23-brandmark">${brand.logo_url?`<img src="${esc(brand.logo_url)}" alt="">`:'A'}</span><span><b>${esc(brand.site_name_en||'AreWarin')}</b><small>Student OS</small></span></button>
+      <nav class="os23-primary">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
+      <div class="os23-actions"><button class="os23-command-trigger" id="os23CommandBtn"><i class="fa-solid fa-magnifying-glass"></i><span>ค้นหา</span><kbd>⌘ K</kbd></button><button class="os23-icon" id="os22SyncNow"><i class="fa-solid fa-rotate"></i></button><button class="os23-icon" data-tab-jump="notifications"><i class="fa-regular fa-bell"></i>${u?`<em>${u}</em>`:''}</button><button class="os23-icon os23-gridbtn" id="os23ServiceBtn"><i class="fa-solid fa-border-all"></i></button><button class="os23-profile" data-tab-jump="account">${avatar?`<img src="${esc(avatar)}" alt="">`:`<span>${esc(String(display).slice(0,1))}</span>`}<div><b>${esc(display)}</b><small>${esc(s.student_code||'Student')}</small></div></button></div>
+    </header>
+
+    <div class="os23-workspace-head"><div><span>STUDENT WORKSPACE</span><h1>${labels[S.tab]||'Student OS'}</h1></div><div class="os23-workspace-tools"><button id="os23ServiceBtnSecondary"><i class="fa-solid fa-border-all"></i><span>บริการ</span></button></div></div>
+    <main class="os23-content">${content}</main>
+
+    <nav class="os23-mobile-dock">${primary.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span>${x[2]}</span></button>`).join('')}</nav>
+
+    <div class="os232-note-drawer" id="os232NoteDrawer">
+      <button class="os232-note-tab" id="os232NoteTab"><i class="fa-solid fa-pen-nib"></i><span>สมุดทด</span></button>
+      <section>
+        <div class="os232-note-head"><div><span>SMART NOTE</span><b>กระดาษทด</b></div><button id="os232NoteClose"><i class="fa-solid fa-xmark"></i></button></div>
+        <textarea id="os232QuickNote" placeholder="จดสูตร ประเด็นที่ต้องจำ หรือสิ่งที่อยากถามครู..."></textarea>
+        <small><i class="fa-solid fa-wand-magic-sparkles"></i> บันทึกอัตโนมัติบนอุปกรณ์นี้</small>
+      </section>
+    </div>
+
+    <div class="os23-service-layer" id="os23ServiceLayer"><button class="os23-layer-backdrop" id="os23ServiceBackdrop"></button><aside class="os23-service-sheet"><div class="os23-sheet-head"><div><span>QUICK SERVICES</span><h2>บริการทั้งหมด</h2></div><button id="os23ServiceClose"><i class="fa-solid fa-xmark"></i></button></div><div class="os23-service-grid">${services.map(x=>`<button data-tab="${x[0]}" class="${S.tab===x[0]?'active':''}"><i class="fa-solid ${x[1]}"></i><span><b>${x[2]}</b><small>${x[3]}</small></span>${x[0]==='notifications'&&u?`<em>${u}</em>`:''}</button>`).join('')}</div></aside></div>
+    <div class="os23-context-layer" id="os23ContextLayer"><button class="os23-layer-backdrop" id="os23ContextBackdrop"></button><aside class="os23-context-sheet"><button class="os23-context-close" id="os23ContextClose"><i class="fa-solid fa-xmark"></i></button><div id="os23ContextContent"></div></aside></div>
+    <div class="os23-command-layer" id="os23CommandLayer"><button class="os23-command-backdrop" id="os23CommandBackdrop"></button><section class="os23-command"><div class="os23-command-input"><i class="fa-solid fa-magnifying-glass"></i><input id="os23CommandInput" placeholder="ค้นหาคอร์ส บทเรียน การบ้าน หรือเมนู"><kbd>ESC</kbd></div><div class="os23-command-results" id="os23CommandResults"></div><div class="os23-command-foot"><span>↑↓ เลือก</span><span>Enter เปิด</span><span>Ctrl/⌘ + K ค้นหา</span></div></section></div>
+
+    ${os232WelcomeOverlay()}
   </div>`;
 }
 function activeEnroll(){return (S.data?.enrollments||[]).filter(e=>['active','paused'].includes(e.status))}
@@ -2481,30 +2943,123 @@ function studyLessonHomework(){return (S.data?.v171_recent_lessons||[]).filter(x
 function studyVideoCount(courseId){return topics(courseId).filter(t=>assets(t.id).some(a=>['video','youtube','vimeo'].includes(String(a.asset_type||a.type||'').toLowerCase())||/youtu|vimeo|\.mp4/i.test(String(a.url||a.external_url||a.file_url||'')))).length}
 
 
-function dashboard(){
-  const s=S.data.student||{},display=s.nickname||s.first_name||s.display_name||'นักเรียน',active=activeEnroll(),
-  up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),nx=up[0],
-  lessons=S.data?.v171_recent_lessons||[],latest=lessons[0],unlim=active.some(e=>e.hours_unlimited),remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
-  assign=studyAssignments(),subs=studySubmissions(),todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
-  replay=active.filter(e=>topics(e.course_id).length).sort((a,b)=>courseProgress(b.course_id)-courseProgress(a.course_id)),timeline=os23TodayTimeline(),avg=os23AvgProgress(),now=new Date(),nxHours=nx?(new Date(nx.start_at)-now)/36e5:null,urgent=todo[0]&&todo[0].due_at?((new Date(todo[0].due_at)-now)/36e5)<=24:false;
-  let hero={eyebrow:'NEXT ACTION',icon:'fa-sparkles',title:'พร้อมเรียนต่อ',sub:'เลือกคอร์สล่าสุดแล้วเรียนต่อจากจุดเดิม',action:'เรียนต่อ',actionAttr:replay[0]?`data-open-course="${replay[0].course_id}"`:'data-tab-jump="courses"',side:'Study Workspace',sideSub:`${avg}% ภาพรวม`};
-  if(nx&&nxHours!==null&&nxHours<=8)hero={eyebrow:'NEXT CLASS',icon:'fa-chalkboard-user',title:nx.title||course(nx.course_id)?.title||'คาบเรียน',sub:`${dateTime(nx.start_at)}${nx.tutor_name?' · '+nx.tutor_name:''}`,action:'เปิดตาราง',actionAttr:'data-tab-jump="schedule"',side:new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at)),sideSub:new Intl.DateTimeFormat('th-TH',{weekday:'short',day:'numeric',month:'short'}).format(new Date(nx.start_at))};
-  else if(urgent)hero={eyebrow:'DUE SOON',icon:'fa-list-check',title:todo[0].title||'การบ้านใกล้ถึงกำหนด',sub:todo[0].due_at?`ส่ง ${dateTime(todo[0].due_at)}`:'มีงานที่ต้องทำ',action:'เปิดการบ้าน',actionAttr:'data-tab-jump="assignments"',side:'ภายใน 24 ชม.',sideSub:'อย่าลืมส่งงาน'};
-  else if(replay[0]){const c=course(replay[0].course_id),pct=courseProgress(replay[0].course_id);hero={eyebrow:'CONTINUE LEARNING',icon:'fa-circle-play',title:c?.title||replay[0].course_label||'เรียนต่อ',sub:`เรียนแล้ว ${pct}% · กลับไปต่อจากบทล่าสุด`,action:'เรียนต่อ',actionAttr:`data-open-course="${replay[0].course_id}"`,side:`${pct}%`,sideSub:'Course progress'}}
-  return `<div class="os23-dashboard">
-  <section class="os23-adaptive-hero"><div class="os23-hero-main"><span class="os23-eyebrow"><i class="fa-solid ${hero.icon}"></i> ${hero.eyebrow}</span><h2>${esc(hero.title)}</h2><p>${esc(hero.sub)}</p><div class="os23-hero-actions"><button class="primary" ${hero.actionAttr}><i class="fa-solid fa-arrow-right"></i>${hero.action}</button><button data-tab-jump="schedule"><i class="fa-regular fa-calendar"></i> ตารางวันนี้</button></div></div><div class="os23-hero-side"><small>${esc(display)}</small><strong>${esc(hero.side)}</strong><span>${esc(hero.sideSub)}</span></div></section>
-  <section class="os23-bento"><button class="os23-stat" data-tab-jump="attendance"><i class="fa-regular fa-clock"></i><span><small>ชั่วโมงคงเหลือ</small><b>${unlim?'∞':remain.toFixed(1)}</b><em>${unlim?'Unlimited':'ชม.'}</em></span></button><button class="os23-stat" data-tab-jump="assignments"><i class="fa-solid fa-list-check amber"></i><span><small>งานที่ต้องทำ</small><b>${todo.length}</b><em>รายการ</em></span></button><button class="os23-stat" data-tab-jump="courses"><i class="fa-solid fa-layer-group violet"></i><span><small>คอร์สกำลังเรียน</small><b>${active.length}</b><em>คอร์ส</em></span></button><button class="os23-stat" data-tab-jump="learning"><div class="os23-ring" style="--p:${avg}"><span>${avg}%</span></div><span><small>Progress เฉลี่ย</small><b>${avg}%</b><em>จากบทเรียน</em></span></button></section>
-  <div class="os23-dashboard-grid">
-    <section class="os23-panel os23-wide"><div class="os23-panel-head"><div><span>CONTINUE</span><h3>เรียนต่อ</h3></div><button data-tab-jump="learning">ทั้งหมด</button></div><div class="os23-continue-grid">${replay.slice(0,4).map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id),cover=c?.cover_url||'',ts=topics(e.course_id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0];return `<article class="os23-course-strip"><button class="os23-strip-cover" data-open-course="${e.course_id}" style="${cover?`background-image:url('${esc(cover)}')`:''}">${!cover?'<i class="fa-solid fa-dna"></i>':''}<span><i class="fa-solid fa-play"></i></span></button><div class="os23-strip-copy"><small>${pct}% COMPLETE</small><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><span>${nextTopic?`ต่อไป · ${esc(nextTopic.title)}`:`${ts.length} บทเรียน`}</span><div class="os23-progressbar"><i style="width:${pct}%"></i></div></div><button class="os23-more" data-course-detail="${e.course_id}"><i class="fa-solid fa-ellipsis"></i></button></article>`}).join('')||'<div class="os23-empty"><i class="fa-solid fa-circle-play"></i><b>ยังไม่มีบทเรียนย้อนหลัง</b></div>'}</div></section>
-    <section class="os23-panel"><div class="os23-panel-head"><div><span>TODAY</span><h3>Timeline วันนี้</h3></div><button data-tab-jump="schedule">ตาราง</button></div><div class="os23-timeline">${timeline.slice(0,6).map(x=>`<button data-tab-jump="${x.tab}"><time>${esc(x.time)}</time><i class="fa-solid ${x.icon} ${x.tone}"></i><span><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></span></button>`).join('')||'<div class="os23-empty compact"><i class="fa-regular fa-calendar-check"></i><b>วันนี้ไม่มีนัดหรือกำหนดส่ง</b></div>'}</div></section>
-    <section class="os23-panel"><div class="os23-panel-head"><div><span>TO DO</span><h3>การบ้าน</h3></div><button data-tab-jump="assignments">ทั้งหมด</button></div><div class="os23-tasklist">${todo.slice(0,4).map(a=>`<button data-tab-jump="assignments"><i class="fa-regular fa-file-lines"></i><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><em>›</em></button>`).join('')||'<div class="os23-empty compact success"><i class="fa-solid fa-check"></i><b>ไม่มีงานค้าง</b></div>'}</div></section>
-    <section class="os23-panel os23-wide"><div class="os23-panel-head"><div><span>PROGRESS</span><h3>ภาพรวมการเรียน</h3></div><button data-tab-jump="courses">คอร์สของฉัน</button></div><div class="os23-progress-courses">${active.slice(0,5).map(e=>{const c=course(e.course_id),pct=courseProgress(e.course_id);return `<button data-course-detail="${e.course_id}"><span class="os23-mini-ring" style="--p:${pct}"><b>${pct}</b></span><span><b>${esc(c?.title||e.course_label||'คอร์ส')}</b><small>${topics(e.course_id).filter(t=>progress(t.id)?.status==='completed').length}/${topics(e.course_id).length} บทเรียน</small></span><i class="fa-solid fa-chevron-right"></i></button>`}).join('')||'<div class="os23-empty compact">ยังไม่มีข้อมูล Progress</div>'}</div></section>
-    <section class="os23-panel"><div class="os23-panel-head"><div><span>LATEST</span><h3>คาบล่าสุด</h3></div><button data-tab-jump="attendance">ประวัติ</button></div>${latest?`<div class="os23-latest"><i class="fa-solid fa-chalkboard-user"></i><div><b>${esc(latest.title||latest.course_name||'คาบเรียน')}</b><small>${date(latest.session_date||latest.created_at)}${latest.tutor_name?' · '+esc(latest.tutor_name):''}</small></div><strong>${n(latest.deducted_hours).toFixed(2)} ชม.</strong></div>`:'<div class="os23-empty compact">ยังไม่มีบันทึกการเรียน</div>'}</section>
-  </div></div>`;
-}
 
+function dashboard(){
+  const s=S.data.student||{},name=s.nickname||s.first_name||s.display_name||'นักเรียน',
+        enrolled=visibleEnroll().filter(e=>['active','paused','pending'].includes(e.status)),
+        active=enrolled.filter(e=>['active','paused'].includes(e.status)),
+        primary=active[0]||enrolled[0]||null,
+        primaryCourse=primary?course(primary.course_id):null,
+        primaryImg=os232CourseImage(primaryCourse),
+        up=(S.data?.v16_schedule||[]).filter(x=>['scheduled','rescheduled','in_progress'].includes(x.status)&&new Date(x.end_at||x.start_at)>=new Date()).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at)),
+        nx=up[0],
+        assign=studyAssignments(),subs=studySubmissions(),
+        todo=assign.filter(a=>!subs.some(s=>String(s.assignment_id)===String(a.id)&&['submitted','graded'].includes(s.status))).sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),
+        unlim=active.some(e=>e.hours_unlimited),
+        remain=active.reduce((a,e)=>a+(e.hours_unlimited?0:Math.max(0,n(e.hours_total)-n(e.hours_used))),0),
+        timeline=os23TodayTimeline(),
+        avg=os23AvgProgress(),
+        vocab=os232Vocab(),exam=os232ExamInfo(),plant=os232Plant(),
+        nowText=new Intl.DateTimeFormat('th-TH',{weekday:'long',day:'numeric',month:'long'}).format(new Date());
+
+  const courseCards=enrolled.slice(0,5).map((e,i)=>{
+    const c=course(e.course_id),img=os232CourseImage(c),pct=courseProgress(e.course_id),
+          ts=topics(e.course_id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0],
+          remainHours=e.hours_unlimited?'∞':Math.max(0,n(e.hours_total)-n(e.hours_used)).toFixed(1);
+    return `<article class="os232-course ${i===0?'featured':''}" data-os232-tilt>
+      <button class="os232-course-image" data-open-course="${e.course_id}" style="${img?`background-image:url('${esc(img)}')`:''}">
+        ${!img?'<div class="os232-course-fallback"><i class="fa-solid fa-dna"></i></div>':''}
+        <span class="os232-course-shade"></span>
+        <span class="os232-course-status">${e.status==='pending'?'รอเปิดคอร์ส':pct?`${pct}% complete`:'พร้อมเริ่มเรียน'}</span>
+        <span class="os232-play"><i class="fa-solid fa-play"></i></span>
+      </button>
+      <div class="os232-course-copy">
+        <small>${esc(c?.course_type||'MY COURSE')}</small>
+        <h3>${esc(c?.title||e.course_label||'คอร์ส')}</h3>
+        <p>${nextTopic?`ต่อไป · ${esc(nextTopic.title)}`:`${ts.length} บทเรียน`}</p>
+        <div class="os232-course-meta"><span><i class="fa-regular fa-clock"></i> ${remainHours} ชม.</span><button data-course-detail="${e.course_id}">รายละเอียด</button></div>
+        <div class="os23-progressbar"><i style="width:${pct}%"></i></div>
+      </div>
+    </article>`
+  }).join('');
+
+  return `<div class="os232-home">
+    <section class="os232-welcome">
+      <div class="os232-welcome-copy">
+        <span>${esc(nowText)}</span>
+        <h2>${os232Greeting()}, ${esc(name)}</h2>
+        <p>${primaryCourse?'คอร์สของคุณอยู่ตรงนี้แล้ว เลือกบทที่อยากเรียนแล้วเริ่มได้ทันที':'พื้นที่นี้จะรวมคอร์ส ตาราง การบ้าน และเครื่องมืออ่านหนังสือไว้ให้คุณ'}</p>
+        <div class="os232-welcome-actions">
+          ${primary?`<button class="primary" data-open-course="${primary.course_id}"><i class="fa-solid fa-play"></i> เริ่มเรียน</button>`:`<button class="primary" data-tab-jump="catalog"><i class="fa-solid fa-plus"></i> ดูคอร์ส</button>`}
+          <button data-tab-jump="schedule"><i class="fa-regular fa-calendar"></i> ตารางวันนี้</button>
+        </div>
+      </div>
+      <div class="os232-welcome-visual ${primaryImg?'has-image':''}" style="${primaryImg?`background-image:url('${esc(primaryImg)}')`:''}">
+        ${!primaryImg?`<div class="os232-study-buddy"><span>${plant.emoji}</span><i class="fa-solid fa-microscope"></i></div>`:''}
+        <div class="os232-visual-label"><small>${primaryCourse?'FEATURED COURSE':'STUDY SPACE'}</small><b>${esc(primaryCourse?.title||'AreWarin Biology')}</b></div>
+      </div>
+    </section>
+
+    <section class="os232-section courses">
+      <div class="os232-section-head"><div><span>MY LEARNING</span><h2>คอร์สของฉัน</h2></div><button data-tab-jump="courses">ดูทั้งหมด <i class="fa-solid fa-arrow-right"></i></button></div>
+      ${courseCards?`<div class="os232-course-shelf">${courseCards}</div>`:`<div class="os232-no-course">
+        <div><i class="fa-solid fa-wand-magic-sparkles"></i><span><b>ยังไม่พบคอร์สในบัญชีนี้</b><small>ถ้า Manager เพิ่งเพิ่มคอร์ส กดซิงก์แล้วคอร์สจะขึ้นพร้อมรูปที่นี่</small></span></div>
+        <div><button id="os232HomeSync"><i class="fa-solid fa-rotate"></i> ซิงก์คอร์ส</button><button data-tab-jump="catalog">ลงคอร์สเพิ่ม</button></div>
+      </div>`}
+    </section>
+
+    <section class="os232-mini-stats">
+      <button data-tab-jump="attendance"><i class="fa-regular fa-clock blue"></i><span><small>ชั่วโมงคงเหลือ</small><b>${unlim?'∞':remain.toFixed(1)}</b><em>ชม.</em></span></button>
+      <button data-tab-jump="assignments"><i class="fa-solid fa-list-check amber"></i><span><small>งานที่ต้องทำ</small><b>${todo.length}</b><em>รายการ</em></span></button>
+      <button data-tab-jump="schedule"><i class="fa-regular fa-calendar violet"></i><span><small>คลาสถัดไป</small><b>${nx?new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at)):'—'}</b><em>${nx?new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short'}).format(new Date(nx.start_at)):'ยังไม่มีนัด'}</em></span></button>
+      <button data-tab-jump="learning"><div class="os23-ring" style="--p:${avg}"><span>${avg}%</span></div><span><small>Progress</small><b>${avg}%</b><em>เฉลี่ย</em></span></button>
+    </section>
+
+    <section class="os232-productivity">
+      <article class="os232-bento os232-focus" data-os232-tilt>
+        <div class="os232-bento-top"><span>FOCUS LAB</span><button data-focus-study title="Focus mode"><i class="fa-solid fa-expand"></i></button></div>
+        <div class="os232-plant"><span>${plant.emoji}</span><small>Lv.${plant.level}</small></div>
+        <div class="os232-pomo-tabs"><button id="os232FocusTab" class="${os232Pomo().mode==='focus'?'active':''}">Focus</button><button id="os232BreakTab" class="${os232Pomo().mode==='break'?'active':''}">Break</button></div>
+        <strong id="os232PomoDisplay">25:00</strong>
+        <p>${plant.count} focus sessions · ปลูกสมาธิไปทีละรอบ</p>
+        <div class="os232-pomo-actions"><button id="os232PomoStart"><i class="fa-solid fa-play"></i></button><button id="os232PomoPause" class="hidden"><i class="fa-solid fa-pause"></i></button><button id="os232PomoReset"><i class="fa-solid fa-rotate-right"></i></button></div>
+      </article>
+
+      <article class="os232-bento os232-vocab" data-os232-tilt>
+        <span>ROOT OF THE DAY</span>
+        <strong>${esc(vocab[0])}</strong>
+        <b>${esc(vocab[1])}</b>
+        <small>ex. ${esc(vocab[2])}</small>
+        <i class="fa-solid fa-dna"></i>
+      </article>
+
+      <article class="os232-bento os232-exam" data-os232-tilt>
+        <div><span>EXAM COUNTDOWN</span><button id="os232ExamEdit"><i class="fa-solid fa-pen"></i></button></div>
+        <b>${esc(exam.title)}</b>
+        ${exam.date?`<small>${new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short',year:'numeric'}).format(new Date(exam.date+'T00:00:00'))}</small><strong>${Math.max(0,exam.days)}<em>DAYS</em></strong>`:`<p>ตั้งวันสอบแล้วให้ระบบนับถอยหลังให้</p><strong>--<em>DAYS</em></strong>`}
+      </article>
+
+      <article class="os232-bento os232-next" data-os232-tilt>
+        <span>NEXT CLASS</span>
+        ${nx?`<strong>${new Intl.DateTimeFormat('th-TH',{hour:'2-digit',minute:'2-digit'}).format(new Date(nx.start_at))}</strong><b>${esc(nx.title||course(nx.course_id)?.title||'คาบเรียน')}</b><small>${date(nx.start_at)}${nx.tutor_name?' · '+esc(nx.tutor_name):''}</small><button data-tab-jump="schedule">ดูรายละเอียด</button>`:`<i class="fa-regular fa-calendar-check"></i><b>วันนี้ยังว่าง</b><small>ใช้เวลาไปกับคอร์สที่อยากทบทวนได้เลย</small>`}
+      </article>
+    </section>
+
+    <section class="os232-bottom-grid">
+      <article class="os232-white-card">
+        <div class="os232-section-head small"><div><span>TODAY</span><h2>Timeline วันนี้</h2></div><button data-tab-jump="schedule">ตาราง</button></div>
+        <div class="os23-timeline">${timeline.slice(0,5).map(x=>`<button data-tab-jump="${x.tab}"><time>${esc(x.time)}</time><i class="fa-solid ${x.icon} ${x.tone}"></i><span><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></span></button>`).join('')||'<div class="os232-friendly-empty"><i class="fa-solid fa-sun"></i><b>วันนี้ยังไม่มีนัด</b><span>เลือกคอร์สด้านบนแล้วเริ่มเรียนได้เลย</span></div>'}</div>
+      </article>
+
+      <article class="os232-white-card">
+        <div class="os232-section-head small"><div><span>TO DO</span><h2>สิ่งที่ต้องทำ</h2></div><button data-tab-jump="assignments">ทั้งหมด</button></div>
+        <div class="os23-tasklist">${todo.slice(0,4).map(a=>`<button data-tab-jump="assignments"><i class="fa-regular fa-file-lines"></i><span><b>${esc(a.title||'การบ้าน')}</b><small>${a.due_at?dateTime(a.due_at):'ไม่กำหนดวันส่ง'}</small></span><em>›</em></button>`).join('')||'<div class="os232-friendly-empty success"><i class="fa-solid fa-check"></i><b>เคลียร์หมดแล้ว</b><span>ไม่มีงานค้างตอนนี้</span></div>'}</div>
+      </article>
+    </section>
+  </div>`;
+}
 function courseCard(e){
-  const c=course(e.course_id);if(!c)return '';const pending=e.status==='pending',pct=courseProgress(c.id),cover=c.cover_url||'',remain=e.hours_unlimited?null:Math.max(0,n(e.hours_total)-n(e.hours_used)),renew=renewalReady(e),ts=topics(c.id),done=ts.filter(t=>progress(t.id)?.status==='completed').length,nx=os23CourseNextClass(c.id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0];
+  const c=course(e.course_id);if(!c)return '';const pending=e.status==='pending',pct=courseProgress(c.id),cover=os232CourseImage(c),remain=e.hours_unlimited?null:Math.max(0,n(e.hours_total)-n(e.hours_used)),renew=renewalReady(e),ts=topics(c.id),done=ts.filter(t=>progress(t.id)?.status==='completed').length,nx=os23CourseNextClass(c.id),nextTopic=ts.find(t=>progress(t.id)?.status!=='completed')||ts[0];
   return `<article class="os23-workspace-card ${pending?'pending':''}"><div class="os23-workspace-cover" style="${cover?`background-image:url('${esc(cover)}')`:''}">${!cover?'<i class="fa-solid fa-dna"></i>':''}<div class="os23-workspace-badges"><span>${pending?'รอเปิดใช้งาน':renew?'ใกล้หมดคอร์ส':'ACTIVE'}</span></div><button data-course-detail="${c.id}" class="os23-card-menu"><i class="fa-solid fa-ellipsis"></i></button></div><div class="os23-workspace-body"><small>${esc(c.course_type||'COURSE')}</small><h3>${esc(c.title||e.course_label||'คอร์ส')}</h3>${pending?`<div class="os23-pending">รอ Manager เปิดคอร์ส</div>`:`<div class="os23-workspace-next"><span>เรียนต่อ</span><b>${nextTopic?esc(nextTopic.title):'เลือกบทเรียน'}</b></div><div class="os23-progressbar"><i style="width:${pct}%"></i></div><div class="os23-workspace-metrics"><span><b>${pct}%</b><small>Progress</small></span><span><b>${done}/${ts.length}</b><small>บทเรียน</small></span><span><b>${e.hours_unlimited?'∞':remain.toFixed(1)}</b><small>ชม. เหลือ</small></span></div>${nx?`<div class="os23-card-nextclass"><i class="fa-regular fa-calendar"></i><span>${dateTime(nx.start_at)}</span></div>`:''}`}<div class="os23-workspace-actions">${pending?`<button class="btn primary" data-go-pay>ดูสถานะ</button>`:`<button class="btn primary" data-open-course="${c.id}"><i class="fa-solid fa-play"></i> ${pct?'เรียนต่อ':'เริ่มเรียน'}</button>`}${renew?`<button class="btn soft" data-renew="${c.id}">ต่อคอร์ส</button>`:''}</div></div></article>`;
 }
 
@@ -2841,6 +3396,9 @@ function showModal(title,body,actions=''){modal.classList.remove('hidden');modal
 async function openLesson(id){S.lessonId=String(id);try{const p=await rpc('student_v8_open_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p)}catch(e){toast(e.message,true)}render()}async function completeLesson(id){try{const p=await rpc('student_v8_complete_lesson',{p_topic_id:String(id)}),i=S.data.progress.findIndex(x=>String(x.topic_id)===String(id));if(i>=0)S.data.progress[i]=p;else S.data.progress.push(p);toast('บันทึกว่าเรียนจบแล้ว');const ts=topics(S.courseId),idx=ts.findIndex(t=>String(t.id)===String(id));if(idx<ts.length-1)S.lessonId=ts[idx+1].id;render()}catch(e){toast(e.message,true)}}async function loadAsset(id){const a=S.data.assets.find(x=>String(x.id)===String(id));try{const {data,error}=await sb.storage.from(a.bucket||'tutor-os-assets').createSignedUrl(a.storage_path,3600);if(error)throw error;S.signed[id]=data.signedUrl;render()}catch(e){toast(e.message,true)}}
 function uploadSlip(id){const p=S.data.payment_requests.find(x=>x.id===id);showModal('อัปโหลดสลิป',`<form id="slip"><div class="message">${esc(p.title)} · ${money(p.amount)}</div><div class="field"><label>ไฟล์สลิป</label><input class="input" type="file" name="file" accept="image/*,application/pdf" required></div><div class="field"><label>หมายเหตุ</label><textarea class="textarea" name="note"></textarea></div></form>`,`<button class="btn" data-close>ยกเลิก</button><button class="btn primary" id="send-slip">อัปโหลดและยืนยัน</button>`);$('#send-slip').onclick=async()=>{const f=$('#slip'),file=f.file.files[0];if(!file)return toast('กรุณาเลือกสลิป',true);const path=`${S.session.user.id}/${id}/${Date.now()}-${file.name.replace(/[^\w.ก-๙-]+/g,'-')}`;try{const {error}=await sb.storage.from('portal-slips').upload(path,file,{contentType:file.type||undefined});if(error)throw error;await rpc('student_v8_submit_slip',{p_payment_request_id:id,p_storage_path:path,p_original_filename:file.name,p_amount:p.amount,p_note:new FormData(f).get('note')||''});modal.classList.add('hidden');toast('ส่งสลิปแล้ว รอแอดมินตรวจ');await load()}catch(e){await sb.storage.from('portal-slips').remove([path]);toast(e.message,true)}}}
 function bindPortal(){
+  os232BindEngage();
+  $('#os232HomeSync')?.addEventListener('click',()=>studentSyncNow('home-course-sync'));
+
   os23ApplyStudyPrefs();
   $('#os23ServiceBtn')?.addEventListener('click',os23OpenServices);
   $('#os23ServiceBtnSecondary')?.addEventListener('click',os23OpenServices);
@@ -2881,45 +3439,60 @@ let deferredPwaPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.p
 async function saveProfile(e){e.preventDefault();try{const {data,error}=await sb.rpc('update_my_student_profile',{p_profile:Object.fromEntries(new FormData(e.currentTarget).entries())});if(error)throw error;S.data.student=data;toast('บันทึกข้อมูลแล้ว');render()}catch(x){toast(x.message,true)}}
 async function registerDevice(){if(!S.session?.user)return;let key=localStorage.getItem('arewarin_student_device_key');if(!key){key=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`);localStorage.setItem('arewarin_student_device_key',key)}S.deviceKey=key;const name=`${navigator.platform||'Device'} · ${(/Mobile|Android|iPhone/i.test(navigator.userAgent)?'Mobile':'Browser')}`;await rpc('student_v16_register_device',{p_device_key:key,p_device_name:name,p_user_agent:navigator.userAgent.slice(0,500)})}
 
+
 function renderStudentLinkGate(status={}){
-  const email=S.session?.user?.email||'';
-  const reason=status?.email_match_count>1
-    ? 'อีเมลนี้ถูกใช้กับข้อมูลนักเรียนหลายคน จึงต้องยืนยันด้วยเบอร์โทร 1 ครั้ง'
-    : 'ยืนยันเบอร์โทรของนักเรียนเพื่อเชื่อมบัญชีครั้งแรก';
-  app.innerHTML=`<div class="loading"><div class="auth-card">
-    <div style="width:46px;height:46px;border-radius:14px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;margin-bottom:12px"><i class="fa-solid fa-link"></i></div>
-    <h2 style="margin-bottom:6px">เชื่อมบัญชีนักเรียน</h2>
-    <div class="message" style="margin-bottom:12px"><b>${esc(reason)}</b>${email?`<div style="margin-top:5px;color:#64748b">บัญชี: ${esc(email)}</div>`:''}</div>
-    <form id="studentLinkGate">
-      <div class="field">
-        <label>เบอร์โทรนักเรียน</label>
-        <input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="เช่น 08xxxxxxxx" required>
-      </div>
-      <button class="btn primary wide" type="submit">ยืนยันและเข้าใช้งาน</button>
-    </form>
-    <button class="btn wide" data-logout style="margin-top:8px">ออกจากระบบ</button>
-  </div></div>`;
+  const brand=os231AccessBrand(),email=S.session?.user?.email||'',
+        ambiguous=status?.email_match_count>1;
+  app.innerHTML=`<div class="os231-access os231-link-access">
+    <div class="os231-ambient"><i class="a"></i><i class="b"></i><i class="c"></i></div>
+    <header class="os231-top">
+      <div class="os231-brand"><span>${brand.logo?`<img src="${esc(brand.logo)}" alt="">`:'A'}</span><div><b>${esc(brand.name)}</b><small>Student OS</small></div></div>
+      <span class="os231-secure"><i class="fa-solid fa-shield-halved"></i> Identity verification</span>
+    </header>
+    <main class="os231-access-main">
+      <section class="os231-card">
+        <div class="os231-icon link"><i class="fa-solid fa-link"></i></div>
+        <span class="os231-kicker">ONE-TIME SETUP</span>
+        <h1>เชื่อม Student Profile</h1>
+        <p class="os231-intro">${ambiguous?'อีเมลนี้ใช้กับข้อมูลนักเรียนมากกว่า 1 รายการ จึงต้องยืนยันเบอร์โทรเพื่อเลือก Profile ที่ถูกต้อง':'ยืนยันเบอร์โทรหนึ่งครั้ง เพื่อเชื่อมบัญชีนี้กับข้อมูลนักเรียนของคุณ'}</p>
+        ${email?`<div class="os231-current-account"><i class="fa-regular fa-envelope"></i><span><small>บัญชีที่เข้าสู่ระบบ</small><b>${esc(email)}</b></span></div>`:''}
+        <div id="linkMsg"></div>
+        <form id="studentLinkGate">
+          <div class="os231-field"><label>เบอร์โทรนักเรียน</label><div><i class="fa-solid fa-phone"></i><input name="phone" inputmode="tel" autocomplete="tel" placeholder="08x xxx xxxx" required></div></div>
+          <button class="os231-primary" type="submit"><span>ยืนยันและเข้าใช้งาน</span><i class="fa-solid fa-arrow-right"></i></button>
+        </form>
+        <div class="os231-privacy"><i class="fa-solid fa-lock"></i><span>ใช้เพื่อเลือก Student Profile ครั้งแรกเท่านั้น หลังเชื่อมแล้วจะไม่ถามซ้ำ</span></div>
+        <button class="os231-link" data-logout>ออกจากระบบ</button>
+      </section>
+      <aside class="os231-context compact">
+        <span>WHY VERIFY?</span>
+        <h2>หนึ่งบัญชี<br>หนึ่ง Student ID</h2>
+        <p>ระบบจะไม่เดาจากอีเมลเมื่อมีข้อมูลซ้ำ เพื่อป้องกันคอร์ส ชั่วโมง หรือข้อมูลการเรียนไปอยู่ผิดบัญชี</p>
+      </aside>
+    </main>
+  </div>`;
 
   $('#studentLinkGate').onsubmit=async ev=>{
     ev.preventDefault();
-    const form=ev.currentTarget,btn=form.querySelector('button[type="submit"]');
+    const form=ev.currentTarget,btn=form.querySelector('button[type="submit"]'),box=$('#linkMsg');
     const phone=normalizePhone(new FormData(form).get('phone'));
-    if(phone.length<9)return toast('กรุณากรอกเบอร์โทรให้ครบ',true);
-    const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='กำลังเชื่อมบัญชี...';
+    if(phone.length<9){box.innerHTML='<div class="message error">กรุณากรอกเบอร์โทรให้ครบ</div>';return}
+    const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="auth-btn-spinner"></span><span>กำลังเชื่อมบัญชี...</span>';
+    box.innerHTML='<div class="message">กำลังตรวจสอบ Student Profile...</div>';
     try{
       const linked=await rpc('claim_student_account_by_phone',{p_phone:phone});
       if(!linked?.ok)throw new Error(linked?.message||'เชื่อมบัญชีไม่สำเร็จ');
+      os231RememberEmail(email);
       toast('เชื่อมบัญชีสำเร็จ');
       await load(true);
     }catch(e){
-      toast(e.message||'เชื่อมบัญชีไม่สำเร็จ',true);
+      box.innerHTML=`<div class="message error">${esc(e.message||'เชื่อมบัญชีไม่สำเร็จ')}</div>`;
     }finally{
       if(btn?.isConnected){btn.disabled=false;btn.innerHTML=old}
     }
   };
   $('[data-logout]').onclick=logout;
 }
-
 async function ensureStudentLinked(){
   if(!S.session?.user)return false;
   const status=await rpc('student_account_status');
@@ -2993,7 +3566,90 @@ async function load(renderNow=true){
     $('[data-logout]').onclick=logout;
   }
 }
-function bindAuth(){if(S.signupResult){$('#enter').onclick=()=>{S.signupResult=null;load()};$('#later').onclick=()=>{S.signupResult=null;S.mode='login';app.innerHTML=authHtml();bindAuth()};return}if(S.mode==='recovery'){const f=$('#recovery');f.onsubmit=async e=>{e.preventDefault();const fd=new FormData(f),box=$('#msg'),phone=normalizePhone(fd.get('phone')),email=String(fd.get('email')).trim().toLowerCase(),pin=String(fd.get('pin')),password=String(fd.get('password'));if(password!==fd.get('confirm'))return box.innerHTML='<div class="message error">รหัสผ่านไม่ตรงกัน</div>';box.innerHTML='<div class="message">กำลังเปลี่ยนรหัส...</div>';try{await callStudentAuth('reset_password',{phone,email,pin,new_password:password});const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;S.session=data.session;await load()}catch(x){box.innerHTML=`<div class="message error">${esc(friendly(x))}</div>`}};$('#back').onclick=()=>{S.mode='login';app.innerHTML=authHtml();bindAuth()};return}$$('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;S.signupMatch=null;if(S.mode!=='quick')S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#quickAgain')?.addEventListener('click',()=>{S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#forgot')?.addEventListener('click',()=>{S.mode='recovery';app.innerHTML=authHtml();bindAuth()});$('#lookup')?.addEventListener('click',lookup);$('#change-phone')?.addEventListener('click',()=>{S.signupMatch=null;app.innerHTML=authHtml();bindAuth()});$('#password')?.addEventListener('input',e=>{const i=passwordInfo(e.target.value,$('input[name=email]')?.value,S.signupPhone);$('#strength').style.width=i.pct+'%';$('#strength-label').textContent=i.label});$$('[data-toggle-password]').forEach(btn=>btn.onclick=()=>{const input=btn.closest('.password-wrap')?.querySelector('input');if(!input)return;const show=input.type==='password';input.type=show?'text':'password';btn.textContent=show?'ซ่อน':'แสดง'});$('#auth-form').onsubmit=S.mode==='quick'?submitQuickHours:submitAuth}
+
+function bindAuth(){
+  bindPwaInstall();
+
+  if(S.signupResult){
+    $('#enter').onclick=()=>{os231RememberEmail(S.signupResult.email);S.signupResult=null;load()};
+    $('#later').onclick=()=>{os231RememberEmail(S.signupResult.email);S.signupResult=null;S.mode='login';app.innerHTML=authHtml();bindAuth()};
+    return
+  }
+
+  if(S.mode==='recovery'){
+    const f=$('#recovery');
+    f.onsubmit=async e=>{
+      e.preventDefault();
+      const fd=new FormData(f),box=$('#msg'),phone=normalizePhone(fd.get('phone')),
+            email=String(fd.get('email')).trim().toLowerCase(),
+            pin=String(fd.get('pin')),password=String(fd.get('password'));
+      if(password!==fd.get('confirm'))return box.innerHTML='<div class="message error">รหัสผ่านไม่ตรงกัน</div>';
+      box.innerHTML='<div class="message">กำลังเปลี่ยนรหัส...</div>';
+      try{
+        await callStudentAuth('reset_password',{phone,email,pin,new_password:password});
+        const {data,error}=await sb.auth.signInWithPassword({email,password});
+        if(error)throw error;
+        os231RememberEmail(email);
+        S.session=data.session;
+        await load()
+      }catch(x){
+        box.innerHTML=`<div class="message error">${esc(friendly(x))}</div>`
+      }
+    };
+    const back=()=>{S.mode='login';app.innerHTML=authHtml();bindAuth()};
+    $('#back')?.addEventListener('click',back);
+    $('#back2')?.addEventListener('click',back);
+    $$('[data-toggle-password]').forEach(btn=>btn.onclick=()=>{
+      const input=btn.closest('.os231-field')?.querySelector('input[type=password],input[type=text]');
+      if(!input)return;
+      const show=input.type==='password';input.type=show?'text':'password';
+      btn.innerHTML=`<i class="fa-regular ${show?'fa-eye-slash':'fa-eye'}"></i>`
+    });
+    return
+  }
+
+  $$('[data-mode]').forEach(b=>b.onclick=()=>{
+    S.mode=b.dataset.mode;
+    S.signupMatch=null;
+    if(S.mode!=='quick')S.quickResult=null;
+    app.innerHTML=authHtml();
+    bindAuth()
+  });
+
+  $('#forgetAccount')?.addEventListener('click',()=>{
+    os231ForgetEmail();
+    app.innerHTML=authHtml();
+    bindAuth()
+  });
+
+  $('#quickAgain')?.addEventListener('click',()=>{
+    S.quickResult=null;app.innerHTML=authHtml();bindAuth()
+  });
+  $('#forgot')?.addEventListener('click',()=>{
+    S.mode='recovery';app.innerHTML=authHtml();bindAuth()
+  });
+  $('#lookup')?.addEventListener('click',lookup);
+  $('#change-phone')?.addEventListener('click',()=>{
+    S.signupMatch=null;app.innerHTML=authHtml();bindAuth()
+  });
+  $('#password')?.addEventListener('input',e=>{
+    const i=passwordInfo(e.target.value,$('input[name=email]')?.value,S.signupPhone);
+    if($('#strength'))$('#strength').style.width=i.pct+'%';
+    if($('#strength-label'))$('#strength-label').textContent=i.label
+  });
+
+  $$('[data-toggle-password]').forEach(btn=>btn.onclick=()=>{
+    const wrap=btn.closest('.password-wrap')||btn.closest('.os231-field');
+    const input=wrap?.querySelector('input[type=password],input[type=text]');
+    if(!input)return;
+    const show=input.type==='password';input.type=show?'text':'password';
+    if(btn.classList.contains('os231-eye'))btn.innerHTML=`<i class="fa-regular ${show?'fa-eye-slash':'fa-eye'}"></i>`;
+    else btn.textContent=show?'ซ่อน':'แสดง'
+  });
+
+  const f=$('#auth-form');
+  if(f)f.onsubmit=S.mode==='quick'?submitQuickHours:submitAuth;
+}
 async function submitQuickHours(e){
   e.preventDefault();
   const fd=new FormData(e.currentTarget),box=$('#msg'),
@@ -3030,6 +3686,7 @@ async function submitAuth(e){
       const {data,error}=await sb.auth.signInWithPassword({email,password});
       if(error)throw error;
       S.session=data.session;
+      os231RememberEmail(email);
       await load();
       return;
     }
@@ -3060,6 +3717,7 @@ async function submitAuth(e){
     }
 
     S.session=signed.data.session;
+    os231RememberEmail(email);
     S.signupResult={
       display_name:r.display_name||S.signupMatch.display_name||S.signupMatch.name,
       email,
@@ -3142,8 +3800,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "23.0.0-adaptive-workspace";
-console.info("[AreWarin Student] V23 adaptive-workspace loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "23.2.0-first-impression";
+console.info("[AreWarin Student] V23.2 first-impression loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
