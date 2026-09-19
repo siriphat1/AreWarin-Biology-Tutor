@@ -30787,7 +30787,7 @@
   }
 </style>
 
-<meta name="arewarin-manager-build" content="25.2-legacy-direct-schedule-bridge">
+<meta name="arewarin-manager-build" content="25.3-course-ui-hotfix">
 
 <style id="aw-group-class-visibility-v24-5">
   .aw-group-main-nav{
@@ -30978,6 +30978,58 @@
 .aw-li-share-note{margin-top:9px;padding:9px 10px;border-radius:10px;border:1px solid #d8e7f8;background:#f4f9ff;color:#617a98;font-size:7.5px;line-height:1.6}
 .aw-li-share-note b{color:#315f9e}
 @media(max-width:700px){.aw-li-multi-footer{grid-template-columns:1fr}.aw-li-course-choice{grid-template-columns:auto 38px 1fr}.aw-li-choice-source{grid-column:3}}
+</style>
+
+
+<style id="aw-course-list-hotfix-v253">
+/* V25.4: contain dynamically-rendered course artwork and prevent text from collapsing.
+   The native course cards are rendered by manager/app.js, so this hotfix is intentionally
+   scoped to #courseList and does not affect public course images or tutor avatars. */
+#courseList > *{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#courseList .aw-course-cover-hotfix{
+  display:block!important;
+  width:150px!important;
+  height:104px!important;
+  max-width:150px!important;
+  max-height:104px!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  flex:0 0 150px!important;
+  border-radius:12px!important;
+}
+#courseList .aw-course-cover-wrap-hotfix{
+  width:150px!important;
+  max-width:150px!important;
+  flex:0 0 150px!important;
+  overflow:hidden!important;
+  border-radius:12px!important;
+}
+#courseList > * :where(h1,h2,h3,h4,p,span,div){
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+#courseList > * [data-aw-v4-footer]{
+  width:100%!important;
+  max-width:100%!important;
+}
+@media(max-width:720px){
+  #courseList .aw-course-cover-hotfix{
+    width:112px!important;
+    height:80px!important;
+    max-width:112px!important;
+    max-height:80px!important;
+    flex-basis:112px!important;
+  }
+  #courseList .aw-course-cover-wrap-hotfix{
+    width:112px!important;
+    max-width:112px!important;
+    flex-basis:112px!important;
+  }
+}
 </style>
 
 </head>
@@ -32489,6 +32541,25 @@
       if(!(card instanceof HTMLElement)) return;
       const course=findCourse(card);
       if(!course) return;
+
+      // V25.4 UI hotfix: app.js creates course cards dynamically. Some image sizing
+      // utility classes are not present in the inline Tailwind build, allowing the
+      // original artwork dimensions to stretch the card and squeeze the copy.
+      const normalizeCourseArtwork = (img) => {
+        if(!img || img.closest('[data-aw-v4-footer]')) return;
+        const apply = () => {
+          const rect = img.getBoundingClientRect();
+          const w = Math.max(Number(img.naturalWidth || 0), Number(rect.width || 0));
+          const h = Math.max(Number(img.naturalHeight || 0), Number(rect.height || 0));
+          if(w < 220 && h < 150) return; // keep small avatars/icons untouched
+          img.classList.add('aw-course-cover-hotfix');
+          const wrap = img.parentElement;
+          if(wrap && wrap.children.length === 1) wrap.classList.add('aw-course-cover-wrap-hotfix');
+        };
+        apply();
+        if(!img.complete) img.addEventListener('load', apply, {once:true});
+      };
+      card.querySelectorAll('img').forEach(normalizeCourseArtwork);
 
       let f=card.querySelector('[data-aw-v4-footer]');
       if(!f){
@@ -35827,14 +35898,14 @@ function renderDetail(){
 
       <div class="aw-li-multi-block">
         <div class="aw-li-multi-title">
-          <div><b>1 · เลือกจากคอร์สที่น้องกรอกมา</b><span>กดเลือกได้หลายคอร์ส หากบางคอร์สยังเรียนไม่จบ</span></div>
-          <span class="aw-li-selected-count"><i class="fas fa-check-double"></i> <span id="legacySelectedCount">0</span> คอร์ส</span>
+          <div><b>1 · เลือกจากคอร์สที่น้องกรอกมา</b><span>กดเลือกได้หลายคอร์ส · รายการที่บันทึกแล้วจะยังคงมีเครื่องหมาย ✓ เมื่อกลับมาเปิดอีกครั้ง</span></div>
+          <span class="aw-li-selected-count"><i class="fas fa-check-double"></i> <span id="legacySelectedCount">0</span> คอร์สที่เลือก/บันทึกแล้ว</span>
         </div>
         <div class="aw-li-course-choices">
           ${courses.length?courses.map(c=>{
             const mapped=!!c.course_id,active=currentIds.has(String(c.course_id));
             return `<label class="aw-li-course-choice ${(!mapped||active)?'disabled':''}">
-              <input type="checkbox" class="legacy-course-check" value="${h(c.course_id||'')}" data-tutor="${h(c.tutor_id||'')}" ${(!mapped||active)?'disabled':''}>
+              <input type="checkbox" class="legacy-course-check" value="${h(c.course_id||'')}" data-tutor="${h(c.tutor_id||'')}" ${active?'checked data-saved="1"':''} ${(!mapped||active)?'disabled':''}>
               <span class="aw-li-choice-img">${c.image_url?`<img src="${h(c.image_url)}" alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-book&quot;></i>'">`:'<i class="fas fa-book"></i>'}</span>
               <span class="aw-li-choice-name"><b>${h(c.course_name||'คอร์ส')}</b><span>${h([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ข้อมูลจาก Legacy')}</span></span>
               <span class="aw-li-choice-source ${active?'current':mapped?'':'nomap'}">${active?'กำลังเรียน':mapped?'จากประวัติ':'ยังไม่เชื่อม Catalog'}</span>
@@ -35886,8 +35957,16 @@ function renderDetail(){
   const tutorSel=by('legacyCurrentTutor');
   if(tutorSel && d.my_tutor_id && [...tutorSel.options].some(o=>String(o.value)===String(d.my_tutor_id))) tutorSel.value=String(d.my_tutor_id);
   const refreshSelectedCount=()=>{
-    const n=root.querySelectorAll('.legacy-course-check:checked').length;
-    if(by('legacySelectedCount'))by('legacySelectedCount').textContent=String(n)
+    const allChecked=root.querySelectorAll('.legacy-course-check:checked').length;
+    const newChecked=root.querySelectorAll('.legacy-course-check:checked:not(:disabled)').length;
+    if(by('legacySelectedCount'))by('legacySelectedCount').textContent=String(allChecked);
+    const saveBtn=by('legacyActivateCourses');
+    if(saveBtn){
+      saveBtn.disabled=newChecked===0;
+      saveBtn.innerHTML=newChecked===0
+        ? '<i class="fas fa-circle-check"></i> ไม่มีคอร์สใหม่ที่ต้องบันทึก'
+        : '<i class="fas fa-user-plus"></i> บันทึกคอร์สใหม่ '+newChecked+' คอร์ส';
+    }
   };
   root.querySelectorAll('.legacy-course-check').forEach(x=>x.addEventListener('change',refreshSelectedCount));
   root.querySelectorAll('[data-use-history-course]').forEach(btn=>btn.onclick=()=>{
@@ -35897,14 +35976,16 @@ function renderDetail(){
   });
   root.querySelectorAll('[data-wallet-action]').forEach(btn=>btn.onclick=()=>setCurrentStatus(btn.dataset.walletId,btn.dataset.walletAction));
   by('legacyActivateCourses').onclick=activateCurrentCourses;
+  refreshSelectedCount();
   by('legacySetPending').onclick=()=>review('pending');
   by('legacyReject').onclick=()=>review('rejected');
   by('legacyVerify').onclick=()=>review('verified')
 }
 async function activateCurrentCourses(){
   const c=db();if(!c||!LI.selected)return;
-  const checks=[...document.querySelectorAll('#legacyIntakeDetail .legacy-course-check:checked')];
-  if(!checks.length)return Swal.fire('เลือกคอร์สปัจจุบัน','กรุณาเลือกอย่างน้อย 1 คอร์สจากประวัติหรือคอร์สอื่นในระบบ','warning');
+  // Saved/current courses stay visibly checked but disabled. Only submit NEW selections.
+  const checks=[...document.querySelectorAll('#legacyIntakeDetail .legacy-course-check:checked:not(:disabled)')];
+  if(!checks.length)return Swal.fire('ไม่มีคอร์สใหม่ที่ต้องบันทึก','รายการที่มีเครื่องหมาย ✓ และเป็นสีจางถูกบันทึกเป็นคอร์สปัจจุบันแล้ว','info');
   const overrideTutor=by('legacyCurrentTutor')?.value||null;
   const note=by('legacyCurrentNote')?.value?.trim()||null;
   const items=checks.map(x=>({course_id:x.value,tutor_id:overrideTutor||x.dataset.tutor||null}));
@@ -35912,7 +35993,23 @@ async function activateCurrentCourses(){
   const {data,error}=await c.rpc('legacy_self_manager_activate_current_courses',{p_student_id:LI.selected,p_items:items,p_tutor_id:overrideTutor,p_note:note});
   if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> เพิ่มคอร์สที่เลือกทั้งหมด'}
   if(error||!data?.ok)return Swal.fire('เพิ่มคอร์สไม่สำเร็จ',error?.message||data?.message||'Unknown error','error');
+
+  // Re-read from DB before telling Manager that the save succeeded.
+  // This prevents a false-success popup if the RPC returns but the wallet is not visible/persisted.
+  const requestedCourseIds=new Set(items.map(x=>String(x.course_id)));
   await selectStudent(LI.selected,true);
+  const persistedCourseIds=new Set((LI.detail?.current_courses||[])
+    .filter(x=>['active','paused'].includes(String(x.status||'')))
+    .map(x=>String(x.course_id||'')));
+  const missing=[...requestedCourseIds].filter(id=>!persistedCourseIds.has(id));
+  if(missing.length){
+    return Swal.fire({
+      icon:'error',
+      title:'ตรวจซ้ำแล้วพบว่าบันทึกไม่ครบ',
+      html:`<div style="font-size:12px;line-height:1.75">ระบบส่งคำสั่งบันทึกแล้ว แต่เมื่ออ่านข้อมูลกลับจากฐานข้อมูลยังไม่พบ <b>${missing.length}</b> คอร์ส<br><br><code style="font-size:10px;word-break:break-all">${missing.join('<br>')}</code><br><br>กรุณาตรวจ RPC / RLS ก่อนใช้งานต่อ</div>`
+    });
+  }
+
   const success=Number(data.success_count||0),failed=Number(data.failed_count||0);
   const r=await Swal.fire({
     icon:failed?'warning':'success',
@@ -35920,7 +36017,7 @@ async function activateCurrentCourses(){
     html:`<div style="font-size:12px;line-height:1.7">เพิ่มสำเร็จ <b>${success}</b> คอร์ส${failed?`<br>ไม่สำเร็จ <b>${failed}</b> คอร์ส`:''}<br><br>นักเรียนสามารถมีหลายคอร์สพร้อมกันได้ และแต่ละคอร์สจะขึ้นในหน้าจัดตารางสอน</div>`,
     showCancelButton:true,confirmButtonText:'ไป Tutor OS',cancelButtonText:'ตรวจข้อมูลต่อ'
   });
-  if(r.isConfirmed)location.href='../tutor-os/?section=students'
+  if(r.isConfirmed)location.href='../tutor-os/?section=schedule'
 }
 async function setCurrentStatus(id,status){
   const c=db();if(!c||!id)return;
