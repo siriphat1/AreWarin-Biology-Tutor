@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="23.3.0-unified-experience">
-<title>AreWarin Biology · Student OS V23.3</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="23.3.1-scope-fix">
+<title>AreWarin Biology · Student OS V23.3.1</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -2448,8 +2448,8 @@ body.os23-focus .os23-header,body.os23-focus .os23-workspace-head,body.os23-focu
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="23.3.0-unified-experience">
-<!-- LIVE BUILD: 23.3.0-unified-experience --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+</head><body class="aw-student-v156" data-student-build="23.3.1-scope-fix">
+<!-- LIVE BUILD: 23.3.1-scope-fix --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -3852,6 +3852,26 @@ async function submitAuth(e){
     }
   }
 }
+
+// V23.3.1: visibility/focus sync must live inside this module.
+// `S` and `studentSyncNow` are module-scoped and are not globals.
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' &&
+     S.session?.user &&
+     S.data?.student?.id &&
+     !S.courseId){
+    studentSyncNow('visibility');
+  }
+});
+
+window.addEventListener('focus',()=>{
+  if(S.session?.user &&
+     S.data?.student?.id &&
+     !S.courseId){
+    studentSyncNow('focus');
+  }
+});
+
 async function logout(){clearInterval(S.poll);clearInterval(S.timer);await sb.auth.signOut({scope:'local'});S.session=null;S.data=null;S.mode='login';S.signupMatch=null;S.signupResult=null;app.innerHTML=authHtml();bindAuth()}
 async function boot(){if(location.hash.includes('error=')||location.search.includes('recovery='))history.replaceState({},document.title,location.pathname);const {data}=await sb.auth.getSession();S.session=data.session;if(S.session){await load();S.poll=setInterval(()=>{if(S.tab!=='learning')load(false)},30000);sb.channel('student-v15').on('postgres_changes',{event:'*',schema:'public',table:'portal_notifications'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_hour_ledger'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_hour_pools'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_attendance_sessions'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_teaching_schedule'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_course_enrollments'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_attendance'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_groups'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'os_student_group_members'},()=>load(false)).on('postgres_changes',{event:'*',schema:'public',table:'course_offerings'},()=>{if(S.tab==='catalog'||S.tab==='dashboard')load(false)}).subscribe()}else{app.innerHTML=authHtml();bindAuth()}sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT'){S.session=null;app.innerHTML=authHtml();bindAuth()}})}boot();
 </script><style id="awv9-student-pay-style">
@@ -3917,8 +3937,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "23.3.0-unified-experience";
-console.info("[AreWarin Student] V23.3 unified-experience loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "23.3.1-scope-fix";
+console.info("[AreWarin Student] V23.3.1 scope-fix loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -4201,19 +4221,7 @@ console.info("[AreWarin Student] V23.3 unified-experience loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V23 mobile navigation loaded");
-
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible' && S.session?.user && S.data?.student?.id && !S.courseId){
-    studentSyncNow('visibility');
-  }
-});
-window.addEventListener('focus',()=>{
-  if(S.session?.user && S.data?.student?.id && !S.courseId){
-    studentSyncNow('focus');
-  }
-});
-
+console.info("[AreWarin Student] V23.3.1 mobile navigation loaded");
 </script>
 
 
