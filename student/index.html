@@ -5,8 +5,8 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0"><meta name="theme-color" content="#0ea5e9"><meta name="mobile-web-app-capable" content="yes"><meta name="color-scheme" content="light">
-<meta name="arewarin-student-build" content="21.4.0-auto-link">
-<title>AreWarin Biology · Student Hub V21.4</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<meta name="arewarin-student-build" content="21.5.0-identity-gate">
+<title>AreWarin Biology · Student Hub V21.5</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1681,8 +1681,8 @@ body{
 }
 </style>
 
-</head><body class="aw-student-v156" data-student-build="21.4.0-auto-link">
-<!-- LIVE BUILD: 21.4.0-auto-link --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
+</head><body class="aw-student-v156" data-student-build="21.5.0-identity-gate">
+<!-- LIVE BUILD: 21.5.0-identity-gate --><div id="app"><div class="loading"><div><div class="spinner"></div><b>กำลังเตรียม Student Portal...</b></div></div></div><div id="modal" class="modal-bg hidden"></div>
 <script type="module">
 import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8/+esm";
 const CFG=window.AREWARIN_CONFIG||{SUPABASE_URL:"https://ihmiqtwclnqrezsnswfz.supabase.co",SUPABASE_ANON_KEY:"sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR"};window.AREWARIN_CONFIG=CFG;const CONFIG={url:CFG.SUPABASE_URL,key:CFG.SUPABASE_ANON_KEY,promptpay:"1901001151577",payee:"AreWarin Biology"};
@@ -2061,20 +2061,67 @@ async function logoutOtherDevices(){if(!confirm('ออกจากระบบ�
 let deferredPwaPrompt=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPwaPrompt=e;const b=document.getElementById('installPwa');if(b)b.style.display='inline-flex'});function bindPwaInstall(){const b=$('#installPwa');if(b&&deferredPwaPrompt){b.style.display='inline-flex';b.onclick=async()=>{deferredPwaPrompt.prompt();await deferredPwaPrompt.userChoice;deferredPwaPrompt=null;b.style.display='none'}}}
 async function saveProfile(e){e.preventDefault();try{const {data,error}=await sb.rpc('update_my_student_profile',{p_profile:Object.fromEntries(new FormData(e.currentTarget).entries())});if(error)throw error;S.data.student=data;toast('บันทึกข้อมูลแล้ว');render()}catch(x){toast(x.message,true)}}
 async function registerDevice(){if(!S.session?.user)return;let key=localStorage.getItem('arewarin_student_device_key');if(!key){key=(crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`);localStorage.setItem('arewarin_student_device_key',key)}S.deviceKey=key;const name=`${navigator.platform||'Device'} · ${(/Mobile|Android|iPhone/i.test(navigator.userAgent)?'Mobile':'Browser')}`;await rpc('student_v16_register_device',{p_device_key:key,p_device_name:name,p_user_agent:navigator.userAgent.slice(0,500)})}
+
+function renderStudentLinkGate(status={}){
+  const email=S.session?.user?.email||'';
+  const reason=status?.email_match_count>1
+    ? 'อีเมลนี้ถูกใช้กับข้อมูลนักเรียนหลายคน จึงต้องยืนยันด้วยเบอร์โทร 1 ครั้ง'
+    : 'ยืนยันเบอร์โทรของนักเรียนเพื่อเชื่อมบัญชีครั้งแรก';
+  app.innerHTML=`<div class="loading"><div class="auth-card">
+    <div style="width:46px;height:46px;border-radius:14px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;margin-bottom:12px"><i class="fa-solid fa-link"></i></div>
+    <h2 style="margin-bottom:6px">เชื่อมบัญชีนักเรียน</h2>
+    <div class="message" style="margin-bottom:12px"><b>${esc(reason)}</b>${email?`<div style="margin-top:5px;color:#64748b">บัญชี: ${esc(email)}</div>`:''}</div>
+    <form id="studentLinkGate">
+      <div class="field">
+        <label>เบอร์โทรนักเรียน</label>
+        <input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="เช่น 08xxxxxxxx" required>
+      </div>
+      <button class="btn primary wide" type="submit">ยืนยันและเข้าใช้งาน</button>
+    </form>
+    <button class="btn wide" data-logout style="margin-top:8px">ออกจากระบบ</button>
+  </div></div>`;
+
+  $('#studentLinkGate').onsubmit=async ev=>{
+    ev.preventDefault();
+    const form=ev.currentTarget,btn=form.querySelector('button[type="submit"]');
+    const phone=normalizePhone(new FormData(form).get('phone'));
+    if(phone.length<9)return toast('กรุณากรอกเบอร์โทรให้ครบ',true);
+    const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='กำลังเชื่อมบัญชี...';
+    try{
+      const linked=await rpc('claim_student_account_by_phone',{p_phone:phone});
+      if(!linked?.ok)throw new Error(linked?.message||'เชื่อมบัญชีไม่สำเร็จ');
+      toast('เชื่อมบัญชีสำเร็จ');
+      await load(true);
+    }catch(e){
+      toast(e.message||'เชื่อมบัญชีไม่สำเร็จ',true);
+    }finally{
+      if(btn?.isConnected){btn.disabled=false;btn.innerHTML=old}
+    }
+  };
+  $('[data-logout]').onclick=logout;
+}
+
+async function ensureStudentLinked(){
+  if(!S.session?.user)return false;
+  const status=await rpc('student_account_status');
+  if(status?.linked===true)return true;
+  renderStudentLinkGate(status||{});
+  return false;
+}
+
 async function load(renderNow=true){
   if(renderNow)app.innerHTML='<div class="loading"><div><div class="spinner"></div><b>กำลังโหลดข้อมูลนักเรียน...</b></div></div>';
   try{
-    // Production currently exposes student_v11_bootstrap.
-    // Calling older missing v17/v16/v12 functions first only creates 404 noise.
+    const linked=await ensureStudentLinked();
+    if(!linked)return;
+
     S.data=await rpc('student_v11_bootstrap');
 
-    // Optional Tutor OS V19 schedule.
     try{
       const tutorSchedule=await rpc('student_v19_schedule');
       if(Array.isArray(tutorSchedule))S.data.v16_schedule=tutorSchedule;
     }catch(scheduleErr){}
 
-    // Manager-controlled content used by Student Hub V20.
     try{
       const [bannerRes,brandRes,promoRes]=await Promise.all([
         sb.from('home_banners').select('*').eq('active',true).order('sort_order').order('created_at'),
@@ -2097,65 +2144,33 @@ async function load(renderNow=true){
     if(renderNow)S.signed={};
     if(renderNow||S.tab!=='learning')render();
   }catch(e){
-    // V21.4: Existing students can have a valid Supabase Auth login but an
-    // old os_students row with auth_user_id still NULL. Try one safe automatic
-    // link using the authenticated email/phone before showing the claim screen.
-    if(
-      e?.rpc==='student_v11_bootstrap' &&
-      e?.code==='P0001' &&
-      /not linked/i.test(String(e?.message||'')) &&
-      !S._autoLinkAttempted
-    ){
-      S._autoLinkAttempted=true;
-      try{
-        const linked=await rpc('student_auto_link_current_account');
-        console.info('[AreWarin Student][AUTO LINK]',linked);
-        if(linked?.ok && linked?.student_id){
-          return await load(renderNow);
-        }
-      }catch(autoLinkErr){
-        console.warn('[AreWarin Student][AUTO LINK SKIPPED]',{
-          code:autoLinkErr?.code||null,
-          message:autoLinkErr?.message||null,
-          details:autoLinkErr?.details||null
-        });
-      }
-    }
-    {
     const diag=[
       e.rpc?`RPC: ${e.rpc}`:'',
       e.code?`Code: ${e.code}`:'',
       e.details?`Details: ${e.details}`:'',
       e.hint?`Hint: ${e.hint}`:''
     ].filter(Boolean).join('\n');
+
     console.error('[AreWarin Student][BOOT FAILED]',{
       rpc:e.rpc||null,code:e.code||null,message:e.message||null,
       details:e.details||null,hint:e.hint||null
     });
+
     app.innerHTML=`<div class="loading"><div class="auth-card">
-      <h2>${e?.code==='P0001'?'เชื่อมบัญชีนักเรียน':'เปิด Student Portal ไม่สำเร็จ'}</h2>
+      <h2>เปิด Student Portal ไม่สำเร็จ</h2>
       <div class="message error"><b>${esc(e.message||'Unknown error')}</b>${diag?`<pre style="white-space:pre-wrap;margin:8px 0 0;font:500 10px/1.6 ui-monospace,monospace">${esc(diag)}</pre>`:''}</div>
       <button class="btn wide" id="copyStudentDiagnostic" type="button">คัดลอกข้อมูล Error</button>
-      <form id="claim" style="margin-top:10px"><div class="field"><label>เบอร์โทรนักเรียน</label><input class="input" name="phone" inputmode="tel" autocomplete="tel" placeholder="เช่น 08xxxxxxxx" required></div><button class="btn primary wide">เชื่อมบัญชีและเข้าใช้งาน</button></form>
       <button class="btn wide" data-logout style="margin-top:8px">ออกจากระบบ</button>
     </div></div>`;
+
     const copyBtn=$('#copyStudentDiagnostic');
     if(copyBtn)copyBtn.onclick=async()=>{
       const t=`RPC: ${e.rpc||'-'}\nCode: ${e.code||'-'}\nMessage: ${e.message||'-'}\nDetails: ${e.details||'-'}\nHint: ${e.hint||'-'}`;
       try{await navigator.clipboard.writeText(t);toast('คัดลอก Error แล้ว')}catch(_){console.log(t)}
     };
-  }
-    $('#claim').onsubmit=async ev=>{
-      ev.preventDefault();
-      const {error}=await sb.rpc('claim_student_account_by_phone',{p_phone:normalizePhone(new FormData(ev.currentTarget).get('phone'))});
-      if(error)return toast(error.message,true);
-      S._autoLinkAttempted=false;
-      await load();
-    };
     $('[data-logout]').onclick=logout;
   }
 }
-
 function bindAuth(){if(S.signupResult){$('#enter').onclick=()=>{S.signupResult=null;load()};$('#later').onclick=()=>{S.signupResult=null;S.mode='login';app.innerHTML=authHtml();bindAuth()};return}if(S.mode==='recovery'){const f=$('#recovery');f.onsubmit=async e=>{e.preventDefault();const fd=new FormData(f),box=$('#msg'),phone=normalizePhone(fd.get('phone')),email=String(fd.get('email')).trim().toLowerCase(),pin=String(fd.get('pin')),password=String(fd.get('password'));if(password!==fd.get('confirm'))return box.innerHTML='<div class="message error">รหัสผ่านไม่ตรงกัน</div>';box.innerHTML='<div class="message">กำลังเปลี่ยนรหัส...</div>';try{await callStudentAuth('reset_password',{phone,email,pin,new_password:password});const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;S.session=data.session;await load()}catch(x){box.innerHTML=`<div class="message error">${esc(friendly(x))}</div>`}};$('#back').onclick=()=>{S.mode='login';app.innerHTML=authHtml();bindAuth()};return}$$('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;S.signupMatch=null;if(S.mode!=='quick')S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#quickAgain')?.addEventListener('click',()=>{S.quickResult=null;app.innerHTML=authHtml();bindAuth()});$('#forgot')?.addEventListener('click',()=>{S.mode='recovery';app.innerHTML=authHtml();bindAuth()});$('#lookup')?.addEventListener('click',lookup);$('#change-phone')?.addEventListener('click',()=>{S.signupMatch=null;app.innerHTML=authHtml();bindAuth()});$('#password')?.addEventListener('input',e=>{const i=passwordInfo(e.target.value,$('input[name=email]')?.value,S.signupPhone);$('#strength').style.width=i.pct+'%';$('#strength-label').textContent=i.label});$$('[data-toggle-password]').forEach(btn=>btn.onclick=()=>{const input=btn.closest('.password-wrap')?.querySelector('input');if(!input)return;const show=input.type==='password';input.type=show?'text':'password';btn.textContent=show?'ซ่อน':'แสดง'});$('#auth-form').onsubmit=S.mode==='quick'?submitQuickHours:submitAuth}
 async function submitQuickHours(e){
   e.preventDefault();
@@ -2305,8 +2320,8 @@ async function detectPay(){try{const{data}=await sbp.auth.getSession();P.user=da
 setInterval(detectPay,3500);detectPay();
 </script>
 <script>
-window.__AREWARIN_STUDENT_BUILD__ = "21.4.0-auto-link";
-console.info("[AreWarin Student] V21.4 auto-link loaded");
+window.__AREWARIN_STUDENT_BUILD__ = "21.5.0-identity-gate";
+console.info("[AreWarin Student] V21.5 identity-gate loaded");
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
 <style id="student-os-v16-style">
@@ -2589,7 +2604,7 @@ console.info("[AreWarin Student] V21.4 auto-link loaded");
 
 </style>
 <script>
-console.info("[AreWarin Student] V21.4 mobile navigation loaded");
+console.info("[AreWarin Student] V21.5 mobile navigation loaded");
 </script>
 
 
