@@ -30787,7 +30787,7 @@
   }
 </style>
 
-<meta name="arewarin-manager-build" content="25.0-library-v2-link">
+<meta name="arewarin-manager-build" content="25.0-legacy-tutor-os-bridge">
 
 <style id="aw-group-class-visibility-v24-5">
   .aw-group-main-nav{
@@ -30925,6 +30925,38 @@
 .aw-li-courses{display:grid;gap:7px}.aw-li-course{display:grid;grid-template-columns:75px 1fr;gap:9px;padding:7px;border:1px solid #e6eaf0;border-radius:11px;background:#fbfcfe}.aw-li-course-img{width:75px;height:54px;border-radius:8px;overflow:hidden;background:#edf2f8;display:grid;place-items:center;color:#9aabba}.aw-li-course-img img{width:100%;height:100%;object-fit:cover}.aw-li-course b{font-size:8.8px;color:#35465e}.aw-li-course span{font-size:7.4px;color:#8796aa;display:block;margin-top:3px}
 .aw-li-review{border:1px solid #e3e8ef;border-radius:14px;padding:12px;background:#fbfcfe}.aw-li-review textarea{width:100%;min-height:68px;border:1px solid #dfe6ef;border-radius:10px;padding:9px;font:inherit;font-size:8.5px;outline:0;resize:vertical;background:#fff}.aw-li-review-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:8px;flex-wrap:wrap}
 @media(max-width:1050px){.aw-li-workspace{grid-template-columns:1fr}.aw-li-detail-card{min-height:0}.aw-li-empty.detail{min-height:260px}}@media(max-width:700px){.aw-li-head{align-items:flex-start;flex-direction:column}.aw-li-head-actions{justify-content:flex-start}.aw-li-stats{grid-template-columns:repeat(2,1fr)}.aw-li-info-grid{grid-template-columns:1fr}.aw-li-toolbar{grid-template-columns:1fr}.aw-li-course{grid-template-columns:65px 1fr}.aw-li-course-img{width:65px}}
+</style>
+
+
+<style id="aw-legacy-current-course-v25-css">
+.aw-li-current{
+  border:1px solid #dbe6f5;border-radius:15px;padding:13px;
+  background:linear-gradient(145deg,#f8fbff,#f5f8ff)
+}
+.aw-li-current-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.aw-li-current-head b{font-size:10px;color:#2e405a}.aw-li-current-head p{margin:3px 0 0;font-size:7.5px;line-height:1.55;color:#8291a5}
+.aw-li-ready-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;background:#eafbf5;border:1px solid #c8efdf;color:#078a65;font-size:7px;font-weight:850;white-space:nowrap}
+.aw-li-wallets{display:grid;gap:7px;margin-bottom:10px}
+.aw-li-wallet{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;padding:10px;border:1px solid #dfe7f1;border-radius:11px;background:#fff}
+.aw-li-wallet b{display:block;font-size:9px;color:#31445e}.aw-li-wallet span{display:block;font-size:7.4px;color:#8796aa;margin-top:2px}
+.aw-li-wallet-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.aw-li-mini-btn{border:1px solid #dce4ee;background:#fff;color:#617188;border-radius:8px;padding:6px 8px;font-size:7.3px;font-weight:800;cursor:pointer}
+.aw-li-mini-btn.green{background:#ecfbf5;border-color:#c5eedf;color:#087c60}.aw-li-mini-btn.amber{background:#fff8ea;border-color:#f1ddb7;color:#9a650d}.aw-li-mini-btn.red{background:#fff1f3;border-color:#f4ced6;color:#bd3952}
+.aw-li-course-pick{display:grid;grid-template-columns:1.35fr 1fr;gap:8px}
+.aw-li-course-pick label{display:grid;gap:4px;font-size:7.5px;color:#6e7f95;font-weight:800}
+.aw-li-course-pick select,.aw-li-course-pick input,.aw-li-current-note{
+  width:100%;border:1px solid #dce4ee;background:#fff;border-radius:10px;padding:8px 9px;
+  color:#40526a;font:inherit;font-size:8.2px;outline:0
+}
+.aw-li-course-pick select:focus,.aw-li-course-pick input:focus,.aw-li-current-note:focus{border-color:#8eb2f1;box-shadow:0 0 0 3px rgba(75,119,210,.07)}
+.aw-li-current-note{margin-top:7px;min-height:56px;resize:vertical}
+.aw-li-current-actions{display:flex;justify-content:space-between;gap:7px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.aw-li-current-help{font-size:7px;color:#8a99ac;line-height:1.5;max-width:330px}
+.aw-li-history-action{margin-top:6px}
+.aw-li-link-btn{border:0;background:#eef5ff;color:#2d61bf;border-radius:8px;padding:5px 7px;font-size:7px;font-weight:800;cursor:pointer}
+.aw-li-link-btn:hover{background:#e4efff}
+.aw-li-current-empty{padding:9px 10px;border:1px dashed #cfdae8;border-radius:10px;background:#fff;color:#8291a5;font-size:7.7px;line-height:1.55}
+@media(max-width:700px){.aw-li-course-pick{grid-template-columns:1fr}.aw-li-wallet{grid-template-columns:1fr}.aw-li-wallet-actions{justify-content:flex-start}}
 </style>
 
 </head>
@@ -35653,7 +35685,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
 
-<script id="aw-legacy-intake-v249">
+<script id="aw-legacy-intake-v25">
 (()=>{
 'use strict';
 const LI={rows:[],summary:{pending:0,verified:0,rejected:0,total:0},selected:null,detail:null,status:'pending',q:'',loaded:false};
@@ -35704,7 +35736,7 @@ async function load(){
   else if(filtered()[0])selectStudent(filtered()[0].student_id)
   else renderEmptyDetail()
 }
-function renderEmptyDetail(){const d=by('legacyIntakeDetail');if(d)d.innerHTML='<div class="aw-li-empty detail"><i class="fas fa-inbox"></i><b>เลือกนักเรียนเพื่อดูรายละเอียด</b><span>Student Profile, ผู้ปกครอง, PDPA และคอร์สเดิมจะแสดงด้านนี้</span></div>'}
+function renderEmptyDetail(){const d=by('legacyIntakeDetail');if(d)d.innerHTML='<div class="aw-li-empty detail"><i class="fas fa-inbox"></i><b>เลือกนักเรียนเพื่อดูรายละเอียด</b><span>Student Profile, ผู้ปกครอง, PDPA, คอร์สเดิม และคอร์สปัจจุบันสำหรับ Tutor OS จะแสดงด้านนี้</span></div>'}
 async function selectStudent(id,quiet=false){
   LI.selected=id;renderList();
   const root=by('legacyIntakeDetail');if(root&&!quiet)root.innerHTML='<div class="aw-li-empty detail"><i class="fas fa-circle-notch fa-spin"></i><span>กำลังโหลด Student Profile</span></div>';
@@ -35714,9 +35746,31 @@ async function selectStudent(id,quiet=false){
   LI.detail=data;renderDetail()
 }
 function info(label,value){return `<div class="aw-li-info"><small>${h(label)}</small><b>${h(value||'—')}</b></div>`}
+function currentWalletHtml(x){
+  const status=x.status||'active';
+  const label=status==='active'?'กำลังเรียน':status==='paused'?'พักคอร์ส':status;
+  return `<div class="aw-li-wallet">
+    <div><b>${h(x.course_name||x.course_label||'คอร์ส')}</b><span>${h(x.tutor_name||x.tutor_label||'ไม่ระบุผู้สอน')} · ${h(label)}${x.enrolled_at?' · เริ่ม '+h(x.enrolled_at):''}</span></div>
+    <div class="aw-li-wallet-actions">
+      ${status==='paused'?`<button class="aw-li-mini-btn green" data-wallet-action="active" data-wallet-id="${x.id}"><i class="fas fa-play"></i> เรียนต่อ</button>`:`<button class="aw-li-mini-btn amber" data-wallet-action="paused" data-wallet-id="${x.id}"><i class="fas fa-pause"></i> พัก</button>`}
+      <button class="aw-li-mini-btn red" data-wallet-action="cancelled" data-wallet-id="${x.id}"><i class="fas fa-circle-stop"></i> จบ/นำออก</button>
+    </div>
+  </div>`
+}
+function catalogOptions(d){
+  const rows=Array.isArray(d.catalog)?[...d.catalog]:[];
+  const my=d.my_tutor_id||'';
+  rows.sort((a,b)=>(String(b.tutor_id)===String(my))-(String(a.tutor_id)===String(my)) || String(a.name||'').localeCompare(String(b.name||''),'th'));
+  return '<option value="">— เลือกคอร์สปัจจุบัน —</option>'+rows.map(c=>`<option value="${c.id}" data-tutor="${h(c.tutor_id||'')}">${h(c.name)} · ${h(c.tutor_name||'ไม่ระบุ Tutor')}${String(c.tutor_id)===String(my)?' · คอร์สของฉัน':''}</option>`).join('')
+}
+function tutorOptions(d){
+  const rows=Array.isArray(d.tutors)?d.tutors:[];
+  return '<option value="">— ใช้ Tutor ของคอร์ส —</option>'+rows.map(t=>`<option value="${t.id}">${h(t.display_name||t.full_name||'Tutor')}</option>`).join('')
+}
 function renderDetail(){
   const root=by('legacyIntakeDetail'),d=LI.detail;if(!root||!d?.student)return renderEmptyDetail();
-  const s=d.student,log=d.submission||{},courses=d.courses||[];
+  const s=d.student,log=d.submission||{},courses=d.courses||[],current=(d.current_courses||[]).filter(x=>['active','paused'].includes(x.status));
+  const currentIds=new Set(current.map(x=>String(x.course_id)));
   root.innerHTML=`<div class="aw-li-profile-hero">
     <div class="aw-li-profile-top">
       <div class="aw-li-big-avatar">${h(initials(s.nickname||s.fullname))}</div>
@@ -35738,8 +35792,32 @@ function renderDetail(){
       <div class="aw-li-pdpa"><i class="fas fa-circle-check"></i><div><b>${log.pdpa_acknowledged_at?'รับทราบ Privacy Notice แล้ว':'ไม่พบหลักฐานการรับทราบ'}</b><span>${log.pdpa_acknowledged_at?'เวลา '+h(dt(log.pdpa_acknowledged_at)):'ตรวจสอบ Submission Log เพิ่มเติม'}${log.source?' · '+h(log.source):''}</span></div></div>
     </div>
 
-    <div class="aw-li-sec"><div class="aw-li-sec-title"><b><i class="fas fa-book-open mr-1"></i> ประวัติคอร์ส</b><span>${courses.length} รายการ</span></div>
-      <div class="aw-li-courses">${courses.length?courses.map(c=>`<div class="aw-li-course"><div class="aw-li-course-img">${c.image_url?`<img src="${h(c.image_url)}" alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-book&quot;></i>'">`:'<i class="fas fa-book"></i>'}</div><div><b>${h(c.course_name)}</b>${c.course_id?'<span style="display:inline-block;margin-left:5px;color:#2d63df">● Catalog</span>':''}<span>${h([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ไม่ได้ระบุรายละเอียด')}</span></div></div>`).join(''):'<div class="aw-li-empty" style="min-height:90px">ไม่พบประวัติคอร์ส</div>'}</div>
+    <div class="aw-li-sec"><div class="aw-li-sec-title"><b><i class="fas fa-book-open mr-1"></i> ประวัติคอร์สที่นักเรียนกรอก</b><span>${courses.length} รายการ</span></div>
+      <div class="aw-li-courses">${courses.length?courses.map(c=>`<div class="aw-li-course"><div class="aw-li-course-img">${c.image_url?`<img src="${h(c.image_url)}" alt="" onerror="this.parentElement.innerHTML='<i class=&quot;fas fa-book&quot;></i>'">`:'<i class="fas fa-book"></i>'}</div><div><b>${h(c.course_name)}</b>${c.course_id?'<span style="display:inline-block;margin-left:5px;color:#2d63df">● Catalog</span>':''}${currentIds.has(String(c.course_id))?'<span style="display:inline-block;margin-left:5px;color:#078a65">● กำลังเรียน</span>':''}<span>${h([c.tutor_name,c.academic_year,c.study_period].filter(Boolean).join(' · ')||'ไม่ได้ระบุรายละเอียด')}</span>${c.course_id&&!currentIds.has(String(c.course_id))?`<div class="aw-li-history-action"><button class="aw-li-link-btn" data-use-history-course="${c.course_id}" data-use-history-tutor="${h(c.tutor_id||'')}"><i class="fas fa-arrow-down"></i> ใช้เป็นคอร์สปัจจุบัน</button></div>`:''}</div></div>`).join(''):'<div class="aw-li-empty" style="min-height:90px">ไม่พบประวัติคอร์ส</div>'}</div>
+    </div>
+
+    <div class="aw-li-current">
+      <div class="aw-li-current-head">
+        <div><b><i class="fas fa-calendar-check"></i> คอร์สปัจจุบัน · Tutor OS</b><p>เมื่อเพิ่มคอร์สตรงนี้ นักเรียนจะปรากฏใน Tutor OS ของผู้สอนทันที และสามารถเลือกนักเรียนเพื่อจัดตารางสอนได้</p></div>
+        ${current.length?'<span class="aw-li-ready-pill"><i class="fas fa-check-circle"></i> พร้อมจัดตาราง</span>':''}
+      </div>
+
+      <div class="aw-li-wallets">${current.length?current.map(currentWalletHtml).join(''):'<div class="aw-li-current-empty"><b>ยังไม่มีคอร์สปัจจุบันใน Tutor OS</b><br>ประวัติคอร์สที่นักเรียนกรอกเป็นเพียง History จึงยังไม่แสดงในหน้าจัดตารางสอน จนกว่า Manager จะกำหนดคอร์สปัจจุบันด้านล่าง</div>'}</div>
+
+      <div class="aw-li-course-pick">
+        <label>คอร์สที่กำลังเรียน
+          <select id="legacyCurrentCourse">${catalogOptions(d)}</select>
+        </label>
+        <label>ผู้สอน
+          <select id="legacyCurrentTutor">${tutorOptions(d)}</select>
+        </label>
+      </div>
+      <textarea id="legacyCurrentNote" class="aw-li-current-note" placeholder="หมายเหตุ (ไม่บังคับ) เช่น นักเรียนเก่า เรียนต่อจากก่อนมีระบบ / เรียนส่วนตัวกับพี่อาร์"></textarea>
+      <div class="aw-li-current-actions">
+        <div class="aw-li-current-help"><i class="fas fa-circle-info"></i> การเพิ่มตรงนี้สร้าง <b>Active Course Wallet</b> สำหรับ Tutor OS เท่านั้น ไม่สร้าง Enrollment/การชำระเงินย้อนหลัง และยังไม่กำหนด Hour Wallet อัตโนมัติ</div>
+        <button class="aw-li-btn green" id="legacyActivateCourse"><i class="fas fa-user-plus"></i> เพิ่มเป็นคอร์สกำลังเรียน</button>
+      </div>
+      ${current.length?`<div style="margin-top:8px;text-align:right"><a class="aw-li-btn blue" href="../tutor-os/?section=schedule"><i class="fas fa-calendar-plus"></i> ไปจัดตารางใน Tutor OS</a></div>`:''}
     </div>
 
     <div class="aw-li-review">
@@ -35752,9 +35830,50 @@ function renderDetail(){
       </div>
     </div>
   </div>`;
+
+  const courseSel=by('legacyCurrentCourse'),tutorSel=by('legacyCurrentTutor');
+  courseSel?.addEventListener('change',()=>{
+    const opt=courseSel.selectedOptions?.[0],tid=opt?.dataset?.tutor||'';
+    if(tid&&tutorSel)tutorSel.value=tid
+  });
+  root.querySelectorAll('[data-use-history-course]').forEach(btn=>btn.onclick=()=>{
+    if(courseSel){courseSel.value=btn.dataset.useHistoryCourse||'';courseSel.dispatchEvent(new Event('change'))}
+    const tid=btn.dataset.useHistoryTutor||'';if(tid&&tutorSel)tutorSel.value=tid;
+    root.querySelector('.aw-li-current')?.scrollIntoView({behavior:'smooth',block:'center'})
+  });
+  root.querySelectorAll('[data-wallet-action]').forEach(btn=>btn.onclick=()=>setCurrentStatus(btn.dataset.walletId,btn.dataset.walletAction));
+  by('legacyActivateCourse').onclick=activateCurrentCourse;
   by('legacySetPending').onclick=()=>review('pending');
   by('legacyReject').onclick=()=>review('rejected');
   by('legacyVerify').onclick=()=>review('verified')
+}
+async function activateCurrentCourse(){
+  const c=db();if(!c||!LI.selected)return;
+  const courseId=by('legacyCurrentCourse')?.value||'',tutorId=by('legacyCurrentTutor')?.value||null,note=by('legacyCurrentNote')?.value?.trim()||null;
+  if(!courseId)return Swal.fire('เลือกคอร์สปัจจุบัน','กรุณาเลือกคอร์สที่นักเรียนกำลังเรียน','warning');
+  const btn=by('legacyActivateCourse');if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังเพิ่มเข้า Tutor OS'}
+  const {data,error}=await c.rpc('legacy_self_manager_activate_current_course',{p_student_id:LI.selected,p_course_id:courseId,p_tutor_id:tutorId,p_note:note});
+  if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> เพิ่มเป็นคอร์สกำลังเรียน'}
+  if(error||!data?.ok)return Swal.fire('เพิ่มคอร์สไม่สำเร็จ',error?.message||data?.message||'Unknown error','error');
+  await selectStudent(LI.selected,true);
+  const r=await Swal.fire({
+    icon:'success',
+    title:'นักเรียนพร้อมใช้งานใน Tutor OS แล้ว',
+    html:`<div style="font-size:12px;line-height:1.7">คอร์ส <b>${h(data.course_name||'')}</b><br>ผู้สอน <b>${h(data.tutor_name||'')}</b><br><br>ตอนนี้นักเรียนจะปรากฏในรายการจัดตารางสอนของผู้สอนคนนี้</div>`,
+    showCancelButton:true,
+    confirmButtonText:'ไปจัดตารางสอน',
+    cancelButtonText:'ตรวจข้อมูลต่อ'
+  });
+  if(r.isConfirmed)location.href='../tutor-os/?section=schedule'
+}
+async function setCurrentStatus(id,status){
+  const c=db();if(!c||!id)return;
+  const label=status==='paused'?'พักคอร์ส':status==='active'?'เปิดเรียนต่อ':'จบ/นำคอร์สออก';
+  const r=await Swal.fire({title:label,text:status==='cancelled'?'นักเรียนจะหายจากรายการคอร์สที่ใช้จัดตาราง แต่ประวัติจะยังอยู่':'ยืนยันการเปลี่ยนสถานะคอร์สนี้',icon:'question',showCancelButton:true,confirmButtonText:'ยืนยัน',cancelButtonText:'ยกเลิก'});
+  if(!r.isConfirmed)return;
+  const {data,error}=await c.rpc('legacy_self_manager_set_current_course_status',{p_enrollment_id:id,p_status:status});
+  if(error||!data?.ok)return Swal.fire('บันทึกไม่สำเร็จ',error?.message||data?.message||'Unknown error','error');
+  await selectStudent(LI.selected,true);
 }
 async function review(action){
   const c=db();if(!c||!LI.selected)return;
