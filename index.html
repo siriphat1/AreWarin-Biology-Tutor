@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V26.5 · GROUP CLASS LATE PAYMENT NO EDGE -->
+  <!-- AREWARIN REGISTER V26.6 · LATE PAYMENT QR IN STATUS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -6495,6 +6495,121 @@
             } finally { if (btn) { btn.disabled = false; btn.innerHTML = old; } }
         }
 
+
+        function awv266FormatDate(value) {
+            if(!value) return '-';
+            try{
+                const d = new Date(String(value).length===10 ? String(value)+'T00:00:00' : value);
+                if(Number.isNaN(d.getTime())) return String(value);
+                return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+            }catch(_){ return String(value); }
+        }
+
+        function awv266MaskPromptPay(value) {
+            const s=String(value||'').replace(/\D/g,'');
+            if(s.length===10) return s.slice(0,3)+'-'+s.slice(3,6)+'-'+s.slice(6);
+            if(s.length===13) return s.slice(0,3)+'-'+s.slice(3,6)+'-'+s.slice(6,9)+'-'+s.slice(9);
+            return s||'-';
+        }
+
+        function awv266LatePaySkeleton() {
+            return `<div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 grid place-items-center"><i class="fas fa-circle-notch fa-spin"></i></div>
+                    <div><p class="text-xs font-extrabold text-amber-800">กำลังตรวจสอบเงื่อนไขชำระล่าช้า</p><p class="text-[10px] text-amber-600 mt-0.5">กรุณารอสักครู่</p></div>
+                </div>
+            </div>`;
+        }
+
+        function awv266LatePayHTML(info) {
+            const amount=Number(info?.amount||0);
+            const promptpay=String(info?.promptpay_id||PROMPTPAY||'').replace(/\D/g,'');
+            const expected=awv266FormatDate(info?.expected_payment_date);
+            const qrUrl='https://promptpay.io/'+encodeURIComponent(promptpay)+'/'+amount.toFixed(2);
+
+            return `<div class="overflow-hidden rounded-[1.65rem] border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50 shadow-sm">
+                <div class="px-4 pt-4 pb-3 border-b border-amber-100">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-amber-500 text-white grid place-items-center shadow-md flex-shrink-0"><i class="fas fa-qrcode"></i></div>
+                            <div>
+                                <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 text-[8px] font-extrabold">ชำระล่าช้า</span>
+                                <p class="font-extrabold text-slate-800 text-sm mt-1">พร้อมชำระเงินแล้ว</p>
+                                <p class="text-[10px] text-slate-500 mt-0.5">สแกน QR ด้านล่างด้วยแอปธนาคาร</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-[8px] text-slate-400 font-bold uppercase">กำหนดชำระ</p>
+                            <p class="text-[10px] font-extrabold text-amber-700 mt-1">${awStatusEscape(expected)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <div class="grid md:grid-cols-[210px_1fr] gap-4 items-center">
+                        <div class="mx-auto">
+                            <div class="w-[205px] h-[205px] bg-white rounded-[1.5rem] border border-slate-200 p-2.5 shadow-inner relative">
+                                <img src="${awStatusEscape(qrUrl)}" alt="PromptPay QR" class="w-full h-full object-contain rounded-xl" loading="eager">
+                                <div class="absolute inset-x-0 bottom-2 flex justify-center pointer-events-none">
+                                    <span class="bg-white/90 border border-slate-100 shadow-sm rounded-full px-2 py-1 text-[8px] font-bold text-emerald-600"><i class="fas fa-shield-check mr-1"></i>PromptPay</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            <div class="rounded-2xl bg-slate-900 text-white p-4">
+                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">ยอดที่ต้องชำระ</p>
+                                <p class="text-3xl font-extrabold tracking-tight mt-1">${amount.toLocaleString('th-TH')}<span class="text-[10px] text-slate-300 ml-1">บาท</span></p>
+                            </div>
+                            <div class="rounded-xl bg-white border border-slate-100 px-3 py-2.5">
+                                <p class="text-[8px] text-slate-400 font-bold uppercase">PromptPay</p>
+                                <p class="text-xs font-bold text-slate-700 mt-0.5">${awStatusEscape(awv266MaskPromptPay(promptpay))}</p>
+                            </div>
+                            <a href="${awStatusEscape(qrUrl)}" target="_blank" rel="noopener" class="w-full min-h-[42px] rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-extrabold flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-up-right-from-square"></i> เปิด QR แบบเต็ม
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 rounded-xl bg-amber-100/70 border border-amber-200 px-3 py-2.5 flex items-start gap-2">
+                        <i class="fas fa-circle-info text-amber-600 text-[10px] mt-0.5"></i>
+                        <p class="text-[9px] text-amber-800 leading-relaxed">หลังชำระเงิน กรุณาเก็บสลิปไว้เป็นหลักฐาน ระบบจะยังแสดง “รอตรวจสอบ” จนกว่าทีมงานจะยืนยันยอดชำระ</p>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        async function awv266LoadLatePaymentInfo(phone, receiptNo) {
+            const box=document.getElementById('awLatePayBox');
+            if(!box) return;
+
+            if(!window.AreWarinAPI?.sb?.rpc){
+                box.innerHTML='';
+                return;
+            }
+
+            box.innerHTML=awv266LatePaySkeleton();
+
+            try{
+                const {data,error}=await window.AreWarinAPI.sb.rpc('public_v266_late_payment_info',{
+                    p_phone:awStatusNormalizePhone(phone),
+                    p_receipt_no:receiptNo||null
+                });
+                if(error) throw error;
+
+                const info=data||{};
+                if(!info?.ok || !info?.is_late || !info?.can_pay){
+                    box.innerHTML='';
+                    return;
+                }
+
+                box.innerHTML=awv266LatePayHTML(info);
+            }catch(err){
+                console.warn('[AreWarin Register V26.6] late status QR unavailable',err);
+                box.innerHTML='';
+            }
+        }
+
         function renderApplicationStatus(result, phone) {
             const r = result || {};
             const meta = awStatusMeta(r);
@@ -6513,8 +6628,8 @@
             const receiptAction = canReceipt ? `<button id="awStatusReceiptBtn" type="button" class="w-full bg-slate-900 hover:bg-black text-white py-3.5 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-slate-200 transition active:scale-[.98]" onclick="downloadStatusReceipt('${awStatusEscape(r.receiptToken)}', this)"><i class="fas fa-file-arrow-down"></i><span>ดาวน์โหลดใบเสร็จ PDF</span></button>` : `<div class="w-full bg-slate-50 border border-slate-100 text-slate-400 py-3 px-4 rounded-2xl font-medium text-[10px] flex items-center justify-center gap-2"><i class="fas fa-file-circle-clock"></i><span>${meta.key === 'paid' ? 'กำลังเตรียมระบบดาวน์โหลดใบเสร็จ' : 'ใบเสร็จฉบับยืนยันจะพร้อมหลังตรวจสอบการชำระเงิน'}</span></div>`;
             const historyHTML = historyItems.length > 1 ? `<div class="mt-3 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><div class="flex items-center justify-between mb-3"><p class="text-[11px] font-bold text-slate-700"><i class="fas fa-clock-rotate-left text-indigo-400 mr-1.5"></i>รายการสมัครล่าสุด</p><span class="text-[9px] text-slate-400">${historyItems.length} รายการ</span></div><div class="space-y-2">${historyItems.slice(0,5).map((item,index)=>{ const itemMeta=awStatusMeta(item); const active=String(item.receiptNo||'')===currentReceiptNo; return `<button type="button" onclick="renderApplicationStatus(window.awStatusHistoryItems[${index}], '${awStatusNormalizePhone(phone)}')" class="w-full text-left p-3 rounded-xl border transition ${active ? 'border-sky-200 bg-sky-50/60' : 'border-slate-100 bg-slate-50/60 hover:border-sky-200 hover:bg-white'}"><div class="flex items-center justify-between gap-3"><div class="min-w-0"><p class="text-[10px] font-bold text-slate-700 truncate">${awStatusEscape(item.course||'-')}</p><p class="text-[9px] text-slate-400 mt-0.5">${awStatusEscape(item.date||'-')} · ${awStatusEscape(item.receiptNo||'-')}</p></div><span class="flex-shrink-0 px-2 py-1 rounded-full border ${itemMeta.badge} text-[8px] font-bold">${itemMeta.label}</span></div></button>`; }).join('')}</div></div>` : '';
 
-            const html = `<div class="text-left -mx-1"><div class="relative overflow-hidden rounded-[1.75rem] ${meta.soft} border p-5 mb-3"><div class="absolute -right-9 -top-10 w-32 h-32 rounded-full bg-white/60 blur-sm"></div><div class="relative flex items-start gap-4"><div class="w-12 h-12 ${meta.iconBox} rounded-2xl text-white flex items-center justify-center text-xl shadow-lg flex-shrink-0"><i class="fas ${meta.icon}"></i></div><div class="min-w-0 flex-1 pt-0.5"><div class="flex flex-wrap items-center gap-2 mb-1.5"><span class="text-[9px] uppercase tracking-[.15em] font-bold ${meta.text}">${meta.eyebrow}</span><span class="px-2.5 py-1 rounded-full border ${meta.badge} text-[9px] font-bold">${meta.label}</span></div><h3 class="text-base md:text-lg font-extrabold text-slate-800 leading-snug">${meta.title}</h3><p class="text-[10px] md:text-[11px] text-slate-500 leading-relaxed mt-1.5">${meta.description}</p></div></div></div><div class="grid grid-cols-2 gap-2.5 mb-3"><div class="col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><div class="flex items-start justify-between gap-4"><div class="min-w-0"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">ผู้สมัคร</p><p class="font-bold text-slate-800 text-sm truncate">${safeName}</p><p class="text-[10px] text-slate-400 mt-1"><i class="fas fa-phone mr-1"></i>${safePhone}</p></div><div class="text-right flex-shrink-0"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">วันที่สมัคร</p><p class="font-bold text-slate-600 text-xs">${safeDate}</p></div></div></div><div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="fas fa-chalkboard-user text-sky-400 mr-1"></i>ติวเตอร์</p><p class="font-bold text-slate-700 text-xs leading-snug">${safeTutor}</p></div><div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="far fa-clock text-emerald-400 mr-1"></i>เวลาเรียน</p><p class="font-bold text-slate-700 text-xs leading-snug">${safeTime}</p></div><div class="col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="fas fa-book-open text-indigo-400 mr-1"></i>คอร์ส</p><p class="font-bold text-slate-800 text-xs leading-relaxed">${safeCourse}</p></div></div><div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 text-white mb-3 shadow-lg shadow-slate-200"><div class="flex items-end justify-between gap-4"><div><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">เลขที่รายการ</p><p class="text-xs font-mono font-bold mt-1 text-slate-100">${safeReceipt}</p></div><div class="text-right"><p class="text-[9px] text-slate-400 font-medium">ยอดชำระ</p><p class="text-2xl font-extrabold tracking-tight">${amount}<span class="text-[10px] ml-1 text-slate-300">บาท</span></p></div></div></div>${awStatusTimeline(meta)}${historyHTML}<div class="mt-3 space-y-2.5">${receiptAction}<button type="button" onclick="showCheckStatus('${awStatusNormalizePhone(phone)}')" class="w-full bg-white border border-slate-200 hover:border-sky-300 text-slate-600 py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition"><i class="fas fa-rotate-right text-sky-500"></i><span>ตรวจสอบอีกครั้ง</span></button></div><div class="mt-3 flex items-start gap-2 bg-sky-50/70 border border-sky-100 rounded-xl px-3 py-2.5"><i class="fas fa-shield-halved text-sky-400 text-[10px] mt-0.5"></i><p class="text-[9px] text-slate-500 leading-relaxed">ข้อมูลสถานะแสดงเฉพาะรายการที่ตรงกับเบอร์โทรศัพท์ที่กรอก กรุณาไม่ใช้เบอร์ของผู้อื่นในการตรวจสอบ</p></div></div>`;
-            Swal.fire({ title:'', html, showConfirmButton:false, showCloseButton:true, width:520, padding:'1.25rem', backdrop:'rgba(15, 23, 42, .55)', customClass:{ popup:'rounded-[2rem] md:rounded-[2.25rem] shadow-2xl border border-white/60', closeButton:'text-slate-400 hover:text-slate-700' } });
+            const html = `<div class="text-left -mx-1"><div class="relative overflow-hidden rounded-[1.75rem] ${meta.soft} border p-5 mb-3"><div class="absolute -right-9 -top-10 w-32 h-32 rounded-full bg-white/60 blur-sm"></div><div class="relative flex items-start gap-4"><div class="w-12 h-12 ${meta.iconBox} rounded-2xl text-white flex items-center justify-center text-xl shadow-lg flex-shrink-0"><i class="fas ${meta.icon}"></i></div><div class="min-w-0 flex-1 pt-0.5"><div class="flex flex-wrap items-center gap-2 mb-1.5"><span class="text-[9px] uppercase tracking-[.15em] font-bold ${meta.text}">${meta.eyebrow}</span><span class="px-2.5 py-1 rounded-full border ${meta.badge} text-[9px] font-bold">${meta.label}</span></div><h3 class="text-base md:text-lg font-extrabold text-slate-800 leading-snug">${meta.title}</h3><p class="text-[10px] md:text-[11px] text-slate-500 leading-relaxed mt-1.5">${meta.description}</p></div></div></div><div class="grid grid-cols-2 gap-2.5 mb-3"><div class="col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><div class="flex items-start justify-between gap-4"><div class="min-w-0"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">ผู้สมัคร</p><p class="font-bold text-slate-800 text-sm truncate">${safeName}</p><p class="text-[10px] text-slate-400 mt-1"><i class="fas fa-phone mr-1"></i>${safePhone}</p></div><div class="text-right flex-shrink-0"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">วันที่สมัคร</p><p class="font-bold text-slate-600 text-xs">${safeDate}</p></div></div></div><div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="fas fa-chalkboard-user text-sky-400 mr-1"></i>ติวเตอร์</p><p class="font-bold text-slate-700 text-xs leading-snug">${safeTutor}</p></div><div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="far fa-clock text-emerald-400 mr-1"></i>เวลาเรียน</p><p class="font-bold text-slate-700 text-xs leading-snug">${safeTime}</p></div><div class="col-span-2 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm"><p class="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1.5"><i class="fas fa-book-open text-indigo-400 mr-1"></i>คอร์ส</p><p class="font-bold text-slate-800 text-xs leading-relaxed">${safeCourse}</p></div></div><div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 text-white mb-3 shadow-lg shadow-slate-200"><div class="flex items-end justify-between gap-4"><div><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">เลขที่รายการ</p><p class="text-xs font-mono font-bold mt-1 text-slate-100">${safeReceipt}</p></div><div class="text-right"><p class="text-[9px] text-slate-400 font-medium">ยอดชำระ</p><p class="text-2xl font-extrabold tracking-tight">${amount}<span class="text-[10px] ml-1 text-slate-300">บาท</span></p></div></div></div><div id="awLatePayBox" class="mb-3"></div>${awStatusTimeline(meta)}${historyHTML}<div class="mt-3 space-y-2.5">${receiptAction}<button type="button" onclick="showCheckStatus('${awStatusNormalizePhone(phone)}')" class="w-full bg-white border border-slate-200 hover:border-sky-300 text-slate-600 py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition"><i class="fas fa-rotate-right text-sky-500"></i><span>ตรวจสอบอีกครั้ง</span></button></div><div class="mt-3 flex items-start gap-2 bg-sky-50/70 border border-sky-100 rounded-xl px-3 py-2.5"><i class="fas fa-shield-halved text-sky-400 text-[10px] mt-0.5"></i><p class="text-[9px] text-slate-500 leading-relaxed">ข้อมูลสถานะแสดงเฉพาะรายการที่ตรงกับเบอร์โทรศัพท์ที่กรอก กรุณาไม่ใช้เบอร์ของผู้อื่นในการตรวจสอบ</p></div></div>`;
+            Swal.fire({ title:'', html, showConfirmButton:false, showCloseButton:true, width:520, padding:'1.25rem', backdrop:'rgba(15, 23, 42, .55)', customClass:{ popup:'rounded-[2rem] md:rounded-[2.25rem] shadow-2xl border border-white/60', closeButton:'text-slate-400 hover:text-slate-700' }, didOpen:()=>{ awv266LoadLatePaymentInfo(phone, r.receiptNo||''); } });
         }
 
         function showCheckStatus(prefillPhone) {
