@@ -34828,6 +34828,11 @@
 
 
 <script>
+/* AREWARIN MANAGER V27.4 · STATUS SWEETALERT RELIABILITY FIX */
+console.info('[AreWarin Manager V27.4] Status SweetAlert reliability fix loaded');
+</script>
+
+<script>
 /* =========================================================
    AREWARIN READY v19 — Enrollment Full Detail
    Replaces the basic "ดูรายละเอียด" popup with a full record:
@@ -35089,39 +35094,94 @@
     `;
   }
 
+
+  function notifyStatus(message, type='success', detail='') {
+    const icon = type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success';
+
+    // V27.4: Status changes use SweetAlert directly so the confirmation is
+    // always visible even when the optional AWAlert helper is unavailable.
+    if(window.Swal?.fire) {
+      return Swal.fire({
+        toast:true,
+        position:'top-end',
+        icon,
+        title:String(message || ''),
+        text:detail ? String(detail) : undefined,
+        showConfirmButton:false,
+        timer:type === 'error' ? 4200 : 2600,
+        timerProgressBar:true,
+        didOpen:(toast)=>{
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+      });
+    }
+
+    if(window.AWAlert?.toast) {
+      return window.AWAlert.toast(String(message || ''), type);
+    }
+
+    window.alert(String(message || '') + (detail ? '\n' + String(detail) : ''));
+  }
+
+  window.AWManagerStatusNotify = notifyStatus;
+
   async function saveStatus(enrollmentId) {
     const select = $('awV19Status');
     if(!select) return;
 
     const client = db();
-    if(!client) return;
+    if(!client) {
+      notifyStatus('ไม่สามารถอัปเดตสถานะได้','error','ไม่พบการเชื่อมต่อ Supabase');
+      return;
+    }
 
     const btn = $('awV19SaveStatus');
+    const nextStatus = String(select.value || '');
+
     if(btn) {
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>กำลังบันทึก';
     }
 
-    const {error} = await client
-      .from('enrollments')
-      .update({
-        status:select.value,
-        updated_at:new Date().toISOString()
-      })
-      .eq('id',enrollmentId);
+    try {
+      // Select the updated row back from Supabase. This prevents a silent
+      // "success" when no enrollment row was actually changed.
+      const {data,error} = await client
+        .from('enrollments')
+        .update({
+          status:nextStatus,
+          updated_at:new Date().toISOString()
+        })
+        .eq('id',enrollmentId)
+        .select('id,status,updated_at')
+        .maybeSingle();
 
-    if(btn) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-floppy-disk mr-1"></i>บันทึกสถานะ';
+      if(error) throw error;
+      if(!data?.id) throw new Error('ไม่พบรายการสมัครที่ถูกอัปเดต กรุณารีเฟรชแล้วลองอีกครั้ง');
+
+      notifyStatus(
+        'อัปเดตสถานะสำเร็จ',
+        'success',
+        'สถานะใหม่: ' + statusLabel(data.status)
+      );
+
+      // Refresh in the background after showing SweetAlert.
+      setTimeout(() => $('refreshEnrollments')?.click(), 120);
+
+    } catch(err) {
+      console.error('[AreWarin Manager V27.4] save enrollment status failed', err);
+      notifyStatus(
+        'อัปเดตสถานะไม่สำเร็จ',
+        'error',
+        err?.message || String(err)
+      );
+    } finally {
+      if(btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-floppy-disk mr-1"></i>บันทึกสถานะ';
+      }
     }
-
-    if(error) {
-      if(window.AWAlert?.toast) window.AWAlert.toast(error.message,'error');
-      return;
-    }
-
-    if(window.AWAlert?.toast) window.AWAlert.toast('บันทึกสถานะแล้ว','success');
-    $('refreshEnrollments')?.click();
   }
 
   async function downloadReceipt(token, btn) {
@@ -35325,13 +35385,13 @@
     });
     modal.querySelectorAll('[data-v263-view-first]').forEach(btn=>btn.addEventListener('click',()=>window.AWV17OpenSlip?.(btn.dataset.v263ViewFirst)));
     modal.querySelectorAll('[data-v263-late-open]').forEach(btn=>btn.addEventListener('click',async()=>{
-      btn.disabled=true;try{const {error}=await client.rpc('manager_v261_convert_registration_payment_request',{p_request_id:btn.dataset.v263LateOpen,p_installment_count:null,p_due_dates:[],p_note:''});if(error)throw error;window.AWAlert?.toast?.('เปิดรายการค้างชำระแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
+      btn.disabled=true;try{const {error}=await client.rpc('manager_v261_convert_registration_payment_request',{p_request_id:btn.dataset.v263LateOpen,p_installment_count:null,p_due_dates:[],p_note:''});if(error)throw error;notifyStatus('เปิดรายการค้างชำระแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
     }));
     modal.querySelectorAll('[data-v263-first-ok]').forEach(btn=>btn.addEventListener('click',async()=>{
-      const q=await Swal.fire({icon:'question',title:'ยืนยันงวดแรก?',text:'เมื่อตรวจผ่าน ระบบจะเปิดสิทธิ์เรียนและปลดล็อกงวดถัดไป',showCancelButton:true,confirmButtonText:'ยืนยันงวดแรก',cancelButtonText:'ยกเลิก'});if(!q.isConfirmed)return;btn.disabled=true;try{const {error}=await client.rpc('manager_v263_review_first_installment',{p_request_id:btn.dataset.v263FirstOk,p_approved:true,p_note:''});if(error)throw error;window.AWAlert?.toast?.('ยืนยันงวดแรกแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
+      const q=await Swal.fire({icon:'question',title:'ยืนยันงวดแรก?',text:'เมื่อตรวจผ่าน ระบบจะเปิดสิทธิ์เรียนและปลดล็อกงวดถัดไป',showCancelButton:true,confirmButtonText:'ยืนยันงวดแรก',cancelButtonText:'ยกเลิก'});if(!q.isConfirmed)return;btn.disabled=true;try{const {error}=await client.rpc('manager_v263_review_first_installment',{p_request_id:btn.dataset.v263FirstOk,p_approved:true,p_note:''});if(error)throw error;notifyStatus('ยืนยันงวดแรกแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
     }));
     modal.querySelectorAll('[data-v263-first-no]').forEach(btn=>btn.addEventListener('click',async()=>{
-      const q=await Swal.fire({title:'ไม่อนุมัติงวดแรก',input:'text',inputLabel:'เหตุผล / หมายเหตุ',inputPlaceholder:'เช่น ยอดไม่ตรง หรือสลิปไม่ชัด',showCancelButton:true,confirmButtonText:'ไม่อนุมัติ',confirmButtonColor:'#e11d48'});if(!q.isConfirmed)return;btn.disabled=true;try{const {error}=await client.rpc('manager_v263_review_first_installment',{p_request_id:btn.dataset.v263FirstNo,p_approved:false,p_note:q.value||''});if(error)throw error;window.AWAlert?.toast?.('อัปเดตคำขอแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
+      const q=await Swal.fire({title:'ไม่อนุมัติงวดแรก',input:'text',inputLabel:'เหตุผล / หมายเหตุ',inputPlaceholder:'เช่น ยอดไม่ตรง หรือสลิปไม่ชัด',showCancelButton:true,confirmButtonText:'ไม่อนุมัติ',confirmButtonColor:'#e11d48'});if(!q.isConfirmed)return;btn.disabled=true;try{const {error}=await client.rpc('manager_v263_review_first_installment',{p_request_id:btn.dataset.v263FirstNo,p_approved:false,p_note:q.value||''});if(error)throw error;notifyStatus('อัปเดตคำขอแล้ว','success');close();setTimeout(()=>openFullDetail(enrollmentId),250)}catch(x){Swal.fire('ไม่สำเร็จ',x.message||String(x),'error');btn.disabled=false}
     }));
   }
 
