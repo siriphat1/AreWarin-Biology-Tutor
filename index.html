@@ -6982,39 +6982,75 @@
                 fd.groupClassId=selectedGroupClass.id;fd.groupClassCode=selectedGroupClass.group_code||null;fd.registrationPath='group_class';fd.studyType='group';fd.groupSize=1;fd.selectedMode='group_class';fd.mode='group_class';fd.modeLabel='คลาสกลุ่ม · '+(selectedGroupClass.name||'');fd.hours=String(selectedGroupClass.included_hours||'');fd.time=groupScheduleText(selectedGroupClass);fd.scheduleSelections=[];fd.price=Number(selectedGroupClass.price_amount||finalPrice||0);fd.groupPolicyAccepted=!!document.getElementById('groupPolicyCheck')?.checked;
             }
             try {
-                if(window.AreWarinAPI?.sb?.functions){
-                    (async()=>{
-                        try{
-                            const {data,error}=await window.AreWarinAPI.sb.functions.invoke('create-enrollment-payment-terms',{body:fd});
-                            if(error)throw error;
-                            if(!data?.success)throw new Error(data?.message||'สมัครเรียนไม่สำเร็จ');
-                            callback && callback(data);
-                        }catch(err){
-                            // Full-payment registrations can still fall back to the old route.
-                            if(fd.paymentPlanMode==='full'){
-                                try{
-                                    if(fd.groupClassId){
-                                        const r=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment',{body:fd});
-                                        if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครคลาสกลุ่มไม่สำเร็จ');callback&&callback(r.data);return;
-                                    }
-                                    if(fd.renewalMode==='legacy_profile'&&fd.legacyStudentId){
-                                        const r=await window.AreWarinAPI.sb.functions.invoke('create-legacy-returning-enrollment',{body:fd});
-                                        if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครเรียนไม่สำเร็จ');callback&&callback(r.data);return;
-                                    }
-                                    if(typeof google!=='undefined'&&google.script?.run){
-                                        google.script.run.withSuccessHandler(callback).withFailureHandler(x=>Swal.fire('Error',x.message,'error')).processApplication(fd);return;
-                                    }
-                                }catch(fallbackErr){err=fallbackErr}
-                            }
-                            Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error');
-                        }
-                    })();
-                }else if(typeof google!=='undefined' && google.script?.run){
-                    if(fd.paymentPlanMode!=='full'){
-                        Swal.fire('ยังไม่ได้ติดตั้ง Payment Terms Backend','Deploy Edge Function create-enrollment-payment-terms ก่อนใช้งานชำระล่าช้าหรือแบ่งชำระ','warning');
+                // V26.2: NO create-enrollment-payment-terms Edge Function is required.
+                // Full payments keep the original route. Deferred payments create the
+                // enrollment through the already-installed enrollment function, then
+                // finalize the late/installment request with a public RPC protected by
+                // the private receipt token returned for that new enrollment.
+                if(fd.paymentPlanMode!=='full'){
+                    if(!window.AreWarinAPI?.sb?.functions || !window.AreWarinAPI?.sb?.rpc){
+                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.2 และรีเฟรชหน้าอีกครั้ง','warning');
                         return;
                     }
+                    (async()=>{
+                        try{
+                            const submitFd={...fd,paymentMethod:'cash',fileData:null,fileName:null,mimeType:null,paymentDeferred:true};
+                            let upstream='create-enrollment';
+                            if(submitFd.groupClassId) upstream='create-group-class-enrollment';
+                            else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
+
+                            console.info('[AreWarin Register V26.2] deferred upstream',upstream);
+                            const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
+                            if(created.error) throw created.error;
+                            if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
+                            if(!created.data?.enrollmentId) throw new Error('ไม่พบ Enrollment ID หลังสร้างใบสมัคร');
+                            if(!created.data?.receiptToken) throw new Error('ไม่พบรหัสยืนยันใบสมัคร กรุณาติดต่อแอดมิน');
+
+                            const finalized=await window.AreWarinAPI.sb.rpc('public_v262_finalize_deferred_registration',{
+                                p_enrollment_id:created.data.enrollmentId,
+                                p_receipt_token:String(created.data.receiptToken),
+                                p_mode:fd.paymentPlanMode,
+                                p_expected_date:fd.paymentPlanMode==='late'?(fd.expectedPaymentDate||null):null
+                            });
+                            if(finalized.error) throw finalized.error;
+                            if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกเงื่อนไขการชำระไม่สำเร็จ');
+
+                            const result={...created.data,...finalized.data,
+                                success:true,
+                                paymentDeferred:true,
+                                paymentPlanMode:fd.paymentPlanMode,
+                                amount:created.data.amount!==undefined?created.data.amount:fd.price,
+                                receiptToken:created.data.receiptToken,
+                                receiptNo:created.data.receiptNo
+                            };
+                            callback && callback(result);
+                        }catch(err){
+                            console.error('[AreWarin Register V26.2] deferred registration failed',err);
+                            Swal.fire('สมัครแบบชำระภายหลังไม่สำเร็จ',err?.message||String(err),'error');
+                        }
+                    })();
+                    return;
+                }
+
+                // Full payment = original stable flow, without the V26.1 wrapper.
+                if(window.AreWarinAPI?.sb?.functions && fd.groupClassId){
+                    (async()=>{try{
+                        const r=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment',{body:fd});
+                        if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครคลาสกลุ่มไม่สำเร็จ');callback&&callback(r.data);
+                    }catch(err){Swal.fire('สมัครคลาสกลุ่มไม่สำเร็จ',err?.message||String(err),'error')}})();
+                }else if(window.AreWarinAPI?.sb?.functions && fd.renewalMode==='legacy_profile'&&fd.legacyStudentId){
+                    (async()=>{try{
+                        const r=await window.AreWarinAPI.sb.functions.invoke('create-legacy-returning-enrollment',{body:fd});
+                        if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครเรียนไม่สำเร็จ');callback&&callback(r.data);
+                    }catch(err){Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error')}})();
+                }else if(typeof google!=='undefined' && google.script?.run){
                     google.script.run.withSuccessHandler(callback).withFailureHandler(err=>{Swal.fire('Error',err.message,'error')}).processApplication(fd);
+                }else if(window.AreWarinAPI?.sb?.functions){
+                    // Static hosting fallback for full payment.
+                    (async()=>{try{
+                        const r=await window.AreWarinAPI.sb.functions.invoke('create-enrollment',{body:fd});
+                        if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครเรียนไม่สำเร็จ');callback&&callback(r.data);
+                    }catch(err){Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error')}})();
                 }else{
                     throw new Error('No enrollment backend available');
                 }
@@ -7976,7 +8012,7 @@ async function loadOptions(){
   if(label)label.classList.toggle('opacity-50',!window.awv261InstallmentEnabled);
   if(hint)hint.textContent=window.awv261InstallmentEnabled?'แอดมินเปิดระบบแล้ว · ส่งคำขอได้':'ขณะนี้ยังไม่เปิดใช้งาน';
 }
-function boot(){const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}loadOptions();window.awv261SelectPaymentPlan('full');const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v261){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v261=true;window.resetForm=wrapped}console.info('[AreWarin Register] V26.1 Payment Terms loaded')}
+function boot(){const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}loadOptions();window.awv261SelectPaymentPlan('full');const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v261){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v261=true;window.resetForm=wrapped}console.info('[AreWarin Register] V26.2 Payment Terms (No Edge Wrapper) loaded')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else setTimeout(boot,50);
 })();
 </script>
