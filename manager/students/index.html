@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AreWarin · นักเรียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../shared/module-shell.css">
+</head>
+<body>
+<header class="awmod-top">
+  <div class="awmod-topin">
+    <div class="awmod-brand"><div class="awmod-icon"><i class="fas fa-user-graduate"></i></div><div><b>นักเรียน</b><small>Student 360° & Student Services · V28 Modular Shell</small></div></div>
+    <div class="awmod-actions">
+      <button id="moduleHub" class="awmod-btn"><i class="fas fa-house"></i><span>Control Hub</span></button>
+      <button id="moduleRefresh" class="awmod-btn"><i class="fas fa-rotate"></i><span>รีเฟรช</span></button>
+      <button id="moduleLegacy" class="awmod-btn dark"><i class="fas fa-up-right-from-square"></i><span>Legacy Manager</span></button>
+    </div>
+  </div>
+  <nav class="awmod-nav"><button class="awmod-tab" data-aw-section="student360">Student 360°</button><button class="awmod-tab" data-aw-section="studentservices">Student Services</button></nav>
+</header>
+<div class="awmod-framewrap">
+  <div class="awmod-framebox">
+    <div id="moduleLoading" class="awmod-loading"><div><i class="fas fa-spinner fa-spin"></i>กำลังเปิดโมดูล...</div></div>
+    <iframe id="legacyFrame" class="awmod-frame" title="นักเรียน" referrerpolicy="same-origin"></iframe>
+  </div>
+</div>
+<div class="awmod-note">Security: ใช้ Login / RLS / Manager RPC ชุดเดิมของระบบหลัก ไม่มี Service Role Key ในหน้าเว็บ และไม่ส่ง Token ผ่าน URL</div>
+<script>window.AW_MODULE_CONFIG={"module": "students", "defaultSection": "student360"};</script>
+<script src="../shared/module-shell.js"></script>
+</body>
+</html>
