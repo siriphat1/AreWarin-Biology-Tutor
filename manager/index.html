@@ -31054,6 +31054,79 @@
 }
 </style>
 
+
+<style id="aw-course-page-polish-v272">
+/* V27.2 — Courses page polish */
+#section-courses .grid{align-items:start}
+#section-courses > .grid > *{min-width:0}
+#courseForm{
+  position:sticky;
+  top:84px;
+  max-height:calc(100vh - 104px);
+  overflow:auto;
+  scrollbar-gutter:stable;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+  box-shadow:0 14px 40px rgba(15,23,42,.05);
+}
+#courseForm::-webkit-scrollbar{width:10px}
+#courseForm::-webkit-scrollbar-thumb{background:#d9e5f3;border-radius:999px;border:2px solid #f8fbff}
+#courseForm .input,
+#section-courses .input{
+  min-height:44px;
+  font-size:12px;
+}
+#section-courses textarea.input{line-height:1.6}
+#section-courses .card{
+  box-shadow:0 14px 40px rgba(15,23,42,.05);
+}
+#courseCategoryPanel{
+  border-color:#d8eafd!important;
+  background:linear-gradient(180deg,#f7fbff 0%,#ffffff 100%)!important;
+}
+#courseCategoryPanel #courseCategoryGrid{padding-right:4px}
+#courseCategorySelected{padding-top:2px}
+#awV4TutorFilter,#awV4CourseSearch,#awV4StatusFilter{background:#fff}
+#courseList{display:grid;gap:14px}
+#courseList > .aw-course-card-v272{
+  padding:18px!important;
+  border:1px solid #e7eef7!important;
+  border-radius:20px!important;
+  background:linear-gradient(180deg,#fff,#fbfdff)!important;
+  box-shadow:0 10px 30px rgba(15,23,42,.04)!important;
+}
+#courseList .aw-course-main-hotfix.aw-course-main-v272{
+  display:grid!important;
+  grid-template-columns:150px minmax(0,1fr)!important;
+  gap:16px!important;
+  align-items:start!important;
+}
+#courseList .aw-course-main-v272 > *{min-width:0!important}
+#courseList .aw-course-main-v272 h1,
+#courseList .aw-course-main-v272 h2,
+#courseList .aw-course-main-v272 h3,
+#courseList .aw-course-main-v272 [class*="font-bold"]{
+  color:#0f172a!important;
+  line-height:1.35!important;
+}
+#courseList .aw-course-main-v272 p,
+#courseList .aw-course-main-v272 .text-slate-500,
+#courseList .aw-course-main-v272 .text-slate-600,
+#courseList .aw-course-main-v272 .text-slate-400{line-height:1.6!important}
+#courseList > * [data-aw-v4-footer]{margin-top:14px!important;padding-top:14px!important;align-items:flex-end!important;gap:12px!important}
+#courseList > * [data-aw-v4-footer] > div:first-child{flex:1 1 auto;min-width:0}
+#courseList [data-aw-v4-price], #courseList [data-aw-v10-delete]{min-height:44px;border-radius:14px!important;padding:0 16px!important;font-size:11px!important;font-weight:800!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+#courseList [data-aw-v10-delete]{min-width:120px}
+@media (max-width:1279px){#courseForm{position:static;max-height:none;overflow:visible}}
+@media (max-width:900px){#courseList .aw-course-main-hotfix.aw-course-main-v272{grid-template-columns:112px minmax(0,1fr)!important}}
+@media (max-width:640px){
+  #courseList .aw-course-main-hotfix.aw-course-main-v272{grid-template-columns:1fr!important}
+  #courseList .aw-course-cover-hotfix,#courseList .aw-course-cover-wrap-hotfix{width:100%!important;max-width:100%!important;height:180px!important;max-height:none!important;flex-basis:auto!important}
+  #courseList > * [data-aw-v4-footer]{flex-direction:column!important;align-items:stretch!important}
+  #courseList > * [data-aw-v4-footer] .shrink-0{width:100%!important}
+  #courseList > * [data-aw-v4-footer] .shrink-0 > *{flex:1 1 auto}
+}
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -32579,6 +32652,7 @@
       if(!(card instanceof HTMLElement)) return;
       const course=findCourse(card);
       if(!course) return;
+      card.classList.add('aw-course-card-v272');
 
       // V25.4 UI hotfix: app.js creates course cards dynamically. Some image sizing
       // utility classes are not present in the inline Tailwind build, allowing the
@@ -32605,11 +32679,12 @@
       let main=card.querySelector(':scope > .aw-course-main-hotfix');
       if(!main){
         main=document.createElement('div');
-        main.className='aw-course-main-hotfix';
+        main.className='aw-course-main-hotfix aw-course-main-v272';
         const existing=[...card.childNodes].filter(n=>!(n.nodeType===1 && n.matches?.('[data-aw-v4-footer]')));
         existing.forEach(n=>main.appendChild(n));
         card.prepend(main);
       }
+      main.classList.add('aw-course-main-v272');
 
       let f=card.querySelector(':scope > [data-aw-v4-footer]');
       if(!f){
