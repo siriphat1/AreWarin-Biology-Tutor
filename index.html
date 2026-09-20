@@ -3099,7 +3099,17 @@
                         <label id="awv261InstallmentOption" class="cursor-pointer opacity-50"><input id="awv261InstallmentRadio" type="radio" name="paymentPlanMode" value="installment" class="peer sr-only" disabled onchange="awv261SelectPaymentPlan('installment')"><div class="h-full rounded-2xl border border-slate-200 bg-slate-50 p-3 peer-checked:border-violet-500 peer-checked:bg-violet-50 transition"><div class="flex gap-2.5"><div class="w-9 h-9 shrink-0 rounded-xl bg-white text-violet-600 grid place-items-center border border-violet-100"><i class="fas fa-layer-group"></i></div><div><b class="text-[11px] text-slate-800">ขอแบ่งชำระ</b><p id="awv261InstallmentHint" class="text-[8.5px] text-slate-500 mt-1 leading-5">กำลังตรวจสอบการเปิดใช้งาน…</p></div></div></div></label>
                     </div>
                     <div id="awv261LateBox" class="hidden mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3.5"><label class="block text-[10px] font-extrabold text-amber-800 mb-1.5">วันที่คาดว่าจะชำระ <span class="text-red-500">*</span></label><input id="awv261ExpectedDate" type="date" class="w-full rounded-xl border border-amber-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-amber-200"><p class="mt-2 text-[8.5px] leading-5 text-amber-700">หลังสมัคร สถานะจะเป็น “ค้างชำระ” และสามารถชำระภายหลังจาก Student Portal</p></div>
-                    <div id="awv261InstallmentBox" class="hidden mt-3 rounded-2xl border border-violet-200 bg-violet-50 p-3.5"><div class="flex gap-2.5"><i class="fas fa-circle-info text-violet-500 mt-0.5"></i><p class="text-[9px] leading-5 text-violet-800"><b>คำขอแบ่งชำระ 0%</b><br>ส่งคำขอได้จากหน้านี้ โดยแอดมินจะเป็นผู้กำหนด <b>2 หรือ 3 งวด</b> และวันครบกำหนด หลังอนุมัติจึงจะแสดงงวดแรกใน Student Portal และต้องชำระงวดแรกก่อนจึงเปิดสิทธิ์เรียน</p></div></div>
+                    <div id="awv261InstallmentBox" class="hidden mt-3 rounded-2xl border border-violet-200 bg-violet-50 p-3.5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex gap-2.5 min-w-0"><i class="fas fa-layer-group text-violet-500 mt-0.5"></i><div><p class="text-[10px] font-extrabold text-violet-900">แบ่งชำระ 0% · <span id="awv263InstallmentCountLabel">2 งวด</span></p><p class="text-[8.5px] leading-5 text-violet-700 mt-1">จำนวนงวดถูกกำหนดโดยแอดมินสำหรับผู้สมัครใหม่</p></div></div>
+                            <span class="shrink-0 rounded-full border border-violet-200 bg-white px-2 py-1 text-[8px] font-extrabold text-violet-700">0% INTEREST</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <div class="rounded-xl border border-violet-100 bg-white p-3"><p class="text-[8px] font-bold text-slate-400">ยอดค่าเรียนทั้งหมด</p><p id="awv263InstallmentTotal" class="mt-1 text-[13px] font-extrabold text-slate-800">-</p></div>
+                            <div class="rounded-xl border border-violet-200 bg-white p-3 ring-2 ring-violet-100"><p class="text-[8px] font-bold text-violet-500">ต้องชำระตอนนี้ · งวดแรก</p><p id="awv263FirstAmount" class="mt-1 text-[15px] font-extrabold text-violet-700">-</p></div>
+                        </div>
+                        <div class="mt-3 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2.5 text-[8.5px] leading-5 text-rose-700"><i class="fas fa-circle-exclamation mr-1"></i><b>ต้องชำระงวดแรกก่อนเสมอ</b> · กรุณาสแกน QR และแนบสลิปงวดแรกก่อนกด “ชำระงวดแรกและยืนยันสมัคร” หลังส่งสลิปจะรอแอดมินตรวจสอบก่อนเปิดสิทธิ์เรียน</div>
+                    </div>
                 </div>
 
                 <div id="awv261ImmediatePaymentMethods" class="grid grid-cols-2 gap-4 mb-5">
@@ -6237,8 +6247,19 @@
         function updatePriceUI() {
             const display = document.getElementById('displayPrice');
             const qr = document.getElementById('qrImage');
-            if(display) display.innerText = finalPrice.toLocaleString();
-            if(qr) qr.src = "https://promptpay.io/" + PROMPTPAY + "/" + finalPrice;
+            const planMode = window.awv261PaymentPlanMode || 'full';
+            const installmentCount = Number(window.awv263InstallmentCount || 2) === 3 ? 3 : 2;
+            const payableNow = planMode === 'installment'
+                ? Math.round((Number(finalPrice || 0) / installmentCount) * 100) / 100
+                : Number(finalPrice || 0);
+            if(display) display.innerText = payableNow.toLocaleString('th-TH',{maximumFractionDigits:2});
+            if(qr) qr.src = "https://promptpay.io/" + PROMPTPAY + "/" + payableNow.toFixed(2);
+            const totalEl=document.getElementById('awv263InstallmentTotal');
+            const firstEl=document.getElementById('awv263FirstAmount');
+            const countEl=document.getElementById('awv263InstallmentCountLabel');
+            if(totalEl) totalEl.textContent = Number(finalPrice||0).toLocaleString('th-TH',{maximumFractionDigits:2})+' บาท';
+            if(firstEl) firstEl.textContent = payableNow.toLocaleString('th-TH',{maximumFractionDigits:2})+' บาท';
+            if(countEl) countEl.textContent = installmentCount+' งวด';
             if(currentDiscountMeta) {
                 currentDiscountMeta.original = currentPrice;
                 currentDiscountMeta.final = finalPrice;
@@ -6824,6 +6845,9 @@
                 if(!expected){ Swal.fire('กรุณาระบุวันที่','กรอกวันที่คาดว่าจะชำระก่อนส่งใบสมัคร','warning'); return; }
             }else if(planMode === 'installment'){
                 if(!window.awv261InstallmentEnabled){ Swal.fire('ยังไม่เปิดแบ่งชำระ','ขณะนี้แอดมินยังไม่ได้เปิดระบบแบ่งชำระ','warning'); return; }
+                paymentMethod='transfer';
+                var firstSlip = document.getElementById('slipFile')?.files?.[0];
+                if(!firstSlip){ Swal.fire('ต้องชำระงวดแรกก่อน','กรุณาสแกน QR และแนบสลิปงวดแรกก่อนยืนยันสมัคร','warning'); return; }
             }
             
             Swal.fire({ title: 'กำลังส่งข้อมูล...', html: '<div class="dna-spinner"><div class="dna-dot"></div><div class="dna-dot"></div></div>', showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2rem]' } });
@@ -6848,9 +6872,9 @@
                 var printBtn=document.getElementById('btnPrintReceipt');
                 if(deferred){
                     if(successHead) successHead.innerText='บันทึกใบสมัครแล้ว ✓';
-                    if(successSub) successSub.innerText=(planMode==='late'?'สถานะค้างชำระ · ชำระภายในวันที่ที่แจ้งไว้ผ่าน Student Portal':'ส่งคำขอแบ่งชำระ 0% แล้ว · รอแอดมินกำหนด 2/3 งวด');
+                    if(successSub) successSub.innerText=(planMode==='late'?'สถานะค้างชำระ · ชำระภายในวันที่ที่แจ้งไว้ผ่าน Student Portal':`ส่งสลิปงวดแรกแล้ว · แผน ${Number(window.awv263InstallmentCount||2)} งวด · รอแอดมินตรวจสอบก่อนเปิดสิทธิ์เรียน`);
                     if(receiptTitle) receiptTitle.innerText='ใบยืนยันการสมัคร (รอชำระเงิน)';
-                    if(receiptBadge){receiptBadge.innerText=planMode==='installment'?'WAITING INSTALLMENT PLAN':'OUTSTANDING PAYMENT';receiptBadge.className='bg-amber-50 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full border border-amber-200';}
+                    if(receiptBadge){receiptBadge.innerText=planMode==='installment'?'FIRST INSTALLMENT · PENDING REVIEW':'OUTSTANDING PAYMENT';receiptBadge.className='bg-amber-50 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full border border-amber-200';}
                     if(printBtn) printBtn.classList.add('hidden');
                 }else{
                     if(printBtn) printBtn.classList.remove('hidden');
@@ -6860,8 +6884,13 @@
             
             if (typeof google === 'undefined' && !window.AreWarinAPI?.sb?.functions) { setTimeout(()=>showReceipt({paymentDeferred:planMode!=='full',paymentPlanMode:planMode,amount:finalPrice}), 1200); return; }
             
-            if(planMode !== 'full'){
+            if(planMode === 'late'){
                 sendData(null, null, null, showReceipt);
+            }else if(planMode === 'installment'){
+                var f=document.getElementById('slipFile').files[0];
+                var r=new FileReader();
+                r.onload=function(ev){ sendData(ev.target.result.split(',')[1], f.name, f.type, showReceipt); };
+                r.readAsDataURL(f);
             }else if(paymentMethod === 'transfer') { 
                 var f=document.getElementById('slipFile').files[0]; 
                 var r=new FileReader(); 
@@ -6877,7 +6906,9 @@
             fd.paymentPlanMode = window.awv261PaymentPlanMode || 'full';
             fd.expectedPaymentDate = document.getElementById('awv261ExpectedDate')?.value || null;
             fd.installmentRequested = fd.paymentPlanMode === 'installment';
-            if(fd.paymentPlanMode !== 'full'){ fd.paymentMethod='deferred'; fd.fileData=null; fd.fileName=null; fd.mimeType=null; }
+            fd.installmentCount = Number(window.awv263InstallmentCount || 2) === 3 ? 3 : 2;
+            if(fd.paymentPlanMode === 'late'){ fd.paymentMethod='deferred'; fd.fileData=null; fd.fileName=null; fd.mimeType=null; }
+            if(fd.paymentPlanMode === 'installment'){ fd.paymentMethod='transfer'; }
             fd.policyVersion = Number(document.getElementById('studentPolicyRevision')?.value || 1);
             fd.selectedMode = selectedMode;
             fd.cartShareMode = cartShareMode;
@@ -6987,9 +7018,9 @@
                 // enrollment through the already-installed enrollment function, then
                 // finalize the late/installment request with a public RPC protected by
                 // the private receipt token returned for that new enrollment.
-                if(fd.paymentPlanMode!=='full'){
+                if(fd.paymentPlanMode==='late'){
                     if(!window.AreWarinAPI?.sb?.functions || !window.AreWarinAPI?.sb?.rpc){
-                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.2 และรีเฟรชหน้าอีกครั้ง','warning');
+                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.2/V26.3 และรีเฟรชหน้าอีกครั้ง','warning');
                         return;
                     }
                     (async()=>{
@@ -6998,35 +7029,58 @@
                             let upstream='create-enrollment';
                             if(submitFd.groupClassId) upstream='create-group-class-enrollment';
                             else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
-
-                            console.info('[AreWarin Register V26.2] deferred upstream',upstream);
+                            console.info('[AreWarin Register V26.3] late upstream',upstream);
                             const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
                             if(created.error) throw created.error;
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
                             if(!created.data?.enrollmentId) throw new Error('ไม่พบ Enrollment ID หลังสร้างใบสมัคร');
                             if(!created.data?.receiptToken) throw new Error('ไม่พบรหัสยืนยันใบสมัคร กรุณาติดต่อแอดมิน');
-
                             const finalized=await window.AreWarinAPI.sb.rpc('public_v262_finalize_deferred_registration',{
                                 p_enrollment_id:created.data.enrollmentId,
                                 p_receipt_token:String(created.data.receiptToken),
-                                p_mode:fd.paymentPlanMode,
-                                p_expected_date:fd.paymentPlanMode==='late'?(fd.expectedPaymentDate||null):null
+                                p_mode:'late',
+                                p_expected_date:fd.expectedPaymentDate||null
                             });
                             if(finalized.error) throw finalized.error;
                             if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกเงื่อนไขการชำระไม่สำเร็จ');
-
-                            const result={...created.data,...finalized.data,
-                                success:true,
-                                paymentDeferred:true,
-                                paymentPlanMode:fd.paymentPlanMode,
-                                amount:created.data.amount!==undefined?created.data.amount:fd.price,
-                                receiptToken:created.data.receiptToken,
-                                receiptNo:created.data.receiptNo
-                            };
-                            callback && callback(result);
+                            callback && callback({...created.data,...finalized.data,success:true,paymentDeferred:true,paymentPlanMode:'late',amount:created.data.amount!==undefined?created.data.amount:fd.price,receiptToken:created.data.receiptToken,receiptNo:created.data.receiptNo});
                         }catch(err){
-                            console.error('[AreWarin Register V26.2] deferred registration failed',err);
-                            Swal.fire('สมัครแบบชำระภายหลังไม่สำเร็จ',err?.message||String(err),'error');
+                            console.error('[AreWarin Register V26.3] late registration failed',err);
+                            Swal.fire('สมัครแบบชำระล่าช้าไม่สำเร็จ',err?.message||String(err),'error');
+                        }
+                    })();
+                    return;
+                }
+
+                if(fd.paymentPlanMode==='installment'){
+                    if(!window.AreWarinAPI?.sb?.functions || !window.AreWarinAPI?.sb?.rpc){
+                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.3 และรีเฟรชหน้าอีกครั้ง','warning');
+                        return;
+                    }
+                    (async()=>{
+                        try{
+                            if(!fd.fileData) throw new Error('กรุณาแนบสลิปงวดแรก');
+                            const submitFd={...fd,paymentMethod:'transfer',paymentDeferred:false};
+                            let upstream='create-enrollment';
+                            if(submitFd.groupClassId) upstream='create-group-class-enrollment';
+                            else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
+                            console.info('[AreWarin Register V26.3] installment first-payment upstream',upstream,{count:fd.installmentCount});
+                            const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
+                            if(created.error) throw created.error;
+                            if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
+                            if(!created.data?.enrollmentId) throw new Error('ไม่พบ Enrollment ID หลังสร้างใบสมัคร');
+                            if(!created.data?.receiptToken) throw new Error('ไม่พบรหัสยืนยันใบสมัคร กรุณาติดต่อแอดมิน');
+                            const finalized=await window.AreWarinAPI.sb.rpc('public_v263_finalize_installment_registration',{
+                                p_enrollment_id:created.data.enrollmentId,
+                                p_receipt_token:String(created.data.receiptToken),
+                                p_installment_count:fd.installmentCount
+                            });
+                            if(finalized.error) throw finalized.error;
+                            if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกงวดแรกไม่สำเร็จ');
+                            callback && callback({...created.data,...finalized.data,success:true,paymentDeferred:false,paymentPlanMode:'installment',amount:created.data.amount!==undefined?created.data.amount:fd.price,receiptToken:created.data.receiptToken,receiptNo:created.data.receiptNo});
+                        }catch(err){
+                            console.error('[AreWarin Register V26.3] installment registration failed',err);
+                            Swal.fire('สมัครแบบแบ่งชำระไม่สำเร็จ',err?.message||String(err),'error');
                         }
                     })();
                     return;
@@ -7981,12 +8035,13 @@ window.AWV9DebugCategory = function() {
 </script>
 
 
-<script id="arewarin-register-v261-payment-controller">
+<script id="arewarin-register-v263-payment-controller">
 (()=>{
 'use strict';
-if(window.__AREWARIN_REGISTER_V261__)return;window.__AREWARIN_REGISTER_V261__=true;
-window.awv261PaymentPlanMode='full';window.awv261InstallmentEnabled=false;
+if(window.__AREWARIN_REGISTER_V263__)return;window.__AREWARIN_REGISTER_V263__=true;
+window.awv261PaymentPlanMode='full';window.awv261InstallmentEnabled=false;window.awv263InstallmentCount=2;
 const $=id=>document.getElementById(id);
+function refreshPayable(){try{if(typeof updatePriceUI==='function')updatePriceUI()}catch(_){}}
 window.awv261SelectPaymentPlan=function(mode){
   if(mode==='installment'&&!window.awv261InstallmentEnabled){
     document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();
@@ -7995,24 +8050,50 @@ window.awv261SelectPaymentPlan=function(mode){
   window.awv261PaymentPlanMode=mode;
   $('awv261LateBox')?.classList.toggle('hidden',mode!=='late');
   $('awv261InstallmentBox')?.classList.toggle('hidden',mode!=='installment');
+  // Full payment keeps the original transfer/cash chooser. Installment always
+  // uses QR transfer because the first installment + slip is mandatory.
   $('awv261ImmediatePaymentMethods')?.classList.toggle('hidden',mode!=='full');
-  $('methodTransfer')?.classList.toggle('hidden',mode!=='full'||paymentMethod!=='transfer');
-  $('methodCash')?.classList.toggle('hidden',mode!=='full'||paymentMethod!=='cash');
-  if(mode==='full'&&paymentMethod==='transfer')startPaymentTimer();else clearInterval(paymentTimerInterval);
-  const btn=$('btnSubmit');if(btn){btn.innerHTML=mode==='full'?'<i class="fas fa-paper-plane"></i> ส่งข้อมูลการสมัคร':mode==='late'?'<i class="fas fa-calendar-check"></i> ยืนยันสมัครแบบชำระล่าช้า':'<i class="fas fa-layer-group"></i> ส่งคำขอแบ่งชำระ 0%';}
+  if(mode==='installment'){
+    paymentMethod='transfer';
+    document.querySelector('input[name="payMethod"][value="transfer"]')?.click();
+    $('methodTransfer')?.classList.remove('hidden');
+    $('methodCash')?.classList.add('hidden');
+    startPaymentTimer();
+  }else if(mode==='full'){
+    $('methodTransfer')?.classList.toggle('hidden',paymentMethod!=='transfer');
+    $('methodCash')?.classList.toggle('hidden',paymentMethod!=='cash');
+    if(paymentMethod==='transfer')startPaymentTimer();else clearInterval(paymentTimerInterval);
+  }else{
+    $('methodTransfer')?.classList.add('hidden');
+    $('methodCash')?.classList.add('hidden');
+    clearInterval(paymentTimerInterval);
+  }
+  const btn=$('btnSubmit');if(btn){btn.innerHTML=mode==='full'?'<i class="fas fa-paper-plane"></i> ส่งข้อมูลการสมัคร':mode==='late'?'<i class="fas fa-calendar-check"></i> ยืนยันสมัครแบบชำระล่าช้า':'<i class="fas fa-qrcode"></i> ชำระงวดแรกและยืนยันสมัคร';}
+  refreshPayable();
 };
 async function loadOptions(){
   const radio=$('awv261InstallmentRadio'),label=$('awv261InstallmentOption'),hint=$('awv261InstallmentHint');
   try{
     const c=window.AreWarinAPI?.sb;if(!c?.rpc)throw new Error('Supabase not ready');
-    const{data,error}=await c.rpc('public_v261_payment_options');if(error)throw error;
+    let {data,error}=await c.rpc('public_v263_payment_options');
+    if(error && /Could not find the function|schema cache/i.test(String(error.message||''))){
+      const fallback=await c.rpc('public_v261_payment_options');data=fallback.data;error=fallback.error;
+    }
+    if(error)throw error;
     window.awv261InstallmentEnabled=!!data?.installment_enabled;
-  }catch(e){window.awv261InstallmentEnabled=false;console.warn('[Register V26.1] payment options',e?.message||e)}
+    window.awv263InstallmentCount=Number(data?.installment_count)===3?3:2;
+  }catch(e){window.awv261InstallmentEnabled=false;window.awv263InstallmentCount=2;console.warn('[Register V26.3] payment options',e?.message||e)}
   if(radio)radio.disabled=!window.awv261InstallmentEnabled;
   if(label)label.classList.toggle('opacity-50',!window.awv261InstallmentEnabled);
-  if(hint)hint.textContent=window.awv261InstallmentEnabled?'แอดมินเปิดระบบแล้ว · ส่งคำขอได้':'ขณะนี้ยังไม่เปิดใช้งาน';
+  if(hint)hint.textContent=window.awv261InstallmentEnabled?`เปิดใช้งาน · ${window.awv263InstallmentCount} งวด · ต้องจ่ายงวดแรกก่อน`:'ขณะนี้ยังไม่เปิดใช้งาน';
+  refreshPayable();
 }
-function boot(){const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}loadOptions();window.awv261SelectPaymentPlan('full');const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v261){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v261=true;window.resetForm=wrapped}console.info('[AreWarin Register] V26.2 Payment Terms (No Edge Wrapper) loaded')}
+function boot(){
+  const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}
+  loadOptions();window.awv261SelectPaymentPlan('full');
+  const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v263){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v263=true;window.resetForm=wrapped}
+  console.info('[AreWarin Register] V26.3 First Installment Required loaded');
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else setTimeout(boot,50);
 })();
 </script>
