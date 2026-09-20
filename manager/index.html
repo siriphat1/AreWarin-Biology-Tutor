@@ -36543,5 +36543,403 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
+
+<style id="awv264-payment-summary-style">
+#awv264FilterWrap{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.awv264-card{cursor:pointer;transition:.2s ease}.awv264-card:hover{transform:translateY(-1px)}.awv264-card.active{box-shadow:0 0 0 2px rgba(14,165,233,.18) inset}.awv264-mini{display:block;margin-top:2px;font-size:10px;line-height:1.35;color:#64748b}.awv264-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;line-height:1;border:1px solid transparent;white-space:nowrap}.awv264-badge.pending{background:#fef3c7;color:#92400e;border-color:#fde68a}.awv264-badge.late{background:#fffbeb;color:#b45309;border-color:#fcd34d}.awv264-badge.installment{background:#f5f3ff;color:#6d28d9;border-color:#c4b5fd}.awv264-badge.paid{background:#ecfdf5;color:#047857;border-color:#a7f3d0}.awv264-badge.closed{background:#fff1f2;color:#be123c;border-color:#fecdd3}.awv264-badge.normal{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.awv264-sub{margin-top:4px;font-size:10px;line-height:1.45;color:#64748b}.awv264-muted{font-size:10px;color:#94a3b8}.awv264-hidden-row{display:none!important}
+</style>
+<script id="awv264-payment-summary-script">
+(()=>{
+  'use strict';
+  if(window.__AWV264_PAYMENT_SUMMARY__) return;
+  window.__AWV264_PAYMENT_SUMMARY__ = true;
+
+  const $ = id => document.getElementById(id);
+  const State = {
+    rows: [],
+    enrollmentsById: new Map(),
+    latestPaymentByEnrollment: new Map(),
+    orderByEnrollment: new Map(),
+    lateReqByEnrollment: new Map(),
+    instReqByEnrollment: new Map(),
+    metaByEnrollment: new Map(),
+    loading:false,
+    ready:false,
+    observer:null,
+    refreshTimer:null
+  };
+
+  function db(){
+    try { if(window.AreWarinAPI?.sb?.from) return window.AreWarinAPI.sb; } catch(_) {}
+    try { if(window.sb?.from) return window.sb; } catch(_) {}
+    try { if(window.awSupabase?.from) return window.awSupabase; } catch(_) {}
+    try { if(window.supabaseClient?.from) return window.supabaseClient; } catch(_) {}
+    const cfg = window.AREWARIN_CONFIG || {};
+    if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY){
+      if(!window.__awv264client){
+        window.__awv264client = window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+      }
+      return window.__awv264client;
+    }
+    return null;
+  }
+
+  async function rpc(name,args={}){
+    const client = db();
+    if(!client) throw new Error('Supabase client not ready');
+    const {data,error} = await client.rpc(name,args);
+    if(error) throw error;
+    return data;
+  }
+
+  function normalize(v){
+    return String(v||'').toLowerCase().replace(/\s+/g,' ').trim();
+  }
+  function money(v){
+    return Number(v||0).toLocaleString('th-TH') + ' ฿';
+  }
+  function shortDate(v){
+    if(!v) return '-';
+    try {
+      const d = new Date(String(v).length<=10 ? String(v)+'T00:00:00' : String(v));
+      if(Number.isNaN(d.getTime())) return String(v);
+      return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
+    } catch(_) { return String(v); }
+  }
+  function badge(text,tone){
+    return `<span class="awv264-badge ${tone}">${text}</span>`;
+  }
+
+  function findStatGrid(){
+    const all = $('enrollmentStatAll');
+    return all ? all.closest('.grid') : null;
+  }
+
+  function ensureUI(){
+    const wrap = $('enrollmentStatusFilter')?.parentElement;
+    if(wrap && !$('enrollmentPaymentBucketFilter')){
+      const sel = document.createElement('select');
+      sel.id = 'enrollmentPaymentBucketFilter';
+      sel.className = 'input !w-52';
+      sel.innerHTML = `
+        <option value="all">ทุกกลุ่มการชำระ</option>
+        <option value="pending">รอตรวจสอบ</option>
+        <option value="late">ชำระล่าช้า</option>
+        <option value="installment">ผ่อนจ่าย</option>
+        <option value="paid">ชำระแล้ว</option>
+        <option value="closed">ไม่ผ่าน / ยกเลิก</option>
+      `;
+      wrap.appendChild(sel);
+      sel.addEventListener('change',applyFilter);
+      sel.addEventListener('change',highlightActiveCard);
+    }
+
+    const old = $('enrollmentStatusFilter');
+    if(old){
+      old.value = 'all';
+      old.classList.add('hidden');
+      old.setAttribute('aria-hidden','true');
+    }
+
+    const search = $('enrollmentSearch');
+    if(search && !search.dataset.awv264Bound){
+      search.dataset.awv264Bound='1';
+      search.addEventListener('input',applyFilter);
+    }
+
+    const grid = findStatGrid();
+    if(grid && !grid.dataset.awv264Built){
+      grid.dataset.awv264Built='1';
+      grid.className = 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2 mb-4';
+      grid.innerHTML = `
+        <button type="button" class="awv264-card bg-slate-50 rounded-2xl p-3 border border-slate-100 text-left" data-awv264-filter="all">
+          <div class="text-[10px] text-slate-400">ทั้งหมด</div>
+          <div id="enrollmentStatAll" class="text-xl font-bold mt-1">0</div>
+        </button>
+        <button type="button" class="awv264-card bg-amber-50 rounded-2xl p-3 border border-amber-100 text-left" data-awv264-filter="pending">
+          <div class="text-[10px] text-amber-700">รอตรวจสอบ</div>
+          <div id="enrollmentStatPending" class="text-xl font-bold text-amber-700 mt-1">0</div>
+          <span class="awv264-mini">สลิปรอแอดมินตรวจ</span>
+        </button>
+        <button type="button" class="awv264-card bg-orange-50 rounded-2xl p-3 border border-orange-100 text-left" data-awv264-filter="late">
+          <div class="text-[10px] text-orange-700">ชำระล่าช้า</div>
+          <div id="enrollmentStatLate" class="text-xl font-bold text-orange-700 mt-1">0</div>
+          <span class="awv264-mini">ค้างชำระ / นัดชำระภายหลัง</span>
+        </button>
+        <button type="button" class="awv264-card bg-violet-50 rounded-2xl p-3 border border-violet-100 text-left" data-awv264-filter="installment">
+          <div class="text-[10px] text-violet-700">ผ่อนจ่าย</div>
+          <div id="enrollmentStatInstallment" class="text-xl font-bold text-violet-700 mt-1">0</div>
+          <span class="awv264-mini">รอชำระงวดแรก / งวดถัดไป</span>
+        </button>
+        <button type="button" class="awv264-card bg-emerald-50 rounded-2xl p-3 border border-emerald-100 text-left" data-awv264-filter="paid">
+          <div class="text-[10px] text-emerald-700">ชำระแล้ว</div>
+          <div id="enrollmentStatPaid" class="text-xl font-bold text-emerald-700 mt-1">0</div>
+          <span class="awv264-mini">ชำระครบหรือผ่อนครบแล้ว</span>
+        </button>
+        <button type="button" class="awv264-card bg-rose-50 rounded-2xl p-3 border border-rose-100 text-left" data-awv264-filter="closed">
+          <div class="text-[10px] text-rose-600">ไม่ผ่าน / ยกเลิก</div>
+          <div id="enrollmentStatClosed" class="text-xl font-bold text-rose-600 mt-1">0</div>
+          <span class="awv264-mini">รายการที่ปิดแล้ว</span>
+        </button>
+      `;
+      grid.querySelectorAll('[data-awv264-filter]').forEach(btn => {
+        btn.addEventListener('click',()=>{
+          const val = btn.dataset.awv264Filter || 'all';
+          const sel = $('enrollmentPaymentBucketFilter');
+          if(sel) sel.value = val;
+          highlightActiveCard();
+          applyFilter();
+        });
+      });
+    }
+
+    const headerRow = document.querySelector('#enrollmentRows')?.closest('table')?.querySelector('thead tr');
+    if(headerRow){
+      const ths = headerRow.querySelectorAll('th');
+      if(ths[5]) ths[5].textContent = 'ประเภทชำระ';
+      if(ths[6]) ths[6].textContent = 'สถานะชำระ';
+    }
+  }
+
+  function highlightActiveCard(){
+    const current = $('enrollmentPaymentBucketFilter')?.value || 'all';
+    document.querySelectorAll('[data-awv264-filter]').forEach(el => {
+      el.classList.toggle('active', (el.dataset.awv264Filter||'all')===current);
+    });
+  }
+
+  function buildMaps(enrollments,payments,boot,requests){
+    State.rows = Array.isArray(enrollments) ? enrollments : [];
+    State.enrollmentsById = new Map(State.rows.map(x => [String(x.id),x]));
+
+    State.latestPaymentByEnrollment = new Map();
+    (payments || []).forEach(p => {
+      const key = String(p.enrollment_id || '');
+      if(key && !State.latestPaymentByEnrollment.has(key)) State.latestPaymentByEnrollment.set(key,p);
+    });
+
+    State.orderByEnrollment = new Map();
+    ((boot && boot.orders) || []).forEach(o => {
+      const key = String(o.core_enrollment_id || '');
+      if(key && !State.orderByEnrollment.has(key)) State.orderByEnrollment.set(key,o);
+    });
+
+    State.lateReqByEnrollment = new Map();
+    State.instReqByEnrollment = new Map();
+    (((requests && requests.late_requests) || [])).forEach(r => {
+      const key = String(r.core_enrollment_id || '');
+      if(key) State.lateReqByEnrollment.set(key,r);
+    });
+    (((requests && requests.installment_requests) || [])).forEach(r => {
+      const key = String(r.core_enrollment_id || '');
+      if(key) State.instReqByEnrollment.set(key,r);
+    });
+
+    State.metaByEnrollment = new Map();
+    State.rows.forEach(e => {
+      const id = String(e.id);
+      const payment = State.latestPaymentByEnrollment.get(id) || null;
+      const order = State.orderByEnrollment.get(id) || null;
+      const lateReq = State.lateReqByEnrollment.get(id) || null;
+      const instReq = State.instReqByEnrollment.get(id) || null;
+
+      let group = 'pending';
+      let typeLabel = 'ชำระเต็มจำนวน';
+      let typeTone = 'normal';
+      let statusLabel = 'รอตรวจสอบ';
+      let statusTone = 'pending';
+      let detail = 'รอแอดมินตรวจ';
+
+      if(['rejected','cancelled'].includes(String(e.status||''))){
+        group = 'closed';
+        statusLabel = String(e.status)==='cancelled' ? 'ยกเลิก' : 'ไม่ผ่าน';
+        statusTone = 'closed';
+        detail = 'ปิดรายการแล้ว';
+      } else if(instReq || (order && order.payment_mode === 'installment' && order.status !== 'cancelled')) {
+        typeLabel = 'ผ่อนจ่าย';
+        typeTone = 'installment';
+        if(order && String(order.status) === 'paid'){
+          group = 'paid';
+          statusLabel = 'ชำระครบแล้ว';
+          statusTone = 'paid';
+          detail = `ผ่อนครบ ${order.installment_count || instReq?.requested_installment_count || 2} งวด`;
+        } else {
+          group = 'installment';
+          statusLabel = payment?.status === 'pending' || instReq?.payment_status === 'pending' ? 'รอตรวจงวดแรก' : 'ผ่อนจ่าย';
+          statusTone = 'installment';
+          const count = order?.installment_count || instReq?.requested_installment_count || 2;
+          if(order?.next_installment_no){
+            detail = `งวดถัดไป ${order.next_installment_no}/${count}`;
+          } else if(instReq?.first_payment_amount || payment?.amount_submitted) {
+            detail = `งวดแรก ${money(instReq?.first_payment_amount || payment?.amount_submitted)}`;
+          } else {
+            detail = `แบ่ง ${count} งวด`;
+          }
+        }
+      } else if(lateReq || (order && order.payment_mode === 'late' && order.status !== 'cancelled')) {
+        typeLabel = 'ชำระล่าช้า';
+        typeTone = 'late';
+        if(order && String(order.status) === 'paid'){
+          group = 'paid';
+          statusLabel = 'ชำระแล้ว';
+          statusTone = 'paid';
+          detail = 'ชำระล่าช้าครบแล้ว';
+        } else {
+          group = 'late';
+          statusLabel = 'ค้างชำระ';
+          statusTone = 'late';
+          detail = lateReq?.expected_payment_date ? `คาดชำระ ${shortDate(lateReq.expected_payment_date)}` : (order?.next_due_date ? `กำหนด ${shortDate(order.next_due_date)}` : 'รอชำระภายหลัง');
+        }
+      } else if((payment && String(payment.status) === 'paid') || String(e.status||'') === 'confirmed') {
+        group = 'paid';
+        statusLabel = 'ชำระแล้ว';
+        statusTone = 'paid';
+        detail = 'ยืนยันชำระเรียบร้อย';
+      } else if(payment && String(payment.status) === 'rejected') {
+        group = 'closed';
+        statusLabel = 'สลิปไม่ผ่าน';
+        statusTone = 'closed';
+        detail = 'รอส่งใหม่';
+      } else {
+        group = 'pending';
+        typeLabel = payment?.payment_method === 'cash' ? 'ชำระเงินสด' : 'ชำระเต็มจำนวน';
+        typeTone = 'normal';
+        statusLabel = 'รอตรวจสอบ';
+        statusTone = 'pending';
+        detail = payment?.payment_method === 'cash' ? 'รอรับชำระเงินสด' : 'รอตรวจสลิป';
+      }
+
+      State.metaByEnrollment.set(id,{group,typeLabel,typeTone,statusLabel,statusTone,detail,payment,order,lateReq,instReq,enrollment:e});
+    });
+  }
+
+  async function loadData(){
+    if(State.loading) return;
+    State.loading = true;
+    try {
+      const client = db();
+      if(!client) return;
+      const [enrollRes,payRes,boot,reqs] = await Promise.all([
+        client.from('enrollments').select('id,receipt_no,fullname,nickname,phone,course_text,tutor_text,status,amount_quoted,created_at').order('created_at',{ascending:false}).limit(1500),
+        client.from('payments').select('id,enrollment_id,payment_method,amount_submitted,verified_amount,slip_path,status,created_at,verified_at').order('created_at',{ascending:false}).limit(3000),
+        rpc('manager_v26_payment_terms_bootstrap').catch(()=>({orders:[]})),
+        rpc('manager_v263_registration_payment_requests').catch(()=>({late_requests:[],installment_requests:[]}))
+      ]);
+      if(enrollRes.error) throw enrollRes.error;
+      if(payRes.error) throw payRes.error;
+      buildMaps(enrollRes.data || [], payRes.data || [], boot || {}, reqs || {});
+      State.ready = true;
+      ensureUI();
+      renderStats();
+      patchRows();
+      applyFilter();
+      highlightActiveCard();
+    } catch(err){
+      console.error('[AW V26.4] payment summary load failed', err);
+    } finally {
+      State.loading = false;
+    }
+  }
+
+  function renderStats(){
+    const stats = {all: State.rows.length, pending:0, late:0, installment:0, paid:0, closed:0};
+    State.metaByEnrollment.forEach(meta => {
+      if(stats[meta.group] !== undefined) stats[meta.group]++;
+      else stats.pending++;
+    });
+    if($('enrollmentStatAll')) $('enrollmentStatAll').textContent = String(stats.all);
+    if($('enrollmentStatPending')) $('enrollmentStatPending').textContent = String(stats.pending);
+    if($('enrollmentStatLate')) $('enrollmentStatLate').textContent = String(stats.late);
+    if($('enrollmentStatInstallment')) $('enrollmentStatInstallment').textContent = String(stats.installment);
+    if($('enrollmentStatPaid')) $('enrollmentStatPaid').textContent = String(stats.paid);
+    if($('enrollmentStatClosed')) $('enrollmentStatClosed').textContent = String(stats.closed);
+  }
+
+  function matchRowToEnrollment(tr){
+    let id = String(tr.dataset.awV16EnrollmentId || '');
+    if(id && State.metaByEnrollment.has(id)) return id;
+
+    const text = normalize(tr.innerText || tr.textContent || '');
+    if(!text) return '';
+
+    const receiptCell = tr.querySelector('td:first-child');
+    const receipt = normalize(receiptCell?.textContent || '');
+    if(receipt){
+      const found = State.rows.find(e => normalize(e.receipt_no).includes(receipt) || receipt.includes(normalize(e.receipt_no)));
+      if(found) return String(found.id);
+    }
+
+    const found = State.rows.find(e => {
+      const nameOk = e.fullname && text.includes(normalize(e.fullname));
+      const phoneOk = e.phone && text.includes(normalize(e.phone));
+      return nameOk && (phoneOk || text.includes(normalize(e.course_text)));
+    });
+    return found ? String(found.id) : '';
+  }
+
+  function patchRows(){
+    const body = $('enrollmentRows');
+    if(!body || !State.ready) return;
+    const rows = body.querySelectorAll('tr');
+    rows.forEach(tr => {
+      const id = matchRowToEnrollment(tr);
+      if(!id) return;
+      tr.dataset.awv264EnrollmentId = id;
+      const meta = State.metaByEnrollment.get(id);
+      if(!meta) return;
+      tr.dataset.awv264PaymentGroup = meta.group;
+
+      const tds = tr.querySelectorAll('td');
+      if(tds[5]){
+        tds[5].innerHTML = `<div data-awv264-payment>${badge(meta.typeLabel, meta.typeTone)}<div class="awv264-sub">${meta.detail}</div></div>`;
+      }
+      if(tds[6]){
+        tds[6].innerHTML = `<div data-awv264-status>${badge(meta.statusLabel, meta.statusTone)}</div>`;
+      }
+    });
+  }
+
+  function applyFilter(){
+    const body = $('enrollmentRows');
+    if(!body) return;
+    const q = normalize($('enrollmentSearch')?.value || '');
+    const filter = $('enrollmentPaymentBucketFilter')?.value || 'all';
+    body.querySelectorAll('tr').forEach(tr => {
+      const text = normalize(tr.innerText || tr.textContent || '');
+      const group = tr.dataset.awv264PaymentGroup || 'pending';
+      const hitSearch = !q || text.includes(q);
+      const hitFilter = filter === 'all' ? true : group === filter;
+      tr.classList.toggle('awv264-hidden-row', !(hitSearch && hitFilter));
+    });
+  }
+
+  function observeTable(){
+    const body = $('enrollmentRows');
+    if(!body || State.observer) return;
+    State.observer = new MutationObserver(() => {
+      if(!State.ready) return;
+      patchRows();
+      applyFilter();
+    });
+    State.observer.observe(body,{childList:true,subtree:true});
+  }
+
+  function boot(){
+    ensureUI();
+    highlightActiveCard();
+    observeTable();
+    loadData();
+    $('refreshEnrollments')?.addEventListener('click',()=>setTimeout(loadData,600));
+    if(State.refreshTimer) clearInterval(State.refreshTimer);
+    State.refreshTimer = setInterval(() => {
+      if(!document.hidden) loadData();
+    }, 30000);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,900));
+  else setTimeout(boot,900);
+})();
+</script>
+
 </body>
 </html>
