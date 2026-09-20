@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V26.1 · PAYMENT TERMS + GROUP CLASS LIVE FIX -->
+  <!-- AREWARIN REGISTER V26.4 · GROUP CLASS CORS PROXY FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -7027,9 +7027,9 @@
                         try{
                             const submitFd={...fd,paymentMethod:'cash',fileData:null,fileName:null,mimeType:null,paymentDeferred:true};
                             let upstream='create-enrollment';
-                            if(submitFd.groupClassId) upstream='create-group-class-enrollment';
+                            if(submitFd.groupClassId) upstream='create-group-class-enrollment-proxy';
                             else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
-                            console.info('[AreWarin Register V26.3] late upstream',upstream);
+                            console.info('[AreWarin Register V26.4] late upstream',upstream);
                             const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
                             if(created.error) throw created.error;
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
@@ -7062,9 +7062,9 @@
                             if(!fd.fileData) throw new Error('กรุณาแนบสลิปงวดแรก');
                             const submitFd={...fd,paymentMethod:'transfer',paymentDeferred:false};
                             let upstream='create-enrollment';
-                            if(submitFd.groupClassId) upstream='create-group-class-enrollment';
+                            if(submitFd.groupClassId) upstream='create-group-class-enrollment-proxy';
                             else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
-                            console.info('[AreWarin Register V26.3] installment first-payment upstream',upstream,{count:fd.installmentCount});
+                            console.info('[AreWarin Register V26.4] installment first-payment upstream',upstream,{count:fd.installmentCount});
                             const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
                             if(created.error) throw created.error;
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
@@ -7089,7 +7089,7 @@
                 // Full payment = original stable flow, without the V26.1 wrapper.
                 if(window.AreWarinAPI?.sb?.functions && fd.groupClassId){
                     (async()=>{try{
-                        const r=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment',{body:fd});
+                        const r=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment-proxy',{body:fd});
                         if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครคลาสกลุ่มไม่สำเร็จ');callback&&callback(r.data);
                     }catch(err){Swal.fire('สมัครคลาสกลุ่มไม่สำเร็จ',err?.message||String(err),'error')}})();
                 }else if(window.AreWarinAPI?.sb?.functions && fd.renewalMode==='legacy_profile'&&fd.legacyStudentId){
