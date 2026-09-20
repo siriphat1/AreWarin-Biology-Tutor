@@ -110,37 +110,44 @@
     return arr(state.data?.team).find((x) => String(x.id) === String(id));
   }
 
-  function mergeById(baseRows, extraRows) {
-    const map = new Map();
-    arr(baseRows).forEach((x) => {
-      if (x?.id != null) map.set(String(x.id), x);
-    });
-    arr(extraRows).forEach((x) => {
-      if (x?.id == null) return;
-      const key=String(x.id);
-      map.set(key, {...(map.get(key)||{}), ...x});
-    });
-    return [...map.values()];
-  }
 
-  async function applyLegacyScheduleBridge() {
-    try {
-      const bridge = await rpc('tutor_os_schedule_candidates_v252');
-      state.data.schedule_bridge = bridge || {};
-      state.data.enrollments = mergeById(state.data?.enrollments, bridge?.enrollments);
-      state.data.students = mergeById(state.data?.students, bridge?.students);
-      state.data.courses = mergeById(state.data?.courses, bridge?.courses);
-    } catch (e) {
-      console.warn('Legacy schedule bridge unavailable:', e);
-      state.data.schedule_bridge = {ok:false};
-    }
+  function poolById(id){
+    return arr(state.data?.hour_pools).find((x)=>String(x.id)===String(id));
+  }
+  function mergeRowsById(a,b){
+    const m=new Map();
+    [...arr(a),...arr(b)].forEach((x)=>{ if(x?.id) m.set(String(x.id),x); });
+    return [...m.values()];
+  }
+  function walletBalance(e){
+    const p=e?.hour_pool_id ? poolById(e.hour_pool_id) : null;
+    const unlimited=!!(p?.hours_unlimited ?? e?.hours_unlimited);
+    const initial=num(p?.total_hours ?? e?.hours_total);
+    const used=num(p?.used_hours ?? e?.hours_used);
+    return {
+      pool:p,
+      unlimited,
+      initial,
+      used,
+      remaining:unlimited ? Infinity : Math.max(0,initial-used)
+    };
+  }
+  function walletSourceLabel(e){
+    return e?.source_enrollment_id ? 'SYSTEM' : 'LEGACY';
+  }
+  async function loadCanonicalCourseWallets(){
+    const d=await rpc('tutor_os_course_wallets_v20');
+    if(!d?.ok)return;
+    state.data.enrollments=arr(d.wallets);
+    state.data.students=mergeRowsById(state.data.students,d.students);
+    state.data.courses=mergeRowsById(state.data.courses,d.courses);
+    state.data.hour_pools=mergeRowsById(state.data.hour_pools,d.hour_pools);
   }
 
   function scopedEnrollmentLabel(e) {
     const s = studentById(e.student_id);
     const c = courseById(e.course_id);
-    const legacy = e?.source_kind === 'legacy' || !!s?.legacy_student;
-    return `${legacy ? '[Legacy] ' : ''}${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}`;
+    return `${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}${e?.source_enrollment_id ? '' : ' · Legacy'}`;
   }
 
   function sectionHeader(kicker, title, subtitle, right = '') {
@@ -161,7 +168,7 @@
       ${state.data?.needs_tutor_link ? `<div class="aw-card content-card" style="margin-bottom:14px;border-color:#fbbf24;background:#fffbeb"><div class="section-note"><b>บัญชีติวเตอร์ยังรอเชื่อม Tutor Profile</b><br>ระบบยืนยันใบสมัคร tutor-apply และบัญชี Auth แล้ว แต่ยังจับคู่กับรายการในตาราง tutors ไม่ได้ กรุณาให้ Admin เชื่อม Tutor ID ก่อน จึงจะเห็นนักเรียนและเริ่มสอนได้</div></div>` : ''}
       <div class="metric-grid">
         ${metric('fa-user-graduate', 'นักเรียนในความดูแล', students.length, isAdmin() ? 'ทุกคนในระบบ' : 'เฉพาะที่ได้รับมอบหมาย')}
-        ${metric('fa-book-open', 'Enrollment ที่ใช้งาน', enrollments.length, 'Active / Paused')}
+        ${metric('fa-book-open', 'Course Wallet ที่ใช้งาน', enrollments.length, 'Active / Paused · รวม Legacy')}
         ${metric('fa-stopwatch', 'คาบที่กำลังสอน', running.length, 'กำลังจับเวลา')}
         ${metric('fa-clock-rotate-left', 'ชั่วโมงที่บันทึก', used.toFixed(1), 'รวมจาก Hour Ledger')}
       </div>
@@ -210,29 +217,19 @@
   const sharedHours = () => arr(state.data?.shared_hours);
   function sharedPoolById(id){ return sharedHours().find((p)=>String(p.id)===String(id)); }
   function studentHourSummary(studentId, ens){
-    const seen=new Set(), pools=arr(state.data?.hour_pools);
-    let remain=0, unlimited=false, sharedCount=0;
+    const seen=new Set(); let remain=0, unlimited=false, sharedCount=0;
     ens.forEach((e)=>{
       const pid=e.hour_pool_id ? String(e.hour_pool_id) : '';
-      if(pid && seen.has(pid)) return;
-      if(pid) seen.add(pid);
-
       const sp=pid ? sharedPoolById(pid) : null;
       if(sp){
-        sharedCount++;
+        if(seen.has(pid)) return;
+        seen.add(pid); sharedCount++;
         if(sp.hours_unlimited){ unlimited=true; return; }
         remain += Math.max(0,num(sp.total_hours)-num(sp.used_hours));
-        return;
+      }else{
+        if(e.hours_unlimited){unlimited=true;return}
+        remain += Math.max(0,num(e.hours_total)-num(e.hours_used));
       }
-
-      const pool=pid ? pools.find((p)=>String(p.id)===pid) : null;
-      if(pool){
-        if(pool.unlimited){unlimited=true;return}
-        remain += Math.max(0,num(pool.total_hours)-num(pool.used_hours));
-        return;
-      }
-
-      remain += Math.max(0,num(e.hours_total)-num(e.hours_used));
     });
     return {remain,unlimited,sharedCount};
   }
@@ -275,12 +272,109 @@
 
   function studentsHtml() {
     const rows = arr(state.data?.students);
-    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course')}
-      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th><th></th></tr></thead><tbody>${rows.map((s) => {
+    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'ดึงจาก Course Wallet โดยตรง รวมทั้งนักเรียน Legacy ที่ Manager เพิ่มเป็นคอร์สปัจจุบันแล้ว')}
+      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => {
         const ens = arr(state.data?.enrollments).filter((e) => String(e.student_id) === String(s.id) && ['active', 'paused'].includes(e.status));
         const hs=studentHourSummary(s.id,ens);
-        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}${hs.sharedCount?`<div><span class="shared-hour-pill"><i class="fa-solid fa-share-nodes"></i> แชร์เวลา ${hs.sharedCount} กลุ่ม</span></div>`:''}</td><td>${hs.unlimited ? '∞' : `${hs.remain.toFixed(1)} ชม.`}</td><td>${ens.length>=2?`<button class="aw-btn small sky share-hours-btn" data-share-hours="${esc(s.id)}"><i class="fa-solid fa-share-nodes"></i> แชร์เวลาเรียน</button>`:''}</td></tr>`;
+        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => {
+          const bal=walletBalance(e), source=walletSourceLabel(e);
+          return `<div style="margin-bottom:5px"><span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span><span class="wallet-source ${source==='LEGACY'?'legacy':'system'}">${source}</span><div class="wallet-mini-balance">${bal.unlimited?'∞ ไม่จำกัด':`เริ่ม <b>${bal.initial.toFixed(1)}</b> · เหลือ <b>${bal.remaining.toFixed(1)}</b> ชม.`}</div></div>`
+        }).join('') || '—'}${hs.sharedCount?`<div><span class="shared-hour-pill"><i class="fa-solid fa-share-nodes"></i> แชร์เวลา ${hs.sharedCount} กลุ่ม</span></div>`:''}</td><td>${hs.unlimited ? '∞' : `${hs.remain.toFixed(1)} ชม.`}</td><td><div style="display:flex;gap:6px;flex-wrap:wrap">${ens.length?`<button class="aw-btn small hour-manage-btn" data-manage-hours="${esc(s.id)}"><i class="fa-solid fa-sliders"></i> แก้ชั่วโมง</button>`:''}${ens.length>=2?`<button class="aw-btn small sky share-hours-btn" data-share-hours="${esc(s.id)}"><i class="fa-solid fa-share-nodes"></i> แชร์เวลาเรียน</button>`:''}</div></td></tr>`;
       }).join('')}</tbody></table></div>` : '<div class="empty-state">ยังไม่มีนักเรียนในสิทธิ์ของบัญชีนี้</div>'}</section>`;
+  }
+
+
+  function openHourManager(studentId){
+    const st=studentById(studentId);
+    const ens=arr(state.data?.enrollments).filter((e)=>String(e.student_id)===String(studentId)&&['active','paused'].includes(e.status));
+    if(!ens.length)return alertToast('warning','ไม่พบ Course Wallet ที่กำลังเรียน');
+
+    const groups=[],seen=new Set();
+    ens.forEach((e)=>{
+      const key=e.hour_pool_id ? `pool:${e.hour_pool_id}` : `wallet:${e.id}`;
+      if(seen.has(key))return;seen.add(key);
+      const members=e.hour_pool_id ? ens.filter((x)=>String(x.hour_pool_id)===String(e.hour_pool_id)) : [e];
+      groups.push({e,members,bal:walletBalance(e)});
+    });
+
+    showModal(`ชั่วโมงเรียน · ${fullName(st)}`, `
+      <div class="hour-balance-note"><b>ชั่วโมงเริ่มต้น</b> = ชั่วโมงทั้งหมดของแพ็ก / <b>ชั่วโมงคงเหลือ</b> = ชั่วโมงที่ยังใช้ได้<br>แก้ค่าได้โดย Tutor โดยตรง ระบบจะคำนวณชั่วโมงที่ใช้แล้วให้ใหม่อัตโนมัติ</div>
+      <div class="hour-wallet-list">${groups.map((g)=>{
+        const courseNames=g.members.map((m)=>courseById(m.course_id)?.title||courseById(m.course_id)?.name||m.course_label||'คอร์ส');
+        const shared=g.members.length>1;
+        return `<article class="hour-wallet-card ${shared?'shared':''}">
+          <div class="hour-wallet-top"><div><h4>${esc(courseNames.join(' + '))}${shared?' · Shared Pool':''}</h4><p>${g.members.map((m)=>walletSourceLabel(m)).includes('LEGACY')?'มีคอร์ส Legacy อยู่ในชุดนี้ · ':''}${shared?'การแก้ชั่วโมงจะมีผลกับทุกคอร์สที่แชร์ pool เดียวกัน':'Course Wallet รายคอร์ส'}</p></div><button class="aw-btn small primary" data-edit-hour-wallet="${esc(g.e.id)}"><i class="fa-solid fa-pen"></i> แก้ชั่วโมง</button></div>
+          <div class="hour-wallet-stats">
+            <div class="hour-wallet-stat"><small>ชั่วโมงเริ่มต้น</small><b>${g.bal.unlimited?'∞':g.bal.initial.toFixed(2)}</b></div>
+            <div class="hour-wallet-stat"><small>ใช้แล้ว</small><b>${g.bal.unlimited?'—':g.bal.used.toFixed(2)}</b></div>
+            <div class="hour-wallet-stat"><small>คงเหลือ</small><b>${g.bal.unlimited?'∞':g.bal.remaining.toFixed(2)}</b></div>
+          </div>
+        </article>`
+      }).join('')}</div>
+    `, `<button class="aw-btn" data-modal-close>ปิด</button>`);
+
+    $$('[data-edit-hour-wallet]',modalRoot).forEach((b)=>b.onclick=()=>openHourBalanceEdit(b.dataset.editHourWallet));
+  }
+
+  function openHourBalanceEdit(enrollmentId){
+    const e=enrollmentById(enrollmentId);if(!e)return;
+    const bal=walletBalance(e);
+    const samePool=e.hour_pool_id ? arr(state.data?.enrollments).filter((x)=>String(x.hour_pool_id)===String(e.hour_pool_id)) : [e];
+    const names=samePool.map((m)=>courseById(m.course_id)?.title||courseById(m.course_id)?.name||m.course_label||'คอร์ส');
+    showModal('แก้ชั่วโมงเริ่มต้น / ชั่วโมงคงเหลือ', `
+      <form id="hourBalanceForm">
+        <div class="hour-balance-note"><b>${esc(names.join(' + '))}</b><br>${samePool.length>1?'คอร์สเหล่านี้แชร์ Hour Pool เดียวกัน การแก้ครั้งนี้จะอัปเดตทุกคอร์สในกลุ่ม':'สามารถตั้งชั่วโมงของ Course Wallet นี้ได้โดยตรง แม้เป็นนักเรียน Legacy'}</div>
+        <div class="form-grid">
+          <label class="aw-label">ชั่วโมงเริ่มต้น<input class="aw-input" type="number" min="0" step="0.25" name="initial_hours" value="${bal.initial.toFixed(2)}"></label>
+          <label class="aw-label">ชั่วโมงคงเหลือ<input class="aw-input" type="number" min="0" step="0.25" name="remaining_hours" value="${bal.unlimited?bal.initial.toFixed(2):bal.remaining.toFixed(2)}"></label>
+          <label class="aw-label wide"><span style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="unlimited" ${bal.unlimited?'checked':''}> ไม่จำกัดชั่วโมง</span></label>
+          <label class="aw-label wide">เหตุผล / หมายเหตุ<textarea class="aw-textarea" name="note" rows="2" placeholder="เช่น ปรับยอดยกมาจากระบบเก่า / เติมแพ็กใหม่ / แก้ยอดคงเหลือ"></textarea></label>
+        </div>
+        <div class="hour-balance-preview">
+          <div><small>เริ่มต้น</small><b id="hbInitial">${bal.initial.toFixed(2)}</b></div>
+          <div><small>ใช้แล้ว</small><b id="hbUsed">${bal.used.toFixed(2)}</b></div>
+          <div><small>คงเหลือ</small><b id="hbRemain">${bal.unlimited?'∞':bal.remaining.toFixed(2)}</b></div>
+        </div>
+        <div class="hour-warning"><i class="fa-solid fa-triangle-exclamation"></i> การแก้ยอดนี้เป็นการปรับยอดโดย Tutor และจะถูกบันทึกใน Audit Log ไม่ได้สร้างรายการชำระเงินหรือ Enrollment ใหม่</div>
+      </form>
+    `, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveHourBalance"><i class="fa-solid fa-floppy-disk"></i> บันทึกชั่วโมง</button>`);
+
+    const f=$('hourBalanceForm');
+    const updatePreview=()=>{
+      const unlimited=!!f.elements.unlimited.checked;
+      const initial=Math.max(0,num(f.elements.initial_hours.value));
+      let remain=Math.max(0,num(f.elements.remaining_hours.value));
+      if(remain>initial&&!unlimited)remain=initial;
+      $('hbInitial').textContent=unlimited?'∞':initial.toFixed(2);
+      $('hbUsed').textContent=unlimited?'—':Math.max(0,initial-remain).toFixed(2);
+      $('hbRemain').textContent=unlimited?'∞':remain.toFixed(2);
+      f.elements.initial_hours.disabled=unlimited;
+      f.elements.remaining_hours.disabled=unlimited;
+    };
+    f.elements.initial_hours.oninput=updatePreview;
+    f.elements.remaining_hours.oninput=updatePreview;
+    f.elements.unlimited.onchange=updatePreview;
+    updatePreview();
+
+    $('saveHourBalance').onclick=async()=>{
+      const unlimited=!!f.elements.unlimited.checked;
+      const initial=unlimited?0:Math.max(0,num(f.elements.initial_hours.value));
+      const remaining=unlimited?0:Math.max(0,num(f.elements.remaining_hours.value));
+      if(!unlimited&&remaining>initial)return alertToast('warning','ชั่วโมงคงเหลือต้องไม่มากกว่าชั่วโมงเริ่มต้น');
+      try{
+        loading('กำลังปรับยอดชั่วโมง...');
+        const r=await rpc('tutor_os_set_hour_balance_v20',{
+          p_enrollment_id:enrollmentId,
+          p_initial_hours:initial,
+          p_remaining_hours:remaining,
+          p_unlimited:unlimited,
+          p_note:String(f.elements.note.value||'').trim()||null
+        });
+        Swal.close();closeModal();
+        alertToast('success','อัปเดตชั่วโมงแล้ว',r?.affected_wallets>1?`อัปเดต ${r.affected_wallets} คอร์สใน Shared Pool`:'');
+        await loadData(false)
+      }catch(err){Swal.close();alertToast('error','ปรับชั่วโมงไม่สำเร็จ',friendlyError(err))}
+    };
   }
 
   function coursesHtml() {
@@ -336,13 +430,12 @@
 
   function scheduleHtml() {
     const rows = arr(state.data?.schedules).slice().sort((a,b) => new Date(a.start_at) - new Date(b.start_at));
-    const legacyReady = Number(state.data?.schedule_bridge?.legacy_count || 0);
     const now = new Date();
     const todayKey = bangkokDateKey(now);
     const today = rows.filter((x) => bangkokDateKey(x.start_at) === todayKey && x.status !== 'cancelled');
     const upcoming = rows.filter((x) => ['scheduled','rescheduled','in_progress'].includes(x.status) && new Date(x.end_at) >= now);
     const completed = rows.filter((x) => x.status === 'completed');
-    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', `กำหนดตารางจาก Tutor OS โดยตรง · รองรับนักเรียนระบบสมัครและ Legacy${legacyReady ? ` · Legacy พร้อมจัดตาราง ${legacyReady} คอร์ส` : ''}`, `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
+    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', 'กำหนดตารางจาก Tutor OS โดยตรง แก้เวลาเองได้ และตารางนี้จะเป็นตารางที่นักเรียนเห็น', `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
       <div class="schedule-hero"><section class="aw-card schedule-summary"><h3>ตารางที่ควบคุมโดย Tutor OS</h3><p>ไม่จำเป็นต้องยึดเวลาจากแบบสมัครเรียน เมื่อจัดตารางตรงนี้แล้ว Student Portal จะดึงเวลาจากตารางนี้อัตโนมัติ</p><div class="schedule-stat-grid"><div class="schedule-stat"><small>วันนี้</small><b>${today.length}</b></div><div class="schedule-stat"><small>กำลังจะถึง</small><b>${upcoming.length}</b></div><div class="schedule-stat"><small>สอนแล้ว</small><b>${completed.length}</b></div></div></section><section class="aw-card schedule-summary"><h3>การลงเวลา 2 แบบ</h3><p><b>Realtime</b> เริ่ม–จบคาบเพื่อจับเวลา หรือ <b>Manual</b> กรอกเวลาเข้า–ออกย้อนหลัง ระบบคำนวณชั่วโมงและตัด Hour Wallet ให้เหมือนกัน</p><div class="section-note" style="margin-top:12px">สถานะนักเรียนรองรับ เข้าเรียน / สาย / ลา / ขาด และสามารถบันทึกหัวข้อ “วันนี้สอนอะไร” พร้อมรายละเอียด/การบ้านได้</div></section></div>
       <section class="aw-card content-card"><div class="card-head"><div><h2>รายการตารางสอน</h2><p>${rows.length} รายการ</p></div></div>${scheduleRowsHtml(rows)}</section>`;
   }
@@ -427,7 +520,7 @@
 
   function servicesHtml() {
     return `${sectionHeader('STUDENT SERVICES', 'Student Services', 'ข้อมูลบริการที่เกี่ยวข้องกับนักเรียนในสิทธิ์ของคุณ')}
-      <div class="grid-3">${metric('fa-id-card', 'นักเรียนที่เชื่อม Portal', arr(state.data?.students).filter((s) => s.auth_user_id).length, 'เชื่อมบัญชีแล้ว')}${metric('fa-wallet', 'Course Wallet', arr(state.data?.enrollments).length, 'Enrollment ที่มองเห็นได้')}${metric('fa-people-group', 'กลุ่มเรียน', arr(state.data?.groups).length, 'เฉพาะกลุ่มที่เกี่ยวข้อง')}</div>`;
+      <div class="grid-3">${metric('fa-id-card', 'นักเรียนที่เชื่อม Portal', arr(state.data?.students).filter((s) => s.auth_user_id).length, 'เชื่อมบัญชีแล้ว')}${metric('fa-wallet', 'Course Wallet', arr(state.data?.enrollments).length, 'Course Wallet ที่มองเห็นได้')}${metric('fa-people-group', 'กลุ่มเรียน', arr(state.data?.groups).length, 'เฉพาะกลุ่มที่เกี่ยวข้อง')}</div>`;
   }
 
   function financeHtml() {
@@ -495,11 +588,12 @@
     $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
     $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
     $$('[data-share-hours]').forEach((b) => b.onclick = () => openSharedHours(b.dataset.shareHours));
+    $$('[data-manage-hours]').forEach((b) => b.onclick = () => openHourManager(b.dataset.manageHours));
   }
 
   function openStartLesson() {
     const rows = arr(state.data?.enrollments).filter((e) => ['active', 'paused'].includes(e.status));
-    if (!rows.length) return alertToast('warning', 'ยังไม่มี Enrollment ที่พร้อมสอน');
+    if (!rows.length) return alertToast('warning', 'ยังไม่มีคอร์สที่พร้อมสอน');
     showModal('เริ่มสอนรายบุคคล', `<form id="startLessonForm"><div class="form-grid"><label class="aw-label wide">นักเรียน / คอร์ส<select class="aw-input" name="enrollment_id" required>${rows.map((e) => `<option value="${esc(e.id)}">${esc(scopedEnrollmentLabel(e))}</option>`).join('')}</select></label><label class="aw-label wide">วันนี้สอนอะไร<input class="aw-input" name="title" placeholder="เช่น Cell biology · ครั้งที่ 1"></label><label class="aw-label wide">รายละเอียด / การบ้าน / หมายเหตุ<textarea class="aw-textarea" name="note" rows="3" placeholder="เป้าหมายหรือเนื้อหาที่จะสอน"></textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="confirmStartLesson"><i class="fa-solid fa-play"></i> เริ่มจับเวลา</button>`);
     $('confirmStartLesson').onclick = async () => {
       const fd = new FormData($('startLessonForm'));
@@ -574,7 +668,8 @@
     }
     try {
       state.data = await rpc('tutor_os_bootstrap_v18');
-      await applyLegacyScheduleBridge();
+          try { await loadCanonicalCourseWallets(); } catch (_) {}
+      try { await loadCanonicalCourseWallets(); } catch (walletError) { console.warn('Course Wallet V20 unavailable:', walletError); }
       try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (scheduleError) { console.warn('Schedule V19 unavailable:', scheduleError); state.data.schedules = []; }
       try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (sharedError) { console.warn('Shared hours unavailable:', sharedError); state.data.shared_hours = []; }
       showApp();
@@ -590,7 +685,6 @@
           await rpc('tutor_os_claim_accepted_application', { p_phone: pendingPhone });
           localStorage.removeItem('arewarin_tutor_pending_phone');
           state.data = await rpc('tutor_os_bootstrap_v18');
-          await applyLegacyScheduleBridge();
           try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (_) { state.data.schedules = []; }
           try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (_) { state.data.shared_hours = []; }
           showApp(); render(); setupRealtime(); return;
