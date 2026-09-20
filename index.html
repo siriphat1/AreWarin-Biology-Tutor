@@ -5296,6 +5296,7 @@
                     const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:c.id});
                     if(error)throw error;
                     const rows=Array.isArray(data)?data:[];
+                    console.info('[GroupClass V25.4] public RPC batch',{course_id:c.id,course_name:c.name,count:rows.length,codes:rows.map(x=>x?.group_code)});
                     return rows
                         .filter(isPublicOpenGroupClass)
                         .map(r=>normalizeGroupClassRow(Object.assign({},r,{
@@ -5335,7 +5336,9 @@
             try{
                 const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:courseId});
                 if(error)throw error;
-                const rows=(Array.isArray(data)?data:(data||[]))
+                const rawRows=(Array.isArray(data)?data:(data||[]));
+                console.info('[GroupClass V25.4] public RPC result',{course_id:courseId,count:rawRows.length,rows:rawRows.map(x=>({id:x?.id,code:x?.group_code,name:x?.name,status:x?.status,enrollment_open:x?.enrollment_open,public_visible:x?.public_visible,remaining_seats:x?.remaining_seats}))});
+                const rows=rawRows
                     .filter(isPublicOpenGroupClass)
                     .map(normalizeGroupClassRow);
                 groupClassCache[key]=rows;
