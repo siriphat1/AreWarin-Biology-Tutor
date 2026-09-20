@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V26.4 · GROUP CLASS CORS PROXY FIX -->
+  <!-- AREWARIN REGISTER V26.5 · GROUP CLASS LATE PAYMENT NO EDGE -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -7019,17 +7019,33 @@
                 // finalize the late/installment request with a public RPC protected by
                 // the private receipt token returned for that new enrollment.
                 if(fd.paymentPlanMode==='late'){
-                    if(!window.AreWarinAPI?.sb?.functions || !window.AreWarinAPI?.sb?.rpc){
-                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.2/V26.3 และรีเฟรชหน้าอีกครั้ง','warning');
+                    if(!window.AreWarinAPI?.sb?.rpc){
+                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.5 แล้วรีเฟรชหน้าอีกครั้ง','warning');
                         return;
                     }
                     (async()=>{
                         try{
                             const submitFd={...fd,paymentMethod:'cash',fileData:null,fileName:null,mimeType:null,paymentDeferred:true};
+
+                            // V26.5: Group Class + late payment bypasses Edge Functions completely.
+                            // It uses the same Supabase RPC transport already proven to work for
+                            // public_group_classes_for_course, eliminating the CORS preflight failure.
+                            if(submitFd.groupClassId){
+                                console.info('[AreWarin Register V26.5] group late RPC public_v265_register_group_class_late');
+                                const created=await window.AreWarinAPI.sb.rpc('public_v265_register_group_class_late',{
+                                    p_payload:submitFd
+                                });
+                                if(created.error) throw created.error;
+                                const result=created.data||{};
+                                if(!result?.success && !result?.ok) throw new Error(result?.message||'สร้างใบสมัครคลาสกลุ่มไม่สำเร็จ');
+                                callback && callback(result);
+                                return;
+                            }
+
+                            // Non-group late payment keeps the stable V26.2 flow.
                             let upstream='create-enrollment';
-                            if(submitFd.groupClassId) upstream='create-group-class-enrollment-proxy';
-                            else if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
-                            console.info('[AreWarin Register V26.4] late upstream',upstream);
+                            if(submitFd.renewalMode==='legacy_profile'&&submitFd.legacyStudentId) upstream='create-legacy-returning-enrollment';
+                            console.info('[AreWarin Register V26.5] late upstream',upstream);
                             const created=await window.AreWarinAPI.sb.functions.invoke(upstream,{body:submitFd});
                             if(created.error) throw created.error;
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
@@ -7045,7 +7061,7 @@
                             if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกเงื่อนไขการชำระไม่สำเร็จ');
                             callback && callback({...created.data,...finalized.data,success:true,paymentDeferred:true,paymentPlanMode:'late',amount:created.data.amount!==undefined?created.data.amount:fd.price,receiptToken:created.data.receiptToken,receiptNo:created.data.receiptNo});
                         }catch(err){
-                            console.error('[AreWarin Register V26.3] late registration failed',err);
+                            console.error('[AreWarin Register V26.5] late registration failed',err);
                             Swal.fire('สมัครแบบชำระล่าช้าไม่สำเร็จ',err?.message||String(err),'error');
                         }
                     })();
@@ -8092,7 +8108,7 @@ function boot(){
   const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}
   loadOptions();window.awv261SelectPaymentPlan('full');
   const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v263){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v263=true;window.resetForm=wrapped}
-  console.info('[AreWarin Register] V26.3 First Installment Required loaded');
+  console.info('[AreWarin Register] V26.5 Group Class Late No-Edge loaded');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else setTimeout(boot,50);
 })();
