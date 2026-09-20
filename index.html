@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V25.2 · GROUP CLASS PRICE SOURCE FIX -->
+  <!-- AREWARIN REGISTER V25.3 · GROUP CLASS LIVE PUBLISH FIX -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -3750,7 +3750,10 @@
         var groupSize = 1;
         var groupRegistrationMode = null; // null | self | existing
         var groupModeAfterCourse = false;
+        // V25.3 · Group Class live cache — prevents newly published classes from staying hidden
         var allGroupClassOptionsCache = null;
+        var allGroupClassOptionsCacheAt = 0;
+        var GROUP_CLASS_CACHE_TTL = 15000; // 15 seconds; existing-class screen force refreshes anyway
         var selectedTutor = '';
         var selectedLevel = 'all';        
         var selectedCategory = ''; 
@@ -3760,6 +3763,7 @@
         var selectedGroupClass = null;
         var groupChoiceResolved = false;
         var groupClassCache = {};
+        var groupClassCacheAt = {};
 
         var allTutorSchedules = {}; // kept for backwards compatibility
         var scheduleMatrix = { tutors: [], templates: [], rows: [] };
@@ -5255,17 +5259,92 @@
         function groupScheduleText(g){const rows=Array.isArray(g?.schedules)?g.schedules:[];return rows.length?rows.map(x=>groupDayName(x.weekday)+' '+String(x.start_time||'').slice(0,5)+'–'+String(x.end_time||'').slice(0,5)).join(' · '):'ตารางจะแจ้งภายหลัง'}
         function normalizeGroupClassRow(g){const left=Math.max(0,Number(g?.remaining_seats||0));const status=String(g?.status||'').toLowerCase();const full=(left<=0)||status==='full'||status==='closed';return Object.assign({},g,{remaining_seats:left,status:full?'full':(status||'open')});}
         function getAllCatalogCourses(){const rows=[];Object.entries(coursesByTutor||{}).forEach(([tutorName,list])=>{(list||[]).forEach(c=>{rows.push(Object.assign({tutorName:tutorName},c||{}));});});return rows;}
-        async function loadAllOpenGroupClassOptions(){if(allGroupClassOptionsCache)return allGroupClassOptionsCache;if(!window.AreWarinAPI?.sb)return [];const coursePool=getAllCatalogCourses().filter(c=>c&&c.id);const uniq=new Map();coursePool.forEach(c=>{if(!uniq.has(String(c.id)))uniq.set(String(c.id),c);});const requests=[...uniq.values()].map(async c=>{try{const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:c.id});if(error)throw error;const rows=Array.isArray(data)?data:[];return rows.map(r=>normalizeGroupClassRow(Object.assign({},r,{course_name:r.course_name||c.name,tutor_name:r.tutor_name||c.instructor||c.tutorName||''})));}catch(err){console.warn('[GroupClass V25.1] list by course failed:',c?.name,err);return [];}});const flat=(await Promise.all(requests)).flat();const byId=new Map();flat.forEach(r=>{if(r?.id && !byId.has(String(r.id)))byId.set(String(r.id),r);});const rows=[...byId.values()].sort((a,b)=>{const af=Number(a.remaining_seats||0)<=0?1:0,bf=Number(b.remaining_seats||0)<=0?1:0;if(af!==bf)return af-bf;return String(a.course_name||a.name||'').localeCompare(String(b.course_name||b.name||''),'th');});allGroupClassOptionsCache=rows;return rows;}
-        async function loadGroupClassOptions(courseId){
+        // V25.3 · Clear group-class caches. Call with no courseId to clear everything.
+        function invalidateGroupClassCaches(courseId){
+            if(courseId!==undefined && courseId!==null && String(courseId)!==''){
+                const key=String(courseId);
+                delete groupClassCache[key];
+                delete groupClassCacheAt[key];
+                return;
+            }
+            groupClassCache={};
+            groupClassCacheAt={};
+            allGroupClassOptionsCache=null;
+            allGroupClassOptionsCacheAt=0;
+        }
+
+        // Only rows that are actually publishable are allowed into the applicant UI.
+        function isPublicOpenGroupClass(row){
+            if(!row)return false;
+            const status=String(row.status||'open').toLowerCase();
+            return status==='open' && row.enrollment_open!==false && row.public_visible!==false;
+        }
+
+        async function loadAllOpenGroupClassOptions(forceRefresh=false){
+            const now=Date.now();
+            if(!forceRefresh && allGroupClassOptionsCache && (now-allGroupClassOptionsCacheAt)<GROUP_CLASS_CACHE_TTL){
+                return allGroupClassOptionsCache;
+            }
+            if(!window.AreWarinAPI?.sb)return [];
+
+            const coursePool=getAllCatalogCourses().filter(c=>c&&c.id);
+            const uniq=new Map();
+            coursePool.forEach(c=>{if(!uniq.has(String(c.id)))uniq.set(String(c.id),c);});
+
+            const requests=[...uniq.values()].map(async c=>{
+                try{
+                    const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:c.id});
+                    if(error)throw error;
+                    const rows=Array.isArray(data)?data:[];
+                    return rows
+                        .filter(isPublicOpenGroupClass)
+                        .map(r=>normalizeGroupClassRow(Object.assign({},r,{
+                            course_name:r.course_name||c.name,
+                            tutor_name:r.tutor_name||c.instructor||c.tutorName||''
+                        })));
+                }catch(err){
+                    console.warn('[GroupClass V25.3] list by course failed:',c?.name,err);
+                    return [];
+                }
+            });
+
+            const flat=(await Promise.all(requests)).flat();
+            const byId=new Map();
+            flat.forEach(r=>{if(r?.id && !byId.has(String(r.id)))byId.set(String(r.id),r);});
+            const rows=[...byId.values()].sort((a,b)=>{
+                const af=Number(a.remaining_seats||0)<=0?1:0;
+                const bf=Number(b.remaining_seats||0)<=0?1:0;
+                if(af!==bf)return af-bf;
+                return String(a.course_name||a.name||'').localeCompare(String(b.course_name||b.name||''),'th');
+            });
+
+            allGroupClassOptionsCache=rows;
+            allGroupClassOptionsCacheAt=Date.now();
+            return rows;
+        }
+
+        async function loadGroupClassOptions(courseId,forceRefresh=false){
             if(!courseId||!window.AreWarinAPI?.sb)return [];
-            if(groupClassCache[courseId])return groupClassCache[courseId];
+            const key=String(courseId);
+            const now=Date.now();
+
+            if(!forceRefresh && groupClassCache[key] && (now-(groupClassCacheAt[key]||0))<GROUP_CLASS_CACHE_TTL){
+                return groupClassCache[key];
+            }
+
             try{
                 const {data,error}=await window.AreWarinAPI.sb.rpc('public_group_classes_for_course',{p_course_id:courseId});
                 if(error)throw error;
-                const rows=Array.isArray(data)?data:(data||[]);
-                groupClassCache[courseId]=rows;
+                const rows=(Array.isArray(data)?data:(data||[]))
+                    .filter(isPublicOpenGroupClass)
+                    .map(normalizeGroupClassRow);
+                groupClassCache[key]=rows;
+                groupClassCacheAt[key]=Date.now();
                 return rows;
-            }catch(e){console.warn('[GroupClass V24] public list unavailable:',e);return []}
+            }catch(e){
+                console.warn('[GroupClass V25.3] public list unavailable:',e);
+                return [];
+            }
         }
         function renderGroupClassChoice(rows){
             groupClassOptions=rows||[];
@@ -5337,10 +5416,12 @@
 
             // Existing cohort: show open group classes immediately.
             let rows=[];
+            // Force refresh when entering the existing-cohort screen so a class
+            // published in Manager appears immediately without a hard browser reload.
             if(courseCart.length===1 && courseCart[0]?.courseId){
-                rows=await loadGroupClassOptions(courseCart[0].courseId);
+                rows=await loadGroupClassOptions(courseCart[0].courseId,true);
             }else{
-                rows=await loadAllOpenGroupClassOptions();
+                rows=await loadAllOpenGroupClassOptions(true);
             }
             renderGroupClassChoice(rows);
             showStep('stepGroupClassChoice');
