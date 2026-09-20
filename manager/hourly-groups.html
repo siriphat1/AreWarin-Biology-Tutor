@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AreWarin · กลุ่มเรียนรายชั่วโมง</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../config.js"></script>
+<script src="../js/supabase-bridge.js"></script>
+<style>
+:root{--bg:#f5f7fb;--surface:#fff;--line:#e5eaf1;--text:#172033;--muted:#7d8aa0;--sky:#0ea5e9;--indigo:#4f46e5;--green:#059669;--amber:#f59e0b;--rose:#e11d48}
+*{box-sizing:border-box}body{margin:0;font-family:'Prompt',sans-serif;background:radial-gradient(circle at 0 0,rgba(14,165,233,.08),transparent 28rem),radial-gradient(circle at 100% 0,rgba(99,102,241,.06),transparent 28rem),var(--bg);color:var(--text);min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(245,247,251,.86);backdrop-filter:blur(18px);border-bottom:1px solid rgba(226,232,240,.8)}.topin{width:min(1320px,100%);margin:auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:10px}.mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#0f172a,#1e3a8a);color:#fff}.brand b{display:block;font-size:13px}.brand small{display:block;font-size:8px;color:#94a3b8;margin-top:1px}.topacts{display:flex;gap:7px;flex-wrap:wrap}.btn{min-height:39px;border:0;border-radius:12px;padding:0 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:10px;font-weight:800;text-decoration:none;transition:.18s}.btn:hover{transform:translateY(-1px)}.btn.dark{background:#0f172a;color:#fff}.btn.primary{background:#0ea5e9;color:#fff}.btn.soft{background:#fff;border:1px solid #e2e8f0;color:#475569}.btn.green{background:#059669;color:#fff}.btn.violet{background:#6d28d9;color:#fff}.btn.red{background:#fff1f2;border:1px solid #fecdd3;color:#be123c}.btn.amber{background:#f59e0b;color:#fff}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+main{width:min(1320px,100%);margin:auto;padding:22px 18px 60px}.hero{position:relative;overflow:hidden;border-radius:28px;padding:25px;background:linear-gradient(145deg,#0f172a,#172554 58%,#312e81);color:#fff;box-shadow:0 28px 70px -48px rgba(15,23,42,.8)}.hero:after{content:"";position:absolute;right:-110px;top:-150px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,.32),transparent 68%)}.hero .inner{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}.kicker{font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#7dd3fc}.hero h1{font-size:29px;line-height:1.2;margin:8px 0 0}.hero p{font-size:10.5px;color:#cbd5e1;line-height:1.75;max-width:720px;margin:8px 0 0}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:13px}.stat{background:#fff;border:1px solid var(--line);border-radius:19px;padding:14px}.stat small{display:block;font-size:8px;color:#94a3b8;font-weight:800}.stat strong{display:block;font-size:22px;margin-top:4px}.stat span{display:block;font-size:7.5px;color:#a0aaba;margin-top:2px}
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin-top:13px}.input{min-height:41px;border:1px solid #dfe6ef;border-radius:12px;background:#f8fafc;padding:0 12px;outline:none;font-size:10.5px;color:#334155}.input:focus{background:#fff;border-color:#7dd3fc;box-shadow:0 0 0 3px rgba(14,165,233,.08)}.search{flex:1 1 300px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:13px}.card{background:#fff;border:1px solid var(--line);border-radius:23px;padding:16px;box-shadow:0 12px 34px -30px rgba(15,23,42,.62)}.card.paused{opacity:.78}.card.archived{opacity:.58}.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.code{font-size:8px;font-weight:900;letter-spacing:.12em;color:#0284c7}.name{font-size:15px;font-weight:900;line-height:1.35;margin-top:4px}.sub{font-size:8.5px;color:#64748b;margin-top:3px}.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:7.5px;font-weight:900;white-space:nowrap}.chip.green{background:#ecfdf5;color:#047857;border-color:#a7f3d0}.chip.amber{background:#fffbeb;color:#b45309;border-color:#fde68a}.chip.red{background:#fff1f2;color:#be123c;border-color:#fecdd3}.chip.blue{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.chip.violet{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}.meta>div{background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:9px}.meta small{font-size:7px;color:#94a3b8;display:block}.meta b{font-size:9px;color:#475569;display:block;margin-top:3px}.progress{height:7px;border-radius:999px;background:#eef2f7;overflow:hidden;margin-top:11px}.progress span{display:block;height:100%;background:linear-gradient(90deg,#0ea5e9,#6366f1);border-radius:999px}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.actions{display:grid;grid-template-columns:1.15fr .9fr .7fr;gap:6px;margin-top:12px}
+.empty{grid-column:1/-1;background:#fff;border:1px dashed #cbd5e1;border-radius:22px;padding:34px;text-align:center;color:#94a3b8;font-size:10px}
+.overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.62);backdrop-filter:blur(7px);padding:14px;display:flex;align-items:center;justify-content:center}.modal{width:min(1120px,100%);max-height:94vh;background:#fff;border-radius:27px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 90px rgba(15,23,42,.35)}.modalhead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #eef2f7}.modalhead h3{font-size:16px;margin:0}.modalhead p{font-size:8px;color:#94a3b8;margin:2px 0 0}.x{width:38px;height:38px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;color:#64748b}.modalbody{overflow:auto;padding:16px;min-height:0}.modalfoot{border-top:1px solid #eef2f7;padding:11px 16px;display:flex;justify-content:flex-end;gap:7px}.tabs{display:flex;gap:5px;overflow:auto;border-bottom:1px solid #eef2f7;padding:0 16px}.tab{border:0;background:transparent;padding:11px 12px;color:#94a3b8;font-size:9px;font-weight:800;border-bottom:2px solid transparent;white-space:nowrap}.tab.active{color:#0284c7;border-bottom-color:#0ea5e9}
+.detailhero{border:1px solid #dbeafe;border-radius:20px;background:linear-gradient(145deg,#f8fafc,#f0f9ff);padding:14px}.detailstats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.mini{background:#fff;border:1px solid #eef2f7;border-radius:12px;padding:9px}.mini small{font-size:7px;color:#94a3b8}.mini b{display:block;font-size:10.5px;margin-top:3px;color:#334155}
+table{width:100%;border-collapse:separate;border-spacing:0 6px}th{text-align:left;padding:0 8px;font-size:7.5px;color:#94a3b8}td{padding:9px;background:#f8fafc;border-top:1px solid #eef2f7;border-bottom:1px solid #eef2f7;font-size:9px;color:#475569}td:first-child{border-left:1px solid #eef2f7;border-radius:11px 0 0 11px}td:last-child{border-right:1px solid #eef2f7;border-radius:0 11px 11px 0}.bal{font-weight:900;font-size:11px}.bal.good{color:#047857}.bal.warn{color:#b45309}.bal.critical{color:#be123c}
+.session{border:1px solid #e2e8f0;border-radius:15px;background:#fff;padding:11px;display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:7px}.session b{display:block;font-size:9.5px}.session small{display:block;font-size:7.5px;color:#94a3b8;margin-top:2px}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.field{display:grid;gap:4px}.field.full{grid-column:1/-1}.field label{font-size:7.5px;font-weight:800;color:#64748b}.field input,.field select,.field textarea{width:100%;border:1px solid #dfe6ef;background:#f8fafc;border-radius:11px;padding:9px 10px;font-size:9.5px;outline:none}.field textarea{min-height:70px;resize:vertical}.att{display:grid;grid-template-columns:minmax(170px,1.5fr) 125px 86px minmax(120px,1fr);gap:7px;align-items:center;background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:8px;margin-bottom:6px}.att b{font-size:9px}.att small{font-size:7px;color:#94a3b8;display:block}
+.notice{margin-top:13px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:15px;padding:11px;font-size:8.5px;line-height:1.6}
+#authError{background:#fff;border:1px solid #fecdd3;border-radius:20px;padding:20px;text-align:center;color:#be123c;margin-top:13px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.detailstats{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.att{grid-template-columns:1fr 1fr}.topbar .brand small{display:none}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topin">
+    <div class="brand"><div class="mark"><i class="fas fa-stopwatch"></i></div><div><b>AreWarin Hourly Groups</b><small>Standalone Subweb · V27.1</small></div></div>
+    <div class="topacts"><a class="btn soft" href="./"><i class="fas fa-arrow-left"></i>Manager หลัก</a><button id="refreshTop" class="btn soft"><i class="fas fa-rotate"></i>รีเฟรช</button><button id="newTop" class="btn primary"><i class="fas fa-plus"></i>สร้างกลุ่ม</button></div>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="inner">
+      <div><div class="kicker">Hourly Learning Group · Separate Web App</div><h1>กลุ่มเรียนรายชั่วโมง</h1><p>ระบบนี้แยกออกจาก Manager หลักเพื่อให้โหลดเร็วขึ้นและลดการชนกันของ JavaScript แต่ยังใช้ฐาน Supabase และบัญชี Manager เดียวกัน</p></div>
+      <div class="topacts"><span class="chip blue"><i class="fas fa-wallet"></i>Hour Wallet</span><span class="chip violet"><i class="fas fa-list"></i>Hour Ledger</span><span class="chip green"><i class="fas fa-user-check"></i>Session Attendance</span></div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><small>กลุ่ม Active</small><strong id="statGroups">0</strong><span>กลุ่มที่กำลังใช้งาน</span></div>
+    <div class="stat"><small>นักเรียน Active</small><strong id="statMembers">0</strong><span>สมาชิกในทุกกลุ่ม</span></div>
+    <div class="stat"><small>ชั่วโมงคงเหลือรวม</small><strong id="statHours">0</strong><span>รวม Hour Wallet</span></div>
+    <div class="stat"><small>ใกล้หมด</small><strong id="statLow" style="color:#b45309">0</strong><span>ต่ำกว่า Warning</span></div>
+    <div class="stat"><small>เร่งด่วน</small><strong id="statCritical" style="color:#be123c">0</strong><span>ต่ำกว่า Critical</span></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" class="input search" placeholder="ค้นหาชื่อกลุ่ม รหัส วิชา หรือติวเตอร์">
+    <select id="status" class="input"><option value="all">ทุกสถานะ</option><option value="active">Active</option><option value="paused">Paused</option><option value="archived">Archived</option></select>
+    <span style="margin-left:auto;font-size:8px;color:#94a3b8">Standalone · ไม่มี MutationObserver จาก Manager หลัก</span>
+  </div>
+
+  <div id="authError" class="hidden"></div>
+  <div id="grid" class="grid"></div>
+</main>
+
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const S={data:null,detail:null,modal:null,q:'',status:'all',loading:false,tab:'members'};
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function money(v){return new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:2}).format(num(v))}
+function hours(v){return `${num(v).toLocaleString('th-TH',{maximumFractionDigits:2})} ชม.`}
+function date(v){if(!v)return'—';try{return new Intl.DateTimeFormat('th-TH',{day:'numeric',month:'short',year:'numeric'}).format(new Date(String(v).length<=10?v+'T00:00:00':v))}catch(_){return String(v)}}
+function time(v){return v?String(v).slice(0,5):'—'}
+function day(v){return ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][Number(v)]||'—'}
+function name(s){return s?.nickname||s?.display_name||[s?.first_name,s?.last_name].filter(Boolean).join(' ')||s?.student_code||'นักเรียน'}
+
+function client(){
+  try{if(window.AreWarinAPI?.sb?.rpc)return window.AreWarinAPI.sb}catch(_){}
+  try{if(window.supabaseClient?.rpc)return window.supabaseClient}catch(_){}
+  const cfg=window.AREWARIN_CONFIG||{};
+  if(window.supabase?.createClient&&cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY){
+    if(!window.__awHourlyStandalone)window.__awHourlyStandalone=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    return window.__awHourlyStandalone;
+  }
+  return null;
+}
+async function rpc(n,a={}){const c=client();if(!c)throw new Error('ไม่พบ Supabase config');const{data,error}=await c.rpc(n,a);if(error)throw error;return data}
+function toast(m,t='success'){if(window.Swal?.fire)Swal.fire({toast:true,position:'top-end',timer:2300,showConfirmButton:false,icon:t,title:String(m)});else alert(m)}
+function closeModal(){if(S.modal){S.modal.remove();S.modal=null}}
+function openModal(title,sub,body,foot=''){
+  closeModal();const o=document.createElement('div');o.className='overlay';o.innerHTML=`<div class="modal"><div class="modalhead"><div><h3>${title}</h3><p>${sub||''}</p></div><button class="x" data-x><i class="fas fa-xmark"></i></button></div>${body}${foot?`<div class="modalfoot">${foot}</div>`:''}</div>`;document.body.appendChild(o);S.modal=o;o.querySelectorAll('[data-x]').forEach(b=>b.onclick=closeModal);o.onclick=e=>{if(e.target===o)closeModal()};return o}
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function statusChip(g){return g.status==='active'?'<span class="chip green">Active</span>':g.status==='paused'?'<span class="chip amber">Paused</span>':'<span class="chip">Archived</span>'}
+function schedule(g){if(g.schedule_weekday===null||g.schedule_weekday===undefined)return'กำหนดเป็นราย Session';const t=[time(g.schedule_start),time(g.schedule_end)].filter(x=>x!=='—').join('–');return `${day(g.schedule_weekday)}${t?' '+t:''}`}
+function card(g){const m=num(g.active_member_count),cap=Math.max(1,num(g.capacity)),pct=Math.min(100,Math.round(m/cap*100)),a=num(g.alert_member_count);return `<article class="card ${esc(g.status)}"><div class="top"><div><div class="code">${esc(g.group_code)}</div><div class="name">${esc(g.name)}</div><div class="sub"><i class="fas fa-user-graduate"></i> ${esc(g.tutor_name||'ไม่ระบุติวเตอร์')}${g.subject?' · '+esc(g.subject):''}</div></div>${statusChip(g)}</div><div class="meta"><div><small>ตารางประจำ</small><b>${esc(schedule(g))}</b></div><div><small>สถานที่</small><b>${esc(g.location_type||'online')}${g.location_text?' · '+esc(g.location_text):''}</b></div><div><small>สมาชิก</small><b>${m} / ${cap} คน</b></div><div><small>ชั่วโมงคงเหลือรวม</small><b>${hours(g.remaining_hours)}</b></div></div><div class="progress"><span style="width:${pct}%"></span></div><div class="tags"><span class="chip blue"><i class="fas fa-clock"></i>${num(g.default_duration_hours)} ชม./ครั้ง</span>${a?`<span class="chip red"><i class="fas fa-triangle-exclamation"></i>${a} คนใกล้หมด</span>`:'<span class="chip green"><i class="fas fa-circle-check"></i>ชั่วโมงปกติ</span>'}${g.last_session_date?`<span class="chip">ล่าสุด ${date(g.last_session_date)}</span>`:''}</div><div class="actions"><button class="btn dark" data-detail="${g.id}"><i class="fas fa-users"></i>จัดการกลุ่ม</button><button class="btn primary" data-session="${g.id}"><i class="fas fa-play"></i>เปิด Session</button><button class="btn soft" data-edit="${g.id}"><i class="fas fa-pen"></i>แก้ไข</button></div></article>`}
+function render(){
+  const rows=(S.data?.groups||[]).filter(g=>{if(S.status!=='all'&&g.status!==S.status)return false;const q=S.q.trim().toLowerCase();return !q||[g.name,g.group_code,g.subject,g.tutor_name].join(' ').toLowerCase().includes(q)});
+  $('grid').innerHTML=rows.length?rows.map(card).join(''):'<div class="empty"><i class="fas fa-stopwatch" style="font-size:30px;color:#cbd5e1"></i><div style="margin-top:7px">ยังไม่มีกลุ่มรายชั่วโมงที่ตรงกับตัวกรอง</div></div>';
+  $('grid').querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>detail(b.dataset.detail));
+  $('grid').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editGroup((S.data?.groups||[]).find(x=>x.id===b.dataset.edit)));
+  $('grid').querySelectorAll('[data-session]').forEach(b=>b.onclick=()=>createSession(b.dataset.session));
+}
+function stats(){const x=S.data?.stats||{};$('statGroups').textContent=x.active_groups??0;$('statMembers').textContent=x.active_members??0;$('statHours').textContent=num(x.remaining_hours).toLocaleString('th-TH',{maximumFractionDigits:1});$('statLow').textContent=x.low_balance??0;$('statCritical').textContent=x.critical_balance??0}
+
+async function load(){
+  if(S.loading)return;S.loading=true;$('authError').classList.add('hidden');$('grid').innerHTML='<div class="empty"><i class="fas fa-spinner fa-spin" style="color:#0ea5e9"></i> กำลังโหลด...</div>';
+  try{S.data=await rpc('manager_hourly_bootstrap');stats();render()}
+  catch(e){console.error(e);$('grid').innerHTML='';$('authError').classList.remove('hidden');$('authError').innerHTML=`<b>เปิดระบบกลุ่มรายชั่วโมงไม่ได้</b><div style="margin-top:6px;font-size:10px">${esc(e.message||e)}</div><div style="margin-top:10px"><a class="btn dark" href="./">กลับ Manager หลัก / เข้าสู่ระบบ</a></div><div style="margin-top:8px;font-size:8px;color:#64748b">หากยังไม่ได้ติดตั้งฐานข้อมูล ให้รัน AREWARIN_V27_0_HOURLY_GROUP_CORE.sql ก่อน</div>`}
+  finally{S.loading=false}
+}
+
+async function editGroup(g){
+  const tutors=S.data?.tutors||[];
+  const body=`<div class="modalbody"><div class="formgrid">
+    <div class="field"><label>รหัสกลุ่ม</label><input id="fCode" value="${esc(g?.group_code||'')}" placeholder="เว้นว่างให้ระบบสร้าง"></div>
+    <div class="field"><label>ชื่อกลุ่ม *</label><input id="fName" value="${esc(g?.name||'')}" placeholder="Biology Evening Group"></div>
+    <div class="field"><label>วิชา</label><input id="fSubject" value="${esc(g?.subject||'')}"></div>
+    <div class="field"><label>ติวเตอร์</label><select id="fTutor"><option value="">— ไม่ระบุ —</option>${tutors.map(t=>`<option value="${t.id}" ${g?.tutor_id===t.id?'selected':''}>${esc(t.display_name)}</option>`).join('')}</select></div>
+    <div class="field"><label>สถานะ</label><select id="fStatus"><option value="active" ${g?.status!=='paused'&&g?.status!=='archived'?'selected':''}>Active</option><option value="paused" ${g?.status==='paused'?'selected':''}>Paused</option><option value="archived" ${g?.status==='archived'?'selected':''}>Archived</option></select></div>
+    <div class="field"><label>การรับสมาชิก</label><select id="fEnroll"><option value="admin" ${g?.enrollment_mode==='admin'||!g?'selected':''}>Admin only</option><option value="invite" ${g?.enrollment_mode==='invite'?'selected':''}>Invite</option><option value="public" ${g?.enrollment_mode==='public'?'selected':''}>Public</option></select></div>
+    <div class="field"><label>จำนวนสูงสุด</label><input id="fCapacity" type="number" min="1" max="100" value="${num(g?.capacity||6)}"></div>
+    <div class="field"><label>เวลาเรียนเริ่มต้น (ชม.)</label><input id="fDuration" type="number" min=".25" step=".25" value="${num(g?.default_duration_hours||1.5)}"></div>
+    <div class="field"><label>วันประจำ</label><select id="fDay"><option value="">ราย Session</option>${['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'].map((d,i)=>`<option value="${i}" ${Number(g?.schedule_weekday)===i?'selected':''}>${d}</option>`).join('')}</select></div>
+    <div class="field"><label>เวลา</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><input id="fStart" type="time" value="${esc(g?.schedule_start?String(g.schedule_start).slice(0,5):'')}"><input id="fEnd" type="time" value="${esc(g?.schedule_end?String(g.schedule_end).slice(0,5):'')}"></div></div>
+    <div class="field"><label>รูปแบบ</label><select id="fLocationType"><option value="online" ${g?.location_type!=='onsite'&&g?.location_type!=='hybrid'?'selected':''}>Online</option><option value="onsite" ${g?.location_type==='onsite'?'selected':''}>On-site</option><option value="hybrid" ${g?.location_type==='hybrid'?'selected':''}>Hybrid</option></select></div>
+    <div class="field"><label>สถานที่</label><input id="fLocation" value="${esc(g?.location_text||'')}"></div>
+    <div class="field"><label>Warning ≤ ชม.</label><input id="fWarn" type="number" min="0" step=".5" value="${num(g?.warning_threshold_hours??5)}"></div>
+    <div class="field"><label>Critical ≤ ชม.</label><input id="fCrit" type="number" min="0" step=".5" value="${num(g?.critical_threshold_hours??2)}"></div>
+    <div class="field full"><label><input id="fNegative" type="checkbox" ${g?.allow_negative?'checked':''}> อนุญาตชั่วโมงติดลบ</label></div>
+    <div class="field full"><label>คำอธิบาย</label><textarea id="fDesc">${esc(g?.description||'')}</textarea></div>
+    <div class="field full"><label>หมายเหตุภายใน</label><textarea id="fNote">${esc(g?.note||'')}</textarea></div>
+  </div></div>`;
+  openModal(g?'แก้ไขกลุ่ม':'สร้างกลุ่มรายชั่วโมง','Standalone Hourly Group',body,`<button class="btn soft" data-x>ยกเลิก</button><button class="btn primary" id="saveGroup">บันทึก</button>`);
+  $('saveGroup').onclick=async()=>{const b=$('saveGroup');b.disabled=true;try{await rpc('manager_hourly_group_save',{p_id:g?.id||null,p_group_code:$('fCode').value||null,p_name:$('fName').value,p_subject:$('fSubject').value||null,p_tutor_id:$('fTutor').value||null,p_status:$('fStatus').value,p_enrollment_mode:$('fEnroll').value,p_capacity:Number($('fCapacity').value||6),p_default_duration_hours:Number($('fDuration').value||1.5),p_schedule_weekday:$('fDay').value===''?null:Number($('fDay').value),p_schedule_start:$('fStart').value||null,p_schedule_end:$('fEnd').value||null,p_location_type:$('fLocationType').value,p_location_text:$('fLocation').value||null,p_meeting_url:null,p_warning_threshold_hours:Number($('fWarn').value||5),p_critical_threshold_hours:Number($('fCrit').value||2),p_allow_negative:$('fNegative').checked,p_description:$('fDesc').value||null,p_note:$('fNote').value||null});closeModal();toast('บันทึกกลุ่มแล้ว');await load()}catch(e){toast(e.message||e,'error');b.disabled=false}}
+}
+
+function balClass(v,g){return num(v)<=num(g.critical_threshold_hours)?'critical':num(v)<=num(g.warning_threshold_hours)?'warn':'good'}
+async function detail(id,tab='members'){
+  try{S.detail=await rpc('manager_hourly_group_detail',{p_group_id:id});S.tab=tab;renderDetail()}catch(e){toast(e.message||e,'error')}
+}
+function tabBody(D){
+  const g=D.group||{},m=D.members||[],sessions=D.sessions||[],ledger=D.ledger||[],packages=D.packages||[];
+  if(S.tab==='members')return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px"><div><b style="font-size:10px">สมาชิกและ Hour Wallet</b><div class="sub">ยอดชั่วโมงแยกต่อคน</div></div><button id="addMember" class="btn green"><i class="fas fa-user-plus"></i>เพิ่มนักเรียน</button></div>${m.length?`<div style="overflow:auto"><table><thead><tr><th>นักเรียน</th><th>สถานะ</th><th>เพิ่มทั้งหมด</th><th>ใช้แล้ว</th><th>คงเหลือ</th><th>จัดการ</th></tr></thead><tbody>${m.map(x=>`<tr><td><b>${esc(name(x))}</b><div class="sub">${esc(x.student_code||'')} ${x.phone?'· '+esc(x.phone):''}</div></td><td><span class="chip ${x.member_status==='active'?'green':x.member_status==='paused'?'amber':''}">${esc(x.member_status)}</span></td><td>${hours(x.total_credited)}</td><td>${hours(x.total_debited)}</td><td><span class="bal ${balClass(x.balance_hours,g)}">${hours(x.balance_hours)}</span></td><td><div class="topacts"><button class="btn soft" data-adjust="${x.student_id}">ปรับชั่วโมง</button><button class="btn soft" data-mstatus="${x.student_id}" data-current="${x.member_status}">สถานะ</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">ยังไม่มีสมาชิก</div>'}`;
+  if(S.tab==='sessions')return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px"><div><b style="font-size:10px">Sessions</b><div class="sub">ตัดชั่วโมงเฉพาะตอนจบ Session</div></div><button id="newSessionIn" class="btn primary">สร้าง Session</button></div>${sessions.length?sessions.map(x=>`<div class="session"><div><b>${date(x.session_date)} · ${time(x.start_time)}${x.end_time?'–'+time(x.end_time):''} · ${num(x.duration_hours)} ชม.</b><small>${esc(x.topic||'ไม่ระบุหัวข้อ')} · ${x.present_count||0}/${x.attendance_count||0} มาเรียน</small></div><div class="topacts"><span class="chip ${x.status==='completed'?'green':x.status==='cancelled'?'red':x.status==='open'?'blue':'amber'}">${esc(x.status)}</span><button class="btn soft" data-sessiondetail="${x.id}">เปิด</button></div></div>`).join(''):'<div class="empty">ยังไม่มี Session</div>'}`;
+  if(S.tab==='ledger')return ledger.length?`<div style="overflow:auto"><table><thead><tr><th>วันที่</th><th>นักเรียน</th><th>ประเภท</th><th>ชั่วโมง</th><th>คงเหลือ</th><th>หมายเหตุ</th></tr></thead><tbody>${ledger.map(x=>`<tr><td>${date(x.created_at)}</td><td><b>${esc(name(x))}</b><div class="sub">${esc(x.student_code||'')}</div></td><td><span class="chip ${x.hours_delta>0?'green':x.entry_type==='lesson'?'blue':'amber'}">${esc(x.entry_type)}</span></td><td style="font-weight:900;color:${x.hours_delta>0?'#047857':'#be123c'}">${x.hours_delta>0?'+':''}${num(x.hours_delta)} ชม.</td><td>${hours(x.balance_after)}</td><td>${esc(x.note||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">ยังไม่มี Hour Ledger</div>';
+  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px"><div><b style="font-size:10px">แพ็กชั่วโมง</b><div class="sub">เตรียมไว้เชื่อม Payment ในเฟสถัดไป</div></div><button id="addPackage" class="btn violet">เพิ่มแพ็ก</button></div>${packages.length?`<div class="grid">${packages.map(p=>`<div class="card"><div class="top"><div><div class="name">${esc(p.name)}</div><div class="sub">${hours(p.hours)}</div></div><span class="chip ${p.active?'green':''}">${p.active?'เปิดใช้':'ปิด'}</span></div><div style="font-size:20px;font-weight:900;margin-top:10px">${money(p.price)}</div><div class="actions" style="grid-template-columns:1fr"><button class="btn soft" data-package="${p.id}">แก้ไขแพ็ก</button></div></div>`).join('')}</div>`:'<div class="empty">ยังไม่มีแพ็กชั่วโมง</div>'}`;
+}
+function renderDetail(){
+  const D=S.detail||{},g=D.group||{},m=D.members||[],sessions=D.sessions||[],active=m.filter(x=>x.member_status==='active'),total=active.reduce((a,x)=>a+num(x.balance_hours),0),low=active.filter(x=>num(x.balance_hours)<=num(g.warning_threshold_hours)).length;
+  const body=`<div class="tabs">${[['members','นักเรียน'],['sessions','Sessions'],['ledger','Hour Ledger'],['packages','แพ็กชั่วโมง']].map(([k,l])=>`<button class="tab ${S.tab===k?'active':''}" data-tab="${k}">${l}</button>`).join('')}</div><div class="modalbody"><div class="detailhero"><div class="top"><div><div class="code">${esc(g.group_code)}</div><div class="name">${esc(g.name)}</div><div class="sub">${esc(g.tutor_name||'')} · ${esc(schedule(g))}</div></div><div class="topacts"><button id="editIn" class="btn soft">แก้ไขกลุ่ม</button><button id="sessionIn" class="btn primary">สร้าง Session</button></div></div><div class="detailstats"><div class="mini"><small>สมาชิก Active</small><b>${active.length}/${g.capacity}</b></div><div class="mini"><small>ชั่วโมงคงเหลือรวม</small><b>${hours(total)}</b></div><div class="mini"><small>ใกล้หมด</small><b>${low} คน</b></div><div class="mini"><small>Session จบแล้ว</small><b>${sessions.filter(x=>x.status==='completed').length}</b></div></div></div><div style="margin-top:12px">${tabBody(D)}</div></div>`;
+  const modalEl=openModal(esc(g.name),'Hourly Group 360° · '+esc(g.group_code),body);
+  modalEl.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;renderDetail()});
+  $('editIn').onclick=()=>{closeModal();editGroup((S.data?.groups||[]).find(x=>x.id===g.id)||g)};
+  $('sessionIn').onclick=()=>{closeModal();createSession(g.id)};
+  bindDetail();
+}
+function bindDetail(){
+  $('addMember')?.addEventListener('click',addMember);
+  document.querySelectorAll('[data-adjust]').forEach(b=>b.onclick=()=>adjust(b.dataset.adjust));
+  document.querySelectorAll('[data-mstatus]').forEach(b=>b.onclick=()=>memberStatus(b.dataset.mstatus,b.dataset.current));
+  $('newSessionIn')?.addEventListener('click',()=>{const id=S.detail.group.id;closeModal();createSession(id)});
+  document.querySelectorAll('[data-sessiondetail]').forEach(b=>b.onclick=()=>sessionDetail(b.dataset.sessiondetail));
+  $('addPackage')?.addEventListener('click',()=>packageEdit(null));
+  document.querySelectorAll('[data-package]').forEach(b=>b.onclick=()=>packageEdit((S.detail.packages||[]).find(x=>x.id===b.dataset.package)));
+}
+async function refreshDetail(tab=S.tab){const id=S.detail?.group?.id;if(id)await detail(id,tab)}
+
+async function addMember(){
+  const existing=new Set((S.detail.members||[]).filter(x=>x.member_status==='active').map(x=>x.student_id)),students=(S.data?.students||[]).filter(x=>!existing.has(x.id));if(!students.length)return toast('ไม่มีนักเรียนให้เพิ่ม','warning');
+  const r=await Swal.fire({title:'เพิ่มนักเรียนเข้ากลุ่ม',html:`<div style="text-align:left"><label style="font-size:10px;font-weight:800">นักเรียน</label><select id="swStudent" class="swal2-select" style="display:block;width:100%;margin:6px 0 14px">${students.map(s=>`<option value="${s.id}">${esc(name(s))} · ${esc(s.student_code||'')} · ${esc(s.phone||'')}</option>`).join('')}</select><label style="font-size:10px;font-weight:800">ชั่วโมงตั้งต้น</label><input id="swHours" class="swal2-input" type="number" step=".5" min="0" value="0" style="width:100%;margin:6px 0"><label style="font-size:10px;font-weight:800">หมายเหตุ</label><input id="swNote" class="swal2-input" style="width:100%;margin:6px 0"></div>`,showCancelButton:true,confirmButtonText:'เพิ่มเข้ากลุ่ม',preConfirm:()=>({student:document.getElementById('swStudent').value,hours:Number(document.getElementById('swHours').value||0),note:document.getElementById('swNote').value||''})});
+  if(!r.isConfirmed)return;try{await rpc('manager_hourly_member_add',{p_group_id:S.detail.group.id,p_student_id:r.value.student,p_initial_hours:r.value.hours,p_note:r.value.note});toast('เพิ่มนักเรียนแล้ว');await refreshDetail('members');await load()}catch(e){toast(e.message||e,'error')}
+}
+async function adjust(studentId){
+  const x=(S.detail.members||[]).find(m=>m.student_id===studentId);if(!x)return;
+  const r=await Swal.fire({title:`ปรับชั่วโมง · ${name(x)}`,html:`<div style="text-align:left"><div style="padding:10px;background:#f8fafc;border-radius:12px;margin-bottom:10px">คงเหลือ <b>${hours(x.balance_hours)}</b></div><label style="font-size:10px;font-weight:800">ชั่วโมง (+ เพิ่ม / - ลด)</label><input id="adjHours" class="swal2-input" type="number" step=".25" value="10" style="width:100%;margin:6px 0"><label style="font-size:10px;font-weight:800">ประเภท</label><select id="adjType" class="swal2-select" style="display:block;width:100%;margin:6px 0"><option value="purchase">ซื้อ/เติมชั่วโมง</option><option value="bonus">Bonus / ชดเชย</option><option value="adjustment">ปรับยอด</option><option value="correction">แก้ไขความผิดพลาด</option><option value="refund">Refund</option><option value="expiration">หมดอายุ</option></select><label style="font-size:10px;font-weight:800">หมายเหตุ *</label><input id="adjNote" class="swal2-input" style="width:100%;margin:6px 0"></div>`,showCancelButton:true,confirmButtonText:'บันทึก Ledger',preConfirm:()=>{const h=Number(document.getElementById('adjHours').value||0),note=document.getElementById('adjNote').value.trim();if(!h){Swal.showValidationMessage('ระบุชั่วโมง');return false}if(!note){Swal.showValidationMessage('ระบุหมายเหตุ');return false}return{h,type:document.getElementById('adjType').value,note}}});
+  if(!r.isConfirmed)return;try{await rpc('manager_hourly_adjust_hours',{p_group_id:S.detail.group.id,p_student_id:studentId,p_hours_delta:r.value.h,p_entry_type:r.value.type,p_note:r.value.note});toast('บันทึก Hour Ledger แล้ว');await refreshDetail('members');await load()}catch(e){toast(e.message||e,'error')}
+}
+async function memberStatus(studentId,current){
+  const r=await Swal.fire({title:'สถานะสมาชิก',input:'select',inputOptions:{active:'Active',paused:'Paused',left:'ออกจากกลุ่ม'},inputValue:current||'active',showCancelButton:true,confirmButtonText:'บันทึก'});if(!r.isConfirmed)return;
+  try{await rpc('manager_hourly_member_status',{p_group_id:S.detail.group.id,p_student_id:studentId,p_status:r.value,p_note:''});toast('อัปเดตสถานะแล้ว');await refreshDetail('members');await load()}catch(e){toast(e.message||e,'error')}
+}
+
+async function createSession(groupId){
+  const g=(S.data?.groups||[]).find(x=>x.id===groupId)||S.detail?.group||{},today=new Date().toISOString().slice(0,10);
+  const body=`<div class="modalbody"><div class="formgrid"><div class="field"><label>วันที่</label><input id="sDate" type="date" value="${today}"></div><div class="field"><label>ระยะเวลา (ชม.)</label><input id="sDuration" type="number" min=".25" step=".25" value="${num(g.default_duration_hours||1.5)}"></div><div class="field"><label>เริ่ม</label><input id="sStart" type="time" value="${esc(g.schedule_start?String(g.schedule_start).slice(0,5):'')}"></div><div class="field"><label>สิ้นสุด</label><input id="sEnd" type="time" value="${esc(g.schedule_end?String(g.schedule_end).slice(0,5):'')}"></div><div class="field full"><label>หัวข้อ</label><input id="sTopic"></div><div class="field full"><label>หมายเหตุ</label><textarea id="sNote"></textarea></div></div><div class="notice"><i class="fas fa-circle-info"></i> สร้าง Attendance รายชื่อ Active ให้ทันที แต่ยังไม่ตัดชั่วโมงจนกด “จบ Session”</div></div>`;
+  openModal('สร้าง Session',esc(g.name||'Hourly Group'),body,`<button class="btn soft" data-x>ยกเลิก</button><button id="saveSession" class="btn primary">สร้าง Session</button>`);
+  $('saveSession').onclick=async()=>{const b=$('saveSession');b.disabled=true;try{const r=await rpc('manager_hourly_session_create',{p_group_id:groupId,p_session_date:$('sDate').value,p_start_time:$('sStart').value||null,p_end_time:$('sEnd').value||null,p_duration_hours:Number($('sDuration').value||1.5),p_topic:$('sTopic').value||null,p_note:$('sNote').value||null});closeModal();toast('สร้าง Session แล้ว');await load();await sessionDetail(r.session_id)}catch(e){toast(e.message||e,'error');b.disabled=false}}
+}
+async function sessionDetail(id){
+  try{const D=await rpc('manager_hourly_session_detail',{p_session_id:id}),s=D.session||{},a=D.attendance||[],locked=['completed','cancelled'].includes(s.status);const body=`<div class="modalbody"><div class="detailhero"><div class="top"><div><div class="code">${esc(s.group_code)}</div><div class="name">${date(s.session_date)} · ${time(s.start_time)}${s.end_time?'–'+time(s.end_time):''}</div><div class="sub">${esc(s.group_name)} · ${num(s.duration_hours)} ชม. · ${esc(s.topic||'ไม่ระบุหัวข้อ')}</div></div><span class="chip ${s.status==='completed'?'green':s.status==='cancelled'?'red':'blue'}">${esc(s.status)}</span></div></div><div style="margin-top:11px">${a.map(x=>`<div class="att" data-att="${x.student_id}"><div><b>${esc(name(x))}</b><small>${esc(x.student_code||'')} · คงเหลือ ${hours(x.balance_hours)}</small></div><select class="input aStatus" ${locked?'disabled':''}><option value="present" ${x.attendance_status==='present'?'selected':''}>มาเรียน</option><option value="late" ${x.attendance_status==='late'?'selected':''}>มาสาย</option><option value="leave" ${x.attendance_status==='leave'?'selected':''}>ลา</option><option value="absent" ${x.attendance_status==='absent'?'selected':''}>ขาด</option><option value="excused" ${x.attendance_status==='excused'?'selected':''}>ยกเว้น</option></select><input class="input aHours" type="number" min="0" step=".25" value="${num(x.deduct_hours)}" ${locked?'disabled':''}><input class="input aNote" placeholder="หมายเหตุ" value="${esc(x.note||'')}" ${locked?'disabled':''}></div>`).join('')||'<div class="empty">ไม่มีนักเรียน</div>'}</div></div>`;const footer=locked?'<button class="btn soft" data-x>ปิด</button>':`<button id="cancelSession" class="btn red">ยกเลิก Session</button><button id="saveAttendance" class="btn soft">บันทึก Attendance</button><button id="completeSession" class="btn green">จบ Session และตัดชั่วโมง</button>`;const m=openModal('Session Attendance',`Session ${esc(id)}`,body,footer);m.querySelectorAll('.aStatus').forEach(sel=>sel.onchange=()=>{const row=sel.closest('[data-att]'),h=row.querySelector('.aHours');if(['leave','excused'].includes(sel.value))h.value='0';else if(sel.value==='present'&&num(h.value)===0)h.value=String(num(s.duration_hours))});async function save(){for(const row of [...m.querySelectorAll('[data-att]')])await rpc('manager_hourly_attendance_save',{p_session_id:id,p_student_id:row.dataset.att,p_status:row.querySelector('.aStatus').value,p_deduct_hours:Number(row.querySelector('.aHours').value||0),p_note:row.querySelector('.aNote').value||null})}$('saveAttendance')?.addEventListener('click',async()=>{try{await save();toast('บันทึก Attendance แล้ว')}catch(e){toast(e.message||e,'error')}});$('completeSession')?.addEventListener('click',async()=>{const q=await Swal.fire({icon:'question',title:'จบ Session และตัดชั่วโมง?',text:'ระบบจะสร้าง Hour Ledger ตามยอดของแต่ละคน',showCancelButton:true,confirmButtonText:'ยืนยัน'});if(!q.isConfirmed)return;try{await save();const r=await rpc('manager_hourly_session_complete',{p_session_id:id});closeModal();toast(`ตัดชั่วโมงแล้ว ${r.hours_deducted||0} ชม.`);await load();if(S.detail?.group?.id)await detail(S.detail.group.id,'sessions')}catch(e){toast(e.message||e,'error')}});$('cancelSession')?.addEventListener('click',async()=>{const q=await Swal.fire({icon:'warning',title:'ยกเลิก Session?',text:'จะไม่มีการตัดชั่วโมง',showCancelButton:true,confirmButtonText:'ยกเลิก Session',confirmButtonColor:'#e11d48'});if(!q.isConfirmed)return;try{await rpc('manager_hourly_session_cancel',{p_session_id:id,p_note:'ยกเลิกโดย Manager'});closeModal();toast('ยกเลิก Session แล้ว');await load();if(S.detail?.group?.id)await detail(S.detail.group.id,'sessions')}catch(e){toast(e.message||e,'error')}})}
+  catch(e){toast(e.message||e,'error')}
+}
+async function packageEdit(p){
+  const g=S.detail?.group;if(!g)return;const r=await Swal.fire({title:p?'แก้ไขแพ็ก':'เพิ่มแพ็กชั่วโมง',html:`<div style="text-align:left"><label style="font-size:10px;font-weight:800">ชื่อแพ็ก</label><input id="pName" class="swal2-input" value="${esc(p?.name||'10 ชั่วโมง')}" style="width:100%;margin:6px 0"><label style="font-size:10px;font-weight:800">ชั่วโมง</label><input id="pHours" class="swal2-input" type="number" step=".5" value="${num(p?.hours||10)}" style="width:100%;margin:6px 0"><label style="font-size:10px;font-weight:800">ราคา</label><input id="pPrice" class="swal2-input" type="number" value="${num(p?.price||0)}" style="width:100%;margin:6px 0"><label style="font-size:10px;font-weight:800"><input id="pActive" type="checkbox" ${p?.active===false?'':'checked'}> เปิดใช้</label></div>`,showCancelButton:true,confirmButtonText:'บันทึก',preConfirm:()=>({name:document.getElementById('pName').value,hours:Number(document.getElementById('pHours').value||0),price:Number(document.getElementById('pPrice').value||0),active:document.getElementById('pActive').checked})});if(!r.isConfirmed)return;try{await rpc('manager_hourly_package_save',{p_id:p?.id||null,p_group_id:g.id,p_name:r.value.name,p_hours:r.value.hours,p_price:r.value.price,p_active:r.value.active,p_sort_order:p?.sort_order||100,p_note:p?.note||null});toast('บันทึกแพ็กแล้ว');await refreshDetail('packages')}catch(e){toast(e.message||e,'error')}
+}
+
+$('search').oninput=e=>{S.q=e.target.value||'';render()};$('status').onchange=e=>{S.status=e.target.value;render()};$('refreshTop').onclick=load;$('newTop').onclick=()=>editGroup(null);
+setTimeout(load,350);
+})();
+</script>
+</body>
+</html>
