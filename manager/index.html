@@ -35650,8 +35650,8 @@ function card(r){const st=groupStatus(r),cap=Math.max(1,Number(r.capacity||1)),u
   <div class="gc-meta"><div><small>ผู้สอน</small><b>${esc(r.tutor_name||'—')}</b></div><div><small>ราคา</small><b>฿${money(r.price_amount)} / คน</b></div><div><small>ตาราง</small><b>${esc(scheduleText(r))}</b></div><div><small>สถานที่</small><b>${esc(r.mode==='online'?'Online':r.location||'—')}</b></div></div>
   <div class="gc-seat-row"><div class="gc-seat-head"><span>จำนวนที่นั่ง</span><b>${used} / ${cap} · เหลือ ${Math.max(0,cap-used)}</b></div><div class="gc-progress ${st==='full'?'full':''}"><i style="width:${pct}%"></i></div></div>
   <div class="gc-policy">${r.absence_deduct_hours?'<span class="deduct"><i class="fas fa-clock"></i> ขาดเรียนตัดชั่วโมง</span>':''}${r.recording_on_absence?'<span class="video"><i class="fas fa-video"></i> มีวิดีโอย้อนหลัง</span>':''}<span><i class="fas fa-calendar"></i> ${r.included_sessions||'—'} ครั้ง</span><span><i class="fas fa-hourglass-half"></i> ${r.included_hours||'—'} ชม.</span></div>
-  <div class="gc-actions"><button data-gc-detail="${r.id}" class="primary">ดูคลาส / นักเรียน</button><button data-gc-edit="${r.id}">แก้ไข</button><button data-gc-dup="${r.id}"><i class="fas fa-copy"></i></button></div></div></article>`}
-function render(){const rows=filtered(),root=$('gcGrid');if(!root)return;root.innerHTML=rows.length?rows.map(card).join(''):'<div class="card p-10 text-center text-xs text-slate-400 md:col-span-2"><i class="fas fa-users-slash text-3xl text-slate-200 block mb-3"></i>ยังไม่มีคลาสกลุ่มที่ตรงกับตัวกรอง</div>';root.querySelectorAll('[data-gc-edit]').forEach(b=>b.onclick=()=>openEditor(G.rows.find(x=>x.id===b.dataset.gcEdit)));root.querySelectorAll('[data-gc-detail]').forEach(b=>b.onclick=()=>openDetail(G.rows.find(x=>x.id===b.dataset.gcDetail)));root.querySelectorAll('[data-gc-dup]').forEach(b=>b.onclick=()=>duplicateClass(b.dataset.gcDup))}
+  <div class="gc-actions"><button data-gc-detail="${r.id}" class="primary">ดูคลาส / นักเรียน</button>${st==='draft'?`<button data-gc-publish="${r.id}" style="background:#ecfdf5;border-color:#a7f3d0;color:#047857;font-weight:800"><i class="fas fa-bullhorn mr-1"></i>เปิดรับสมัคร</button>`:''}<button data-gc-edit="${r.id}">แก้ไข</button><button data-gc-dup="${r.id}"><i class="fas fa-copy"></i></button></div></div></article>`}
+function render(){const rows=filtered(),root=$('gcGrid');if(!root)return;root.innerHTML=rows.length?rows.map(card).join(''):'<div class="card p-10 text-center text-xs text-slate-400 md:col-span-2"><i class="fas fa-users-slash text-3xl text-slate-200 block mb-3"></i>ยังไม่มีคลาสกลุ่มที่ตรงกับตัวกรอง</div>';root.querySelectorAll('[data-gc-edit]').forEach(b=>b.onclick=()=>openEditor(G.rows.find(x=>x.id===b.dataset.gcEdit)));root.querySelectorAll('[data-gc-detail]').forEach(b=>b.onclick=()=>openDetail(G.rows.find(x=>x.id===b.dataset.gcDetail)));root.querySelectorAll('[data-gc-dup]').forEach(b=>b.onclick=()=>duplicateClass(b.dataset.gcDup));root.querySelectorAll('[data-gc-publish]').forEach(b=>b.onclick=()=>publishClassNow(b.dataset.gcPublish,b))}
 async function load(){const c=db();if(!c)return alertMsg('Supabase ยังไม่พร้อม','error');const {data,error}=await c.rpc('manager_group_class_bootstrap');if(error)return alertMsg(error.message,'error');G.rows=data?.classes||[];G.courses=data?.courses||[];G.tutors=data?.tutors||[];G.summary=data?.summary||{};G.loaded=true;renderStats();const sel=$('gcCourseFilter');if(sel){const v=sel.value;sel.innerHTML='<option value="">ทุกคอร์ส</option>'+G.courses.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');sel.value=v}render()}
 function openModal(title,body,foot=''){const m=$('gcManagerModal');m.innerHTML=`<div class="gc-modal"><div class="gc-modal-head"><div><div class="page-kicker">GROUP CLASS</div><h3>${esc(title)}</h3></div><button id="gcCloseModal" class="w-9 h-9 rounded-xl border border-slate-200 bg-white text-slate-500"><i class="fas fa-xmark"></i></button></div><div class="gc-modal-body">${body}</div>${foot?`<div class="gc-modal-foot">${foot}</div>`:''}</div>`;m.classList.remove('hidden');$('gcCloseModal').onclick=closeModal;m.onclick=e=>{if(e.target===m)closeModal()}}
 function closeModal(){$('gcManagerModal').classList.add('hidden');$('gcManagerModal').innerHTML=''}
@@ -35751,6 +35751,79 @@ async function saveClass(id){
     alertMsg(e.message||String(e),'error');
   }finally{
     if(btn){btn.disabled=false;btn.innerHTML=old}
+  }
+}
+async function verifyPublicGroupClass(row){
+  try{
+    const {data,error}=await db().rpc('public_group_classes_for_course',{p_course_id:row.course_id});
+    if(error)throw error;
+    const rows=Array.isArray(data)?data:[];
+    const found=rows.some(x=>String(x.id)===String(row.id));
+    console.info('[GroupClass V25.7] public verification',{course_id:row.course_id,target_id:row.id,target_code:row.group_code,found,count:rows.length,codes:rows.map(x=>x.group_code)});
+    return {found,rows};
+  }catch(error){
+    console.warn('[GroupClass V25.7] public verification failed',error);
+    return {found:false,rows:[],error};
+  }
+}
+async function publishClassNow(id,btn=null){
+  const r=G.rows.find(x=>String(x.id)===String(id));
+  if(!r)return alertMsg('ไม่พบคลาสที่ต้องการเปิดรับสมัคร','error');
+  const ok=await Swal.fire({
+    icon:'question',
+    title:'เปิดรับสมัครคลาสนี้?',
+    html:`<div style="font-size:12px;color:#64748b"><b style="color:#0f172a">${esc(r.name||'คลาสกลุ่ม')}</b><br>ระบบจะตั้งสถานะเป็น Open + เปิดรับสมัคร + Public</div>`,
+    showCancelButton:true,
+    confirmButtonText:'เปิดรับสมัครทันที',
+    cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#059669'
+  });
+  if(!ok.isConfirmed)return;
+  const old=btn?.innerHTML;
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> กำลังเปิด';}
+  try{
+    const payload={
+      id:r.id,
+      course_id:r.course_id,
+      tutor_id:r.tutor_id,
+      group_code:r.group_code||'',
+      name:r.name||'',
+      description:r.description||'',
+      image_url:r.image_url||null,
+      price_amount:Number(r.price_amount||0),
+      capacity:Number(r.capacity||1),
+      included_hours:Number(r.included_hours||0),
+      included_sessions:Number(r.included_sessions||0),
+      start_date:r.start_date||null,
+      end_date:r.end_date||null,
+      mode:r.mode||'online',
+      location:r.location||'',
+      status:'open',
+      seat_hold_minutes:Number(r.seat_hold_minutes||1440),
+      enrollment_open:true,
+      public_visible:true,
+      absence_deduct_hours:r.absence_deduct_hours!==false,
+      recording_on_absence:r.recording_on_absence!==false,
+      recording_visibility:r.recording_visibility||'absent_only',
+      allow_promotions:!!r.allow_promotions,
+      waitlist_enabled:r.waitlist_enabled!==false,
+      schedules:Array.isArray(r.schedules)?r.schedules.map(x=>({weekday:Number(x.weekday),start_time:String(x.start_time||'').slice(0,5),end_time:String(x.end_time||'').slice(0,5)})).filter(x=>x.start_time&&x.end_time):[]
+    };
+    const {data,error}=await db().rpc('manager_group_class_save',{p_payload:payload});
+    if(error)throw error;
+    if(data&&data.ok===false)throw new Error(data.message||'เปิดรับสมัครไม่สำเร็จ');
+    await load();
+    const fresh=G.rows.find(x=>String(x.id)===String(id))||Object.assign({},r,payload);
+    const check=await verifyPublicGroupClass(fresh);
+    if(check.found){
+      await Swal.fire({icon:'success',title:'เปิดรับสมัครแล้ว',text:'ตรวจสอบแล้วว่าหน้าสมัครสามารถอ่านคลาสนี้ได้',confirmButtonColor:'#0f172a'});
+    }else{
+      await Swal.fire({icon:'warning',title:'เปิดใน Manager แล้ว แต่ Public API ยังไม่คืนคลาสนี้',html:'<div style="font-size:12px;line-height:1.7;color:#64748b;text-align:left">ฝั่ง Manager บันทึกเป็น Open แล้ว แต่ <code>public_group_classes_for_course</code> ยังไม่ส่งคลาสนี้กลับมา ดังนั้นปัญหาอยู่ที่ RPC/ฐานข้อมูล ไม่ใช่ Tailwind หรือหน้า Register.<br><br>เปิด Console แล้วดูรายการ <b>[GroupClass V25.7] public verification</b> เพื่อเห็น ID/Code ที่ Public API คืนมา</div>',confirmButtonColor:'#0f172a'});
+    }
+  }catch(e){
+    alertMsg(e.message||String(e),'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML=old||'เปิดรับสมัคร';}
   }
 }
 async function duplicateClass(id){
