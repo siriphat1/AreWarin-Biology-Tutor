@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบแยกสิทธิ์รายติวเตอร์">
-  <title>AreWarin Biology · Tutor OS V25.4</title>
+  <title>AreWarin Biology · Tutor OS V19</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -57,7 +57,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../config.js"></script>
 
-<meta name="arewarin-tutor-build" content="19.1.1-shared-hours-safe">
 <style id="aw-tutor-shared-hours-v191">
 .share-hours-btn{white-space:nowrap}
 .shared-hour-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:999px;background:#eef5ff;color:#2f63bd;font-size:10px;font-weight:800;margin-top:4px}
@@ -68,6 +67,38 @@
 .share-course-option{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:11px;padding:10px;background:#fff}
 .share-course-option input{width:16px;height:16px;accent-color:#2563eb}.share-course-option b{display:block;font-size:12px}.share-course-option small{display:block;color:#8291a5;margin-top:2px}
 .share-pool-info{padding:10px 11px;border-radius:11px;background:#f4f9ff;border:1px solid #dce8f7;color:#5d7593;font-size:11px;line-height:1.65;margin-bottom:10px}
+</style>
+
+
+<style id="aw-tutor-hour-balance-v192">
+.wallet-source{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;
+  font-size:9px;font-weight:800;margin-left:5px;vertical-align:middle
+}
+.wallet-source.legacy{background:#fff6e8;color:#9b650b;border:1px solid #f0ddb9}
+.wallet-source.system{background:#eef7ff;color:#2f65ad;border:1px solid #dce9f7}
+.wallet-mini-balance{display:inline-flex;gap:5px;align-items:center;margin-top:4px;font-size:10px;color:#72839a}
+.wallet-mini-balance b{color:#33465f}
+.hour-manage-btn{white-space:nowrap}
+.hour-wallet-list{display:grid;gap:9px}
+.hour-wallet-card{border:1px solid #dfe7f1;border-radius:13px;padding:12px;background:#fbfcfe}
+.hour-wallet-card.shared{border-color:#cfdff3;background:#f7fbff}
+.hour-wallet-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.hour-wallet-top h4{margin:0;font-size:13px;color:#30435d}
+.hour-wallet-top p{margin:4px 0 0;font-size:10px;color:#7b8ba0;line-height:1.55}
+.hour-wallet-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.hour-wallet-stat{border:1px solid #e5eaf1;border-radius:10px;padding:8px;background:#fff}
+.hour-wallet-stat small{display:block;font-size:9px;color:#94a0b1}
+.hour-wallet-stat b{display:block;font-size:14px;color:#31445d;margin-top:2px}
+.hour-balance-note{padding:10px 11px;border:1px solid #d9e7f6;border-radius:11px;background:#f4f9ff;color:#5f7692;font-size:11px;line-height:1.65;margin-bottom:10px}
+.hour-balance-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.hour-balance-preview div{border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:9px}
+.hour-balance-preview small{display:block;color:#94a3b8;font-size:9px}
+.hour-balance-preview b{display:block;color:#334155;font-size:14px;margin-top:2px}
+.hour-warning{margin-top:9px;padding:9px 10px;border-radius:10px;background:#fff8e9;border:1px solid #efddb7;color:#8a650f;font-size:10px;line-height:1.55}
+@media(max-width:700px){
+  .hour-wallet-stats,.hour-balance-preview{grid-template-columns:1fr}
+}
 </style>
 
 </head>
@@ -173,6 +204,6 @@
   </div>
 
   <div id="modalRoot"></div>
-  <script src="./app.js?v=v25.4-legacy-bridge-20260919"></script>
+  <script src="./app.js?v=v19-schedule-manual-20260916"></script>
 </body>
 </html>
