@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบแยกสิทธิ์รายติวเตอร์">
-  <title>AreWarin Biology · Tutor OS V19.6 Tutor Link Approval</title>
+  <title>AreWarin Biology · Tutor OS V19.7 Delete Approval Workflow</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -297,12 +297,26 @@
 @media(max-width:800px){.aw-link-candidate-grid{grid-template-columns:1fr}}
 </style>
 
+
+<style id="aw-v197-student-delete-approval">
+.aw-student-delete-btn{
+  background:#fff7ed!important;
+  border-color:#fed7aa!important;
+  color:#c2410c!important;
+}
+.aw-student-delete-btn:hover{
+  background:#ffedd5!important;
+  border-color:#fdba74!important;
+  color:#9a3412!important;
+}
+</style>
+
 </head>
 <body>
   <section id="loginView">
     <div class="aw-card login-shell">
       <div class="login-visual">
-        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19.6</small></div></div>
+        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19.7</small></div></div>
         <div class="login-copy">
           <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Tutor-scoped workspace</span>
           <h1>งานสอนของแต่ละคน<br><span>แยกสิทธิ์อย่างชัดเจน</span></h1>
@@ -360,7 +374,7 @@
 
     <div class="os-shell">
       <aside class="sidebar">
-        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19.6</small></div></div>
+        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19.7</small></div></div>
         <nav>
           <div class="nav-label">Overview</div>
           <button class="nav-btn" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button>
@@ -400,6 +414,6 @@
   </div>
 
   <div id="modalRoot"></div>
-  <script src="./app.js?v=v19.6-tutor-link-approval-20260921"></script>
+  <script src="./app.js?v=v19.7-student-delete-approval-20260921"></script>
 </body>
 </html>
