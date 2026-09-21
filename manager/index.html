@@ -31331,6 +31331,7 @@
 }
 </style>
 
+<!-- AREWARIN MANAGER V27.5 FULL · ALL MODULES + FULL INLINE CSS -->
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -37049,6 +37050,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <div id="enrollmentStatClosed" class="text-xl font-bold text-rose-600 mt-1">0</div>
           <span class="awv264-mini">รายการที่ปิดแล้ว</span>
         </button>
+        <!-- Compatibility anchor for legacy manager/app.js renderEnrollments() -->
+        <span id="enrollmentStatConfirmed" class="hidden" aria-hidden="true">0</span>
       `;
       grid.querySelectorAll('[data-awv264-filter]').forEach(btn => {
         btn.addEventListener('click',()=>{
@@ -37677,6 +37680,50 @@ function boot(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,800));else setTimeout(boot,800);
 console.info('[AreWarin Manager] V27.0 Hourly Group Core loaded');
+})();
+</script>
+
+
+<script id="aw-v275-manager-banner-loadall-guard">
+(()=>{
+  'use strict';
+  console.info('[AreWarin Manager V27.5] Banner/loadAll compatibility fix loaded');
+
+  function ensureEnrollmentLegacyAnchor(){
+    const section=document.getElementById('section-enrollments');
+    if(!section) return;
+    if(document.getElementById('enrollmentStatConfirmed')) return;
+
+    const el=document.createElement('span');
+    el.id='enrollmentStatConfirmed';
+    el.className='hidden';
+    el.setAttribute('aria-hidden','true');
+    el.textContent='0';
+    section.appendChild(el);
+  }
+
+  function boot(){
+    ensureEnrollmentLegacyAnchor();
+    const section=document.getElementById('section-enrollments');
+    if(!section) return;
+
+    let queued=false;
+    const observer=new MutationObserver(()=>{
+      if(queued) return;
+      queued=true;
+      queueMicrotask(()=>{
+        queued=false;
+        ensureEnrollmentLegacyAnchor();
+      });
+    });
+    observer.observe(section,{childList:true,subtree:true});
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
 })();
 </script>
 
