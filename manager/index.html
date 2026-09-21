@@ -31433,6 +31433,49 @@
 }
 </style>
 
+
+<style id="aw-v278-student-delete-approval">
+.aw-student-delete-request-card{
+  border:1px solid #e7eaf0;
+  background:#fff;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 8px 24px -22px rgba(15,23,42,.34)
+}
+.aw-student-delete-request-card:hover{
+  border-color:#fda4af;
+  box-shadow:0 14px 34px -26px rgba(225,29,72,.28)
+}
+.aw-student-delete-count-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+  margin-top:10px
+}
+.aw-student-delete-count-grid>div{
+  border:1px solid #edf1f5;
+  border-radius:10px;
+  padding:7px 5px;
+  text-align:center;
+  background:#f8fafc
+}
+.aw-student-delete-count-grid small{
+  display:block;
+  font-size:6.8px;
+  color:#94a3b8;
+  line-height:1.25
+}
+.aw-student-delete-count-grid b{
+  display:block;
+  margin-top:3px;
+  font-size:12px;
+  color:#334155
+}
+@media(max-width:700px){
+  .aw-student-delete-count-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -31463,7 +31506,7 @@
   <span>นักเรียนเก่ารอตรวจ</span>
   <span id="legacyIntakeNavBadge" class="aw-legacy-intake-badge hidden">0</span>
 </button>
-<a href="../legacy-students/" class="nav"><i class="fas fa-address-book"></i><span>ฐานข้อมูลนักเรียนเดิม</span></a><a href="../tutor-os/?section=groups" class="nav"><i class="fas fa-layer-group"></i><span>Group Locker</span></a><button data-section="v17control" class="nav"><i class="fas fa-bolt"></i><span>Operations Center</span></button><button data-section="student360" class="nav"><i class="fas fa-address-card"></i><span>Student 360°</span></button><button data-section="schedule" class="nav"><i class="far fa-calendar-alt"></i><span>ตารางสอน</span></button><button data-section="enrollments" class="nav aw-enrollment-nav"><i class="fas fa-clipboard-list"></i><span>การสมัครเรียน</span><span id="enrollmentNavBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="speakers" class="nav"><i class="fas fa-microphone-lines"></i><span>จ้างวิทยากร</span></button><button data-section="prices" class="nav"><i class="fas fa-tag"></i><span>ราคา</span></button><button data-section="promotions" class="nav"><i class="fas fa-ticket"></i><span>โปรโมชั่น</span></button><button data-section="studentservices" class="nav"><i class="fas fa-user-gear"></i><span>Student Services</span><span id="v24ServiceBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="payments" class="nav"><i class="fas fa-wallet"></i><span>การชำระเงิน</span></button><a href="../finance/" class="nav"><i class="fas fa-coins"></i><span>Finance OS</span></a><a href="../library/?admin=1" class="nav"><i class="fas fa-book-open-reader"></i><span>Library OS</span></a><div class="nav-group-label">Control</div><button data-section="governance" class="nav"><i class="fas fa-shield-halved"></i><span>Health · Audit · Roles</span></button><div class="nav-group-label">Settings</div><button data-section="policies" class="nav"><i class="fas fa-file-shield"></i><span>นโยบาย & กติกา</span></button><button data-section="receipt" class="nav"><i class="fas fa-receipt"></i><span>ตั้งค่าใบเสร็จ</span></button><button data-section="system" class="nav"><i class="fas fa-sliders"></i><span>ตั้งค่าระบบ</span></button></div></aside><main class="manager-content space-y-5">
+<a href="../legacy-students/" class="nav"><i class="fas fa-address-book"></i><span>ฐานข้อมูลนักเรียนเดิม</span></a><a href="../tutor-os/?section=groups" class="nav"><i class="fas fa-layer-group"></i><span>Group Locker</span></a><button data-section="v17control" class="nav"><i class="fas fa-bolt"></i><span>Operations Center</span></button><button data-section="student360" class="nav"><i class="fas fa-address-card"></i><span>Student 360°</span><span id="studentDeleteNavBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="schedule" class="nav"><i class="far fa-calendar-alt"></i><span>ตารางสอน</span></button><button data-section="enrollments" class="nav aw-enrollment-nav"><i class="fas fa-clipboard-list"></i><span>การสมัครเรียน</span><span id="enrollmentNavBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="speakers" class="nav"><i class="fas fa-microphone-lines"></i><span>จ้างวิทยากร</span></button><button data-section="prices" class="nav"><i class="fas fa-tag"></i><span>ราคา</span></button><button data-section="promotions" class="nav"><i class="fas fa-ticket"></i><span>โปรโมชั่น</span></button><button data-section="studentservices" class="nav"><i class="fas fa-user-gear"></i><span>Student Services</span><span id="v24ServiceBadge" class="aw-enrollment-badge hidden">0</span></button><button data-section="payments" class="nav"><i class="fas fa-wallet"></i><span>การชำระเงิน</span></button><a href="../finance/" class="nav"><i class="fas fa-coins"></i><span>Finance OS</span></a><a href="../library/?admin=1" class="nav"><i class="fas fa-book-open-reader"></i><span>Library OS</span></a><div class="nav-group-label">Control</div><button data-section="governance" class="nav"><i class="fas fa-shield-halved"></i><span>Health · Audit · Roles</span></button><div class="nav-group-label">Settings</div><button data-section="policies" class="nav"><i class="fas fa-file-shield"></i><span>นโยบาย & กติกา</span></button><button data-section="receipt" class="nav"><i class="fas fa-receipt"></i><span>ตั้งค่าใบเสร็จ</span></button><button data-section="system" class="nav"><i class="fas fa-sliders"></i><span>ตั้งค่าระบบ</span></button></div></aside><main class="manager-content space-y-5">
         <section id="section-dashboard" class="section active space-y-4"><div class="page-head"><div><div class="page-kicker">Overview</div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">ภาพรวมข้อมูลสำคัญของ AreWarin Biology ในที่เดียว</p></div><div class="hidden sm:flex items-center gap-2 text-[9.5px] text-slate-400 bg-white border border-slate-200 rounded-full px-3 py-2"><span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> ระบบเชื่อมต่ออยู่</div></div><div class="card dashboard-hero"><div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 h-full"><div><span class="hero-chip"><i class="fas fa-wand-magic-sparkles"></i> AreWarin Workspace</span><h2 class="text-[27px] md:text-[30px] font-semibold tracking-tight mt-4">จัดการระบบได้ง่ายขึ้น<br><span class="text-sky-300">และเห็นภาพรวมได้ทันที</span></h2><p class="text-[10.5px] md:text-[11px] text-slate-300 mt-3 max-w-xl leading-relaxed">ข้อมูลติวเตอร์ คอร์ส ตารางเรียน รีวิว ราคา โปรโมชั่น และการชำระเงินเชื่อมต่อกับหน้าเว็บหลักแบบเรียลไทม์</p></div><div class="flex gap-2"><a href="../" class="hero-chip hover:bg-white/15"><i class="fas fa-eye"></i> ดูหน้าเว็บ</a><a href="../reviews/" class="hero-chip hover:bg-white/15"><i class="far fa-comment-dots"></i> ดูรีวิว</a><a href="../tutor-os/" class="hero-chip hover:bg-white/15"><i class="fas fa-layer-group"></i> Tutor OS</a><button type="button" data-aw-open-groupclasses class="hero-chip hover:bg-white/15"><i class="fas fa-users-rectangle"></i> จัดการคลาสกลุ่ม</button><a href="../tutor-os/?section=groups" class="hero-chip hover:bg-white/15"><i class="fas fa-people-group"></i> Group Locker</a><a href="../student/" class="hero-chip hover:bg-white/15"><i class="fas fa-graduation-cap"></i> Student Portal</a></div></div></div><div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3"><div class="card stat-card" style="--stat-glow:#e0f2fe"><div class="flex items-start justify-between"><div class="stat-icon bg-sky-50 text-sky-600"><i class="fas fa-user-graduate"></i></div><span class="tag">Tutor</span></div><div><div id="statTutors" class="stat-value">0</div><div class="stat-label mt-2">ติวเตอร์ทั้งหมด</div><div class="stat-note mt-1">ผู้สอนในระบบ</div></div></div><div class="card stat-card" style="--stat-glow:#ede9fe"><div class="flex items-start justify-between"><div class="stat-icon bg-violet-50 text-violet-600"><i class="fas fa-book-open"></i></div><span class="tag">Course</span></div><div><div id="statCourses" class="stat-value">0</div><div class="stat-label mt-2">คอร์สทั้งหมด</div><div class="stat-note mt-1">หลักสูตรที่จัดการอยู่</div></div></div><div class="card stat-card" style="--stat-glow:#fef3c7"><div class="flex items-start justify-between"><div class="stat-icon bg-amber-50 text-amber-600"><i class="fas fa-hourglass-half"></i></div><span class="tag">Pending</span></div><div><div id="statPending" class="stat-value text-amber-500">0</div><div class="stat-label mt-2">รอตรวจสลิป</div><div class="stat-note mt-1">ต้องดำเนินการ</div></div></div><div class="card stat-card" style="--stat-glow:#dcfce7"><div class="flex items-start justify-between"><div class="stat-icon bg-emerald-50 text-emerald-600"><i class="fas fa-user-check"></i></div><span class="tag">Enroll</span></div><div><div id="statEnrollments" class="stat-value">0</div><div class="stat-label mt-2">สมัครทั้งหมด</div><div class="stat-note mt-1">รายการลงทะเบียน</div></div></div><div class="card stat-card" style="--stat-glow:#e0e7ff"><div class="flex items-start justify-between"><div class="stat-icon bg-indigo-50 text-indigo-600"><i class="fas fa-star"></i></div><span class="tag">Review</span></div><div><div id="statReviews" class="stat-value text-indigo-500">0</div><div class="stat-label mt-2">รีวิวเผยแพร่</div><div class="stat-note mt-1">Social proof</div></div></div></div></section>
 
         <section id="section-homepage" class="section space-y-5">
@@ -32304,7 +32347,36 @@
         </section>
 
         <section id="section-v17control" class="section space-y-4"><div class="page-head"><div><div class="page-kicker">Unified Operations · V17</div><h1 class="page-title">Operations Center</h1><p class="page-subtitle">Action Center, Student Services, Finance Aging, Group Locker และ Tutor Pipeline ใน Manager หลัก</p></div></div><div id="v17ControlRoot"></div></section>
-        <section id="section-student360" class="section space-y-4"><div class="page-head"><div><div class="page-kicker">Single Student View</div><h1 class="page-title">Student 360°</h1><p class="page-subtitle">ข้อมูลส่วนตัว คอร์ส ชั่วโมง ตาราง Attendance Payment Homework Support Parent และ Timeline ของนักเรียนคนเดียวในหน้าเดียว</p></div></div><div id="v17Student360Root"></div></section>
+        <section id="section-student360" class="section space-y-4">
+  <div class="page-head">
+    <div>
+      <div class="page-kicker">Single Student View</div>
+      <h1 class="page-title">Student 360°</h1>
+      <p class="page-subtitle">ข้อมูลส่วนตัว คอร์ส ชั่วโมง ตาราง Attendance Payment Homework Support Parent และ Timeline ของนักเรียนคนเดียวในหน้าเดียว</p>
+    </div>
+  </div>
+
+  <div id="studentDeleteApprovalPanel" class="card p-5">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+      <div>
+        <div class="text-[9px] font-extrabold tracking-[.16em] text-rose-600 uppercase">Fraud Control · Delete Approval</div>
+        <h2 class="font-bold text-lg mt-1">คำขอลบนักเรียน</h2>
+        <p class="text-xs text-slate-400 mt-1">ทุกคำขอจาก Tutor OS ต้องผ่าน Manager Approval ก่อนลบจริง และผู้ส่งคำขอไม่สามารถอนุมัติคำขอตัวเองได้</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="studentDeleteRequestCount" class="tag !bg-rose-50 !text-rose-600">0 รออนุมัติ</span>
+        <button type="button" id="studentDeleteRequestRefresh" class="top-action bg-white border-slate-200 text-slate-600">
+          <i class="fas fa-rotate"></i><span class="top-label">รีเฟรช</span>
+        </button>
+      </div>
+    </div>
+    <div id="studentDeleteRequestQueue" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div class="text-xs text-slate-400">กำลังโหลดคำขอ...</div>
+    </div>
+  </div>
+
+  <div id="v17Student360Root"></div>
+</section>
         <section id="section-governance" class="section space-y-4"><div class="page-head"><div><div class="page-kicker">Control & Data Integrity</div><h1 class="page-title">System Health · Audit · Roles</h1><p class="page-subtitle">ตรวจข้อมูลข้ามระบบ ประวัติการแก้ไข และ Permission Matrix</p></div></div><div id="v17GovernanceRoot"></div></section>
         <section id="section-studentservices" class="section space-y-4"><div class="page-head"><div><div class="page-kicker">Student Services · V24</div><h1 class="page-title">Student Services Center</h1><p class="page-subtitle">Payment · Renewal · Leave · Tutor Feedback · Membership เชื่อมกับ Student OS</p></div><button id="v24MgrRefresh" class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-bold"><i class="fas fa-rotate mr-1"></i>รีเฟรช</button></div><div id="v24MgrRoot"></div></section><section id="section-system" class="section"><div class="page-head"><div><div class="page-kicker">System</div><h1 class="page-title">ตั้งค่าระบบ</h1><p class="page-subtitle">เปิด/ปิดแพ็กเกจ ประกาศ และโหมดปิดปรับปรุง</p></div></div><div class="card p-5 max-w-3xl"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">ตั้งค่าระบบเดิม</h2><p class="text-xs text-slate-400">เปิด/ปิดแพ็กเกจ Announcement และ Maintenance</p></div><button id="saveSystem" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold">บันทึก</button></div><div id="systemSettings" class="grid md:grid-cols-2 gap-3"></div></div></section>
       </main>
@@ -38009,5 +38081,279 @@ console.info('[AreWarin Manager] V27.0 Hourly Group Core loaded');
 </script>
 
 <script>console.info('[AreWarin Manager V27.7] Control Center scroll loaded');</script>
+
+<script id="aw-v278-student-delete-approval-module">
+(()=>{
+  'use strict';
+
+  console.info('[AreWarin Manager V27.8] Student delete approval workflow loaded');
+
+  const $=(id)=>document.getElementById(id);
+  const esc=(v)=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  const S={requests:[],loading:false};
+
+  function client(){
+    if(window.AreWarinAPI?.sb?.rpc) return window.AreWarinAPI.sb;
+
+    try{
+      const cfg=window.AREWARIN_CONFIG||window.__AREWARIN_CONFIG||{};
+      if(window.supabase?.createClient && cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY){
+        if(!window.__awStudentDeleteApprovalClient){
+          window.__awStudentDeleteApprovalClient=window.supabase.createClient(
+            cfg.SUPABASE_URL,
+            cfg.SUPABASE_ANON_KEY,
+            {auth:{persistSession:true,autoRefreshToken:true}}
+          );
+        }
+        return window.__awStudentDeleteApprovalClient;
+      }
+    }catch(_){}
+    return null;
+  }
+
+  function formatDate(v){
+    if(!v) return '—';
+    try{return new Date(v).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})}
+    catch(_){return String(v)}
+  }
+
+  function statusLabel(v){
+    return ({
+      pending:'รออนุมัติ',
+      approved:'อนุมัติแล้ว',
+      rejected:'ปฏิเสธ',
+      cancelled:'ยกเลิก'
+    })[v]||v||'—';
+  }
+
+  function render(){
+    const root=$('studentDeleteRequestQueue');
+    const count=$('studentDeleteRequestCount');
+    const navBadge=$('studentDeleteNavBadge');
+    if(!root) return;
+
+    const rows=Array.isArray(S.requests)?S.requests:[];
+    const pending=rows.filter(x=>x.status==='pending');
+
+    if(count) count.textContent=pending.length+' รออนุมัติ';
+
+    if(navBadge){
+      navBadge.textContent=String(pending.length);
+      navBadge.classList.toggle('hidden',pending.length===0);
+    }
+
+    if(!rows.length){
+      root.innerHTML='<div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">ยังไม่มีคำขอลบนักเรียน</div>';
+      return;
+    }
+
+    root.innerHTML=rows.slice(0,50).map(r=>{
+      const c=r.counts||{};
+      const pendingRow=r.status==='pending';
+      const statusCls=r.status==='approved'
+        ? '!bg-emerald-50 !text-emerald-600'
+        : r.status==='rejected'
+          ? '!bg-rose-50 !text-rose-600'
+          : r.status==='cancelled'
+            ? '!bg-slate-100 !text-slate-500'
+            : '!bg-amber-50 !text-amber-600';
+
+      return `<article class="aw-student-delete-request-card">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[8px] font-extrabold tracking-wider text-rose-500 uppercase">Student Delete Request</div>
+            <b class="text-[12px] text-slate-800 block truncate mt-1">${esc(r.student_display_name||'นักเรียน')}</b>
+            <span class="text-[9px] text-slate-400 block truncate mt-0.5">${esc(r.student_code||r.student_id||'')}</span>
+          </div>
+          <span class="tag ${statusCls}">${esc(statusLabel(r.status))}</span>
+        </div>
+
+        <div class="mt-3 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5 text-[9px] text-slate-600 leading-relaxed">
+          <div><b>ผู้ส่งคำขอ:</b> ${esc(r.requester_name||r.requester_email||'Tutor')}</div>
+          <div><b>Role:</b> ${esc(r.requester_role||'tutor')}</div>
+          <div><b>ส่งเมื่อ:</b> ${esc(formatDate(r.created_at))}</div>
+        </div>
+
+        <div class="mt-2 rounded-xl bg-amber-50 border border-amber-100 px-3 py-2.5">
+          <div class="text-[8px] font-extrabold text-amber-700 uppercase">เหตุผล</div>
+          <div class="text-[9px] text-amber-800 mt-1 leading-relaxed">${esc(r.reason||'—')}</div>
+        </div>
+
+        <div class="aw-student-delete-count-grid">
+          <div><small>Enrollment</small><b>${Number(c.active_enrollments||0)}</b></div>
+          <div><small>ตารางสอน</small><b>${Number(c.schedules||0)}</b></div>
+          <div><small>ประวัติสอน</small><b>${Number(c.sessions||0)}</b></div>
+          <div><small>Group</small><b>${Number(c.group_links||0)}</b></div>
+          <div><small>Services</small><b>${Number(c.service_records||0)}</b></div>
+        </div>
+
+        ${r.review_note?`<div class="mt-2 text-[8px] text-slate-500"><b>หมายเหตุ Manager:</b> ${esc(r.review_note)}</div>`:''}
+
+        ${pendingRow?`<div class="aw-tutor-actions mt-3">
+          <button type="button" class="!bg-emerald-50 !text-emerald-700 !border-emerald-100" data-student-delete-approve="${esc(r.id)}">
+            <i class="fas fa-check mr-1"></i>อนุมัติและลบ
+          </button>
+          <button type="button" class="danger" data-student-delete-reject="${esc(r.id)}">
+            <i class="fas fa-xmark mr-1"></i>ปฏิเสธ
+          </button>
+        </div>`:''}
+      </article>`;
+    }).join('');
+
+    root.querySelectorAll('[data-student-delete-approve]').forEach(
+      b=>b.onclick=()=>review(b.dataset.studentDeleteApprove,'approve')
+    );
+    root.querySelectorAll('[data-student-delete-reject]').forEach(
+      b=>b.onclick=()=>review(b.dataset.studentDeleteReject,'reject')
+    );
+  }
+
+  async function load(){
+    if(S.loading) return;
+    const c=client();
+    if(!c) return;
+
+    S.loading=true;
+    try{
+      const r=await c.rpc('os_v197_manager_student_delete_requests');
+      if(r.error) throw r.error;
+      S.requests=Array.isArray(r.data?.requests)?r.data.requests:[];
+    }catch(e){
+      console.warn('[AreWarin Manager V27.8] student delete requests unavailable',e);
+      S.requests=[];
+    }finally{
+      S.loading=false;
+      render();
+    }
+  }
+
+  async function review(id,action){
+    const row=S.requests.find(x=>String(x.id)===String(id));
+    if(!row) return;
+
+    if(action==='approve'){
+      const ask=await Swal.fire({
+        icon:'warning',
+        title:'อนุมัติและลบนักเรียน?',
+        width:560,
+        html:`<div class="text-left text-sm text-slate-600 leading-relaxed">
+          <div class="rounded-xl bg-rose-50 border border-rose-100 p-3 mb-3">
+            นักเรียน: <b>${esc(row.student_display_name||'นักเรียน')}</b><br>
+            รหัส: <b>${esc(row.student_code||row.student_id||'—')}</b>
+          </div>
+          เมื่อยืนยัน ระบบจะลบ Student Profile และข้อมูล Student/Tutor OS ที่ผูกตาม FK<br>
+          <b class="text-rose-600">ไม่สามารถย้อนกลับจากหน้า Manager ได้</b><br><br>
+          ผู้ส่งคำขอไม่สามารถเป็นผู้อนุมัติคำขอเดียวกันได้
+        </div>`,
+        input:'text',
+        inputLabel:'พิมพ์ APPROVE เพื่อยืนยัน',
+        inputPlaceholder:'APPROVE',
+        showCancelButton:true,
+        confirmButtonText:'อนุมัติและลบ',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#e11d48',
+        reverseButtons:true,
+        focusCancel:true,
+        preConfirm:(value)=>{
+          if(String(value||'').trim()!=='APPROVE'){
+            Swal.showValidationMessage('กรุณาพิมพ์ APPROVE ให้ถูกต้อง');
+            return false;
+          }
+          return true;
+        }
+      });
+      if(!ask.isConfirmed) return;
+    }else{
+      const ask=await Swal.fire({
+        icon:'question',
+        title:'ปฏิเสธคำขอลบ?',
+        input:'textarea',
+        inputLabel:'เหตุผลที่ปฏิเสธ',
+        inputPlaceholder:'เช่น ยังมีคอร์สที่กำลังเรียนอยู่ กรุณาตรวจสอบก่อน',
+        showCancelButton:true,
+        confirmButtonText:'ปฏิเสธคำขอ',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#475569',
+        reverseButtons:true,
+        preConfirm:(value)=>{
+          const v=String(value||'').trim();
+          if(v.length<3){
+            Swal.showValidationMessage('กรุณาระบุเหตุผล');
+            return false;
+          }
+          return v;
+        }
+      });
+      if(!ask.isConfirmed) return;
+      row.__review_note=ask.value;
+    }
+
+    const c=client();
+    if(!c) return;
+
+    try{
+      Swal.fire({
+        title:action==='approve'?'กำลังอนุมัติและลบ...':'กำลังปฏิเสธ...',
+        allowOutsideClick:false,
+        didOpen:()=>Swal.showLoading()
+      });
+
+      const r=await c.rpc('os_v197_manager_review_student_delete',{
+        p_request_id:id,
+        p_action:action,
+        p_note:action==='reject'?String(row.__review_note||''):null
+      });
+
+      if(r.error) throw r.error;
+      if(!r.data?.ok) throw new Error(r.data?.message||'ดำเนินการไม่สำเร็จ');
+
+      Swal.close();
+
+      await Swal.fire({
+        icon:'success',
+        title:action==='approve'?'อนุมัติและลบเรียบร้อย':'ปฏิเสธคำขอแล้ว',
+        text:action==='approve'
+          ? `${r.data.student_display_name||'นักเรียน'} ถูกลบออกจาก Student/Tutor OS แล้ว`
+          : undefined,
+        confirmButtonText:'ตกลง'
+      });
+
+      await load();
+      document.getElementById('v17Student360Refresh')?.click();
+    }catch(e){
+      Swal.close();
+      console.error('[AreWarin Manager V27.8] review student delete failed',e);
+      Swal.fire({
+        icon:'error',
+        title:'ดำเนินการไม่สำเร็จ',
+        text:e?.message||String(e)
+      });
+    }
+  }
+
+  function boot(){
+    $('studentDeleteRequestRefresh')?.addEventListener('click',load);
+
+    document.querySelector('[data-section="student360"]')?.addEventListener('click',()=>{
+      setTimeout(load,80);
+    });
+
+    load();
+
+    // Refresh periodically so approval queue is visible without manual reload.
+    setInterval(()=>{
+      if(document.visibilityState==='visible') load();
+    },60000);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
+
 </body>
 </html>
