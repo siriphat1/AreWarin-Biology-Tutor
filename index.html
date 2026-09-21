@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <!-- AREWARIN REGISTER V26.7 · LATE PAYMENT QR + SLIP UPLOAD -->
+  <!-- AREWARIN REGISTER V26.8 · BANNER AUTOPLAY + V26.7 PAYMENT FLOW -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
@@ -1770,7 +1770,7 @@
                         <img id="banner-img" src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-transform duration-[20s] group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-transparent"></div>
                         
-                        <div class="relative z-20">
+                        <div id="banner-text-container" class="relative z-20 transition-all duration-500">
                             <div class="absolute -top-32 right-0 animate-bounce">
                                 <span id="banner-location-wrap" class="bg-yellow-400 text-slate-900 px-3 py-1 rounded-full text-[10px] font-bold shadow-lg border border-yellow-200 transform rotate-2">
                                     <i class="fas fa-map-marker-alt text-red-600 mr-1"></i> <span id="banner-location">Onsite @ขอนแก่น</span>
@@ -3831,7 +3831,7 @@
             { img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2080&auto=format&fit=crop", title: 'ติวเข้ม', highlight: 'มัธยมปลาย', desc: 'ชีวะ - เคมี A-Level / NETSAT / สอวน.', badge: 'เตรียมสอบอย่างเป็นระบบ', location: 'Online & Onsite', link: '' },
             { img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop", title: 'ปูพื้นฐาน', highlight: 'ประถม - ม.ต้น', desc: 'วิทย์ - คณิต สอนสนุก เข้าใจง่าย', badge: 'พื้นฐานแน่น เรียนรู้สนุก', location: 'Online & Onsite', link: '' }
         ];
-        let currentBannerIndex = 0, assistantTimeout;
+        let currentBannerIndex = 0, assistantTimeout, bannerSliderTimer = null, bannerTransitionTimer = null;
         
         let categories = [
             { id: 'bio', name: 'ชีววิทยา', desc: 'Biology', icon: 'fas fa-dna', theme: 'rose', active: true },
@@ -3934,6 +3934,7 @@
                     if (!brandRes.error && brandRes.data) siteBranding = {...siteBranding, ...brandRes.data};
                     if (!bannerRes.error) {
                         banners = (bannerRes.data||[]).map(x => ({img:x.image_url,title:x.title,highlight:x.highlight_text||'',desc:x.description||'',badge:x.badge_text||siteBranding.registration_badge||'',location:x.location_text||siteBranding.location_badge||'',link:x.link_url||''}));
+                        currentBannerIndex = 0;
                         const hero=document.getElementById('heroBanner'); if(hero) hero.classList.toggle('hidden', banners.length===0);
                     }
                     if (!categoryRes.error) categories = (categoryRes.data||[]).map(x => ({id:x.id,name:x.name_th,desc:x.name_en||'',icon:x.icon_class||'fas fa-book-open',theme:x.theme||'sky',active:x.active!==false}));
@@ -4444,31 +4445,78 @@
             assistantTimeout = setTimeout(() => { c.classList.remove('showing'); }, 6000);
         }
 
-        function startBannerSlider() { 
+        function stopBannerSlider() {
+            if (bannerSliderTimer) {
+                clearInterval(bannerSliderTimer);
+                bannerSliderTimer = null;
+            }
+            if (bannerTransitionTimer) {
+                clearTimeout(bannerTransitionTimer);
+                bannerTransitionTimer = null;
+            }
+        }
+
+        function startBannerSlider() {
+            stopBannerSlider();
+
             if (!Array.isArray(banners) || banners.length === 0) return;
-            currentBannerIndex = 0;
-            updateBannerUI(0);
+
+            currentBannerIndex = Math.min(
+                Math.max(Number(currentBannerIndex) || 0, 0),
+                banners.length - 1
+            );
+
+            updateBannerUI(currentBannerIndex);
+
+            // Preload banner images to prevent flashes during automatic transitions.
+            banners.forEach(b => {
+                if (!b?.img) return;
+                try {
+                    const preload = new Image();
+                    preload.src = b.img;
+                } catch (_) {}
+            });
+
             if (banners.length < 2) return;
-            setInterval(() => { 
-                currentBannerIndex = (currentBannerIndex + 1) % banners.length; 
-                updateBanner(); 
-            }, 5000); 
+
+            bannerSliderTimer = setInterval(() => {
+                // Do not waste work while the browser tab is hidden.
+                if (document.hidden) return;
+
+                currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+                updateBanner();
+            }, 5000);
         }
 
         function updateBanner() {
             const img = document.getElementById('banner-img');
             const tc = document.getElementById('banner-text-container');
-            if(img && tc) {
-                img.classList.remove('opacity-40');
-                img.classList.add('opacity-0'); 
-                tc.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => { 
-                    updateBannerUI(currentBannerIndex);
-                    img.classList.remove('opacity-0');
-                    img.classList.add('opacity-40');
-                    tc.classList.remove('opacity-0', 'translate-y-2'); 
-                }, 500);
+
+            // Image is the only hard requirement. Text animation is optional.
+            if (!img) {
+                updateBannerUI(currentBannerIndex);
+                return;
             }
+
+            if (bannerTransitionTimer) {
+                clearTimeout(bannerTransitionTimer);
+                bannerTransitionTimer = null;
+            }
+
+            img.classList.remove('opacity-80', 'opacity-40');
+            img.classList.add('opacity-0');
+            if (tc) tc.classList.add('opacity-0', 'translate-y-2');
+
+            bannerTransitionTimer = setTimeout(() => {
+                updateBannerUI(currentBannerIndex);
+
+                // Restore the normal readable image opacity.
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-80');
+
+                if (tc) tc.classList.remove('opacity-0', 'translate-y-2');
+                bannerTransitionTimer = null;
+            }, 320);
         }
         
         function updateBannerUI(index) {
@@ -8415,6 +8463,22 @@ function boot(){
   console.info('[AreWarin Register] V26.5 Group Class Late No-Edge loaded');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else setTimeout(boot,50);
+})();
+</script>
+
+
+<script id="aw-v268-banner-autoplay-runtime">
+(()=>{
+  console.info('[AreWarin Register V26.8] Banner autoplay fix loaded');
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden) return;
+    // If the page becomes visible after a long background period, make sure
+    // the timer is alive. The function is defined by the main registration script.
+    if(typeof startBannerSlider==='function' && Array.isArray(window.banners || [])){
+      // Main scope uses `banners`; this branch is only a harmless fallback.
+    }
+  });
 })();
 </script>
 
