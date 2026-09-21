@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  console.info('[AreWarin Tutor OS V19.3] Calendar Pro + Quick Duration loaded');
 
   const cfg = window.AREWARIN_CONFIG || {};
   const loginView = document.getElementById('loginView');
@@ -16,6 +17,8 @@
     signupLookup: null,
     realtime: null,
     reloadTimer: null,
+    scheduleView: localStorage.getItem('aw_tutor_schedule_view') || 'calendar',
+    scheduleWeekStart: localStorage.getItem('aw_tutor_schedule_week_start') || '',
   };
 
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({
@@ -110,44 +113,10 @@
     return arr(state.data?.team).find((x) => String(x.id) === String(id));
   }
 
-
-  function poolById(id){
-    return arr(state.data?.hour_pools).find((x)=>String(x.id)===String(id));
-  }
-  function mergeRowsById(a,b){
-    const m=new Map();
-    [...arr(a),...arr(b)].forEach((x)=>{ if(x?.id) m.set(String(x.id),x); });
-    return [...m.values()];
-  }
-  function walletBalance(e){
-    const p=e?.hour_pool_id ? poolById(e.hour_pool_id) : null;
-    const unlimited=!!(p?.hours_unlimited ?? e?.hours_unlimited);
-    const initial=num(p?.total_hours ?? e?.hours_total);
-    const used=num(p?.used_hours ?? e?.hours_used);
-    return {
-      pool:p,
-      unlimited,
-      initial,
-      used,
-      remaining:unlimited ? Infinity : Math.max(0,initial-used)
-    };
-  }
-  function walletSourceLabel(e){
-    return e?.source_enrollment_id ? 'SYSTEM' : 'LEGACY';
-  }
-  async function loadCanonicalCourseWallets(){
-    const d=await rpc('tutor_os_course_wallets_v20');
-    if(!d?.ok)return;
-    state.data.enrollments=arr(d.wallets);
-    state.data.students=mergeRowsById(state.data.students,d.students);
-    state.data.courses=mergeRowsById(state.data.courses,d.courses);
-    state.data.hour_pools=mergeRowsById(state.data.hour_pools,d.hour_pools);
-  }
-
   function scopedEnrollmentLabel(e) {
     const s = studentById(e.student_id);
     const c = courseById(e.course_id);
-    return `${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}${e?.source_enrollment_id ? '' : ' · Legacy'}`;
+    return `${fullName(s)} · ${c?.title || c?.name || e.course_label || 'คอร์ส'}`;
   }
 
   function sectionHeader(kicker, title, subtitle, right = '') {
@@ -168,7 +137,7 @@
       ${state.data?.needs_tutor_link ? `<div class="aw-card content-card" style="margin-bottom:14px;border-color:#fbbf24;background:#fffbeb"><div class="section-note"><b>บัญชีติวเตอร์ยังรอเชื่อม Tutor Profile</b><br>ระบบยืนยันใบสมัคร tutor-apply และบัญชี Auth แล้ว แต่ยังจับคู่กับรายการในตาราง tutors ไม่ได้ กรุณาให้ Admin เชื่อม Tutor ID ก่อน จึงจะเห็นนักเรียนและเริ่มสอนได้</div></div>` : ''}
       <div class="metric-grid">
         ${metric('fa-user-graduate', 'นักเรียนในความดูแล', students.length, isAdmin() ? 'ทุกคนในระบบ' : 'เฉพาะที่ได้รับมอบหมาย')}
-        ${metric('fa-book-open', 'Course Wallet ที่ใช้งาน', enrollments.length, 'Active / Paused · รวม Legacy')}
+        ${metric('fa-book-open', 'Enrollment ที่ใช้งาน', enrollments.length, 'Active / Paused')}
         ${metric('fa-stopwatch', 'คาบที่กำลังสอน', running.length, 'กำลังจับเวลา')}
         ${metric('fa-clock-rotate-left', 'ชั่วโมงที่บันทึก', used.toFixed(1), 'รวมจาก Hour Ledger')}
       </div>
@@ -213,168 +182,14 @@
     }).join('')}</tbody></table></div>`;
   }
 
-
-  const sharedHours = () => arr(state.data?.shared_hours);
-  function sharedPoolById(id){ return sharedHours().find((p)=>String(p.id)===String(id)); }
-  function studentHourSummary(studentId, ens){
-    const seen=new Set(); let remain=0, unlimited=false, sharedCount=0;
-    ens.forEach((e)=>{
-      const pid=e.hour_pool_id ? String(e.hour_pool_id) : '';
-      const sp=pid ? sharedPoolById(pid) : null;
-      if(sp){
-        if(seen.has(pid)) return;
-        seen.add(pid); sharedCount++;
-        if(sp.hours_unlimited){ unlimited=true; return; }
-        remain += Math.max(0,num(sp.total_hours)-num(sp.used_hours));
-      }else{
-        if(e.hours_unlimited){unlimited=true;return}
-        remain += Math.max(0,num(e.hours_total)-num(e.hours_used));
-      }
-    });
-    return {remain,unlimited,sharedCount};
-  }
-
-  function openSharedHours(studentId){
-    const st=studentById(studentId);
-    const ens=arr(state.data?.enrollments).filter((e)=>String(e.student_id)===String(studentId)&&['active','paused'].includes(e.status));
-    if(ens.length<2)return alertToast('warning','ต้องมีอย่างน้อย 2 คอร์สที่กำลังเรียน');
-    const current=sharedHours().filter((p)=>String(p.student_id)===String(studentId));
-    const currentHtml=current.length?`<div class="shared-hour-list">${current.map((p)=>`<div class="shared-hour-card"><b><i class="fa-solid fa-share-nodes"></i> ${esc(p.label||'Shared Hour Pool')}</b><p>${p.hours_unlimited?'ไม่จำกัดชั่วโมง':`${num(p.total_hours).toFixed(1)} ชม. · ใช้แล้ว ${num(p.used_hours).toFixed(1)} · เหลือ ${Math.max(0,num(p.total_hours)-num(p.used_hours)).toFixed(1)}`}<br>${arr(p.members).map((m)=>esc(m.course_name||m.course_label||'คอร์ส')).join(' + ')}</p></div>`).join('')}</div>`:'';
-    showModal('แชร์เวลาเรียนระหว่างคอร์ส', `<form id="sharedHoursForm">
-      <div class="share-pool-info"><b>${esc(fullName(st))}</b><br>ติวเตอร์เป็นผู้กำหนด Shared Hour Pool เอง เลือกอย่างน้อย 2 คอร์ส แล้วใส่จำนวนชั่วโมงรวม เช่น ชีวะ + เคมี แชร์กัน 20 ชั่วโมง</div>
-      ${currentHtml}
-      <label class="aw-label wide">เลือกคอร์สที่แชร์เวลา<div class="share-course-list">${ens.map((e)=>`<label class="share-course-option"><input type="checkbox" name="enrollment_ids" value="${esc(e.id)}"><span><b>${esc(courseById(e.course_id)?.title||courseById(e.course_id)?.name||e.course_label||'คอร์ส')}</b><small>${esc(e.status==='paused'?'พักเรียน':'กำลังเรียน')}</small></span>${e.hour_pool_id&&sharedPoolById(e.hour_pool_id)?'<span class="shared-hour-pill">แชร์อยู่</span>':''}</label>`).join('')}</div></label>
-      <div class="form-grid" style="margin-top:10px">
-        <label class="aw-label">ชั่วโมงรวม<input class="aw-input" type="number" name="total_hours" min="0" step="0.25" value="20"></label>
-        <label class="aw-label">ชื่อกลุ่มแชร์<input class="aw-input" name="label" placeholder="เช่น Biology + Chemistry"></label>
-        <label class="aw-label wide"><span style="display:flex;align-items:center;gap:8px"><input type="checkbox" name="unlimited"> ไม่จำกัดชั่วโมง</span></label>
-        <label class="aw-label wide">หมายเหตุ<textarea class="aw-textarea" name="note" rows="2" placeholder="เช่น แพ็ก 20 ชั่วโมงใช้ร่วมกันระหว่าง 2 คอร์ส"></textarea></label>
-      </div>
-    </form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveSharedHours"><i class="fa-solid fa-share-nodes"></i> สร้าง Shared Hour Pool</button>`);
-    $('saveSharedHours').onclick=async()=>{
-      const f=$('sharedHoursForm'),fd=new FormData(f),ids=fd.getAll('enrollment_ids');
-      if(ids.length<2)return alertToast('warning','เลือกอย่างน้อย 2 คอร์ส');
-      const unlimited=!!f.elements.unlimited.checked,total=num(fd.get('total_hours'));
-      if(!unlimited&&total<=0)return alertToast('warning','กรุณาระบุจำนวนชั่วโมงรวม');
-      try{
-        loading('กำลังสร้าง Shared Hour Pool...');
-        const r=await rpc('tutor_os_create_shared_hour_pool',{
-          p_student_id:studentId,p_enrollment_ids:ids,p_total_hours:unlimited?0:total,
-          p_unlimited:unlimited,p_label:String(fd.get('label')||'').trim()||null,
-          p_note:String(fd.get('note')||'').trim()||null
-        });
-        Swal.close();closeModal();
-        alertToast('success','ตั้งค่าแชร์เวลาเรียนแล้ว',r?.carried_used_hours?`ย้ายชั่วโมงที่ใช้เดิม ${num(r.carried_used_hours).toFixed(1)} ชม.`:'');
-        await loadData(false)
-      }catch(e){Swal.close();alertToast('error','สร้าง Shared Hour Pool ไม่สำเร็จ',friendlyError(e))}
-    };
-  }
-
   function studentsHtml() {
     const rows = arr(state.data?.students);
-    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'ดึงจาก Course Wallet โดยตรง รวมทั้งนักเรียน Legacy ที่ Manager เพิ่มเป็นคอร์สปัจจุบันแล้ว')}
-      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => {
+    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course')}
+      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th></tr></thead><tbody>${rows.map((s) => {
         const ens = arr(state.data?.enrollments).filter((e) => String(e.student_id) === String(s.id) && ['active', 'paused'].includes(e.status));
-        const hs=studentHourSummary(s.id,ens);
-        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => {
-          const bal=walletBalance(e), source=walletSourceLabel(e);
-          return `<div style="margin-bottom:5px"><span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span><span class="wallet-source ${source==='LEGACY'?'legacy':'system'}">${source}</span><div class="wallet-mini-balance">${bal.unlimited?'∞ ไม่จำกัด':`เริ่ม <b>${bal.initial.toFixed(1)}</b> · เหลือ <b>${bal.remaining.toFixed(1)}</b> ชม.`}</div></div>`
-        }).join('') || '—'}${hs.sharedCount?`<div><span class="shared-hour-pill"><i class="fa-solid fa-share-nodes"></i> แชร์เวลา ${hs.sharedCount} กลุ่ม</span></div>`:''}</td><td>${hs.unlimited ? '∞' : `${hs.remain.toFixed(1)} ชม.`}</td><td><div style="display:flex;gap:6px;flex-wrap:wrap">${ens.length?`<button class="aw-btn small hour-manage-btn" data-manage-hours="${esc(s.id)}"><i class="fa-solid fa-sliders"></i> แก้ชั่วโมง</button>`:''}${ens.length>=2?`<button class="aw-btn small sky share-hours-btn" data-share-hours="${esc(s.id)}"><i class="fa-solid fa-share-nodes"></i> แชร์เวลาเรียน</button>`:''}</div></td></tr>`;
+        const remain = ens.reduce((sum, e) => sum + (e.hours_unlimited ? 0 : Math.max(0, num(e.hours_total) - num(e.hours_used))), 0);
+        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}</td><td>${ens.some((e) => e.hours_unlimited) ? '∞' : `${remain.toFixed(1)} ชม.`}</td></tr>`;
       }).join('')}</tbody></table></div>` : '<div class="empty-state">ยังไม่มีนักเรียนในสิทธิ์ของบัญชีนี้</div>'}</section>`;
-  }
-
-
-  function openHourManager(studentId){
-    const st=studentById(studentId);
-    const ens=arr(state.data?.enrollments).filter((e)=>String(e.student_id)===String(studentId)&&['active','paused'].includes(e.status));
-    if(!ens.length)return alertToast('warning','ไม่พบ Course Wallet ที่กำลังเรียน');
-
-    const groups=[],seen=new Set();
-    ens.forEach((e)=>{
-      const key=e.hour_pool_id ? `pool:${e.hour_pool_id}` : `wallet:${e.id}`;
-      if(seen.has(key))return;seen.add(key);
-      const members=e.hour_pool_id ? ens.filter((x)=>String(x.hour_pool_id)===String(e.hour_pool_id)) : [e];
-      groups.push({e,members,bal:walletBalance(e)});
-    });
-
-    showModal(`ชั่วโมงเรียน · ${fullName(st)}`, `
-      <div class="hour-balance-note"><b>ชั่วโมงเริ่มต้น</b> = ชั่วโมงทั้งหมดของแพ็ก / <b>ชั่วโมงคงเหลือ</b> = ชั่วโมงที่ยังใช้ได้<br>แก้ค่าได้โดย Tutor โดยตรง ระบบจะคำนวณชั่วโมงที่ใช้แล้วให้ใหม่อัตโนมัติ</div>
-      <div class="hour-wallet-list">${groups.map((g)=>{
-        const courseNames=g.members.map((m)=>courseById(m.course_id)?.title||courseById(m.course_id)?.name||m.course_label||'คอร์ส');
-        const shared=g.members.length>1;
-        return `<article class="hour-wallet-card ${shared?'shared':''}">
-          <div class="hour-wallet-top"><div><h4>${esc(courseNames.join(' + '))}${shared?' · Shared Pool':''}</h4><p>${g.members.map((m)=>walletSourceLabel(m)).includes('LEGACY')?'มีคอร์ส Legacy อยู่ในชุดนี้ · ':''}${shared?'การแก้ชั่วโมงจะมีผลกับทุกคอร์สที่แชร์ pool เดียวกัน':'Course Wallet รายคอร์ส'}</p></div><button class="aw-btn small primary" data-edit-hour-wallet="${esc(g.e.id)}"><i class="fa-solid fa-pen"></i> แก้ชั่วโมง</button></div>
-          <div class="hour-wallet-stats">
-            <div class="hour-wallet-stat"><small>ชั่วโมงเริ่มต้น</small><b>${g.bal.unlimited?'∞':g.bal.initial.toFixed(2)}</b></div>
-            <div class="hour-wallet-stat"><small>ใช้แล้ว</small><b>${g.bal.unlimited?'—':g.bal.used.toFixed(2)}</b></div>
-            <div class="hour-wallet-stat"><small>คงเหลือ</small><b>${g.bal.unlimited?'∞':g.bal.remaining.toFixed(2)}</b></div>
-          </div>
-        </article>`
-      }).join('')}</div>
-    `, `<button class="aw-btn" data-modal-close>ปิด</button>`);
-
-    $$('[data-edit-hour-wallet]',modalRoot).forEach((b)=>b.onclick=()=>openHourBalanceEdit(b.dataset.editHourWallet));
-  }
-
-  function openHourBalanceEdit(enrollmentId){
-    const e=enrollmentById(enrollmentId);if(!e)return;
-    const bal=walletBalance(e);
-    const samePool=e.hour_pool_id ? arr(state.data?.enrollments).filter((x)=>String(x.hour_pool_id)===String(e.hour_pool_id)) : [e];
-    const names=samePool.map((m)=>courseById(m.course_id)?.title||courseById(m.course_id)?.name||m.course_label||'คอร์ส');
-    showModal('แก้ชั่วโมงเริ่มต้น / ชั่วโมงคงเหลือ', `
-      <form id="hourBalanceForm">
-        <div class="hour-balance-note"><b>${esc(names.join(' + '))}</b><br>${samePool.length>1?'คอร์สเหล่านี้แชร์ Hour Pool เดียวกัน การแก้ครั้งนี้จะอัปเดตทุกคอร์สในกลุ่ม':'สามารถตั้งชั่วโมงของ Course Wallet นี้ได้โดยตรง แม้เป็นนักเรียน Legacy'}</div>
-        <div class="form-grid">
-          <label class="aw-label">ชั่วโมงเริ่มต้น<input class="aw-input" type="number" min="0" step="0.25" name="initial_hours" value="${bal.initial.toFixed(2)}"></label>
-          <label class="aw-label">ชั่วโมงคงเหลือ<input class="aw-input" type="number" min="0" step="0.25" name="remaining_hours" value="${bal.unlimited?bal.initial.toFixed(2):bal.remaining.toFixed(2)}"></label>
-          <label class="aw-label wide"><span style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="unlimited" ${bal.unlimited?'checked':''}> ไม่จำกัดชั่วโมง</span></label>
-          <label class="aw-label wide">เหตุผล / หมายเหตุ<textarea class="aw-textarea" name="note" rows="2" placeholder="เช่น ปรับยอดยกมาจากระบบเก่า / เติมแพ็กใหม่ / แก้ยอดคงเหลือ"></textarea></label>
-        </div>
-        <div class="hour-balance-preview">
-          <div><small>เริ่มต้น</small><b id="hbInitial">${bal.initial.toFixed(2)}</b></div>
-          <div><small>ใช้แล้ว</small><b id="hbUsed">${bal.used.toFixed(2)}</b></div>
-          <div><small>คงเหลือ</small><b id="hbRemain">${bal.unlimited?'∞':bal.remaining.toFixed(2)}</b></div>
-        </div>
-        <div class="hour-warning"><i class="fa-solid fa-triangle-exclamation"></i> การแก้ยอดนี้เป็นการปรับยอดโดย Tutor และจะถูกบันทึกใน Audit Log ไม่ได้สร้างรายการชำระเงินหรือ Enrollment ใหม่</div>
-      </form>
-    `, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveHourBalance"><i class="fa-solid fa-floppy-disk"></i> บันทึกชั่วโมง</button>`);
-
-    const f=$('hourBalanceForm');
-    const updatePreview=()=>{
-      const unlimited=!!f.elements.unlimited.checked;
-      const initial=Math.max(0,num(f.elements.initial_hours.value));
-      let remain=Math.max(0,num(f.elements.remaining_hours.value));
-      if(remain>initial&&!unlimited)remain=initial;
-      $('hbInitial').textContent=unlimited?'∞':initial.toFixed(2);
-      $('hbUsed').textContent=unlimited?'—':Math.max(0,initial-remain).toFixed(2);
-      $('hbRemain').textContent=unlimited?'∞':remain.toFixed(2);
-      f.elements.initial_hours.disabled=unlimited;
-      f.elements.remaining_hours.disabled=unlimited;
-    };
-    f.elements.initial_hours.oninput=updatePreview;
-    f.elements.remaining_hours.oninput=updatePreview;
-    f.elements.unlimited.onchange=updatePreview;
-    updatePreview();
-
-    $('saveHourBalance').onclick=async()=>{
-      const unlimited=!!f.elements.unlimited.checked;
-      const initial=unlimited?0:Math.max(0,num(f.elements.initial_hours.value));
-      const remaining=unlimited?0:Math.max(0,num(f.elements.remaining_hours.value));
-      if(!unlimited&&remaining>initial)return alertToast('warning','ชั่วโมงคงเหลือต้องไม่มากกว่าชั่วโมงเริ่มต้น');
-      try{
-        loading('กำลังปรับยอดชั่วโมง...');
-        const r=await rpc('tutor_os_set_hour_balance_v20',{
-          p_enrollment_id:enrollmentId,
-          p_initial_hours:initial,
-          p_remaining_hours:remaining,
-          p_unlimited:unlimited,
-          p_note:String(f.elements.note.value||'').trim()||null
-        });
-        Swal.close();closeModal();
-        alertToast('success','อัปเดตชั่วโมงแล้ว',r?.affected_wallets>1?`อัปเดต ${r.affected_wallets} คอร์สใน Shared Pool`:'');
-        await loadData(false)
-      }catch(err){Swal.close();alertToast('error','ปรับชั่วโมงไม่สำเร็จ',friendlyError(err))}
-    };
   }
 
   function coursesHtml() {
@@ -410,12 +225,161 @@
   const scheduleById = (id) => arr(state.data?.schedules).find((x) => String(x.id) === String(id));
   const sessionById = (id) => arr(state.data?.sessions).find((x) => String(x.id) === String(id));
 
+  const AW_CAL_START_HOUR = 7;
+  const AW_CAL_END_HOUR = 22;
+  const AW_CAL_HOUR_PX = 64;
+
+  function awDateKeyAddDays(key, days) {
+    const m = String(key || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return '';
+    const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + Number(days || 0)));
+    return d.toISOString().slice(0, 10);
+  }
+
+  function awMondayKey(value = new Date()) {
+    const key = /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? String(value) : bangkokDateKey(value);
+    const [y,m,d] = key.split('-').map(Number);
+    const utc = new Date(Date.UTC(y,m-1,d));
+    const weekday = utc.getUTCDay(); // 0 Sun ... 6 Sat
+    const back = weekday === 0 ? 6 : weekday - 1;
+    return awDateKeyAddDays(key, -back);
+  }
+
+  function awScheduleWeekStart() {
+    const candidate = String(state.scheduleWeekStart || '');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(candidate)) return awMondayKey(candidate);
+    return awMondayKey(new Date());
+  }
+
+  function awSetScheduleWeek(key) {
+    state.scheduleWeekStart = awMondayKey(key);
+    localStorage.setItem('aw_tutor_schedule_week_start', state.scheduleWeekStart);
+  }
+
+  function awBangkokTimeParts(v) {
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return {hour:0,minute:0};
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone:'Asia/Bangkok', hour:'2-digit', minute:'2-digit', hourCycle:'h23'
+    }).formatToParts(d);
+    const out = Object.fromEntries(parts.map(p => [p.type,p.value]));
+    return { hour:Number(out.hour || 0), minute:Number(out.minute || 0) };
+  }
+
+  function awDateLabel(key, weekday = false) {
+    if (!key) return '';
+    const d = new Date(`${key}T12:00:00+07:00`);
+    return new Intl.DateTimeFormat('th-TH', {
+      timeZone:'Asia/Bangkok',
+      ...(weekday ? {weekday:'short'} : {}),
+      day:'numeric',
+      month:'short'
+    }).format(d);
+  }
+
+  function awWeekRangeLabel(startKey) {
+    const endKey = awDateKeyAddDays(startKey, 6);
+    const a = new Date(`${startKey}T12:00:00+07:00`);
+    const b = new Date(`${endKey}T12:00:00+07:00`);
+    const sameMonth = a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+    if (sameMonth) {
+      const dayA = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric'}).format(a);
+      const end = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(b);
+      return `${dayA}–${end}`;
+    }
+    const left = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short'}).format(a);
+    const right = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric'}).format(b);
+    return `${left} – ${right}`;
+  }
+
+  function awMinutesToHHMM(total) {
+    const n = Math.max(0, Math.floor(Number(total || 0)));
+    const h = Math.floor(n / 60) % 24;
+    const m = n % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+
+  function awLocalDateTimeFromKeyMinutes(key, mins) {
+    return `${key}T${awMinutesToHHMM(mins)}`;
+  }
+
+  function awDurationText(minutes) {
+    const n = Math.max(0, Math.round(Number(minutes || 0)));
+    const h = Math.floor(n / 60);
+    const m = n % 60;
+    if (h && m) return `${h} ชม. ${m} นาที`;
+    if (h) return `${h} ชม.`;
+    return `${m} นาที`;
+  }
+
+  function awAddMinutesLocalInput(value, minutes) {
+    if (!value) return '';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    d.setMinutes(d.getMinutes() + Number(minutes || 0));
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0,16);
+  }
+
+  function awScheduleEventMeta(x) {
+    const e = enrollmentById(x.student_course_enrollment_id);
+    const st = studentById(x.student_id || e?.student_id);
+    const c = courseById(x.course_id || e?.course_id);
+    return { e, st, c };
+  }
+
+  function awCalendarDayLayout(dayRows) {
+    const dayStart = AW_CAL_START_HOUR * 60;
+    const dayEnd = AW_CAL_END_HOUR * 60;
+    const normalized = dayRows.map(x => {
+      const s = awBangkokTimeParts(x.start_at);
+      const e = awBangkokTimeParts(x.end_at);
+      let start = s.hour * 60 + s.minute;
+      let end = e.hour * 60 + e.minute;
+      if (bangkokDateKey(x.end_at) !== bangkokDateKey(x.start_at)) end = dayEnd;
+      start = Math.max(dayStart, Math.min(dayEnd, start));
+      end = Math.max(start + 15, Math.min(dayEnd, end));
+      return {x,start,end,col:0,cols:1};
+    }).filter(v => v.end > dayStart && v.start < dayEnd)
+      .sort((a,b) => a.start-b.start || a.end-b.end);
+
+    const groups = [];
+    let current = [];
+    let maxEnd = -1;
+    normalized.forEach(item => {
+      if (current.length && item.start >= maxEnd) {
+        groups.push(current);
+        current = [];
+        maxEnd = -1;
+      }
+      current.push(item);
+      maxEnd = Math.max(maxEnd, item.end);
+    });
+    if (current.length) groups.push(current);
+
+    groups.forEach(group => {
+      const colEnds = [];
+      group.forEach(item => {
+        let col = colEnds.findIndex(end => end <= item.start);
+        if (col < 0) {
+          col = colEnds.length;
+          colEnds.push(item.end);
+        } else {
+          colEnds[col] = item.end;
+        }
+        item.col = col;
+      });
+      const cols = Math.max(1, colEnds.length);
+      group.forEach(item => item.cols = cols);
+    });
+
+    return normalized;
+  }
+
   function scheduleRowsHtml(rows, compact = false) {
     if (!rows.length) return '<div class="empty-state compact">ยังไม่มีตารางสอน</div>';
     return `<div class="schedule-list-v19">${rows.map((x) => {
-      const e = enrollmentById(x.student_course_enrollment_id);
-      const st = studentById(x.student_id || e?.student_id);
-      const c = courseById(x.course_id || e?.course_id);
+      const {e,st,c} = awScheduleEventMeta(x);
       const live = x.session_id ? sessionById(x.session_id) : null;
       const canStart = ['scheduled','rescheduled'].includes(x.status) && !x.session_id;
       const canManual = ['scheduled','rescheduled'].includes(x.status) && !x.session_id;
@@ -428,6 +392,76 @@
     }).join('')}</div>`;
   }
 
+  function awCalendarHtml(rows) {
+    const startKey = awScheduleWeekStart();
+    const todayKey = bangkokDateKey(new Date());
+    const dayKeys = Array.from({length:7},(_,i)=>awDateKeyAddDays(startKey,i));
+    const height = (AW_CAL_END_HOUR - AW_CAL_START_HOUR) * AW_CAL_HOUR_PX;
+    const hours = Array.from({length:AW_CAL_END_HOUR-AW_CAL_START_HOUR+1},(_,i)=>AW_CAL_START_HOUR+i);
+
+    const dayHeaders = dayKeys.map(key => {
+      const d = new Date(`${key}T12:00:00+07:00`);
+      const week = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',weekday:'short'}).format(d);
+      const day = new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric'}).format(d);
+      return `<div class="aw-cal-day-head ${key===todayKey?'today':''}"><span>${esc(week)}</span><b>${esc(day)}</b></div>`;
+    }).join('');
+
+    const dayColumns = dayKeys.map(key => {
+      const dayRows = rows.filter(x => bangkokDateKey(x.start_at)===key && x.status!=='cancelled');
+      const layout = awCalendarDayLayout(dayRows);
+      const events = layout.map(({x,start,end,col,cols}) => {
+        const {st,c} = awScheduleEventMeta(x);
+        const top = ((start - AW_CAL_START_HOUR*60)/60) * AW_CAL_HOUR_PX;
+        const h = Math.max(28, ((end-start)/60) * AW_CAL_HOUR_PX);
+        const width = 100/cols;
+        const left = col*width;
+        const status = String(x.status || 'scheduled');
+        const title = x.title || c?.title || c?.name || 'คาบเรียน';
+        return `<button type="button" class="aw-cal-event ${esc(status)}" data-calendar-event="${esc(x.id)}" style="top:${top}px;height:${h}px;left:calc(${left}% + 2px);width:calc(${width}% - 4px)" title="${esc(fullName(st))} · ${esc(title)}">
+          <b>${esc(fmtClock(x.start_at))}–${esc(fmtClock(x.end_at))}</b>
+          <span>${esc(fullName(st))}</span>
+          <small>${esc(title)}</small>
+        </button>`;
+      }).join('');
+
+      return `<div class="aw-cal-day ${key===todayKey?'today':''}" data-calendar-day="${esc(key)}" style="height:${height}px">${events}</div>`;
+    }).join('');
+
+    const hourLabels = hours.map((h,i) => {
+      const top = i * AW_CAL_HOUR_PX;
+      return `<span style="top:${top}px">${String(h).padStart(2,'0')}:00</span>`;
+    }).join('');
+
+    return `<section class="aw-card aw-calendar-card">
+      <div class="aw-calendar-toolbar">
+        <div>
+          <div class="page-kicker">WEEK CALENDAR</div>
+          <h2>${esc(awWeekRangeLabel(startKey))}</h2>
+          <p>คลิกช่องว่างในตารางเพื่อสร้างนัดใหม่ · คลิกคาบเพื่อแก้ไข</p>
+        </div>
+        <div class="aw-calendar-nav">
+          <button class="aw-btn small" type="button" data-cal-prev title="สัปดาห์ก่อน"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="aw-btn small" type="button" data-cal-today>วันนี้</button>
+          <button class="aw-btn small" type="button" data-cal-next title="สัปดาห์ถัดไป"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="aw-calendar-scroll">
+        <div class="aw-calendar-week" style="--aw-hour-px:${AW_CAL_HOUR_PX}px">
+          <div class="aw-cal-corner">GMT+7</div>
+          ${dayHeaders}
+          <div class="aw-cal-time-axis" style="height:${height}px">${hourLabels}</div>
+          <div class="aw-cal-days">${dayColumns}</div>
+        </div>
+      </div>
+      <div class="aw-calendar-legend">
+        <span><i class="scheduled"></i> นัดสอน</span>
+        <span><i class="in_progress"></i> กำลังสอน</span>
+        <span><i class="completed"></i> สอนแล้ว</span>
+        <span class="muted"><i class="fa-regular fa-hand-pointer"></i> กดช่องเวลาเพื่อเพิ่มนัด</span>
+      </div>
+    </section>`;
+  }
+
   function scheduleHtml() {
     const rows = arr(state.data?.schedules).slice().sort((a,b) => new Date(a.start_at) - new Date(b.start_at));
     const now = new Date();
@@ -435,32 +469,243 @@
     const today = rows.filter((x) => bangkokDateKey(x.start_at) === todayKey && x.status !== 'cancelled');
     const upcoming = rows.filter((x) => ['scheduled','rescheduled','in_progress'].includes(x.status) && new Date(x.end_at) >= now);
     const completed = rows.filter((x) => x.status === 'completed');
-    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', 'กำหนดตารางจาก Tutor OS โดยตรง แก้เวลาเองได้ และตารางนี้จะเป็นตารางที่นักเรียนเห็น', `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
-      <div class="schedule-hero"><section class="aw-card schedule-summary"><h3>ตารางที่ควบคุมโดย Tutor OS</h3><p>ไม่จำเป็นต้องยึดเวลาจากแบบสมัครเรียน เมื่อจัดตารางตรงนี้แล้ว Student Portal จะดึงเวลาจากตารางนี้อัตโนมัติ</p><div class="schedule-stat-grid"><div class="schedule-stat"><small>วันนี้</small><b>${today.length}</b></div><div class="schedule-stat"><small>กำลังจะถึง</small><b>${upcoming.length}</b></div><div class="schedule-stat"><small>สอนแล้ว</small><b>${completed.length}</b></div></div></section><section class="aw-card schedule-summary"><h3>การลงเวลา 2 แบบ</h3><p><b>Realtime</b> เริ่ม–จบคาบเพื่อจับเวลา หรือ <b>Manual</b> กรอกเวลาเข้า–ออกย้อนหลัง ระบบคำนวณชั่วโมงและตัด Hour Wallet ให้เหมือนกัน</p><div class="section-note" style="margin-top:12px">สถานะนักเรียนรองรับ เข้าเรียน / สาย / ลา / ขาด และสามารถบันทึกหัวข้อ “วันนี้สอนอะไร” พร้อมรายละเอียด/การบ้านได้</div></section></div>
-      <section class="aw-card content-card"><div class="card-head"><div><h2>รายการตารางสอน</h2><p>${rows.length} รายการ</p></div></div>${scheduleRowsHtml(rows)}</section>`;
+    const calendarActive = state.scheduleView !== 'list';
+
+    return `${sectionHeader('TEACHING SCHEDULE', 'ตารางสอน', 'มุมมองปฏิทินรายสัปดาห์แบบ Google Calendar พร้อม Quick Duration เพื่อจัดตารางได้เร็วขึ้น', `<div class="toolbar"><button class="aw-btn sky" id="manualLessonBtn"><i class="fa-regular fa-clock"></i> ลงเวลา Manual</button><button class="aw-btn primary" id="newScheduleBtn"><i class="fa-solid fa-calendar-plus"></i> เพิ่มตารางสอน</button></div>`)}
+      <div class="schedule-hero"><section class="aw-card schedule-summary"><h3>ตารางที่ควบคุมโดย Tutor OS</h3><p>เมื่อจัดตารางตรงนี้ Student Portal จะใช้เวลาจาก Tutor OS เป็นข้อมูลหลัก</p><div class="schedule-stat-grid"><div class="schedule-stat"><small>วันนี้</small><b>${today.length}</b></div><div class="schedule-stat"><small>กำลังจะถึง</small><b>${upcoming.length}</b></div><div class="schedule-stat"><small>สอนแล้ว</small><b>${completed.length}</b></div></div></section><section class="aw-card schedule-summary"><h3>กรอกเวลาได้เร็วขึ้น</h3><p>เลือกเวลาเริ่ม แล้วกด <b>1 ชม.</b> / <b>1.5 ชม.</b> / <b>2 ชม.</b> ระบบจะคำนวณเวลาจบให้อัตโนมัติ</p><div class="section-note" style="margin-top:12px">คลิกพื้นที่ว่างในปฏิทินเพื่อเปิดฟอร์มพร้อมวันและเวลาเริ่มที่เลือกไว้ทันที</div></section></div>
+
+      <div class="aw-schedule-view-tabs">
+        <button type="button" class="${calendarActive?'active':''}" data-schedule-view="calendar"><i class="fa-regular fa-calendar"></i> ปฏิทินสัปดาห์</button>
+        <button type="button" class="${!calendarActive?'active':''}" data-schedule-view="list"><i class="fa-solid fa-list"></i> รายการ</button>
+      </div>
+
+      ${calendarActive
+        ? awCalendarHtml(rows)
+        : `<section class="aw-card content-card"><div class="card-head"><div><h2>รายการตารางสอน</h2><p>${rows.length} รายการ</p></div></div>${scheduleRowsHtml(rows)}</section>`
+      }`;
   }
 
-  function openScheduleModal(scheduleId = null) {
+  function awBindCalendarControls() {
+    $$('[data-schedule-view]').forEach(btn => {
+      btn.onclick = () => {
+        state.scheduleView = btn.dataset.scheduleView === 'list' ? 'list' : 'calendar';
+        localStorage.setItem('aw_tutor_schedule_view', state.scheduleView);
+        render();
+      };
+    });
+
+    $('[data-cal-prev]')?.addEventListener('click', () => {
+      awSetScheduleWeek(awDateKeyAddDays(awScheduleWeekStart(), -7));
+      render();
+    });
+    $('[data-cal-next]')?.addEventListener('click', () => {
+      awSetScheduleWeek(awDateKeyAddDays(awScheduleWeekStart(), 7));
+      render();
+    });
+    $('[data-cal-today]')?.addEventListener('click', () => {
+      awSetScheduleWeek(awMondayKey(new Date()));
+      render();
+    });
+
+    $$('[data-calendar-event]').forEach(btn => {
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        openScheduleModal(btn.dataset.calendarEvent);
+      };
+    });
+
+    $$('[data-calendar-day]').forEach(day => {
+      day.onclick = (ev) => {
+        if (ev.target.closest('[data-calendar-event]')) return;
+        const rect = day.getBoundingClientRect();
+        const y = Math.max(0, Math.min(rect.height, ev.clientY - rect.top));
+        const minutesFromStart = Math.round(((y / rect.height) * ((AW_CAL_END_HOUR-AW_CAL_START_HOUR)*60)) / 15) * 15;
+        const totalMinutes = Math.min((AW_CAL_END_HOUR-AW_CAL_START_HOUR)*60 - 15, Math.max(0, minutesFromStart));
+        const startMinutes = AW_CAL_START_HOUR*60 + totalMinutes;
+        openScheduleModal(null, { start: awLocalDateTimeFromKeyMinutes(day.dataset.calendarDay, startMinutes) });
+      };
+    });
+  }
+
+  function awBindQuickDuration(form, isEdit = false) {
+    if (!form) return;
+    const startInput = form.elements.start;
+    const endInput = form.elements.end;
+    const summary = $('awScheduleDurationSummary');
+    const buttons = $$('[data-duration-hours]', form);
+    if (!startInput || !endInput) return;
+
+    let activeMinutes = null;
+
+    function actualDuration() {
+      if (!startInput.value || !endInput.value) return 0;
+      const a = new Date(startInput.value);
+      const b = new Date(endInput.value);
+      if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 0;
+      return Math.max(0, Math.round((b-a)/60000));
+    }
+
+    function refresh() {
+      const mins = actualDuration();
+      buttons.forEach(btn => {
+        const target = Number(btn.dataset.durationHours) * 60;
+        btn.classList.toggle('active', Math.abs(target-mins) <= 1);
+      });
+      activeMinutes = buttons.some(btn => btn.classList.contains('active')) ? mins : activeMinutes;
+      if (summary) {
+        if (startInput.value && endInput.value && mins > 0) {
+          summary.innerHTML = `<b>${esc(startInput.value.slice(11,16))} → ${esc(endInput.value.slice(11,16))}</b><span>${esc(awDurationText(mins))}</span>`;
+        } else {
+          summary.innerHTML = '<b>เลือกเวลาเริ่ม</b><span>จากนั้นเลือกระยะเวลาคาบ</span>';
+        }
+      }
+    }
+
+    function applyMinutes(mins) {
+      if (!startInput.value) {
+        startInput.focus();
+        return alertToast('warning','กรุณาเลือกเวลาเริ่มก่อน');
+      }
+      endInput.value = awAddMinutesLocalInput(startInput.value, mins);
+      activeMinutes = mins;
+      localStorage.setItem('aw_tutor_default_duration_minutes', String(mins));
+      refresh();
+    }
+
+    buttons.forEach(btn => {
+      btn.onclick = () => applyMinutes(Math.round(Number(btn.dataset.durationHours)*60));
+    });
+
+    startInput.addEventListener('input', () => {
+      const mins = activeMinutes || Number(localStorage.getItem('aw_tutor_default_duration_minutes') || 60);
+      if (mins > 0) applyMinutes(mins);
+      else refresh();
+    });
+    startInput.addEventListener('change', refresh);
+    endInput.addEventListener('input', () => {
+      activeMinutes = actualDuration();
+      refresh();
+    });
+    endInput.addEventListener('change', refresh);
+
+    const initial = actualDuration();
+    if (initial > 0) activeMinutes = initial;
+    refresh();
+  }
+
+  function openScheduleModal(scheduleId = null, preset = null) {
     const s = scheduleId ? scheduleById(scheduleId) : null;
     const rows = arr(state.data?.enrollments).filter((e) => ['active','paused'].includes(e.status));
     if (!rows.length) return alertToast('warning','ยังไม่มี Enrollment ที่พร้อมจัดตาราง');
-    const defaultStart = s?.start_at || new Date(Date.now() + 3600000).toISOString();
-    const defaultEnd = s?.end_at || new Date(Date.now() + 2 * 3600000).toISOString();
-    showModal(s ? 'แก้ไขตารางสอน' : 'เพิ่มตารางสอน', `<form id="scheduleForm"><div class="form-grid"><label class="aw-label wide">นักเรียน / คอร์ส<select class="aw-input" name="enrollment_id" required>${rows.map((e) => `<option value="${esc(e.id)}" ${String(s?.student_course_enrollment_id || '') === String(e.id) ? 'selected' : ''}>${esc(scopedEnrollmentLabel(e))}</option>`).join('')}</select></label><label class="aw-label">เริ่มเรียน<input class="aw-input" type="datetime-local" name="start" required value="${esc(toLocalInput(defaultStart))}"></label><label class="aw-label">เลิกเรียน<input class="aw-input" type="datetime-local" name="end" required value="${esc(toLocalInput(defaultEnd))}"></label><label class="aw-label wide">ชื่อคาบ / หัวข้อ<input class="aw-input" name="title" value="${esc(s?.title || '')}" placeholder="เช่น Biochemistry · Enzyme kinetics"></label><label class="aw-label">รูปแบบ<select class="aw-input" name="mode"><option value="online" ${s?.mode !== 'onsite' ? 'selected' : ''}>Online</option><option value="onsite" ${s?.mode === 'onsite' ? 'selected' : ''}>On-site</option></select></label><label class="aw-label">สถานที่ / ลิงก์ห้องเรียน<input class="aw-input" name="location" value="${esc(s?.location || '')}" placeholder="Zoom / ห้องเรียน / สถานที่"></label>${!s ? `<label class="aw-label">ทำซ้ำรายสัปดาห์<select class="aw-input" name="repeat_weeks">${[1,2,4,6,8,10,12,16].map((n) => `<option value="${n}">${n === 1 ? 'ครั้งเดียว' : n + ' สัปดาห์'}</option>`).join('')}</select></label>` : '<div></div>'}<label class="aw-label wide">หมายเหตุสำหรับผู้สอน<textarea class="aw-textarea" name="note" rows="3" placeholder="สิ่งที่ต้องเตรียม / หมายเหตุภายใน">${esc(s?.note || '')}</textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveScheduleBtn"><i class="fa-solid fa-floppy-disk"></i> ${s ? 'บันทึกตาราง' : 'สร้างตาราง'}</button>`);
+
+    const savedDuration = Math.max(30, Math.min(360, Number(localStorage.getItem('aw_tutor_default_duration_minutes') || 60)));
+    const defaultStartInput = s?.start_at
+      ? toLocalInput(s.start_at)
+      : (preset?.start || toLocalInput(new Date(Date.now() + 3600000)));
+
+    const defaultEndInput = s?.end_at
+      ? toLocalInput(s.end_at)
+      : awAddMinutesLocalInput(defaultStartInput, savedDuration);
+
+    const durationChoices = [
+      [0.5,'30 นาที'],
+      [1,'1 ชม.'],
+      [1.5,'1.5 ชม.'],
+      [2,'2 ชม.'],
+      [2.5,'2.5 ชม.'],
+      [3,'3 ชม.']
+    ];
+
+    showModal(
+      s ? 'แก้ไขตารางสอน' : 'เพิ่มตารางสอน',
+      `<form id="scheduleForm">
+        <div class="form-grid">
+          <label class="aw-label wide">นักเรียน / คอร์ส
+            <select class="aw-input" name="enrollment_id" required>${rows.map((e) => `<option value="${esc(e.id)}" ${String(s?.student_course_enrollment_id || '') === String(e.id) ? 'selected' : ''}>${esc(scopedEnrollmentLabel(e))}</option>`).join('')}</select>
+          </label>
+
+          <label class="aw-label">เริ่มเรียน
+            <input class="aw-input" type="datetime-local" name="start" required value="${esc(defaultStartInput)}">
+          </label>
+          <label class="aw-label">เลิกเรียน
+            <input class="aw-input" type="datetime-local" name="end" required value="${esc(defaultEndInput)}">
+          </label>
+
+          <div class="aw-label wide">
+            <span>ระยะเวลาคาบ · Quick Duration</span>
+            <div class="aw-duration-quick">${durationChoices.map(([h,label]) => `<button type="button" data-duration-hours="${h}">${esc(label)}</button>`).join('')}</div>
+            <div id="awScheduleDurationSummary" class="aw-duration-summary"></div>
+          </div>
+
+          <label class="aw-label wide">ชื่อคาบ / หัวข้อ
+            <input class="aw-input" name="title" value="${esc(s?.title || '')}" placeholder="เช่น Biochemistry · Enzyme kinetics">
+          </label>
+
+          <label class="aw-label">รูปแบบ
+            <select class="aw-input" name="mode">
+              <option value="online" ${s?.mode !== 'onsite' ? 'selected' : ''}>Online</option>
+              <option value="onsite" ${s?.mode === 'onsite' ? 'selected' : ''}>On-site</option>
+            </select>
+          </label>
+
+          <label class="aw-label">สถานที่ / ลิงก์ห้องเรียน
+            <input class="aw-input" name="location" value="${esc(s?.location || '')}" placeholder="Zoom / ห้องเรียน / สถานที่">
+          </label>
+
+          ${!s ? `<label class="aw-label">ทำซ้ำรายสัปดาห์
+            <select class="aw-input" name="repeat_weeks">${[1,2,4,6,8,10,12,16].map((n) => `<option value="${n}">${n === 1 ? 'ครั้งเดียว' : n + ' สัปดาห์'}</option>`).join('')}</select>
+          </label>` : '<div></div>'}
+
+          <label class="aw-label wide">หมายเหตุสำหรับผู้สอน
+            <textarea class="aw-textarea" name="note" rows="3" placeholder="สิ่งที่ต้องเตรียม / หมายเหตุภายใน">${esc(s?.note || '')}</textarea>
+          </label>
+        </div>
+      </form>`,
+      `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="saveScheduleBtn"><i class="fa-solid fa-floppy-disk"></i> ${s ? 'บันทึกตาราง' : 'สร้างตาราง'}</button>`
+    );
+
+    const form = $('scheduleForm');
+    awBindQuickDuration(form, !!s);
+
     $('saveScheduleBtn').onclick = async () => {
-      const fd = new FormData($('scheduleForm'));
+      const fd = new FormData(form);
       const start = fd.get('start') ? new Date(fd.get('start')).toISOString() : null;
       const end = fd.get('end') ? new Date(fd.get('end')).toISOString() : null;
       if (!start || !end || new Date(end) <= new Date(start)) return alertToast('warning','เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม');
+
       try {
         loading(s ? 'กำลังแก้ตาราง...' : 'กำลังสร้างตาราง...');
         if (s) {
-          await rpc('os_v19_schedule_update', { p_schedule_id:s.id, p_student_course_enrollment_id:fd.get('enrollment_id'), p_start_at:start, p_end_at:end, p_title:String(fd.get('title') || '').trim() || null, p_mode:fd.get('mode'), p_location:String(fd.get('location') || '').trim() || null, p_note:String(fd.get('note') || '').trim() || null });
+          await rpc('os_v19_schedule_update', {
+            p_schedule_id:s.id,
+            p_student_course_enrollment_id:fd.get('enrollment_id'),
+            p_start_at:start,
+            p_end_at:end,
+            p_title:String(fd.get('title') || '').trim() || null,
+            p_mode:fd.get('mode'),
+            p_location:String(fd.get('location') || '').trim() || null,
+            p_note:String(fd.get('note') || '').trim() || null
+          });
         } else {
-          await rpc('os_v19_schedule_create', { p_student_course_enrollment_id:fd.get('enrollment_id'), p_start_at:start, p_end_at:end, p_title:String(fd.get('title') || '').trim() || null, p_mode:fd.get('mode'), p_location:String(fd.get('location') || '').trim() || null, p_note:String(fd.get('note') || '').trim() || null, p_repeat_weeks:num(fd.get('repeat_weeks') || 1) });
+          await rpc('os_v19_schedule_create', {
+            p_student_course_enrollment_id:fd.get('enrollment_id'),
+            p_start_at:start,
+            p_end_at:end,
+            p_title:String(fd.get('title') || '').trim() || null,
+            p_mode:fd.get('mode'),
+            p_location:String(fd.get('location') || '').trim() || null,
+            p_note:String(fd.get('note') || '').trim() || null,
+            p_repeat_weeks:num(fd.get('repeat_weeks') || 1)
+          });
         }
-        Swal.close(); closeModal(); alertToast('success', s ? 'อัปเดตตารางแล้ว' : 'เพิ่มตารางสอนแล้ว'); await loadData(false);
-      } catch (e) { Swal.close(); alertToast('error','บันทึกตารางไม่สำเร็จ',friendlyError(e)); }
+        Swal.close();
+        closeModal();
+        alertToast('success', s ? 'อัปเดตตารางแล้ว' : 'เพิ่มตารางสอนแล้ว');
+        await loadData(false);
+      } catch (e) {
+        Swal.close();
+        alertToast('error','บันทึกตารางไม่สำเร็จ',friendlyError(e));
+      }
     };
   }
 
@@ -520,7 +765,7 @@
 
   function servicesHtml() {
     return `${sectionHeader('STUDENT SERVICES', 'Student Services', 'ข้อมูลบริการที่เกี่ยวข้องกับนักเรียนในสิทธิ์ของคุณ')}
-      <div class="grid-3">${metric('fa-id-card', 'นักเรียนที่เชื่อม Portal', arr(state.data?.students).filter((s) => s.auth_user_id).length, 'เชื่อมบัญชีแล้ว')}${metric('fa-wallet', 'Course Wallet', arr(state.data?.enrollments).length, 'Course Wallet ที่มองเห็นได้')}${metric('fa-people-group', 'กลุ่มเรียน', arr(state.data?.groups).length, 'เฉพาะกลุ่มที่เกี่ยวข้อง')}</div>`;
+      <div class="grid-3">${metric('fa-id-card', 'นักเรียนที่เชื่อม Portal', arr(state.data?.students).filter((s) => s.auth_user_id).length, 'เชื่อมบัญชีแล้ว')}${metric('fa-wallet', 'Course Wallet', arr(state.data?.enrollments).length, 'Enrollment ที่มองเห็นได้')}${metric('fa-people-group', 'กลุ่มเรียน', arr(state.data?.groups).length, 'เฉพาะกลุ่มที่เกี่ยวข้อง')}</div>`;
   }
 
   function financeHtml() {
@@ -587,13 +832,12 @@
     $$('[data-delete-schedule]').forEach((b) => b.onclick = () => deleteSchedule(b.dataset.deleteSchedule));
     $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
     $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
-    $$('[data-share-hours]').forEach((b) => b.onclick = () => openSharedHours(b.dataset.shareHours));
-    $$('[data-manage-hours]').forEach((b) => b.onclick = () => openHourManager(b.dataset.manageHours));
+    if(state.section === 'schedule') awBindCalendarControls();
   }
 
   function openStartLesson() {
     const rows = arr(state.data?.enrollments).filter((e) => ['active', 'paused'].includes(e.status));
-    if (!rows.length) return alertToast('warning', 'ยังไม่มีคอร์สที่พร้อมสอน');
+    if (!rows.length) return alertToast('warning', 'ยังไม่มี Enrollment ที่พร้อมสอน');
     showModal('เริ่มสอนรายบุคคล', `<form id="startLessonForm"><div class="form-grid"><label class="aw-label wide">นักเรียน / คอร์ส<select class="aw-input" name="enrollment_id" required>${rows.map((e) => `<option value="${esc(e.id)}">${esc(scopedEnrollmentLabel(e))}</option>`).join('')}</select></label><label class="aw-label wide">วันนี้สอนอะไร<input class="aw-input" name="title" placeholder="เช่น Cell biology · ครั้งที่ 1"></label><label class="aw-label wide">รายละเอียด / การบ้าน / หมายเหตุ<textarea class="aw-textarea" name="note" rows="3" placeholder="เป้าหมายหรือเนื้อหาที่จะสอน"></textarea></label></div></form>`, `<button class="aw-btn" data-modal-close>ยกเลิก</button><button class="aw-btn primary" id="confirmStartLesson"><i class="fa-solid fa-play"></i> เริ่มจับเวลา</button>`);
     $('confirmStartLesson').onclick = async () => {
       const fd = new FormData($('startLessonForm'));
@@ -668,10 +912,7 @@
     }
     try {
       state.data = await rpc('tutor_os_bootstrap_v18');
-          try { await loadCanonicalCourseWallets(); } catch (_) {}
-      try { await loadCanonicalCourseWallets(); } catch (walletError) { console.warn('Course Wallet V20 unavailable:', walletError); }
       try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (scheduleError) { console.warn('Schedule V19 unavailable:', scheduleError); state.data.schedules = []; }
-      try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (sharedError) { console.warn('Shared hours unavailable:', sharedError); state.data.shared_hours = []; }
       showApp();
       setConnection(true);
       if (state.data?.needs_tutor_link && !state.data?.is_admin) state.section = 'overview';
@@ -686,7 +927,6 @@
           localStorage.removeItem('arewarin_tutor_pending_phone');
           state.data = await rpc('tutor_os_bootstrap_v18');
           try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (_) { state.data.schedules = []; }
-          try { state.data.shared_hours = await rpc('tutor_os_shared_hours_overview'); } catch (_) { state.data.shared_hours = []; }
           showApp(); render(); setupRealtime(); return;
         } catch (_) {}
       }

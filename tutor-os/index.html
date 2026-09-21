@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบแยกสิทธิ์รายติวเตอร์">
-  <title>AreWarin Biology · Tutor OS V19</title>
+  <title>AreWarin Biology · Tutor OS V19.3 Calendar Pro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -101,12 +101,130 @@
 }
 </style>
 
+
+<style id="aw-v193-calendar-pro">
+/* =========================================================
+   AreWarin Tutor OS V19.3 · Calendar Pro
+   Google-Calendar-inspired week grid + Quick Duration
+========================================================= */
+.aw-schedule-view-tabs{
+  display:inline-flex;gap:4px;padding:4px;margin:0 0 12px;
+  border:1px solid #e4eaf2;border-radius:13px;background:#f4f7fb
+}
+.aw-schedule-view-tabs button{
+  border:0;background:transparent;color:#718096;border-radius:9px;
+  min-height:34px;padding:0 12px;font-size:9.5px;font-weight:700;display:flex;align-items:center;gap:6px
+}
+.aw-schedule-view-tabs button.active{
+  background:#fff;color:#172033;box-shadow:0 3px 10px rgba(15,23,42,.08)
+}
+.aw-calendar-card{overflow:hidden}
+.aw-calendar-toolbar{
+  padding:14px 16px;border-bottom:1px solid #edf1f6;
+  display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.aw-calendar-toolbar h2{font-size:14px;margin:3px 0 0;color:#1e293b}
+.aw-calendar-toolbar p{font-size:8.7px;color:#94a3b8;margin:4px 0 0}
+.aw-calendar-nav{display:flex;align-items:center;gap:5px}
+.aw-calendar-scroll{overflow:auto;max-height:72vh;background:#fff}
+.aw-calendar-week{
+  min-width:1060px;
+  display:grid;
+  grid-template-columns:62px repeat(7,minmax(140px,1fr));
+  grid-template-rows:54px auto;
+  position:relative
+}
+.aw-cal-corner{
+  position:sticky;top:0;left:0;z-index:15;background:#fff;border-right:1px solid #e9eef5;
+  border-bottom:1px solid #e9eef5;display:flex;align-items:flex-end;justify-content:center;
+  padding:0 0 8px;font-size:7.5px;color:#a0aaba
+}
+.aw-cal-day-head{
+  position:sticky;top:0;z-index:12;background:rgba(255,255,255,.97);
+  backdrop-filter:blur(10px);border-right:1px solid #edf1f6;border-bottom:1px solid #e9eef5;
+  display:flex;align-items:center;justify-content:center;gap:7px
+}
+.aw-cal-day-head span{font-size:8px;font-weight:700;color:#8b97aa;text-transform:uppercase}
+.aw-cal-day-head b{
+  width:29px;height:29px;border-radius:50%;display:grid;place-items:center;
+  font-size:11px;color:#334155
+}
+.aw-cal-day-head.today b{background:#0ea5e9;color:#fff;box-shadow:0 8px 18px -10px rgba(14,165,233,.8)}
+.aw-cal-time-axis{
+  position:relative;grid-column:1;grid-row:2;left:0;z-index:8;background:#fff;border-right:1px solid #e9eef5
+}
+.aw-cal-time-axis span{
+  position:absolute;right:9px;transform:translateY(-50%);
+  font-size:7.5px;color:#9aa5b7;font-variant-numeric:tabular-nums
+}
+.aw-cal-days{grid-column:2/-1;grid-row:2;display:grid;grid-template-columns:repeat(7,minmax(140px,1fr))}
+.aw-cal-day{
+  position:relative;border-right:1px solid #edf1f6;cursor:crosshair;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--aw-hour-px) / 2 - 1px),
+      #f6f8fb calc(var(--aw-hour-px) / 2 - 1px),
+      #f6f8fb calc(var(--aw-hour-px) / 2),
+      transparent calc(var(--aw-hour-px) / 2),
+      transparent calc(var(--aw-hour-px) - 1px),
+      #e9eef5 calc(var(--aw-hour-px) - 1px),
+      #e9eef5 var(--aw-hour-px)
+    )
+}
+.aw-cal-day:hover{background-color:#fcfdff}
+.aw-cal-day.today{background-color:#f8fcff}
+.aw-cal-event{
+  position:absolute;z-index:4;overflow:hidden;text-align:left;border:0;border-left:3px solid #0284c7;
+  border-radius:8px;padding:5px 6px;background:#eaf6ff;color:#075985;
+  box-shadow:0 2px 7px rgba(15,23,42,.06);cursor:pointer;min-height:28px
+}
+.aw-cal-event:hover{z-index:6;transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.12)}
+.aw-cal-event b{display:block;font-size:7.8px;line-height:1.2;font-variant-numeric:tabular-nums}
+.aw-cal-event span{display:block;font-size:8.4px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.aw-cal-event small{display:block;font-size:7.2px;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.aw-cal-event.rescheduled{background:#fff7ed;color:#9a4d0b;border-left-color:#f59e0b}
+.aw-cal-event.in_progress{background:#ecfdf5;color:#047857;border-left-color:#10b981}
+.aw-cal-event.completed{background:#f1f5f9;color:#64748b;border-left-color:#94a3b8}
+.aw-calendar-legend{
+  display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:10px 15px;border-top:1px solid #edf1f6;
+  background:#fbfcfe;font-size:8px;color:#748196
+}
+.aw-calendar-legend span{display:flex;align-items:center;gap:5px}
+.aw-calendar-legend i:not(.fa-regular){
+  width:8px;height:8px;border-radius:3px;background:#eaf6ff;border-left:2px solid #0284c7
+}
+.aw-calendar-legend i.in_progress{background:#ecfdf5;border-left-color:#10b981}
+.aw-calendar-legend i.completed{background:#f1f5f9;border-left-color:#94a3b8}
+
+.aw-duration-quick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.aw-duration-quick button{
+  min-height:38px;border:1px solid #dfe6ef;background:#fff;color:#607089;border-radius:11px;
+  font-size:9px;font-weight:700;padding:5px;transition:.16s
+}
+.aw-duration-quick button:hover{border-color:#7dd3fc;background:#f0f9ff;color:#0369a1;transform:translateY(-1px)}
+.aw-duration-quick button.active{border-color:#38bdf8;background:#e0f2fe;color:#075985;box-shadow:0 0 0 3px rgba(56,189,248,.08)}
+.aw-duration-summary{
+  margin-top:7px;min-height:45px;border:1px solid #dbeafe;border-radius:12px;background:linear-gradient(135deg,#f0f9ff,#f8fafc);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px
+}
+.aw-duration-summary b{font-size:11px;color:#172033}
+.aw-duration-summary span{font-size:9px;color:#64748b}
+@media(max-width:760px){
+  .aw-calendar-toolbar{align-items:flex-start;flex-direction:column}
+  .aw-calendar-nav{width:100%}.aw-calendar-nav .aw-btn{flex:1}
+  .aw-duration-quick{grid-template-columns:repeat(3,1fr)}
+  .aw-calendar-scroll{max-height:68vh}
+}
+</style>
+
 </head>
 <body>
   <section id="loginView">
     <div class="aw-card login-shell">
       <div class="login-visual">
-        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19</small></div></div>
+        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19.3</small></div></div>
         <div class="login-copy">
           <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Tutor-scoped workspace</span>
           <h1>งานสอนของแต่ละคน<br><span>แยกสิทธิ์อย่างชัดเจน</span></h1>
@@ -164,7 +282,7 @@
 
     <div class="os-shell">
       <aside class="sidebar">
-        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19</small></div></div>
+        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19.3</small></div></div>
         <nav>
           <div class="nav-label">Overview</div>
           <button class="nav-btn" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button>
@@ -204,6 +322,6 @@
   </div>
 
   <div id="modalRoot"></div>
-  <script src="./app.js?v=v19-schedule-manual-20260916"></script>
+  <script src="./app.js?v=v19.3-calendar-pro-20260921"></script>
 </body>
 </html>
