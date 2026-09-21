@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  console.info('[AreWarin Tutor OS V19.3] Calendar Pro + Quick Duration loaded');
+  console.info('[AreWarin Tutor OS V19.5] Admin + Tutor Identity Link loaded');
 
   const cfg = window.AREWARIN_CONFIG || {};
   const loginView = document.getElementById('loginView');
@@ -96,7 +96,7 @@
 
   function currentRole() { return state.data?.role || 'tutor'; }
   function isAdmin() { return !!state.data?.is_admin; }
-  function currentTutorId() { return state.data?.tutor?.id || state.data?.profile?.tutor_id || null; }
+  function currentTutorId() { return state.data?.tutor?.id || state.data?.identity?.tutor_id || state.data?.profile?.tutor_id || null; }
 
   function courseById(id) {
     return arr(state.data?.courses).find((x) => String(x.id) === String(id));
@@ -184,12 +184,181 @@
 
   function studentsHtml() {
     const rows = arr(state.data?.students);
-    return `${sectionHeader('STUDENTS', 'นักเรียน & CRM', isAdmin() ? 'Admin เห็นนักเรียนทั้งหมด' : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course')}
-      <section class="aw-card content-card">${rows.length ? `<div class="table-wrap"><table class="aw-table"><thead><tr><th>Student ID</th><th>นักเรียน</th><th>โรงเรียน</th><th>คอร์สที่กำลังเรียน</th><th>ชั่วโมงคงเหลือ</th></tr></thead><tbody>${rows.map((s) => {
-        const ens = arr(state.data?.enrollments).filter((e) => String(e.student_id) === String(s.id) && ['active', 'paused'].includes(e.status));
-        const remain = ens.reduce((sum, e) => sum + (e.hours_unlimited ? 0 : Math.max(0, num(e.hours_total) - num(e.hours_used))), 0);
-        return `<tr><td><span class="mono-small">${esc(s.student_code || s.id)}</span></td><td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td><td>${esc(s.school || '—')}</td><td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}</td><td>${ens.some((e) => e.hours_unlimited) ? '∞' : `${remain.toFixed(1)} ชม.`}</td></tr>`;
-      }).join('')}</tbody></table></div>` : '<div class="empty-state">ยังไม่มีนักเรียนในสิทธิ์ของบัญชีนี้</div>'}</section>`;
+    const admin = isAdmin();
+
+    return `${sectionHeader(
+      'STUDENTS',
+      'นักเรียน & CRM',
+      admin
+        ? 'Admin เห็นนักเรียนทั้งหมด · สามารถลบนักเรียนออกจาก Student/Tutor OS ได้'
+        : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course',
+      admin
+        ? `<div class="aw-tag"><i class="fa-solid fa-shield-halved"></i> ลบได้เฉพาะ Admin / Manager</div>`
+        : ''
+    )}
+      <section class="aw-card content-card">
+        ${rows.length ? `<div class="table-wrap">
+          <table class="aw-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>นักเรียน</th>
+                <th>โรงเรียน</th>
+                <th>คอร์สที่กำลังเรียน</th>
+                <th>ชั่วโมงคงเหลือ</th>
+                ${admin ? '<th style="text-align:right">จัดการ</th>' : ''}
+              </tr>
+            </thead>
+            <tbody>${rows.map((s) => {
+              const ens = arr(state.data?.enrollments).filter((e) =>
+                String(e.student_id) === String(s.id) &&
+                ['active', 'paused'].includes(e.status)
+              );
+              const remain = ens.reduce(
+                (sum, e) => sum + (e.hours_unlimited ? 0 : Math.max(0, num(e.hours_total) - num(e.hours_used))),
+                0
+              );
+              return `<tr>
+                <td><span class="mono-small">${esc(s.student_code || s.id)}</span></td>
+                <td><b>${esc(fullName(s))}</b><small>${esc(s.phone || '')}</small></td>
+                <td>${esc(s.school || '—')}</td>
+                <td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}</td>
+                <td>${ens.some((e) => e.hours_unlimited) ? '∞' : `${remain.toFixed(1)} ชม.`}</td>
+                ${admin ? `<td>
+                  <div class="table-actions">
+                    <button
+                      class="icon-btn danger aw-student-delete-btn"
+                      type="button"
+                      data-delete-student="${esc(s.id)}"
+                      title="ลบนักเรียนออกจาก Student OS"
+                      aria-label="ลบนักเรียน ${esc(fullName(s))}">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </td>` : ''}
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>` : '<div class="empty-state">ยังไม่มีนักเรียนในสิทธิ์ของบัญชีนี้</div>'}
+      </section>`;
+  }
+
+  async function deleteStudent(studentId) {
+    if (!isAdmin()) {
+      return alertToast('error','ไม่มีสิทธิ์ลบนักเรียน','ฟังก์ชันนี้ใช้ได้เฉพาะ Admin / Manager');
+    }
+
+    const student = studentById(studentId);
+    if (!student) {
+      return alertToast('warning','ไม่พบนักเรียน','กรุณารีเฟรชข้อมูลแล้วลองอีกครั้ง');
+    }
+
+    try {
+      loading('กำลังตรวจสอบข้อมูลที่เกี่ยวข้อง...');
+
+      const preview = await rpc('os_v194_admin_student_delete_preview', {
+        p_student_id: studentId
+      });
+
+      Swal.close();
+
+      if (!preview?.ok) {
+        throw new Error(preview?.message || 'ไม่สามารถตรวจสอบข้อมูลก่อนลบได้');
+      }
+
+      const confirmText = String(preview.confirmation || student.student_code || 'DELETE');
+      const counts = preview.counts || {};
+      const displayName = preview.display_name || fullName(student);
+      const activeEnrollments = Number(counts.active_enrollments || 0);
+      const schedules = Number(counts.schedules || 0);
+      const sessions = Number(counts.sessions || 0);
+      const groupLinks = Number(counts.group_links || 0);
+      const serviceRecords = Number(counts.service_records || 0);
+
+      const result = await Swal.fire({
+        icon:'warning',
+        title:'ลบนักเรียนออกจากระบบ?',
+        width:560,
+        html:`
+          <div class="text-left">
+            <div style="padding:12px 14px;border:1px solid #fee2e2;background:#fff7f7;border-radius:14px;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:800;color:#9f1239">${esc(displayName)}</div>
+              <div style="font-size:9px;color:#94a3b8;margin-top:4px">${esc(student.student_code || student.id)}</div>
+            </div>
+
+            <div class="aw-delete-preview-grid">
+              <div><small>Enrollment ที่ใช้งาน</small><b>${activeEnrollments}</b></div>
+              <div><small>ตารางสอน</small><b>${schedules}</b></div>
+              <div><small>ประวัติการสอน</small><b>${sessions}</b></div>
+              <div><small>กลุ่ม/Locker</small><b>${groupLinks}</b></div>
+              <div><small>Student Services</small><b>${serviceRecords}</b></div>
+            </div>
+
+            <div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:9px;line-height:1.65">
+              <b>ข้อมูลที่จะถูกลบ:</b> Student Profile และข้อมูลใน Student/Tutor OS ที่อ้างถึงนักเรียนคนนี้ตาม Foreign Key ของระบบ<br>
+              <b>ข้อมูลที่เก็บไว้:</b> ใบสมัครเรียน/การชำระเงิน/ใบเสร็จในระบบหลักยังคงอยู่เพื่อ Audit
+            </div>
+
+            <div style="margin-top:12px;font-size:9px;color:#64748b;line-height:1.6">
+              เพื่อป้องกันการกดผิด กรุณาพิมพ์ <b style="color:#be123c">${esc(confirmText)}</b> ในช่องด้านล่าง
+            </div>
+          </div>`,
+        input:'text',
+        inputPlaceholder:confirmText,
+        inputAttributes:{
+          autocapitalize:'off',
+          autocomplete:'off',
+          spellcheck:'false'
+        },
+        showCancelButton:true,
+        confirmButtonText:'ลบนักเรียนถาวร',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#e11d48',
+        reverseButtons:true,
+        focusCancel:true,
+        preConfirm:(value)=>{
+          if(String(value || '').trim() !== confirmText) {
+            Swal.showValidationMessage(`กรุณาพิมพ์ ${confirmText} ให้ตรงกัน`);
+            return false;
+          }
+          return String(value || '').trim();
+        }
+      });
+
+      if (!result.isConfirmed) return;
+
+      loading('กำลังลบนักเรียนและข้อมูลที่เกี่ยวข้อง...');
+
+      const deleted = await rpc('os_v194_admin_delete_student', {
+        p_student_id: studentId,
+        p_confirm: result.value
+      });
+
+      Swal.close();
+
+      if (!deleted?.ok) {
+        throw new Error(deleted?.message || 'ลบนักเรียนไม่สำเร็จ');
+      }
+
+      await Swal.fire({
+        icon:'success',
+        title:'ลบนักเรียนเรียบร้อย',
+        html:`
+          <div style="font-size:10px;color:#64748b;line-height:1.7">
+            ลบ <b>${esc(deleted.display_name || displayName)}</b> ออกจาก Student/Tutor OS แล้ว<br>
+            ข้อมูลสมัครเรียนและการเงินในระบบหลักยังคงเก็บไว้
+          </div>`,
+        confirmButtonText:'ตกลง',
+        confirmButtonColor:'#0f172a'
+      });
+
+      await loadData(false);
+
+    } catch (e) {
+      Swal.close();
+      console.error('[AreWarin Tutor OS V19.4] delete student failed', e);
+      alertToast('error','ลบนักเรียนไม่สำเร็จ',friendlyError(e));
+    }
   }
 
   function coursesHtml() {
@@ -776,9 +945,157 @@
 
   function teamHtml() {
     if (!isAdmin()) return '<div class="aw-card empty-state">เมนูนี้สำหรับ Admin เท่านั้น</div>';
+
     const team = arr(state.data?.team);
-    return `${sectionHeader('TEAM', 'ทีมติวเตอร์', 'Admin เห็นบัญชีติวเตอร์ทั้งหมด')}
-      <div class="grid-3">${team.map((t) => `<article class="aw-card course-card"><div class="course-card-icon"><i class="fa-solid fa-chalkboard-user"></i></div><h3>${esc(t.display_name || 'Tutor')}</h3><p>${esc(t.role_text || t.primary_subject || '')}</p><span class="aw-tag">${t.identity_status === 'active' ? 'เปิดบัญชีแล้ว' : 'ยังไม่เชื่อมบัญชี'}</span></article>`).join('') || '<div class="aw-card empty-state">ยังไม่มีติวเตอร์</div>'}</div>`;
+    const myTutorId = currentTutorId();
+
+    return `${sectionHeader(
+      'TEAM',
+      'ทีมติวเตอร์',
+      myTutorId
+        ? 'บัญชี Admin นี้เชื่อมกับตัวตนติวเตอร์แล้ว และยังคงสิทธิ์ Admin ครบ'
+        : 'เลือกติวเตอร์ที่เป็นตัวคุณ แล้วกด “เชื่อมบัญชีนี้”'
+    )}
+      ${myTutorId ? `<div class="section-note" style="margin-bottom:12px">
+        <b><i class="fa-solid fa-circle-check" style="color:#10b981"></i> บัญชีนี้เชื่อม Tutor Identity แล้ว</b><br>
+        คุณยังคงเป็น Admin แต่ระบบงานสอนจะรู้ด้วยว่าคุณคือติวเตอร์คนใด
+      </div>` : `<div class="section-note" style="margin-bottom:12px">
+        <b>ทำไมต้องเชื่อม?</b><br>
+        บัญชี Login คือ Supabase Auth ส่วน “พี่อาร์ / พี่เอ็มมี่ / พี่ต้อง” คือ Tutor Profile คนละชั้นกัน
+        การเชื่อมจะทำให้ระบบรู้ว่า Admin คนนี้สอนในชื่อ Tutor คนใด โดยไม่ลดสิทธิ์ Admin
+      </div>`}
+
+      <div class="grid-3">${team.map((t) => {
+        const linkedToMe = myTutorId && String(myTutorId) === String(t.id);
+        const occupied = t.identity_status === 'active' && !linkedToMe;
+
+        return `<article class="aw-card course-card aw-team-link-card ${linkedToMe ? 'linked-me' : ''}">
+          <div class="course-card-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <h3>${esc(t.display_name || 'Tutor')}</h3>
+          <p>${esc(t.role_text || t.primary_subject || '')}</p>
+
+          <div class="aw-team-link-status">
+            ${linkedToMe
+              ? '<span class="aw-tag aw-tag-linked"><i class="fa-solid fa-link"></i> บัญชีนี้</span>'
+              : occupied
+                ? '<span class="aw-tag"><i class="fa-solid fa-user-check"></i> เปิดบัญชีแล้ว</span>'
+                : '<span class="aw-tag"><i class="fa-solid fa-link-slash"></i> ยังไม่เชื่อมบัญชี</span>'
+            }
+          </div>
+
+          <div class="module-actions" style="margin-top:12px">
+            ${linkedToMe
+              ? `<button type="button" class="aw-btn small danger" data-unlink-my-tutor="${esc(t.id)}">
+                   <i class="fa-solid fa-link-slash"></i> ยกเลิกการเชื่อม
+                 </button>`
+              : occupied
+                ? `<button type="button" class="aw-btn small" disabled>
+                     <i class="fa-solid fa-lock"></i> เชื่อมกับบัญชีอื่นแล้ว
+                   </button>`
+                : `<button type="button" class="aw-btn small primary" data-link-my-tutor="${esc(t.id)}">
+                     <i class="fa-solid fa-link"></i> เชื่อมบัญชีนี้
+                   </button>`
+            }
+          </div>
+        </article>`;
+      }).join('') || '<div class="aw-card empty-state">ยังไม่มีติวเตอร์</div>'}</div>`;
+  }
+
+  async function linkMyAdminAccountToTutor(tutorId) {
+    if (!isAdmin()) return alertToast('error','ไม่มีสิทธิ์','ใช้ได้เฉพาะ Admin / Manager');
+
+    const tutor = tutorById(tutorId) || arr(state.data?.team).find(x => String(x.id) === String(tutorId));
+    if (!tutor) return alertToast('warning','ไม่พบติวเตอร์');
+
+    const existingTutor = currentTutorId()
+      ? (tutorById(currentTutorId()) || arr(state.data?.team).find(x => String(x.id) === String(currentTutorId())))
+      : null;
+
+    const confirm = await Swal.fire({
+      icon:'question',
+      title:'เชื่อมบัญชี Admin กับติวเตอร์?',
+      html:`
+        <div style="text-align:left;font-size:10px;line-height:1.8;color:#64748b">
+          <div style="padding:12px 14px;border:1px solid #dbeafe;background:#f0f9ff;border-radius:14px;margin-bottom:12px">
+            บัญชีที่กำลังใช้: <b>${esc(state.user?.email || state.data?.identity?.email || 'Admin account')}</b><br>
+            เชื่อมเป็นติวเตอร์: <b style="color:#0369a1">${esc(tutor.display_name || 'Tutor')}</b>
+          </div>
+          ${existingTutor && String(existingTutor.id) !== String(tutorId)
+            ? `<div style="padding:10px 12px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;margin-bottom:10px">
+                 ปัจจุบันบัญชีนี้เชื่อมกับ <b>${esc(existingTutor.display_name || 'Tutor')}</b> อยู่ ระบบจะย้ายการเชื่อมมายัง ${esc(tutor.display_name || 'Tutor')}
+               </div>`
+            : ''}
+          <b>สิทธิ์ Admin จะไม่หาย</b> ระบบเพียงเพิ่ม Tutor Identity ให้บัญชีนี้ เพื่อให้รู้ว่าคุณสอนในชื่อใด
+        </div>`,
+      showCancelButton:true,
+      confirmButtonText:`เชื่อมเป็น ${tutor.display_name || 'Tutor'}`,
+      cancelButtonText:'ยกเลิก',
+      confirmButtonColor:'#0f172a',
+      reverseButtons:true
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      loading('กำลังเชื่อมบัญชี...');
+      const result = await rpc('os_v195_admin_link_my_tutor', { p_tutor_id:tutorId });
+      Swal.close();
+
+      if (!result?.ok) throw new Error(result?.message || 'เชื่อมบัญชีไม่สำเร็จ');
+
+      await Swal.fire({
+        icon:'success',
+        title:'เชื่อมบัญชีเรียบร้อย',
+        html:`<div style="font-size:10px;line-height:1.8;color:#64748b">
+          บัญชีนี้ยังเป็น <b>Admin</b> และตอนนี้เชื่อมกับติวเตอร์ <b>${esc(result.tutor_name || tutor.display_name || '')}</b> แล้ว
+        </div>`,
+        confirmButtonText:'ตกลง',
+        confirmButtonColor:'#0f172a'
+      });
+
+      await loadData(false);
+
+    } catch(e) {
+      Swal.close();
+      console.error('[AreWarin Tutor OS V19.5] link tutor failed', e);
+      alertToast('error','เชื่อมบัญชีไม่สำเร็จ',friendlyError(e));
+    }
+  }
+
+  async function unlinkMyAdminTutor(tutorId) {
+    if (!isAdmin()) return alertToast('error','ไม่มีสิทธิ์');
+
+    const tutor = tutorById(tutorId) || arr(state.data?.team).find(x => String(x.id) === String(tutorId));
+    const confirm = await Swal.fire({
+      icon:'warning',
+      title:'ยกเลิกการเชื่อม Tutor Identity?',
+      html:`<div style="font-size:10px;line-height:1.8;color:#64748b">
+        บัญชีจะยังคงเป็น <b>Admin</b> ตามเดิม แต่จะไม่ถูกระบุว่าเป็น <b>${esc(tutor?.display_name || 'Tutor')}</b> อีก
+      </div>`,
+      showCancelButton:true,
+      confirmButtonText:'ยกเลิกการเชื่อม',
+      cancelButtonText:'กลับ',
+      confirmButtonColor:'#e11d48',
+      reverseButtons:true
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      loading('กำลังยกเลิกการเชื่อม...');
+      const result = await rpc('os_v195_admin_unlink_my_tutor', {});
+      Swal.close();
+
+      if (!result?.ok) throw new Error(result?.message || 'ยกเลิกการเชื่อมไม่สำเร็จ');
+
+      alertToast('success','ยกเลิกการเชื่อมแล้ว','บัญชียังคงสิทธิ์ Admin');
+      await loadData(false);
+
+    } catch(e) {
+      Swal.close();
+      console.error('[AreWarin Tutor OS V19.5] unlink tutor failed', e);
+      alertToast('error','ยกเลิกการเชื่อมไม่สำเร็จ',friendlyError(e));
+    }
   }
 
   function reportsHtml() {
@@ -832,6 +1149,9 @@
     $$('[data-delete-schedule]').forEach((b) => b.onclick = () => deleteSchedule(b.dataset.deleteSchedule));
     $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
     $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
+    $$('[data-delete-student]').forEach((b) => b.onclick = () => deleteStudent(b.dataset.deleteStudent));
+    $$('[data-link-my-tutor]').forEach((b) => b.onclick = () => linkMyAdminAccountToTutor(b.dataset.linkMyTutor));
+    $$('[data-unlink-my-tutor]').forEach((b) => b.onclick = () => unlinkMyAdminTutor(b.dataset.unlinkMyTutor));
     if(state.section === 'schedule') awBindCalendarControls();
   }
 

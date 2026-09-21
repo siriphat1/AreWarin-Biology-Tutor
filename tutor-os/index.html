@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="AreWarin Biology Tutor OS — ศูนย์บริหารนักเรียน คอร์ส การสอน การเงิน ทีมงาน และรายงานแบบแยกสิทธิ์รายติวเตอร์">
-  <title>AreWarin Biology · Tutor OS V19.3 Calendar Pro</title>
+  <title>AreWarin Biology · Tutor OS V19.5 Admin + Tutor Link</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -219,12 +219,76 @@
 }
 </style>
 
+
+<style id="aw-v194-student-delete-style">
+.aw-student-delete-btn{
+  background:#fff1f2!important;
+  border-color:#ffe4e6!important;
+  color:#be123c!important;
+}
+.aw-student-delete-btn:hover{
+  background:#ffe4e6!important;
+  border-color:#fecdd3!important;
+  color:#9f1239!important;
+}
+.aw-delete-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+  margin-top:10px
+}
+.aw-delete-preview-grid>div{
+  padding:9px 8px;
+  border:1px solid #edf1f6;
+  border-radius:11px;
+  background:#fff;
+  text-align:center
+}
+.aw-delete-preview-grid small{
+  display:block;
+  color:#94a3b8;
+  font-size:7.7px;
+  line-height:1.35
+}
+.aw-delete-preview-grid b{
+  display:block;
+  color:#334155;
+  font-size:16px;
+  margin-top:4px
+}
+@media(max-width:700px){
+  .aw-delete-preview-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
+
+<style id="aw-v195-admin-tutor-link">
+.aw-team-link-card{position:relative;transition:.18s ease}
+.aw-team-link-card.linked-me{
+  border-color:#86efac;
+  background:linear-gradient(180deg,#fff,#f6fff9);
+  box-shadow:0 12px 34px -28px rgba(5,150,105,.55)
+}
+.aw-team-link-card.linked-me:before{
+  content:'บัญชีนี้';
+  position:absolute;right:13px;top:13px;
+  padding:4px 7px;border-radius:999px;
+  background:#10b981;color:#fff;font-size:7.5px;font-weight:800
+}
+.aw-team-link-status{min-height:28px;display:flex;align-items:center;margin-top:3px}
+.aw-tag-linked{
+  background:#ecfdf5!important;
+  color:#047857!important;
+  border-color:#bbf7d0!important
+}
+</style>
+
 </head>
 <body>
   <section id="loginView">
     <div class="aw-card login-shell">
       <div class="login-visual">
-        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19.3</small></div></div>
+        <div class="login-brand"><div class="brand-mark">AW</div><div><b>AreWarin Biology</b><small>TUTOR OPERATIONS SYSTEM · V19.5</small></div></div>
         <div class="login-copy">
           <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Tutor-scoped workspace</span>
           <h1>งานสอนของแต่ละคน<br><span>แยกสิทธิ์อย่างชัดเจน</span></h1>
@@ -282,7 +346,7 @@
 
     <div class="os-shell">
       <aside class="sidebar">
-        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19.3</small></div></div>
+        <div class="side-head"><i class="fa-solid fa-layer-group"></i><div><b>Unified Command Center</b><small>AreWarin Operations · V19.5</small></div></div>
         <nav>
           <div class="nav-label">Overview</div>
           <button class="nav-btn" data-section="overview"><i class="fa-solid fa-chart-pie"></i><span>ภาพรวม</span></button>
@@ -322,6 +386,6 @@
   </div>
 
   <div id="modalRoot"></div>
-  <script src="./app.js?v=v19.3-calendar-pro-20260921"></script>
+  <script src="./app.js?v=v19.5-admin-tutor-link-20260921"></script>
 </body>
 </html>
