@@ -31332,6 +31332,15 @@
 </style>
 
 <!-- AREWARIN MANAGER V27.5 FULL · ALL MODULES + FULL INLINE CSS -->
+
+<style id="aw-v276-tutor-link-approval">
+.aw-tutor-link-request-card{
+  border:1px solid #e7eaf0;background:#fff;border-radius:18px;padding:14px;
+  box-shadow:0 8px 24px -22px rgba(15,23,42,.34)
+}
+.aw-tutor-link-request-card:hover{border-color:#c4b5fd;box-shadow:0 14px 34px -26px rgba(109,40,217,.35)}
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -31509,6 +31518,25 @@
               <button type="button" id="tutorNew" class="top-action bg-slate-900 border-slate-900 text-white hover:bg-slate-800">
                 <i class="fas fa-user-plus"></i><span class="top-label">เพิ่มติวเตอร์</span>
               </button>
+            </div>
+          </div>
+
+          <div id="tutorLinkApprovalPanel" class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[.16em] text-violet-600 uppercase">Tutor OS · Account Link Requests</div>
+                <h2 class="font-bold text-lg mt-1">คำขอเชื่อมบัญชีติวเตอร์</h2>
+                <p class="text-xs text-slate-400 mt-1">ติวเตอร์ส่งคำขอจาก Tutor OS แล้ว Manager ตรวจสอบก่อนเชื่อม Tutor Profile</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="tutorLinkRequestCount" class="tag !bg-violet-50 !text-violet-600">0 รออนุมัติ</span>
+                <button type="button" id="tutorLinkRequestRefresh" class="top-action bg-white border-slate-200 text-slate-600">
+                  <i class="fas fa-rotate"></i><span class="top-label">รีเฟรช</span>
+                </button>
+              </div>
+            </div>
+            <div id="tutorLinkRequestQueue" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div class="text-xs text-slate-400">กำลังโหลดคำขอ...</div>
             </div>
           </div>
 
@@ -34829,6 +34857,10 @@
 
 
 <script>
+console.info('[AreWarin Manager V27.6] Tutor Link Approval queue loaded');
+</script>
+
+<script>
 /* AREWARIN MANAGER V27.4 · STATUS SWEETALERT RELIABILITY FIX */
 console.info('[AreWarin Manager V27.4] Status SweetAlert reliability fix loaded');
 </script>
@@ -35429,7 +35461,7 @@ console.info('[AreWarin Manager V27.4] Status SweetAlert reliability fix loaded'
 
   const $ = id => document.getElementById(id);
   const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const STATE = { tutors:[], identities:new Map(), applications:[], loading:false };
+  const STATE = { tutors:[], identities:new Map(), applications:[], linkRequests:[], loading:false };
 
   function client(){
     try{ if(typeof sb!=='undefined' && sb?.from) return sb; }catch(_){}
@@ -35767,12 +35799,168 @@ console.info('[AreWarin Manager V27.4] Status SweetAlert reliability fix loaded'
     renderApplications();
   }
 
+
+  function renderTutorLinkRequests(){
+    const root=$('tutorLinkRequestQueue');
+    const count=$('tutorLinkRequestCount');
+    if(!root) return;
+
+    const rows=Array.isArray(STATE.linkRequests)?STATE.linkRequests:[];
+    const pending=rows.filter(x=>x.status==='pending');
+    if(count) count.textContent=pending.length+' รออนุมัติ';
+
+    if(!rows.length){
+      root.innerHTML='<div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">ยังไม่มีคำขอเชื่อมบัญชี Tutor OS</div>';
+      return;
+    }
+
+    root.innerHTML=rows.slice(0,18).map(r=>{
+      const isPending=r.status==='pending';
+      const statusClass=r.status==='approved'
+        ? '!bg-emerald-50 !text-emerald-600'
+        : r.status==='rejected'
+          ? '!bg-rose-50 !text-rose-600'
+          : r.status==='cancelled'
+            ? '!bg-slate-100 !text-slate-500'
+            : '!bg-amber-50 !text-amber-600';
+      const statusLabel=r.status==='approved'
+        ? 'อนุมัติแล้ว'
+        : r.status==='rejected'
+          ? 'ปฏิเสธ'
+          : r.status==='cancelled'
+            ? 'ยกเลิก'
+            : 'รอตรวจสอบ';
+
+      return `<article class="aw-tutor-link-request-card">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <b class="text-[12px] text-slate-800 block truncate">${esc(r.requester_name||r.requester_email||'Tutor account')}</b>
+            <span class="text-[9px] text-slate-400 block truncate mt-0.5">${esc(r.requester_email||'')}</span>
+          </div>
+          <span class="tag ${statusClass}">${statusLabel}</span>
+        </div>
+
+        <div class="mt-3 rounded-xl bg-violet-50 border border-violet-100 px-3 py-2">
+          <div class="text-[8px] font-extrabold text-violet-500 uppercase tracking-wider">ขอเชื่อมเป็น</div>
+          <div class="text-[12px] font-bold text-violet-800 mt-1">${esc(r.tutor_name||'Tutor')}</div>
+          <div class="text-[9px] text-violet-500 mt-0.5">${esc(r.tutor_role||'')}</div>
+        </div>
+
+        <div class="mt-3 text-[9px] text-slate-500 leading-relaxed">
+          ${r.application_ref?`<div><b>Application:</b> ${esc(r.application_ref)}</div>`:''}
+          ${r.requester_is_admin?'<div><b>Requester:</b> Admin / Manager account</div>':''}
+          ${r.note?`<div><b>หมายเหตุ:</b> ${esc(r.note)}</div>`:''}
+          <div><b>ส่งเมื่อ:</b> ${esc(r.created_at?new Date(r.created_at).toLocaleString('th-TH'):'—')}</div>
+          ${r.review_note?`<div><b>ผลตรวจ:</b> ${esc(r.review_note)}</div>`:''}
+        </div>
+
+        ${isPending?`<div class="aw-tutor-actions mt-3">
+          <button type="button" class="!bg-emerald-50 !text-emerald-700 !border-emerald-100" data-link-request-approve="${esc(r.id)}">
+            <i class="fas fa-check mr-1"></i>อนุมัติ
+          </button>
+          <button type="button" class="danger" data-link-request-reject="${esc(r.id)}">
+            <i class="fas fa-xmark mr-1"></i>ปฏิเสธ
+          </button>
+        </div>`:''}
+      </article>`;
+    }).join('');
+
+    root.querySelectorAll('[data-link-request-approve]').forEach(b=>b.onclick=()=>reviewTutorLinkRequest(b.dataset.linkRequestApprove,'approve'));
+    root.querySelectorAll('[data-link-request-reject]').forEach(b=>b.onclick=()=>reviewTutorLinkRequest(b.dataset.linkRequestReject,'reject'));
+  }
+
+  async function loadTutorLinkRequests(){
+    const c=client();
+    if(!c) return;
+    try{
+      const r=await c.rpc('os_v196_manager_link_requests');
+      if(r.error) throw r.error;
+      const data=r.data||{};
+      STATE.linkRequests=Array.isArray(data.requests)?data.requests:[];
+    }catch(e){
+      STATE.linkRequests=[];
+      console.warn('[Tutor Manager V27.6] link requests unavailable:',e);
+    }
+    renderTutorLinkRequests();
+  }
+
+  async function reviewTutorLinkRequest(id,action){
+    const row=STATE.linkRequests.find(x=>String(x.id)===String(id));
+    if(!row) return;
+
+    let note='';
+    if(action==='reject'){
+      const ask=await Swal.fire({
+        icon:'warning',
+        title:'ปฏิเสธคำขอเชื่อมบัญชี?',
+        html:`<div class="text-sm text-slate-600">ผู้ขอ: <b>${esc(row.requester_name||row.requester_email||'Tutor')}</b><br>ขอเชื่อมเป็น <b>${esc(row.tutor_name||'Tutor')}</b></div>`,
+        input:'textarea',
+        inputLabel:'เหตุผล (แนะนำให้ระบุ)',
+        inputPlaceholder:'เช่น กรุณาเลือก Tutor Profile ให้ถูกต้อง',
+        showCancelButton:true,
+        confirmButtonText:'ปฏิเสธคำขอ',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#e11d48',
+        reverseButtons:true
+      });
+      if(!ask.isConfirmed) return;
+      note=String(ask.value||'').trim();
+    }else{
+      const ask=await Swal.fire({
+        icon:'question',
+        title:'อนุมัติการเชื่อมบัญชี?',
+        html:`<div class="text-sm text-slate-600 leading-relaxed">
+          บัญชี <b>${esc(row.requester_name||row.requester_email||'Tutor')}</b><br>
+          จะถูกเชื่อมกับ Tutor Profile <b>${esc(row.tutor_name||'Tutor')}</b>
+        </div>`,
+        showCancelButton:true,
+        confirmButtonText:'อนุมัติและเชื่อมบัญชี',
+        cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#059669',
+        reverseButtons:true
+      });
+      if(!ask.isConfirmed) return;
+    }
+
+    const c=client();
+    if(!c) return toast('Supabase ยังไม่พร้อม','error');
+
+    try{
+      Swal.fire({title:action==='approve'?'กำลังอนุมัติ...':'กำลังปฏิเสธ...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+      const r=await c.rpc('os_v196_manager_review_link_request',{
+        p_request_id:id,
+        p_action:action,
+        p_note:note||null
+      });
+      if(r.error) throw r.error;
+      if(!r.data?.ok) throw new Error(r.data?.message||'ดำเนินการไม่สำเร็จ');
+      Swal.close();
+
+      await Swal.fire({
+        icon:'success',
+        title:action==='approve'?'เชื่อมบัญชีเรียบร้อย':'ปฏิเสธคำขอแล้ว',
+        text:action==='approve'
+          ? `${r.data.requester_name||'บัญชีติวเตอร์'} → ${r.data.tutor_name||'Tutor'}`
+          : undefined,
+        timer:2200,
+        showConfirmButton:false
+      });
+
+      await loadAll();
+    }catch(e){
+      Swal.close();
+      console.error('[Tutor Manager V27.6] review link request failed',e);
+      Swal.fire({icon:'error',title:'ดำเนินการไม่สำเร็จ',text:e?.message||String(e)});
+    }
+  }
+
   async function loadAll(){
     if(STATE.loading) return;
     STATE.loading=true;
     try{
       await loadTutors();
       await loadApplications();
+      await loadTutorLinkRequests();
       // Keep course tutor dropdown up to date.
       const courseTutor=$('courseTutor');
       if(courseTutor){
@@ -35797,6 +35985,7 @@ console.info('[AreWarin Manager V27.4] Status SweetAlert reliability fix loaded'
     $('tutorReset')?.addEventListener('click',resetForm);
     $('tutorNew')?.addEventListener('click',()=>{resetForm();$('tutorForm')?.scrollIntoView({behavior:'smooth',block:'start'})});
     $('tutorRefresh')?.addEventListener('click',loadAll);
+    $('tutorLinkRequestRefresh')?.addEventListener('click',loadTutorLinkRequests);
     $('tutorSearch')?.addEventListener('input',renderTutors);
     $('tutorStatusFilter')?.addEventListener('change',renderTutors);
 
