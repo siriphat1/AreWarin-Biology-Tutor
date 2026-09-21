@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  console.info('[AreWarin Tutor OS V19.6] Tutor Link Request + Manager Approval loaded');
+  console.info('[AreWarin Tutor OS V19.7] Student Delete Request + Manager Approval loaded');
 
   const cfg = window.AREWARIN_CONFIG || {};
   const loginView = document.getElementById('loginView');
@@ -360,17 +360,20 @@
 
   function studentsHtml() {
     const rows = arr(state.data?.students);
-    const admin = isAdmin();
+    const deleteRequests = arr(state.data?.studentDeleteRequests);
+    const requestByStudent = new Map(
+      deleteRequests
+        .filter(r => r?.student_id && r?.status === 'pending')
+        .map(r => [String(r.student_id), r])
+    );
 
     return `${sectionHeader(
       'STUDENTS',
       'นักเรียน & CRM',
-      admin
-        ? 'Admin เห็นนักเรียนทั้งหมด · สามารถลบนักเรียนออกจาก Student/Tutor OS ได้'
-        : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณผ่าน Enrollment / Course',
-      admin
-        ? `<div class="aw-tag"><i class="fa-solid fa-shield-halved"></i> ลบได้เฉพาะ Admin / Manager</div>`
-        : ''
+      isAdmin()
+        ? 'Admin เห็นนักเรียนทั้งหมด · การลบต้องส่งคำขอและให้ Manager คนอื่นอนุมัติก่อน'
+        : 'แสดงเฉพาะนักเรียนที่ผูกกับคุณ · การลบต้องผ่าน Manager Approval',
+      `<div class="aw-tag"><i class="fa-solid fa-shield-halved"></i> Delete Approval Required</div>`
     )}
       <section class="aw-card content-card">
         ${rows.length ? `<div class="table-wrap">
@@ -382,7 +385,7 @@
                 <th>โรงเรียน</th>
                 <th>คอร์สที่กำลังเรียน</th>
                 <th>ชั่วโมงคงเหลือ</th>
-                ${admin ? '<th style="text-align:right">จัดการ</th>' : ''}
+                <th style="text-align:right">จัดการ</th>
               </tr>
             </thead>
             <tbody>${rows.map((s) => {
@@ -400,18 +403,33 @@
                 <td>${esc(s.school || '—')}</td>
                 <td>${ens.map((e) => `<span class="aw-tag">${esc(courseById(e.course_id)?.title || courseById(e.course_id)?.name || e.course_label || 'คอร์ส')}</span>`).join(' ') || '—'}</td>
                 <td>${ens.some((e) => e.hours_unlimited) ? '∞' : `${remain.toFixed(1)} ชม.`}</td>
-                ${admin ? `<td>
+                <td>
                   <div class="table-actions">
-                    <button
-                      class="icon-btn danger aw-student-delete-btn"
-                      type="button"
-                      data-delete-student="${esc(s.id)}"
-                      title="ลบนักเรียนออกจาก Student OS"
-                      aria-label="ลบนักเรียน ${esc(fullName(s))}">
-                      <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    ${requestByStudent.has(String(s.id))
+                      ? `<button
+                           class="aw-btn small"
+                           type="button"
+                           disabled
+                           title="รอ Manager ตรวจสอบ">
+                           <i class="fa-regular fa-clock"></i> รออนุมัติ
+                         </button>
+                         <button
+                           class="icon-btn danger"
+                           type="button"
+                           data-cancel-student-delete-request="${esc(requestByStudent.get(String(s.id)).id)}"
+                           title="ยกเลิกคำขอลบ">
+                           <i class="fa-solid fa-xmark"></i>
+                         </button>`
+                      : `<button
+                           class="aw-btn small danger aw-student-delete-btn"
+                           type="button"
+                           data-request-student-delete="${esc(s.id)}"
+                           title="ส่งคำขอลบนักเรียนไปยัง Manager">
+                           <i class="fa-solid fa-paper-plane"></i> ขอลบ
+                         </button>`
+                    }
                   </div>
-                </td>` : ''}
+                </td>
               </tr>`;
             }).join('')}</tbody>
           </table>
@@ -419,11 +437,7 @@
       </section>`;
   }
 
-  async function deleteStudent(studentId) {
-    if (!isAdmin()) {
-      return alertToast('error','ไม่มีสิทธิ์ลบนักเรียน','ฟังก์ชันนี้ใช้ได้เฉพาะ Admin / Manager');
-    }
-
+  async function requestStudentDelete(studentId) {
     const student = studentById(studentId);
     if (!student) {
       return alertToast('warning','ไม่พบนักเรียน','กรุณารีเฟรชข้อมูลแล้วลองอีกครั้ง');
@@ -432,97 +446,93 @@
     try {
       loading('กำลังตรวจสอบข้อมูลที่เกี่ยวข้อง...');
 
-      const preview = await rpc('os_v194_admin_student_delete_preview', {
+      const preview = await rpc('os_v197_student_delete_preview', {
         p_student_id: studentId
       });
 
       Swal.close();
 
       if (!preview?.ok) {
-        throw new Error(preview?.message || 'ไม่สามารถตรวจสอบข้อมูลก่อนลบได้');
+        throw new Error(preview?.message || 'ไม่สามารถตรวจสอบข้อมูลก่อนส่งคำขอได้');
       }
 
-      const confirmText = String(preview.confirmation || student.student_code || 'DELETE');
       const counts = preview.counts || {};
       const displayName = preview.display_name || fullName(student);
-      const activeEnrollments = Number(counts.active_enrollments || 0);
-      const schedules = Number(counts.schedules || 0);
-      const sessions = Number(counts.sessions || 0);
-      const groupLinks = Number(counts.group_links || 0);
-      const serviceRecords = Number(counts.service_records || 0);
 
       const result = await Swal.fire({
         icon:'warning',
-        title:'ลบนักเรียนออกจากระบบ?',
-        width:560,
+        title:'ส่งคำขอลบนักเรียน?',
+        width:580,
         html:`
           <div class="text-left">
-            <div style="padding:12px 14px;border:1px solid #fee2e2;background:#fff7f7;border-radius:14px;margin-bottom:12px">
-              <div style="font-size:12px;font-weight:800;color:#9f1239">${esc(displayName)}</div>
-              <div style="font-size:9px;color:#94a3b8;margin-top:4px">${esc(student.student_code || student.id)}</div>
+            <div style="padding:12px 14px;border:1px solid #fde68a;background:#fffbeb;border-radius:14px;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:800;color:#92400e">${esc(displayName)}</div>
+              <div style="font-size:9px;color:#a16207;margin-top:4px">${esc(student.student_code || student.id)}</div>
             </div>
 
             <div class="aw-delete-preview-grid">
-              <div><small>Enrollment ที่ใช้งาน</small><b>${activeEnrollments}</b></div>
-              <div><small>ตารางสอน</small><b>${schedules}</b></div>
-              <div><small>ประวัติการสอน</small><b>${sessions}</b></div>
-              <div><small>กลุ่ม/Locker</small><b>${groupLinks}</b></div>
-              <div><small>Student Services</small><b>${serviceRecords}</b></div>
+              <div><small>Enrollment ที่ใช้งาน</small><b>${Number(counts.active_enrollments || 0)}</b></div>
+              <div><small>ตารางสอน</small><b>${Number(counts.schedules || 0)}</b></div>
+              <div><small>ประวัติการสอน</small><b>${Number(counts.sessions || 0)}</b></div>
+              <div><small>กลุ่ม/Locker</small><b>${Number(counts.group_links || 0)}</b></div>
+              <div><small>Student Services</small><b>${Number(counts.service_records || 0)}</b></div>
             </div>
 
-            <div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:9px;line-height:1.65">
-              <b>ข้อมูลที่จะถูกลบ:</b> Student Profile และข้อมูลใน Student/Tutor OS ที่อ้างถึงนักเรียนคนนี้ตาม Foreign Key ของระบบ<br>
-              <b>ข้อมูลที่เก็บไว้:</b> ใบสมัครเรียน/การชำระเงิน/ใบเสร็จในระบบหลักยังคงอยู่เพื่อ Audit
+            <div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:9px;line-height:1.7">
+              <b>ยังไม่มีการลบในขั้นตอนนี้</b><br>
+              ระบบจะส่งคำขอไปยัง Manager ก่อน พร้อม snapshot และจำนวนข้อมูลที่เกี่ยวข้อง
+              นักเรียนจะถูกลบจริงก็ต่อเมื่อ Manager คนอื่นอนุมัติเท่านั้น
             </div>
 
-            <div style="margin-top:12px;font-size:9px;color:#64748b;line-height:1.6">
-              เพื่อป้องกันการกดผิด กรุณาพิมพ์ <b style="color:#be123c">${esc(confirmText)}</b> ในช่องด้านล่าง
+            <div style="margin-top:12px;font-size:9px;font-weight:800;color:#475569">
+              กรุณาระบุเหตุผลที่ต้องการลบ
             </div>
           </div>`,
-        input:'text',
-        inputPlaceholder:confirmText,
+        input:'textarea',
+        inputPlaceholder:'เช่น นักเรียนยกเลิกการเรียนและขอให้ลบข้อมูลออกจาก Student/Tutor OS',
         inputAttributes:{
-          autocapitalize:'off',
-          autocomplete:'off',
-          spellcheck:'false'
+          maxlength:'1000',
+          rows:'4'
         },
         showCancelButton:true,
-        confirmButtonText:'ลบนักเรียนถาวร',
+        confirmButtonText:'ส่งคำขอให้ Manager',
         cancelButtonText:'ยกเลิก',
-        confirmButtonColor:'#e11d48',
+        confirmButtonColor:'#d97706',
         reverseButtons:true,
         focusCancel:true,
         preConfirm:(value)=>{
-          if(String(value || '').trim() !== confirmText) {
-            Swal.showValidationMessage(`กรุณาพิมพ์ ${confirmText} ให้ตรงกัน`);
+          const reason = String(value || '').trim();
+          if(reason.length < 5) {
+            Swal.showValidationMessage('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร');
             return false;
           }
-          return String(value || '').trim();
+          return reason;
         }
       });
 
       if (!result.isConfirmed) return;
 
-      loading('กำลังลบนักเรียนและข้อมูลที่เกี่ยวข้อง...');
+      loading('กำลังส่งคำขอไปยัง Manager...');
 
-      const deleted = await rpc('os_v194_admin_delete_student', {
+      const requested = await rpc('os_v197_request_student_delete', {
         p_student_id: studentId,
-        p_confirm: result.value
+        p_reason: result.value
       });
 
       Swal.close();
 
-      if (!deleted?.ok) {
-        throw new Error(deleted?.message || 'ลบนักเรียนไม่สำเร็จ');
+      if (!requested?.ok) {
+        throw new Error(requested?.message || 'ส่งคำขอลบไม่สำเร็จ');
       }
 
       await Swal.fire({
         icon:'success',
-        title:'ลบนักเรียนเรียบร้อย',
+        title:'ส่งคำขอแล้ว',
         html:`
-          <div style="font-size:10px;color:#64748b;line-height:1.7">
-            ลบ <b>${esc(deleted.display_name || displayName)}</b> ออกจาก Student/Tutor OS แล้ว<br>
-            ข้อมูลสมัครเรียนและการเงินในระบบหลักยังคงเก็บไว้
+          <div style="font-size:10px;color:#64748b;line-height:1.8">
+            คำขอลบ <b>${esc(displayName)}</b> ถูกส่งไปยัง Manager แล้ว<br>
+            <b style="color:#b45309">ยังไม่มีข้อมูลใดถูกลบ</b><br>
+            กรุณารอ Manager ตรวจสอบและอนุมัติ
           </div>`,
         confirmButtonText:'ตกลง',
         confirmButtonColor:'#0f172a'
@@ -532,8 +542,38 @@
 
     } catch (e) {
       Swal.close();
-      console.error('[AreWarin Tutor OS V19.4] delete student failed', e);
-      alertToast('error','ลบนักเรียนไม่สำเร็จ',friendlyError(e));
+      console.error('[AreWarin Tutor OS V19.7] request student delete failed', e);
+      alertToast('error','ส่งคำขอลบไม่สำเร็จ',friendlyError(e));
+    }
+  }
+
+  async function cancelStudentDeleteRequest(requestId) {
+    const ask = await Swal.fire({
+      icon:'question',
+      title:'ยกเลิกคำขอลบ?',
+      text:'นักเรียนจะยังคงอยู่ในระบบตามเดิม',
+      showCancelButton:true,
+      confirmButtonText:'ยกเลิกคำขอ',
+      cancelButtonText:'กลับ',
+      confirmButtonColor:'#e11d48',
+      reverseButtons:true
+    });
+    if(!ask.isConfirmed) return;
+
+    try {
+      loading('กำลังยกเลิกคำขอ...');
+      const result = await rpc('os_v197_cancel_student_delete_request', {
+        p_request_id: requestId
+      });
+      Swal.close();
+
+      if(!result?.ok) throw new Error(result?.message || 'ยกเลิกคำขอไม่สำเร็จ');
+
+      alertToast('success','ยกเลิกคำขอแล้ว','ไม่มีข้อมูลนักเรียนถูกลบ');
+      await loadData(false);
+    } catch(e) {
+      Swal.close();
+      alertToast('error','ยกเลิกคำขอไม่สำเร็จ',friendlyError(e));
     }
   }
 
@@ -1223,7 +1263,8 @@
     $$('[data-delete-schedule]').forEach((b) => b.onclick = () => deleteSchedule(b.dataset.deleteSchedule));
     $$('[data-finish-session]').forEach((b) => b.onclick = () => finishLesson(b.dataset.finishSession));
     $$('[data-edit-session]').forEach((b) => b.onclick = () => openEditLesson(b.dataset.editSession));
-    $$('[data-delete-student]').forEach((b) => b.onclick = () => deleteStudent(b.dataset.deleteStudent));
+    $$('[data-request-student-delete]').forEach((b) => b.onclick = () => requestStudentDelete(b.dataset.requestStudentDelete));
+    $$('[data-cancel-student-delete-request]').forEach((b) => b.onclick = () => cancelStudentDeleteRequest(b.dataset.cancelStudentDeleteRequest));
     $$('[data-request-tutor-link]').forEach((b) => b.onclick = () => requestTutorLink(b.dataset.requestTutorLink));
     $$('[data-cancel-tutor-link]').forEach((b) => b.onclick = () => cancelTutorLinkRequest(b.dataset.cancelTutorLink));
     if(state.section === 'schedule') awBindCalendarControls();
@@ -1308,6 +1349,13 @@
       state.data = await rpc('tutor_os_bootstrap_v18');
       try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (scheduleError) { console.warn('Schedule V19 unavailable:', scheduleError); state.data.schedules = []; }
       try { state.data.linkState = await rpc('os_v196_my_tutor_link_state'); } catch (linkError) { console.warn('Tutor link request V19.6 unavailable:', linkError); state.data.linkState = null; }
+      try {
+        const deleteState = await rpc('os_v197_my_student_delete_requests');
+        state.data.studentDeleteRequests = arr(deleteState?.requests);
+      } catch (deleteRequestError) {
+        console.warn('Student delete request V19.7 unavailable:', deleteRequestError);
+        state.data.studentDeleteRequests = [];
+      }
       showApp();
       setConnection(true);
       if (state.data?.needs_tutor_link && !state.data?.is_admin) state.section = 'overview';
@@ -1323,6 +1371,12 @@
           state.data = await rpc('tutor_os_bootstrap_v18');
           try { state.data.schedules = await rpc('tutor_os_schedule_v19'); } catch (_) { state.data.schedules = []; }
           try { state.data.linkState = await rpc('os_v196_my_tutor_link_state'); } catch (_) { state.data.linkState = null; }
+          try {
+            const deleteState = await rpc('os_v197_my_student_delete_requests');
+            state.data.studentDeleteRequests = arr(deleteState?.requests);
+          } catch (_) {
+            state.data.studentDeleteRequests = [];
+          }
           showApp(); render(); setupRealtime(); return;
         } catch (_) {}
       }
@@ -1335,7 +1389,7 @@
   function setupRealtime() {
     if (state.realtime) return;
     let ch = state.sb.channel('tutor-os-v18');
-    ['os_student_course_enrollments', 'os_attendance_sessions', 'os_student_attendance', 'os_hour_ledger', 'os_hour_pools', 'os_student_groups', 'os_teaching_schedule', 'tutor_os_link_requests'].forEach((table) => {
+    ['os_student_course_enrollments', 'os_attendance_sessions', 'os_student_attendance', 'os_hour_ledger', 'os_hour_pools', 'os_student_groups', 'os_teaching_schedule', 'tutor_os_link_requests', 'tutor_os_student_delete_requests'].forEach((table) => {
       ch = ch.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
         clearTimeout(state.reloadTimer);
         state.reloadTimer = setTimeout(() => loadData(false), 500);
