@@ -31476,6 +31476,18 @@
 }
 </style>
 
+
+<style id="aw-v279-tutor-contract-style">
+.aw-contract-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.aw-contract-sign-canvas{display:block;width:100%;height:150px;border:1.5px dashed #cbd5e1;border-radius:14px;background:#fbfdff;touch-action:none;cursor:crosshair}
+.aw-contract-sign-canvas.signed{border-color:#86efac;background:#f0fdf4}
+.aw-contract-rate-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.aw-contract-rate-grid label{font-size:9px;font-weight:700;color:#64748b}
+.aw-agreement-card{border:1px solid #e7eaf0;border-radius:16px;padding:12px;background:#fff}
+.aw-agreement-card:hover{border-color:#c7d2fe;box-shadow:0 12px 30px -26px rgba(79,70,229,.35)}
+@media(max-width:800px){.aw-contract-config-grid,.aw-contract-rate-grid{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -31810,7 +31822,51 @@
             <a href="../tutor-apply/" target="_blank" class="top-action bg-sky-50 border-sky-100 text-sky-600 hover:bg-sky-100"><i class="fas fa-arrow-up-right-from-square"></i><span>เปิดหน้าสมัคร</span></a>
           </div>
 
-          <div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3">
+          
+          <div id="tutorContractConfigPanel" class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[.16em] text-sky-600 uppercase">Electronic Agreement · Manager Signature</div>
+                <h2 class="font-bold text-lg mt-1">ลายเซ็นผู้แทนสถาบันและอัตราค่าตอบแทน</h2>
+                <p class="text-xs text-slate-400 mt-1">ลายเซ็นนี้จะถูกดึงอัตโนมัติไปแนบกับข้อตกลงเมื่อผู้สมัครวาดลายเซ็นและส่งใบสมัคร</p>
+              </div>
+              <span id="tutorContractConfigStatus" class="tag !bg-amber-50 !text-amber-600">ยังไม่ตรวจสอบ</span>
+            </div>
+
+            <div class="aw-contract-config-grid mt-4">
+              <div class="space-y-3">
+                <div class="grid sm:grid-cols-2 gap-2">
+                  <label class="text-[9px] font-bold text-slate-500">ชื่อผู้ลงนาม<input id="contractSignerName" class="input mt-1" placeholder="เช่น อาวริน ..."></label>
+                  <label class="text-[9px] font-bold text-slate-500">ตำแหน่ง<input id="contractSignerTitle" class="input mt-1" placeholder="Manager / ผู้แทนสถาบัน"></label>
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <div class="text-[9px] font-bold text-slate-500">ลายมือชื่อ</div>
+                    <button id="contractSignatureClear" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-500 text-[9px] font-bold"><i class="fas fa-eraser mr-1"></i>ล้าง</button>
+                  </div>
+                  <canvas id="contractSignatureCanvas" class="aw-contract-sign-canvas"></canvas>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="aw-contract-rate-grid">
+                  <label>กำลังเรียน/จบ ป.ตรี<input id="contractRateBachelor" type="number" class="input mt-1" value="155" min="1"></label>
+                  <label>ป.โท<input id="contractRateMaster" type="number" class="input mt-1" value="180" min="1"></label>
+                  <label>ป.เอก ต่ำสุด<input id="contractRateDoctorMin" type="number" class="input mt-1" value="200" min="1"></label>
+                  <label>ป.เอก สูงสุด<input id="contractRateDoctorMax" type="number" class="input mt-1" value="250" min="1"></label>
+                </div>
+                <label class="block text-[9px] font-bold text-slate-500">รอบการจ่ายเงิน<textarea id="contractPayoutCycleManager" class="input h-20 mt-1" placeholder="เช่น จ่ายทุกวันที่ 5 ของเดือนถัดไป"></textarea></label>
+                <div class="rounded-xl border border-sky-100 bg-sky-50 p-3 text-[9px] text-sky-700 leading-relaxed">
+                  <i class="fas fa-shield-halved mr-1"></i>
+                  รูปลายเซ็น Manager เป็นข้อมูล private หน้า public จะเห็นเพียงชื่อผู้ลงนาม ตำแหน่ง และสถานะว่า “พร้อมใช้งาน” เท่านั้น
+                </div>
+                <button id="contractConfigSave" type="button" class="w-full py-3 rounded-xl bg-slate-900 text-white text-[11px] font-bold hover:bg-black transition"><i class="fas fa-floppy-disk mr-1.5"></i> บันทึกลายเซ็นและเงื่อนไข</button>
+              </div>
+            </div>
+          </div>
+
+<div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3">
             <div class="card p-4"><div class="text-[9px] text-slate-400">ทั้งหมด</div><div id="taStatAll" class="text-2xl font-semibold text-slate-800 mt-1">0</div></div>
             <div class="card p-4 border-sky-100"><div class="text-[9px] text-sky-500">ใบสมัครใหม่</div><div id="taStatNew" class="text-2xl font-semibold text-sky-600 mt-1">0</div></div>
             <div class="card p-4 border-amber-100"><div class="text-[9px] text-amber-500">กำลังตรวจ</div><div id="taStatReview" class="text-2xl font-semibold text-amber-600 mt-1">0</div></div>
@@ -31847,6 +31903,19 @@
               </table>
             </div>
           </div>
+        
+          <div id="tutorSignedAgreementPanel" class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="text-[9px] font-extrabold tracking-[.16em] text-indigo-600 uppercase">Signed Tutor Agreements</div>
+                <h2 class="font-bold text-lg mt-1">ข้อตกลงที่ลงนามล่าสุด</h2>
+                <p class="text-xs text-slate-400 mt-1">ตรวจสอบลายเซ็นผู้สมัคร ลายเซ็นผู้แทนสถาบัน ข้อมูลยืนยันตัวตน บัญชีรับค่าตอบแทน และ SHA-256 ของข้อตกลง</p>
+              </div>
+              <button id="refreshTutorAgreements" type="button" class="top-action bg-white border-slate-200 text-slate-600"><i class="fas fa-rotate"></i><span class="top-label">รีเฟรช</span></button>
+            </div>
+            <div id="tutorAgreementList" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3"><div class="text-xs text-slate-400">กำลังโหลด...</div></div>
+          </div>
+
         </section>
 
         <section id="section-courses" class="section"><div class="page-head"><div><div class="page-kicker">Courses</div><h1 class="page-title">จัดการคอร์ส</h1><p class="page-subtitle">จัดการรายละเอียดคอร์ส รูปภาพ กลุ่มเป้าหมาย และสถานะการเปิดสอน</p></div></div>
@@ -38345,6 +38414,381 @@ console.info('[AreWarin Manager] V27.0 Hourly Group Core loaded');
     setInterval(()=>{
       if(document.visibilityState==='visible') load();
     },60000);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
+
+
+<script id="aw-v279-tutor-contract-module">
+(()=>{
+  'use strict';
+  console.info('[AreWarin Manager V27.9] Tutor contract + signature control loaded');
+
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function db(){
+    try{if(typeof sb!=='undefined'&&sb?.rpc)return sb}catch(_){}
+    if(window.AreWarinAPI?.sb?.rpc)return window.AreWarinAPI.sb;
+    if(window.supabaseClient?.rpc)return window.supabaseClient;
+    const cfg=window.AREWARIN_CONFIG||{};
+    if(window.supabase?.createClient&&cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY){
+      if(!window.__awV279ContractClient){
+        window.__awV279ContractClient=window.supabase.createClient(
+          cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,
+          {auth:{persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return window.__awV279ContractClient;
+    }
+    return null;
+  }
+
+  let canvas=null,ctx=null,drawing=false,last=null,dirty=false,loadedSignature='';
+
+  function resizeCanvas(){
+    canvas=$('contractSignatureCanvas');
+    if(!canvas)return;
+    const rect=canvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const ratio=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+    const old=dirty&&canvas.width?canvas.toDataURL('image/png'):loadedSignature||null;
+    canvas.width=Math.round(rect.width*ratio);
+    canvas.height=Math.round(rect.height*ratio);
+    ctx=canvas.getContext('2d');
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    ctx.lineWidth=2.3;
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    ctx.strokeStyle='#0f172a';
+
+    if(old){
+      const img=new Image();
+      img.onload=()=>{
+        ctx.drawImage(img,0,0,rect.width,rect.height);
+        canvas.classList.add('signed');
+      };
+      img.src=old;
+    }
+  }
+
+  function point(ev){
+    const r=canvas.getBoundingClientRect();
+    return{x:ev.clientX-r.left,y:ev.clientY-r.top};
+  }
+
+  function initCanvas(){
+    canvas=$('contractSignatureCanvas');
+    if(!canvas)return;
+    resizeCanvas();
+
+    canvas.addEventListener('pointerdown',ev=>{
+      drawing=true;
+      last=point(ev);
+      canvas.setPointerCapture?.(ev.pointerId);
+      ev.preventDefault();
+    });
+    canvas.addEventListener('pointermove',ev=>{
+      if(!drawing||!ctx)return;
+      const p=point(ev);
+      ctx.beginPath();
+      ctx.moveTo(last.x,last.y);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+      last=p;
+      dirty=true;
+      loadedSignature='';
+      canvas.classList.add('signed');
+      ev.preventDefault();
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(name=>{
+      canvas.addEventListener(name,()=>{drawing=false;last=null});
+    });
+
+    $('contractSignatureClear')?.addEventListener('click',()=>{
+      dirty=false;
+      loadedSignature='';
+      resizeCanvas();
+      if(ctx&&canvas){
+        const rect=canvas.getBoundingClientRect();
+        ctx.clearRect(0,0,rect.width,rect.height);
+      }
+      canvas?.classList.remove('signed');
+    });
+
+    window.addEventListener('resize',()=>{
+      if(document.getElementById('section-tutorapplications')?.classList.contains('active')){
+        setTimeout(resizeCanvas,80);
+      }
+    });
+  }
+
+  function setCanvasImage(data){
+    if(!data||!canvas)return;
+    loadedSignature=data;
+    dirty=false;
+    resizeCanvas();
+  }
+
+  async function loadConfig(){
+    const c=db();if(!c)return;
+    try{
+      const {data,error}=await c.rpc('aw_v2_manager_contract_config');
+      if(error)throw error;
+      if(!data?.ok)return;
+
+      if($('contractSignerName'))$('contractSignerName').value=data.signer_name||'';
+      if($('contractSignerTitle'))$('contractSignerTitle').value=data.signer_title||'Manager';
+      if($('contractRateBachelor'))$('contractRateBachelor').value=data.bachelor_rate??155;
+      if($('contractRateMaster'))$('contractRateMaster').value=data.master_rate??180;
+      if($('contractRateDoctorMin'))$('contractRateDoctorMin').value=data.doctorate_rate_min??200;
+      if($('contractRateDoctorMax'))$('contractRateDoctorMax').value=data.doctorate_rate_max??250;
+      if($('contractPayoutCycleManager'))$('contractPayoutCycleManager').value=data.payout_cycle||'ตามรอบที่ระบบกำหนดและแจ้งก่อนการจ่าย';
+
+      const status=$('tutorContractConfigStatus');
+      if(status){
+        status.textContent=data.signature_ready?'พร้อมใช้งาน':'ยังไม่มีลายเซ็น';
+        status.className=data.signature_ready
+          ? 'tag !bg-emerald-50 !text-emerald-600'
+          : 'tag !bg-amber-50 !text-amber-600';
+      }
+
+      if(data.signature_data_url){
+        setTimeout(()=>setCanvasImage(data.signature_data_url),80);
+      }else{
+        loadedSignature='';
+        dirty=false;
+        setTimeout(resizeCanvas,80);
+      }
+    }catch(e){
+      console.warn('[Manager V27.9] load contract config failed',e);
+      const status=$('tutorContractConfigStatus');
+      if(status){
+        status.textContent='โหลดไม่สำเร็จ';
+        status.className='tag !bg-rose-50 !text-rose-600';
+      }
+    }
+  }
+
+  async function saveConfig(){
+    const c=db();
+    if(!c)return Swal.fire('Supabase ยังไม่พร้อม','','error');
+
+    const signature = dirty && canvas
+      ? canvas.toDataURL('image/png')
+      : loadedSignature;
+
+    if(!signature){
+      return Swal.fire('กรุณาวาดลายเซ็น','ลายเซ็นผู้แทนสถาบันเป็นข้อมูลจำเป็นก่อนเปิดรับการลงนาม','warning');
+    }
+
+    const signerName=String($('contractSignerName')?.value||'').trim();
+    if(signerName.length<2)return Swal.fire('กรุณาระบุชื่อผู้ลงนาม','','warning');
+
+    try{
+      Swal.fire({
+        title:'กำลังบันทึก...',
+        allowOutsideClick:false,
+        showConfirmButton:false,
+        didOpen:()=>Swal.showLoading()
+      });
+
+      const {data,error}=await c.rpc('aw_v2_save_manager_contract_config',{
+        p_signer_name:signerName,
+        p_signer_title:String($('contractSignerTitle')?.value||'').trim()||'Manager',
+        p_signature_data:signature,
+        p_payout_cycle:String($('contractPayoutCycleManager')?.value||'').trim(),
+        p_bachelor_rate:Number($('contractRateBachelor')?.value||155),
+        p_master_rate:Number($('contractRateMaster')?.value||180),
+        p_doctorate_rate_min:Number($('contractRateDoctorMin')?.value||200),
+        p_doctorate_rate_max:Number($('contractRateDoctorMax')?.value||250)
+      });
+
+      if(error)throw error;
+      if(!data?.ok)throw new Error(data?.message||'บันทึกไม่สำเร็จ');
+
+      Swal.close();
+      await Swal.fire({
+        icon:'success',
+        title:'บันทึกเรียบร้อย',
+        html:'<div class="text-sm text-slate-600">หน้าสมัครติวเตอร์สามารถใช้ลายเซ็นและอัตราค่าตอบแทนชุดนี้ได้แล้ว</div>',
+        timer:2300,
+        showConfirmButton:false
+      });
+
+      await loadConfig();
+    }catch(e){
+      Swal.close();
+      Swal.fire({icon:'error',title:'บันทึกไม่สำเร็จ',text:e?.message||String(e)});
+    }
+  }
+
+  async function loadAgreements(){
+    const c=db();if(!c)return;
+    const root=$('tutorAgreementList');if(!root)return;
+
+    try{
+      const {data,error}=await c.rpc('aw_v2_manager_recent_agreements',{p_limit:30});
+      if(error)throw error;
+      const rows=Array.isArray(data?.agreements)?data.agreements:[];
+
+      if(!rows.length){
+        root.innerHTML='<div class="col-span-full rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">ยังไม่มีข้อตกลงที่ลงนาม</div>';
+        return;
+      }
+
+      root.innerHTML=rows.map(r=>{
+        const min=Number(r.compensation_rate_min||0);
+        const max=Number(r.compensation_rate_max||0);
+        const rate=min===max
+          ? `${min.toLocaleString('th-TH')} บาท/ชม.`
+          : `${min.toLocaleString('th-TH')}–${max.toLocaleString('th-TH')} บาท/ชม.`;
+
+        return `<article class="aw-agreement-card">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <b class="text-[11px] text-slate-800">${esc([r.first_name,r.last_name].filter(Boolean).join(' ')||r.nickname||'ผู้สมัคร')}</b>
+              <div class="text-[8px] text-slate-400 mt-1">${esc(r.application_no||'')}</div>
+            </div>
+            <span class="tag">${esc(r.identity_masked||'')}</span>
+          </div>
+          <div class="text-[8.5px] text-slate-500 mt-3 leading-relaxed">
+            <div><b>อัตรา:</b> ${esc(rate)}</div>
+            <div><b>ลงนาม:</b> ${r.signed_at?esc(new Date(r.signed_at).toLocaleString('th-TH')):'—'}</div>
+            <div><b>ผู้แทนสถาบัน:</b> ${esc(r.manager_signer_name||'—')}</div>
+          </div>
+          <button type="button" data-open-agreement="${esc(r.application_id)}" class="mt-3 w-full py-2 rounded-xl bg-indigo-50 text-indigo-600 text-[9px] font-bold border border-indigo-100">
+            <i class="fas fa-file-signature mr-1"></i>เปิดข้อตกลง
+          </button>
+        </article>`;
+      }).join('');
+
+      root.querySelectorAll('[data-open-agreement]').forEach(
+        b=>b.onclick=()=>openAgreement(b.dataset.openAgreement)
+      );
+    }catch(e){
+      console.warn('[Manager V27.9] agreements unavailable',e);
+      root.innerHTML='<div class="col-span-full text-xs text-rose-500">โหลดข้อตกลงไม่สำเร็จ: '+esc(e?.message||e)+'</div>';
+    }
+  }
+
+  async function openAgreement(applicationId){
+    const c=db();if(!c)return;
+    try{
+      Swal.fire({
+        title:'กำลังโหลดข้อตกลง...',
+        didOpen:()=>Swal.showLoading(),
+        showConfirmButton:false,
+        allowOutsideClick:false
+      });
+
+      const {data,error}=await c.rpc('aw_v2_manager_agreement_detail',{
+        p_application_id:applicationId
+      });
+      if(error)throw error;
+      if(!data?.ok)throw new Error(data?.message||'ไม่พบข้อตกลง');
+
+      const a=data.application||{},p=data.private||{},g=data.agreement||{};
+      const min=Number(g.compensation_rate_min||0),max=Number(g.compensation_rate_max||0);
+      const rate=min===max
+        ? `${min.toLocaleString('th-TH')} บาท/ชม.`
+        : `${min.toLocaleString('th-TH')}–${max.toLocaleString('th-TH')} บาท/ชม.`;
+
+      const docDefs=[
+        ['สำเนาบัตร/Passport',a.identity_document_path||p.identity_document_path],
+        ['รูปโปรไฟล์',a.profile_photo_path],
+        ['Resume / CV',a.resume_path],
+        ['Portfolio',a.portfolio_path],
+        ['Transcript',a.transcript_path],
+        ['สำเนาหน้าบัญชี',a.bankbook_path||p.bankbook_path]
+      ].filter(x=>x[1]);
+
+      const docLinks=[];
+      if(c.storage?.from && docDefs.length){
+        for(const [label,path] of docDefs){
+          try{
+            const signed=await c.storage.from('tutor-applications').createSignedUrl(String(path),600);
+            if(!signed.error&&signed.data?.signedUrl)docLinks.push([label,signed.data.signedUrl]);
+          }catch(_){}
+        }
+      }
+      const docHtml=docLinks.length
+        ? `<div class="mt-3 rounded-xl border border-slate-200 p-3">
+             <div class="text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-2">Private Documents · link หมดอายุใน 10 นาที</div>
+             <div class="flex flex-wrap gap-2">${docLinks.map(([label,url])=>`<a href="${esc(url)}" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg bg-sky-50 border border-sky-100 text-sky-700 text-[9px] font-bold"><i class="fas fa-file-shield mr-1"></i>${esc(label)}</a>`).join('')}</div>
+           </div>`
+        : '';
+
+      Swal.fire({
+        width:900,
+        title:'ข้อตกลงการให้บริการสอน',
+        html:`<div class="text-left max-h-[72vh] overflow-y-auto pr-1">
+          <div class="grid md:grid-cols-2 gap-2 text-[10px]">
+            <div class="rounded-xl bg-slate-50 border border-slate-100 p-3"><b>ใบสมัคร</b><br>${esc(a.application_no||'—')}<br>${esc([a.first_name,a.last_name].filter(Boolean).join(' '))}</div>
+            <div class="rounded-xl bg-slate-50 border border-slate-100 p-3"><b>ยืนยันตัวตน</b><br>${esc(p.identity_type||'—')} · ${esc(p.identity_number||'—')}<br>วันเกิด ${esc(a.birth_date||'—')}</div>
+            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-3"><b>ค่าตอบแทน</b><br>${esc(rate)}<br>${esc(g.payout_cycle||'')}</div>
+            <div class="rounded-xl bg-amber-50 border border-amber-100 p-3"><b>บัญชีรับค่าตอบแทน</b><br>${esc(p.bank_name||'—')} · ${esc(p.bank_account_name||'')}<br>${esc(p.bank_account_number||'')}</div>
+          </div>
+
+          ${docHtml}
+
+          <div class="grid md:grid-cols-2 gap-3 mt-3">
+            <div class="rounded-xl border border-slate-200 p-3">
+              <div class="text-[8px] text-slate-400 mb-2">ลายเซ็นผู้สมัคร</div>
+              <img src="${esc(g.applicant_signature_data||'')}" alt="Applicant signature" class="w-full h-[150px] object-contain bg-white rounded-lg">
+            </div>
+            <div class="rounded-xl border border-slate-200 p-3">
+              <div class="text-[8px] text-slate-400 mb-2">ลายเซ็นผู้แทนสถาบัน · ${esc(g.manager_signer_name||'')}</div>
+              <img src="${esc(g.manager_signature_data||'')}" alt="Manager signature" class="w-full h-[150px] object-contain bg-white rounded-lg">
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-2 mt-3 text-[9px]">
+            <div class="rounded-xl border border-slate-200 p-3"><b>ลงนามเมื่อ</b><br>${g.signed_at?esc(new Date(g.signed_at).toLocaleString('th-TH')):'—'}<br><b>IP:</b> ${esc(g.client_ip||'—')}</div>
+            <div class="rounded-xl border border-slate-200 p-3"><b>Agreement version</b><br>${esc(g.agreement_version||'—')}<br><b>User-Agent:</b> <span class="break-all">${esc(g.user_agent||'—')}</span></div>
+          </div>
+
+          <div class="mt-3 rounded-xl bg-slate-900 text-white p-3 text-[8.5px] break-all">
+            <b>SHA-256</b><br>${esc(g.agreement_sha256||'—')}
+          </div>
+
+          <div class="mt-3 rounded-xl border border-slate-200 p-3 text-[9px] text-slate-600 whitespace-pre-wrap leading-relaxed">${esc(g.agreement_text_snapshot||'')}</div>
+        </div>`,
+        confirmButtonText:'ปิด',
+        confirmButtonColor:'#0f172a'
+      });
+    }catch(e){
+      Swal.close();
+      Swal.fire({icon:'error',title:'เปิดข้อตกลงไม่สำเร็จ',text:e?.message||String(e)});
+    }
+  }
+
+  function boot(){
+    initCanvas();
+    $('contractConfigSave')?.addEventListener('click',saveConfig);
+    $('refreshTutorAgreements')?.addEventListener('click',loadAgreements);
+
+    document.querySelector('[data-section="tutorapplications"]')?.addEventListener('click',()=>{
+      setTimeout(()=>{
+        resizeCanvas();
+        loadConfig();
+        loadAgreements();
+      },120);
+    });
+
+    setTimeout(()=>{
+      if($('section-tutorapplications')?.classList.contains('active')){
+        resizeCanvas();
+        loadConfig();
+        loadAgreements();
+      }
+    },250);
   }
 
   if(document.readyState==='loading'){
