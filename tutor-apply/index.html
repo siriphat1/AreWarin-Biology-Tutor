@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>สมัครเป็นติวเตอร์ | AreWarin Biology</title>
+  <title>สมัครเป็นติวเตอร์ · Agreement V2 | AreWarin Biology</title>
   <meta name="description" content="สมัครร่วมทีมติวเตอร์กับ AreWarin Biology กรอกประวัติการศึกษา ประสบการณ์ วิชาที่สอน และวันที่สะดวกได้ผ่านระบบออนไลน์">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -44,6 +44,28 @@
     @media(max-width:900px){.welcome-grid{grid-template-columns:1fr}.policy-grid{grid-template-columns:1fr}.process-row{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:520px){.process-row{grid-template-columns:1fr}.policy-head{padding:18px}.policy-grid{padding:14px}.policy-consent{padding:14px}.policy-consent-box{grid-template-columns:auto 1fr}.policy-consent-box .policy-consent-check{display:none}}
     @media(max-width:767px){.form-card{border-radius:20px}.hero{border-radius:26px}.section-title{font-size:15px}.step-label{font-size:8px}.step-dot{width:28px;height:28px}.status-modal-row{grid-template-columns:1fr;gap:2px}}
+
+    .identity-notice{border:1px solid #dbeafe;border-radius:16px;background:linear-gradient(135deg,#eff6ff,#fff);padding:13px;color:#475569;font-size:9px;line-height:1.7}
+    .identity-notice b{color:#1d4ed8}
+    .rate-card{border:1px solid #d1fae5;border-radius:18px;background:linear-gradient(135deg,#ecfdf5,#fff);padding:14px}
+    .rate-value{font-size:24px;font-weight:700;color:#047857;letter-spacing:-.02em}
+    .optional-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#f1f5f9;color:#64748b;padding:3px 7px;font-size:7.5px;font-weight:700}
+    .required-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:#fff1f2;color:#be123c;padding:3px 7px;font-size:7.5px;font-weight:700}
+    .agreement-shell{border:1px solid #dbe3ee;border-radius:22px;background:#fff;overflow:hidden}
+    .agreement-head{padding:17px 18px;background:linear-gradient(135deg,#f8fafc,#eff6ff);border-bottom:1px solid #e8edf4}
+    .agreement-body{max-height:440px;overflow:auto;padding:17px 18px;font-size:9.5px;line-height:1.85;color:#475569}
+    .agreement-body h3{font-size:11px;font-weight:700;color:#1e293b;margin:14px 0 6px}.agreement-body h3:first-child{margin-top:0}
+    .agreement-body ol{padding-left:18px}.agreement-body li{margin:4px 0}
+    .agreement-check{display:flex;align-items:flex-start;gap:9px;border:1px solid #e5eaf1;border-radius:14px;background:#fff;padding:10px;font-size:9.5px;line-height:1.6;color:#475569}
+    .agreement-check input{margin-top:2px;accent-color:#0ea5e9}
+    .signature-wrap{border:1px solid #dbe3ee;border-radius:18px;background:#fff;padding:12px}
+    .signature-canvas{display:block;width:100%;height:190px;border:1.5px dashed #cbd5e1;border-radius:14px;background:#fbfdff;touch-action:none;cursor:crosshair}
+    .signature-canvas.signed{border-color:#86efac;background:#fafffc}
+    .contract-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .contract-meta>div{border:1px solid #edf1f5;border-radius:12px;background:#f8fafc;padding:9px}
+    .contract-meta span{display:block;font-size:7.5px;color:#94a3b8}.contract-meta b{display:block;font-size:9.5px;color:#334155;margin-top:3px;word-break:break-word}
+    @media(max-width:640px){.contract-meta{grid-template-columns:1fr}.agreement-body{max-height:380px}.signature-canvas{height:160px}}
+
   </style>
 </head>
 <body>
@@ -112,7 +134,8 @@
           <div class="step-item active flex items-center gap-3" data-step-indicator="1"><div class="step-dot">1</div><div><div class="text-[10px] font-semibold text-slate-700">ข้อมูลส่วนตัว</div><div class="step-label">Personal</div></div></div>
           <div class="step-item flex items-center gap-3" data-step-indicator="2"><div class="step-dot">2</div><div><div class="text-[10px] font-semibold text-slate-700">การศึกษา & งาน</div><div class="step-label">Background</div></div></div>
           <div class="step-item flex items-center gap-3" data-step-indicator="3"><div class="step-dot">3</div><div><div class="text-[10px] font-semibold text-slate-700">การสอน & วันว่าง</div><div class="step-label">Teaching</div></div></div>
-          <div class="step-item flex items-center gap-3" data-step-indicator="4"><div class="step-dot">4</div><div><div class="text-[10px] font-semibold text-slate-700">เอกสาร & ยืนยัน</div><div class="step-label">Submit</div></div></div>
+          <div class="step-item flex items-center gap-3" data-step-indicator="4"><div class="step-dot">4</div><div><div class="text-[10px] font-semibold text-slate-700">เอกสาร & การจ่าย</div><div class="step-label">Documents</div></div></div>
+          <div class="step-item flex items-center gap-3" data-step-indicator="5"><div class="step-dot">5</div><div><div class="text-[10px] font-semibold text-slate-700">ข้อตกลง & ลายเซ็น</div><div class="step-label">Agreement</div></div></div>
         </div>
         <div class="mt-5 pt-4 border-t border-slate-100 text-[9px] leading-relaxed text-slate-400"><i class="fas fa-wand-magic-sparkles text-sky-400 mr-1"></i> ระบบบันทึกร่างอัตโนมัติในอุปกรณ์นี้ โดยไม่บันทึกไฟล์แนบจนกว่าจะกดส่ง</div>
       </aside>
@@ -120,24 +143,70 @@
       <form id="applicationForm" novalidate>
         <div class="form-card p-5 md:p-6">
           <section class="step-pane active" data-step="1">
-            <div class="section-kicker">Step 01</div><h2 class="section-title mt-1">ข้อมูลส่วนตัวและช่องทางติดต่อ</h2><p class="section-desc">ใช้สำหรับตรวจสอบใบสมัครและติดต่อเพื่อนัดพูดคุยเท่านั้น</p>
+            <div class="section-kicker">Step 01</div>
+            <h2 class="section-title mt-1">ข้อมูลผู้สมัครและการยืนยันตัวตน</h2>
+            <p class="section-desc">กรอกข้อมูลให้ตรงกับเอกสารทางราชการ เพื่อใช้ตรวจสอบตัวตน จัดทำข้อตกลงผู้สอน และดำเนินการด้านค่าตอบแทน</p>
+
             <div class="grid md:grid-cols-2 gap-3 mt-5">
               <label class="label">ชื่อ <span class="req">*</span><input id="firstName" class="field mt-1" autocomplete="given-name" required placeholder="ชื่อจริง"></label>
               <label class="label">นามสกุล <span class="req">*</span><input id="lastName" class="field mt-1" autocomplete="family-name" required placeholder="นามสกุล"></label>
               <label class="label">ชื่อเล่น <span class="req">*</span><input id="nickname" class="field mt-1" required placeholder="ชื่อที่อยากให้เรียก"></label>
+              <label class="label">วันเดือนปีเกิด <span class="req">*</span><input id="birthDate" type="date" class="field mt-1" required></label>
+
+              <label class="choice md:col-span-2 !items-start">
+                <input id="isForeigner" type="checkbox" class="mt-0.5">
+                <span><b class="text-slate-700">ข้าพเจ้าเป็นชาวต่างชาติ</b><span class="block text-[8.5px] text-slate-400 mt-1">ระบบจะใช้เลขหนังสือเดินทางแทนเลขประจำตัวประชาชน และยกเว้นการอัปโหลดสำเนาบัตรประชาชน</span></span>
+              </label>
+
+              <label class="label" id="identityNumberLabel">เลขประจำตัวประชาชน <span class="req">*</span>
+                <input id="identityNumber" class="field mt-1" inputmode="numeric" autocomplete="off" maxlength="30" required placeholder="เลขประจำตัวประชาชน 13 หลัก">
+              </label>
+              <label class="label">สัญชาติ <span class="req">*</span><input id="nationality" class="field mt-1" required placeholder="เช่น ไทย / British"></label>
+
               <label class="label">เบอร์โทร <span class="req">*</span><input id="phone" type="tel" class="field mt-1" inputmode="tel" autocomplete="tel" maxlength="20" required placeholder="08x-xxx-xxxx / +66..."></label>
               <label class="label">อีเมล <span class="req">*</span><input id="email" type="email" class="field mt-1" autocomplete="email" required placeholder="name@example.com"></label>
               <label class="label">LINE ID<input id="lineId" class="field mt-1" placeholder="ถ้ามี"></label>
-              <label class="label">สัญชาติ<input id="nationality" class="field mt-1" placeholder="เช่น ไทย / British"></label>
-              <label class="label">ประเทศที่พำนัก<input id="countryResidence" class="field mt-1" placeholder="เช่น Thailand"></label>
+              <label class="label">ประเทศที่พำนัก <span class="req">*</span><input id="countryResidence" class="field mt-1" required placeholder="เช่น Thailand"></label>
               <label class="label">จังหวัด / เมืองที่พักปัจจุบัน<input id="province" class="field mt-1" placeholder="เช่น ขอนแก่น / Bangkok"></label>
               <label class="label">อาชีพ / สถานะปัจจุบัน<input id="currentOccupation" class="field mt-1" placeholder="เช่น นักศึกษา ป.โท / ครู / นักวิจัย"></label>
             </div>
+
+            <div class="mt-4">
+              <label class="label">ที่อยู่ปัจจุบัน <span class="req">*</span><textarea id="address" class="field mt-1" required placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์"></textarea></label>
+            </div>
+
+            <div class="identity-notice mt-4">
+              <b><i class="fas fa-shield-halved mr-1"></i> เหตุผลที่ขอเลขประจำตัวประชาชน / เลขหนังสือเดินทาง</b><br>
+              ใช้เพื่อยืนยันตัวตน ป้องกันการสวมสิทธิ์ จัดทำและบริหารข้อตกลงการให้บริการสอน ดำเนินการเกี่ยวกับค่าตอบแทน และการปฏิบัติตามข้อกำหนดทางบัญชี/ภาษีที่เกี่ยวข้องเท่าที่จำเป็น
+              ระบบยึดหลักเก็บข้อมูลเท่าที่จำเป็นและแจ้งวัตถุประสงค์ก่อนเก็บ ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 มาตรา 22–24
+              โดยฐานการประมวลผลอาจรวมถึงการดำเนินการก่อนเข้าทำสัญญา/การปฏิบัติตามสัญญา ประโยชน์โดยชอบด้วยกฎหมาย และหน้าที่ตามกฎหมาย แล้วแต่กรณี
+            </div>
+
             <div class="mt-4"><label class="label">แนะนำตัวสั้นๆ<textarea id="intro" class="field mt-1" placeholder="เล่าเกี่ยวกับตัวเอง ความสนใจ และสิ่งที่อยากให้ทีมงานรู้จัก"></textarea></label></div>
           </section>
 
           <section class="step-pane" data-step="2">
-            <div class="section-kicker">Step 02</div><h2 class="section-title mt-1">ประวัติการศึกษาและประสบการณ์ทำงาน</h2><p class="section-desc">สามารถเพิ่มได้หลายรายการ เรียงจากข้อมูลล่าสุดก่อน</p>
+            <div class="section-kicker">Step 02</div><h2 class="section-title mt-1">ประวัติการศึกษาและประสบการณ์ทำงาน</h2><p class="section-desc">ระบุวุฒิ/สถานะการศึกษาปัจจุบันเพื่อใช้กำหนดอัตราค่าตอบแทนเบื้องต้นของระบบ</p>
+
+            <div class="grid md:grid-cols-[1fr_280px] gap-3 mt-5 items-stretch">
+              <label class="label">ระดับวุฒิ/สถานะการศึกษาสำหรับคำนวณค่าตอบแทน <span class="req">*</span>
+                <select id="educationTier" class="field mt-1" required>
+                  <option value="">— เลือก —</option>
+                  <option value="bachelor_studying">กำลังศึกษาระดับปริญญาตรี</option>
+                  <option value="bachelor_graduate">สำเร็จการศึกษาระดับปริญญาตรี</option>
+                  <option value="master">ระดับปริญญาโท (กำลังศึกษา/สำเร็จ)</option>
+                  <option value="doctorate">ระดับปริญญาเอก (กำลังศึกษา/สำเร็จ)</option>
+                </select>
+                <span class="block text-[8px] text-slate-400 mt-1.5">ทีมงานสามารถตรวจเอกสารและยืนยันระดับวุฒิอีกครั้งก่อนเริ่มงาน</span>
+              </label>
+
+              <div class="rate-card">
+                <div class="text-[8px] font-bold uppercase tracking-wider text-emerald-600">System Tutor Rate</div>
+                <div id="compensationRateDisplay" class="rate-value mt-1">—</div>
+                <div id="compensationRateNote" class="text-[8.5px] text-emerald-700 mt-1 leading-relaxed">เลือกระดับการศึกษาเพื่อดูอัตราค่าตอบแทน</div>
+              </div>
+            </div>
+
             <div class="mt-5">
               <div class="flex items-center justify-between gap-3 mb-3"><div><h3 class="text-[12px] font-semibold text-slate-700">ประวัติการศึกษา</h3><p class="text-[9.5px] text-slate-400 mt-0.5">มหาวิทยาลัย / ปริญญา / สาขา / ปี</p></div><button id="addEducation" type="button" class="btn-soft !min-h-[36px]"><i class="fas fa-plus"></i> เพิ่มการศึกษา</button></div>
               <div id="educationList" class="space-y-3"></div>
@@ -157,7 +226,7 @@
             </div></div>
             <div class="mt-5 grid md:grid-cols-2 gap-4">
               <div><div class="label mb-2">รูปแบบการสอนที่สะดวก <span class="req">*</span></div><div class="grid grid-cols-2 gap-2"><label class="choice"><input type="checkbox" name="modes" value="online"> Online</label><label class="choice"><input type="checkbox" name="modes" value="onsite"> Onsite</label></div></div>
-              <div class="grid grid-cols-2 gap-2"><label class="label">ประสบการณ์สอน (ปี)<input id="experienceYears" type="number" min="0" max="50" step="0.5" class="field mt-1" placeholder="0"></label><label class="label">เรทที่คาดหวัง / ชม.<input id="expectedRate" class="field mt-1" placeholder="ระบุได้ถ้ามี"></label></div>
+              <div class="grid grid-cols-1 gap-2"><label class="label">ประสบการณ์สอน (ปี)<input id="experienceYears" type="number" min="0" max="50" step="0.5" class="field mt-1" placeholder="0"></label><div class="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3"><div class="text-[8px] font-bold text-emerald-600 uppercase">ค่าตอบแทนจากระบบ</div><div id="teachingRateMini" class="text-[12px] font-semibold text-emerald-800 mt-1">—</div><div class="text-[8px] text-emerald-600 mt-1">คำนวณจากระดับการศึกษาที่เลือกใน Step 02</div></div></div>
             </div>
             <div class="mt-4"><label class="label">พื้นที่ Onsite ที่สะดวก<input id="preferredLocation" class="field mt-1" placeholder="เช่น ขอนแก่น / นครราชสีมา / ตามตกลง"></label></div>
             <div class="mt-6 pt-5 border-t border-slate-100"><div class="flex items-end justify-between gap-3 mb-3"><div><h3 class="text-[12px] font-semibold text-slate-700">วันที่และเวลาที่สะดวกประจำ</h3><p class="text-[9.5px] text-slate-400 mt-0.5">เลือกวัน แล้วระบุช่วงเวลาที่โดยทั่วไปสะดวก</p></div><span class="text-[8.5px] text-sky-600 bg-sky-50 border border-sky-100 rounded-full px-2 py-1">แก้ไขภายหลังได้</span></div><div id="availabilityGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-2"></div></div>
@@ -165,26 +234,140 @@
           </section>
 
           <section class="step-pane" data-step="4">
-            <div class="section-kicker">Step 04</div><h2 class="section-title mt-1">เอกสารประกอบและการยืนยันข้อมูล</h2><p class="section-desc">ไฟล์ทั้งหมดจะเก็บในพื้นที่ส่วนตัวของระบบ และเปิดดูได้เฉพาะ Manager/Admin</p>
+            <div class="section-kicker">Step 04</div><h2 class="section-title mt-1">เอกสารประกอบและข้อมูลรับค่าตอบแทน</h2>
+            <p class="section-desc">เอกสารทั่วไปเป็นทางเลือกทั้งหมด ยกเว้นสำเนาบัตรประชาชนสำหรับผู้สมัครชาวไทย ส่วนชาวต่างชาติสามารถติ๊ก “ชาวต่างชาติ” เพื่อยกเว้นเอกสารนี้</p>
+
             <div class="grid md:grid-cols-2 gap-3 mt-5">
-              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-image text-sky-500 mr-1.5"></i> รูปโปรไฟล์ (ถ้ามี)</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">JPG / PNG / WebP ไม่เกิน 5 MB</span><input id="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
-              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-pdf text-rose-500 mr-1.5"></i> Resume / CV</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB</span><input id="resumeFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
-              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-folder-open text-indigo-500 mr-1.5"></i> Portfolio / ผลงาน</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">ถ้ามี — PDF หรือรูป ไม่เกิน 10 MB</span><input id="portfolioFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
-              <label class="upload-box"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-lines text-emerald-500 mr-1.5"></i> Transcript / เอกสารการศึกษา</span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">ถ้ามี — PDF หรือรูป ไม่เกิน 10 MB</span><input id="transcriptFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label id="identityDocumentBox" class="upload-box">
+                <span class="flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-semibold text-slate-700"><i class="far fa-id-card text-rose-500 mr-1.5"></i> <span id="identityDocumentTitle">สำเนาบัตรประชาชน</span></span>
+                  <span id="identityDocumentRequirement" class="required-pill"><i class="fas fa-asterisk"></i> จำเป็น</span>
+                </span>
+                <span id="identityDocumentHint" class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB · สามารถปกปิดข้อมูลที่ไม่เกี่ยวข้องกับการยืนยันตัวตนได้</span>
+                <input id="identityDocumentFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp">
+              </label>
+
+              <label class="upload-box"><span class="flex items-center justify-between gap-2"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-image text-sky-500 mr-1.5"></i> รูปโปรไฟล์</span><span class="optional-pill">ไม่บังคับ</span></span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">JPG / PNG / WebP ไม่เกิน 5 MB</span><input id="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="flex items-center justify-between gap-2"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-pdf text-rose-500 mr-1.5"></i> Resume / CV</span><span class="optional-pill">ไม่บังคับ</span></span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB</span><input id="resumeFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="flex items-center justify-between gap-2"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-folder-open text-indigo-500 mr-1.5"></i> Portfolio / ผลงาน</span><span class="optional-pill">ไม่บังคับ</span></span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB</span><input id="portfolioFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="flex items-center justify-between gap-2"><span class="text-[10px] font-semibold text-slate-700"><i class="far fa-file-lines text-emerald-500 mr-1.5"></i> Transcript / เอกสารการศึกษา</span><span class="optional-pill">ไม่บังคับ</span></span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">PDF หรือรูป ไม่เกิน 10 MB</span><input id="transcriptFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+              <label class="upload-box"><span class="flex items-center justify-between gap-2"><span class="text-[10px] font-semibold text-slate-700"><i class="fas fa-building-columns text-amber-500 mr-1.5"></i> สำเนาหน้าบัญชีธนาคาร</span><span class="optional-pill">ไม่บังคับ</span></span><span class="block text-[8.5px] text-slate-400 mt-1 mb-2">ใช้ประกอบการตรวจชื่อบัญชี · PDF หรือรูป ไม่เกิน 10 MB</span><input id="bankbookFile" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
             </div>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <div class="flex items-center justify-between gap-3"><div><h3 class="text-[12px] font-semibold text-slate-700">บัญชีธนาคารสำหรับรับค่าตอบแทน</h3><p class="text-[9px] text-slate-400 mt-1">ข้อมูลนี้ไม่ถูกบันทึกลง Draft ในเครื่อง และจะส่งเมื่อกดลงนามเท่านั้น</p></div><span class="required-pill">จำเป็น</span></div>
+              <div class="grid md:grid-cols-3 gap-3 mt-3">
+                <label class="label">ธนาคาร <span class="req">*</span><input id="bankName" class="field mt-1" autocomplete="off" placeholder="เช่น กรุงไทย"></label>
+                <label class="label">ชื่อบัญชี <span class="req">*</span><input id="bankAccountName" class="field mt-1" autocomplete="off" placeholder="ชื่อ-นามสกุลตามบัญชี"></label>
+                <label class="label">เลขบัญชี <span class="req">*</span><input id="bankAccountNumber" class="field mt-1" inputmode="numeric" autocomplete="off" placeholder="เลขบัญชีธนาคาร"></label>
+              </div>
+            </div>
+
             <div class="mt-5"><label class="label">ข้อความเพิ่มเติม<textarea id="additionalNote" class="field mt-1" placeholder="เช่น วันที่สะดวกเริ่มงาน ข้อจำกัด หรือข้อมูลอื่นที่อยากแจ้ง"></textarea></label></div>
-            <div class="mt-5 space-y-2">
-              <label class="choice !items-start"><input id="accuracyCheck" type="checkbox" class="mt-0.5" required><span>ข้าพเจ้ารับรองว่าข้อมูลที่กรอกเป็นความจริงและสามารถตรวจสอบได้ <span class="req">*</span></span></label>
-              <label class="choice !items-start"><input id="pdpaCheck" type="checkbox" class="mt-0.5" required><span>ยินยอมให้ AreWarin Biology เก็บและใช้ข้อมูลนี้เพื่อพิจารณาการร่วมงาน การติดต่อ และการบริหารบุคลากรตามวัตถุประสงค์ที่เกี่ยวข้อง <span class="req">*</span></span></label>
+          </section>
+
+
+          <section class="step-pane" data-step="5">
+            <div class="section-kicker">Step 05</div><h2 class="section-title mt-1">ข้อตกลงการให้บริการสอนและการลงนามอิเล็กทรอนิกส์</h2>
+            <p class="section-desc">โปรดอ่านครบทุกข้อก่อนวาดลายเซ็นและยืนยัน ระบบจะบันทึกวันที่/เวลา IP และข้อมูลการทำรายการฝั่งเซิร์ฟเวอร์</p>
+
+            <div class="agreement-shell mt-5">
+              <div class="agreement-head">
+                <div class="text-[8px] font-bold tracking-[.16em] uppercase text-sky-600">Tutor Service Agreement</div>
+                <h3 class="text-[14px] font-semibold text-slate-800 mt-1">การสมัครเป็นติวเตอร์ · สถาบันกวดวิชาชีววิทยา อาวริน</h3>
+                <p class="text-[8.5px] text-slate-500 mt-1 leading-relaxed">ผู้สมัครประสงค์สมัครเป็นติวเตอร์เพื่อให้บริการสอนผ่านระบบของสถาบัน โดยข้อมูลและเอกสารที่ให้แก่ระบบต้องถูกต้องและเป็นปัจจุบัน</p>
+              </div>
+              <div class="agreement-body">
+                <h3>1. ข้อมูลผู้สมัคร</h3>
+                <p>ผู้สมัครตกลงให้ข้อมูลที่จำเป็น ได้แก่ ชื่อ–นามสกุล วันเดือนปีเกิด เลขประจำตัวประชาชน หรือเลขหนังสือเดินทางสำหรับชาวต่างชาติ ที่อยู่ หมายเลขโทรศัพท์ อีเมล วุฒิการศึกษา/สถาบัน วิชาและระดับชั้นที่สามารถสอนได้ ประสบการณ์สอน ข้อมูลค่าตอบแทน บัญชีธนาคาร และเอกสารยืนยันตัวตน/คุณสมบัติเท่าที่กิจการกำหนด</p>
+
+                <h3>2. ค่าตอบแทน</h3>
+                <p>ระบบจะแสดงค่าตอบแทนที่ติวเตอร์จะได้รับก่อนยืนยันรับงาน อัตราเบื้องต้นตามระดับการศึกษาของผู้สมัครรายนี้คือ <b id="contractRateText" class="text-emerald-700">—</b></p>
+                <p>เกณฑ์เริ่มต้น: กำลังศึกษา ป.ตรี / จบ ป.ตรี = 155 บาท/ชั่วโมง · ป.โท = 180 บาท/ชั่วโมง · ป.เอก = 200–250 บาท/ชั่วโมง</p>
+                <p>รอบการจ่ายเงิน: <b id="contractPayoutCycle">ตามรอบที่ระบบกำหนดและแจ้งก่อนการจ่าย</b></p>
+                <p>หากกฎหมายกำหนดให้ต้องหักภาษี ณ ที่จ่ายหรือรายการอื่น กิจการจะดำเนินการตามกฎหมายและแสดงรายละเอียดการหักในรายการจ่ายเงิน ค่าบริหารจัดการของระบบและภาษีหัก ณ ที่จ่ายเป็นคนละรายการกัน</p>
+
+                <h3>3. การรับงานและการสอน</h3>
+                <p>ติวเตอร์ต้องสอนตามวัน เวลา วิชา และเงื่อนไขของงานที่ยืนยันรับไว้ หากไม่สามารถเข้าสอนได้ต้องแจ้งผ่านระบบตามระยะเวลาที่กำหนด และต้องรักษามาตรฐานการสอน ความเหมาะสมในการสื่อสาร และข้อมูลส่วนบุคคลของนักเรียน</p>
+
+                <h3>4. การติดต่อกับนักเรียนและการห้ามชักชวนนักเรียนออกนอกระบบ</h3>
+                <p>ข้อมูลนักเรียนที่ติวเตอร์ได้รับจากกิจการให้ใช้เพื่อจัดการเรียนการสอนตามงานที่ได้รับเท่านั้น ติวเตอร์ตกลงว่าจะไม่:</p>
+                <ol>
+                  <li>ชักชวนให้นักเรียนยกเลิกหรือหลีกเลี่ยงการใช้บริการของกิจการเพื่อไปเรียนกับติวเตอร์โดยตรง</li>
+                  <li>รับชำระค่าเรียนจากนักเรียนดังกล่าวโดยตรงเพื่อหลีกเลี่ยงระบบ</li>
+                  <li>นัดหมายหรือจัดการเรียนการสอนนอกระบบเพื่อหลีกเลี่ยงค่าบริหารจัดการของกิจการ</li>
+                  <li>ส่งต่อหรือชักชวนนักเรียนไปยังบุคคลหรือกิจการอื่นเพื่อหลีกเลี่ยงระบบ</li>
+                  <li>นำข้อมูลส่วนบุคคลหรือช่องทางติดต่อของนักเรียนไปใช้เพื่อประโยชน์ส่วนตัวโดยไม่ได้รับอนุญาต</li>
+                </ol>
+                <p>ข้อกำหนดนี้ไม่ห้ามติวเตอร์รับนักเรียนที่ติวเตอร์หามาเองโดยอิสระและไม่ได้รู้จักนักเรียนผ่านกิจการ หากพบการฝ่าฝืน กิจการอาจระงับบัญชี ยกเลิกสิทธิการใช้งาน ยุติข้อตกลง และใช้สิทธิตามกฎหมายเพื่อเรียกร้องความเสียหายที่เกิดขึ้นจริงตามที่กฎหมายอนุญาต</p>
+
+                <h3>5. ข้อมูลและความลับ</h3>
+                <p>ติวเตอร์ต้องเก็บรักษาข้อมูลส่วนบุคคลของนักเรียน ผู้ปกครอง เอกสารการเรียน ช่องทางติดต่อ และข้อมูลภายในของกิจการเป็นความลับ และไม่นำไปใช้เพื่อวัตถุประสงค์อื่น เมื่อสิ้นสุดการให้บริการต้องหยุดใช้ข้อมูลและดำเนินการตามนโยบายที่เกี่ยวข้อง</p>
+
+                <h3>6. การลาออก / ยุติการให้บริการ</h3>
+                <p>ติวเตอร์สามารถยื่นคำขอยุติการให้บริการผ่านเมนู <b>บัญชีของฉัน → ยุติการเป็นติวเตอร์</b> ก่อนวันที่มีผลต้องจัดการคลาสที่รับไว้ นักเรียน เอกสาร และยอดค่าตอบแทนคงค้างตามเงื่อนไขของระบบ หน้าที่ด้านความลับ การคุ้มครองข้อมูลส่วนบุคคล และข้อกำหนดไม่ชักชวนนักเรียนยังคงมีผลตามลักษณะของหน้าที่นั้น</p>
+
+                <h3>PDPA / การเก็บข้อมูลยืนยันตัวตน</h3>
+                <p>เลขประจำตัวประชาชนหรือเลขหนังสือเดินทางและเอกสารยืนยันตัวตน ใช้เพื่อยืนยันตัวตน ป้องกันการสวมสิทธิ์ ดำเนินการก่อนเข้าทำข้อตกลง/บริหารข้อตกลง และดำเนินการด้านบัญชีหรือภาษีที่เกี่ยวข้องเท่าที่จำเป็น ระบบยึดหลักการเก็บเท่าที่จำเป็นและแจ้งวัตถุประสงค์ก่อนเก็บตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 มาตรา 22–24</p>
+              </div>
             </div>
-            <div class="mt-5 rounded-2xl bg-sky-50 border border-sky-100 p-4 text-[9.5px] leading-relaxed text-sky-800"><i class="fas fa-circle-info mr-1"></i> การส่งใบสมัครไม่ได้ถือเป็นการรับเข้าทำงานหรือรับเป็นติวเตอร์ทันที ทีมงานอาจนัดสัมภาษณ์ ทดลองสอน หรือตรวจเอกสารเพิ่มเติมก่อนยืนยันผล</div>
+
+            <div class="mt-5">
+              <div class="text-[10px] font-semibold text-slate-700 mb-2">NOTICE ก่อนลงนาม <span class="req">*</span></div>
+              <div class="space-y-2">
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="read_all"><span>ข้าพเจ้าได้อ่านและเข้าใจข้อตกลงทั้งหมดแล้ว</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="rate"><span>ข้าพเจ้ารับทราบอัตราค่าตอบแทนและค่าบริหารจัดการที่ระบบแสดง</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="withholding"><span>ข้าพเจ้ารับทราบว่าภาษีหัก ณ ที่จ่าย (ถ้ามี) เป็นคนละรายการกับค่าบริหารจัดการ</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="non_circumvention"><span>ข้าพเจ้าตกลงว่าจะไม่นำข้อมูลหรือความสัมพันธ์กับนักเรียนที่ได้รับผ่านกิจการไปใช้เพื่อชักชวนให้นักเรียนชำระเงินหรือเรียนกับตนเองนอกระบบเพื่อหลีกเลี่ยงกิจการ</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="remedies"><span>ข้าพเจ้ารับทราบว่าหากฝ่าฝืน กิจการอาจระงับบัญชี ยุติข้อตกลง และใช้สิทธิเรียกร้องความเสียหายตามกฎหมาย</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="termination"><span>ข้าพเจ้ารับทราบว่าสามารถยื่นขอยุติการเป็นติวเตอร์ผ่านระบบได้ตามเงื่อนไขที่กำหนด</span></label>
+                <label class="agreement-check"><input type="checkbox" name="agreementConfirm" value="truth"><span>ข้าพเจ้ายืนยันว่าข้อมูลและเอกสารที่ให้ไว้เป็นความจริง</span></label>
+              </div>
+            </div>
+
+            <div class="grid lg:grid-cols-[1fr_320px] gap-4 mt-5">
+              <div class="signature-wrap">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div><div class="text-[10px] font-semibold text-slate-700">ลายมือชื่ออิเล็กทรอนิกส์ของผู้สมัคร <span class="req">*</span></div><div class="text-[8px] text-slate-400 mt-1">ใช้นิ้ว เมาส์ หรือปากกาเขียนลงในกรอบ</div></div>
+                  <button id="clearApplicantSignature" type="button" class="btn-soft !min-h-[32px] !px-3"><i class="fas fa-eraser"></i> ล้าง</button>
+                </div>
+                <canvas id="applicantSignatureCanvas" class="signature-canvas"></canvas>
+                <div id="signatureStatus" class="text-[8px] text-slate-400 mt-2"><i class="far fa-pen-to-square mr-1"></i> ยังไม่ได้ลงลายมือชื่อ</div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
+                  <div class="text-[8px] font-bold uppercase tracking-wider text-sky-600">Institution Signature</div>
+                  <div id="contractManagerSigner" class="text-[11px] font-semibold text-slate-800 mt-1">กำลังตรวจสอบ...</div>
+                  <div id="contractManagerSignatureReady" class="text-[8px] text-slate-500 mt-1 leading-relaxed">ลายเซ็นผู้แทนสถาบันจะถูกดึงจาก Manager System และแนบลงในสัญญาฝั่งเซิร์ฟเวอร์เมื่อส่งใบสมัคร</div>
+                </div>
+
+                <div class="contract-meta">
+                  <div><span>ชื่อ–นามสกุลผู้ลงนาม</span><b id="agreementApplicantName">—</b></div>
+                  <div><span>เลขประจำตัว / Passport</span><b id="agreementApplicantId">—</b></div>
+                  <div><span>วันที่และเวลา</span><b id="agreementSignedAtPreview">บันทึกเมื่อกดยืนยัน</b></div>
+                  <div><span>IP / Transaction</span><b>บันทึกฝั่งเซิร์ฟเวอร์อัตโนมัติ</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 space-y-2">
+              <label class="agreement-check !border-sky-200 !bg-sky-50/60"><input id="agreementAccept" type="checkbox"><span><b>ข้าพเจ้าตกลงและยอมรับข้อตกลงการให้บริการสอน</b> และยืนยันการลงนามอิเล็กทรอนิกส์ครั้งนี้ <span class="req">*</span></span></label>
+              <label class="agreement-check"><input id="accuracyCheck" type="checkbox"><span>ข้าพเจ้ารับรองว่าข้อมูลที่กรอกเป็นความจริงและสามารถตรวจสอบได้ <span class="req">*</span></span></label>
+              <label class="agreement-check"><input id="pdpaCheck" type="checkbox"><span>ข้าพเจ้ารับทราบและยินยอม/รับทราบฐานการประมวลผลข้อมูลตามประกาศความเป็นส่วนตัวเพื่อพิจารณาใบสมัคร ติดต่อ บริหารข้อตกลง และดำเนินการที่เกี่ยวข้อง <span class="req">*</span></span></label>
+            </div>
+
+            <div class="mt-5 rounded-2xl bg-amber-50 border border-amber-100 p-4 text-[9px] leading-relaxed text-amber-800">
+              <i class="fas fa-circle-info mr-1"></i>
+              การส่งใบสมัครไม่ได้ถือเป็นการรับเข้าทำงานหรือรับเป็นติวเตอร์ทันที ทีมงานอาจนัดสัมภาษณ์ ทดลองสอน หรือตรวจเอกสารเพิ่มเติมก่อนยืนยันผล
+            </div>
           </section>
 
           <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
             <button id="btnBack" type="button" class="btn-soft invisible"><i class="fas fa-arrow-left"></i> ย้อนกลับ</button>
             <div class="text-[9px] text-slate-400 hidden md:block" id="draftStatus"><i class="far fa-floppy-disk mr-1"></i> บันทึกร่างอัตโนมัติ</div>
             <button id="btnNext" type="button" class="btn-primary">ถัดไป <i class="fas fa-arrow-right"></i></button>
-            <button id="btnSubmit" type="submit" class="btn-primary hidden bg-sky-500 hover:bg-sky-600">ส่งใบสมัคร <i class="fas fa-paper-plane"></i></button>
+            <button id="btnSubmit" type="submit" class="btn-primary hidden bg-sky-500 hover:bg-sky-600">ยืนยันและลงนาม <i class="fas fa-file-signature"></i></button>
           </div>
         </div>
       </form>
@@ -198,6 +381,6 @@
   </main>
 
   <footer class="max-w-6xl mx-auto px-4 pb-8 text-center text-[9px] text-slate-400">© <span id="year"></span> AreWarin Biology · Tutor Recruitment System</footer>
-  <script src="./app.js"></script>
+  <script src="./app.js?v=tutor-apply-v2-agreement-20260921"></script>
 </body>
 </html>
