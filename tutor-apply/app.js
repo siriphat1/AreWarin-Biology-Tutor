@@ -1,12 +1,13 @@
 (() => {
   'use strict';
+  console.info('[AreWarin Tutor Apply V2.0] Identity + Optional Docs + Agreement Signature loaded');
   const sb = window.AreWarinAPI?.sb;
   const cfg = window.AREWARIN_CONFIG || {};
   const $ = id => document.getElementById(id);
   const esc = v => String(v ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const cleanPhone = v => String(v||'').replace(/\D/g,'');
   const DRAFT_KEY='arewarin_tutor_application_draft_v1';
-  let step=1, eduSeq=0, workSeq=0, tutorPolicyRevision=1;
+  let step=1, eduSeq=0, workSeq=0, tutorPolicyRevision=1, contractMeta=null, applicantSignatureDirty=false;
   let currentLang=localStorage.getItem('arewarin_tutor_language')==='en'?'en':'th';
   let cachedTutorPolicy=null, subjectRows=[];
 
@@ -113,7 +114,7 @@
     if(v.startsWith('0')&&v.length<=10){el.value=v.length>6?`${v.slice(0,3)}-${v.slice(3,6)}-${v.slice(6)}`:v.length>3?`${v.slice(0,3)}-${v.slice(3)}`:v;return;}
     el.value=v;
   }
-  function setStep(n){step=Math.max(1,Math.min(4,n));document.querySelectorAll('.step-pane').forEach(p=>p.classList.toggle('active',Number(p.dataset.step)===step));document.querySelectorAll('[data-step-indicator]').forEach(x=>{const s=Number(x.dataset.stepIndicator);x.classList.toggle('active',s===step);x.classList.toggle('done',s<step);x.querySelector('.step-dot').innerHTML=s<step?'<i class="fas fa-check"></i>':String(s)});$('btnBack').classList.toggle('invisible',step===1);$('btnNext').classList.toggle('hidden',step===4);$('btnSubmit').classList.toggle('hidden',step!==4);window.scrollTo({top:80,behavior:'smooth'});}
+  function setStep(n){step=Math.max(1,Math.min(5,n));document.querySelectorAll('.step-pane').forEach(p=>p.classList.toggle('active',Number(p.dataset.step)===step));document.querySelectorAll('[data-step-indicator]').forEach(x=>{const s=Number(x.dataset.stepIndicator);x.classList.toggle('active',s===step);x.classList.toggle('done',s<step);x.querySelector('.step-dot').innerHTML=s<step?'<i class="fas fa-check"></i>':String(s)});$('btnBack').classList.toggle('invisible',step===1);$('btnNext').classList.toggle('hidden',step===5);$('btnSubmit').classList.toggle('hidden',step!==5);if(step===5){updateAgreementPreview();setTimeout(resizeSignatureCanvas,30)}window.scrollTo({top:80,behavior:'smooth'});}
 
   function showOnboardView(name){['welcome','policy','application'].forEach(v=>{const el=$(v+'View');if(el)el.classList.toggle('hidden',v!==name)});window.scrollTo({top:0,behavior:'smooth'});}
   function localizedField(row,base){return currentLang==='en'?(row?.[base+'_en']||row?.[base]||''):(row?.[base]||row?.[base+'_en']||'');}
@@ -164,39 +165,322 @@
     document.querySelectorAll('input[name="subjects"]').forEach(i=>i.addEventListener('change',saveDraftSoon));
   }
 
+  const FALLBACK_CONTRACT_META={
+    bachelor_rate:155,
+    master_rate:180,
+    doctorate_rate_min:200,
+    doctorate_rate_max:250,
+    payout_cycle:'ตามรอบที่ระบบกำหนดและแจ้งก่อนการจ่าย',
+    agreement_version:'AW-TUTOR-AGREEMENT-2026-09-21-v1',
+    manager_signer_name:'ผู้แทนสถาบัน',
+    manager_signer_title:'Manager',
+    signature_ready:false
+  };
+
+  function compensationForTier(tier){
+    const m={...FALLBACK_CONTRACT_META,...(contractMeta||{})};
+    if(tier==='bachelor_studying'||tier==='bachelor_graduate'){
+      const r=Number(m.bachelor_rate||155);return{min:r,max:r,label:`${r.toLocaleString('th-TH')} บาท/ชั่วโมง`};
+    }
+    if(tier==='master'){
+      const r=Number(m.master_rate||180);return{min:r,max:r,label:`${r.toLocaleString('th-TH')} บาท/ชั่วโมง`};
+    }
+    if(tier==='doctorate'){
+      const lo=Number(m.doctorate_rate_min||200),hi=Number(m.doctorate_rate_max||250);
+      return{min:lo,max:hi,label:`${lo.toLocaleString('th-TH')}–${hi.toLocaleString('th-TH')} บาท/ชั่วโมง`};
+    }
+    return{min:0,max:0,label:'—'};
+  }
+
+  function updateCompensationUI(){
+    const rate=compensationForTier($('educationTier')?.value||'');
+    if($('compensationRateDisplay'))$('compensationRateDisplay').textContent=rate.label;
+    if($('teachingRateMini'))$('teachingRateMini').textContent=rate.label;
+    if($('compensationRateNote'))$('compensationRateNote').textContent=rate.min?L('อัตราเบื้องต้นของระบบ ทีมงานยืนยันอีกครั้งก่อนเริ่มงาน','System base rate. Final verification occurs before teaching starts.'):L('เลือกระดับการศึกษาเพื่อดูอัตราค่าตอบแทน','Select your education level to view the rate.');
+    if($('contractRateText'))$('contractRateText').textContent=rate.label;
+  }
+
+  function updateForeignerUI(){
+    const foreign=!!$('isForeigner')?.checked;
+    const label=$('identityNumberLabel');
+    const input=$('identityNumber');
+    const title=$('identityDocumentTitle');
+    const req=$('identityDocumentRequirement');
+    const hint=$('identityDocumentHint');
+    if(label)label.childNodes[0].nodeValue=foreign?'เลขหนังสือเดินทาง ':'เลขประจำตัวประชาชน ';
+    if(input){
+      input.placeholder=foreign?'Passport number':'เลขประจำตัวประชาชน 13 หลัก';
+      input.inputMode=foreign?'text':'numeric';
+      input.maxLength=foreign?30:13;
+    }
+    if(title)title.textContent=foreign?'สำเนาหนังสือเดินทาง':'สำเนาบัตรประชาชน';
+    if(req){
+      req.className=foreign?'optional-pill':'required-pill';
+      req.innerHTML=foreign?'<i class="fas fa-check"></i> ยกเว้นสำเนาบัตร':'<i class="fas fa-asterisk"></i> จำเป็น';
+    }
+    if(hint)hint.textContent=foreign
+      ? 'ชาวต่างชาติได้รับยกเว้นสำเนาบัตรประชาชน · หากต้องการสามารถแนบสำเนาหนังสือเดินทางเพิ่มเติมได้'
+      : 'PDF หรือรูป ไม่เกิน 10 MB · สามารถปกปิดข้อมูลที่ไม่เกี่ยวข้องกับการยืนยันตัวตนได้';
+    saveDraftSoon();
+    updateAgreementPreview();
+  }
+
+  function updateAgreementPreview(){
+    const full=[ $('firstName')?.value, $('lastName')?.value ].filter(Boolean).join(' ').trim();
+    if($('agreementApplicantName'))$('agreementApplicantName').textContent=full||'—';
+    const id=String($('identityNumber')?.value||'').trim();
+    if($('agreementApplicantId'))$('agreementApplicantId').textContent=id?`${$('isForeigner')?.checked?'Passport':'เลขบัตร'} · ${id}`:'—';
+    if($('contractPayoutCycle'))$('contractPayoutCycle').textContent=(contractMeta?.payout_cycle||FALLBACK_CONTRACT_META.payout_cycle);
+    if($('contractManagerSigner')){
+      const name=contractMeta?.manager_signer_name||'ผู้แทนสถาบัน';
+      const title=contractMeta?.manager_signer_title||'Manager';
+      $('contractManagerSigner').textContent=`${name} · ${title}`;
+    }
+    if($('contractManagerSignatureReady')){
+      const ready=!!contractMeta?.signature_ready;
+      $('contractManagerSignatureReady').innerHTML=ready
+        ? '<i class="fas fa-circle-check text-emerald-500 mr-1"></i> ลายเซ็นผู้แทนสถาบันพร้อมใช้งาน และจะถูกแนบฝั่งเซิร์ฟเวอร์เมื่อส่งใบสมัคร'
+        : '<i class="fas fa-triangle-exclamation text-amber-500 mr-1"></i> Manager ยังไม่ได้ตั้งค่าลายเซ็นในระบบ ระบบจะไม่รับการลงนามจนกว่าจะตั้งค่าเรียบร้อย';
+    }
+    updateCompensationUI();
+  }
+
+  async function loadContractMeta(){
+    contractMeta={...FALLBACK_CONTRACT_META};
+    if(!sb){updateAgreementPreview();return}
+    try{
+      const {data,error}=await sb.rpc('public_tutor_contract_meta');
+      if(error)throw error;
+      if(data?.ok)contractMeta={...contractMeta,...data};
+    }catch(e){console.warn('[Tutor Apply V2] contract meta fallback',e)}
+    updateAgreementPreview();
+  }
+
+  let signatureCtx=null,signatureCanvas=null,signatureDrawing=false,signatureLast=null;
+
+  function resizeSignatureCanvas(){
+    const canvas=$('applicantSignatureCanvas');
+    if(!canvas)return;
+    const rect=canvas.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const ratio=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+    const old=applicantSignatureDirty?canvas.toDataURL('image/png'):null;
+    canvas.width=Math.round(rect.width*ratio);
+    canvas.height=Math.round(rect.height*ratio);
+    signatureCanvas=canvas;
+    signatureCtx=canvas.getContext('2d');
+    signatureCtx.setTransform(ratio,0,0,ratio,0,0);
+    signatureCtx.lineWidth=2.2;
+    signatureCtx.lineCap='round';
+    signatureCtx.lineJoin='round';
+    signatureCtx.strokeStyle='#0f172a';
+    if(old){
+      const img=new Image();
+      img.onload=()=>signatureCtx.drawImage(img,0,0,rect.width,rect.height);
+      img.src=old;
+    }
+  }
+
+  function signaturePoint(ev){
+    const rect=signatureCanvas.getBoundingClientRect();
+    return{x:ev.clientX-rect.left,y:ev.clientY-rect.top};
+  }
+
+  function initSignaturePad(){
+    signatureCanvas=$('applicantSignatureCanvas');
+    if(!signatureCanvas)return;
+    resizeSignatureCanvas();
+    signatureCanvas.addEventListener('pointerdown',ev=>{
+      signatureDrawing=true;signatureLast=signaturePoint(ev);
+      signatureCanvas.setPointerCapture?.(ev.pointerId);
+      ev.preventDefault();
+    });
+    signatureCanvas.addEventListener('pointermove',ev=>{
+      if(!signatureDrawing||!signatureCtx)return;
+      const p=signaturePoint(ev);
+      signatureCtx.beginPath();
+      signatureCtx.moveTo(signatureLast.x,signatureLast.y);
+      signatureCtx.lineTo(p.x,p.y);
+      signatureCtx.stroke();
+      signatureLast=p;
+      applicantSignatureDirty=true;
+      signatureCanvas.classList.add('signed');
+      if($('signatureStatus'))$('signatureStatus').innerHTML='<i class="fas fa-circle-check text-emerald-500 mr-1"></i> ลงลายมือชื่อแล้ว';
+      ev.preventDefault();
+    });
+    const stop=()=>{signatureDrawing=false;signatureLast=null};
+    signatureCanvas.addEventListener('pointerup',stop);
+    signatureCanvas.addEventListener('pointercancel',stop);
+    signatureCanvas.addEventListener('pointerleave',stop);
+    $('clearApplicantSignature')?.addEventListener('click',()=>{
+      applicantSignatureDirty=false;
+      resizeSignatureCanvas();
+      signatureCtx?.clearRect(0,0,signatureCanvas.width,signatureCanvas.height);
+      signatureCanvas?.classList.remove('signed');
+      if($('signatureStatus'))$('signatureStatus').innerHTML='<i class="far fa-pen-to-square mr-1"></i> ยังไม่ได้ลงลายมือชื่อ';
+    });
+  }
+
+  function applicantSignatureData(){
+    if(!applicantSignatureDirty||!signatureCanvas)return '';
+    return signatureCanvas.toDataURL('image/png');
+  }
+
   function collectEducation(){return [...document.querySelectorAll('[data-row="education"]')].map(r=>({institution:r.querySelector('.edu-institution').value.trim(),degree:r.querySelector('.edu-degree').value.trim(),major:r.querySelector('.edu-major').value.trim(),year:r.querySelector('.edu-year').value.trim(),detail:r.querySelector('.edu-detail').value.trim()})).filter(x=>Object.values(x).some(Boolean));}
   function collectWork(){return [...document.querySelectorAll('[data-row="work"]')].map(r=>({organization:r.querySelector('.work-org').value.trim(),role:r.querySelector('.work-role').value.trim(),period:r.querySelector('.work-period').value.trim(),subject:r.querySelector('.work-subject').value.trim(),detail:r.querySelector('.work-detail').value.trim()})).filter(x=>Object.values(x).some(Boolean));}
   function collectAvailability(){return [...document.querySelectorAll('.day-card')].filter(c=>c.querySelector('.day-toggle').checked).map(c=>({day:c.dataset.day,enabled:true,start:c.querySelector('.day-start').value,end:c.querySelector('.day-end').value}));}
   function checked(name){return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value)}
-  function payload(){return {first_name:$('firstName').value.trim(),last_name:$('lastName').value.trim(),nickname:$('nickname').value.trim(),phone:cleanPhone($('phone').value),email:$('email').value.trim().toLowerCase(),line_id:$('lineId').value.trim(),nationality:$('nationality')?.value.trim()||'',country_residence:$('countryResidence')?.value.trim()||'',province:$('province').value.trim(),current_occupation:$('currentOccupation').value.trim(),intro:$('intro').value.trim(),education:collectEducation(),work_experience:collectWork(),achievements:$('achievements').value.trim(),subjects:checked('subjects'),levels:checked('levels'),teaching_modes:checked('modes'),teaching_experience_years:Number($('experienceYears').value||0),expected_rate:$('expectedRate').value.trim(),preferred_location:$('preferredLocation').value.trim(),availability:collectAvailability(),teaching_style:$('teachingStyle').value.trim(),why_join:$('whyJoin').value.trim(),additional_note:$('additionalNote').value.trim(),consent_pdpa:$('pdpaCheck').checked,certified_accuracy:$('accuracyCheck').checked,policy_version:tutorPolicyRevision,preferred_language:currentLang};}
+  function payload(options={}){
+    const includeSensitive=options.includeSensitive!==false;
+    const tier=$('educationTier')?.value||'';
+    const rate=compensationForTier(tier);
+    const base={
+      first_name:$('firstName').value.trim(),
+      last_name:$('lastName').value.trim(),
+      nickname:$('nickname').value.trim(),
+      birth_date:$('birthDate')?.value||'',
+      address:$('address')?.value.trim()||'',
+      is_foreigner:!!$('isForeigner')?.checked,
+      identity_type:$('isForeigner')?.checked?'passport':'thai_national_id',
+      phone:cleanPhone($('phone').value),
+      email:$('email').value.trim().toLowerCase(),
+      line_id:$('lineId').value.trim(),
+      nationality:$('nationality')?.value.trim()||'',
+      country_residence:$('countryResidence')?.value.trim()||'',
+      province:$('province').value.trim(),
+      current_occupation:$('currentOccupation').value.trim(),
+      intro:$('intro').value.trim(),
+      education_tier:tier,
+      compensation_rate_min:rate.min,
+      compensation_rate_max:rate.max,
+      expected_rate:rate.label,
+      education:collectEducation(),
+      work_experience:collectWork(),
+      achievements:$('achievements').value.trim(),
+      subjects:checked('subjects'),
+      levels:checked('levels'),
+      teaching_modes:checked('modes'),
+      teaching_experience_years:Number($('experienceYears').value||0),
+      preferred_location:$('preferredLocation').value.trim(),
+      availability:collectAvailability(),
+      teaching_style:$('teachingStyle').value.trim(),
+      why_join:$('whyJoin').value.trim(),
+      additional_note:$('additionalNote').value.trim(),
+      consent_pdpa:!!$('pdpaCheck')?.checked,
+      certified_accuracy:!!$('accuracyCheck')?.checked,
+      agreement_accepted:!!$('agreementAccept')?.checked,
+      agreement_checks:checked('agreementConfirm'),
+      agreement_version:contractMeta?.agreement_version||FALLBACK_CONTRACT_META.agreement_version,
+      preferred_language:currentLang,
+      policy_version:tutorPolicyRevision
+    };
+    if(includeSensitive){
+      base.identity_number=String($('identityNumber')?.value||'').trim();
+      base.bank_name=String($('bankName')?.value||'').trim();
+      base.bank_account_name=String($('bankAccountName')?.value||'').trim();
+      base.bank_account_number=String($('bankAccountNumber')?.value||'').replace(/\s+/g,'').trim();
+      base.applicant_signature_data=applicantSignatureData();
+      base.client_signed_at=new Date().toISOString();
+    }
+    return base;
+  }
 
   function validateStep(n){
     if(n===1){
-      for(const id of ['firstName','lastName','nickname','phone','email']){const el=$(id);if(!el.value.trim()){el.focus();toast('warning',L('กรอกข้อมูลให้ครบ','Please complete required fields'),L('กรุณากรอกช่องที่มีเครื่องหมาย *','Please fill in all fields marked *'));return false}}
-      const phoneLen=cleanPhone($('phone').value).length;if(phoneLen<8||phoneLen>15){$('phone').focus();toast('warning',L('ตรวจสอบเบอร์โทร','Check phone number'),L('กรุณากรอกเบอร์โทรให้ถูกต้อง 8–15 หลัก','Please enter a valid 8–15 digit phone number, including country code if applicable.'));return false}
+      for(const id of ['firstName','lastName','nickname','birthDate','identityNumber','nationality','phone','email','countryResidence','address']){
+        const el=$(id);
+        if(!el||!String(el.value||'').trim()){
+          el?.focus();
+          toast('warning',L('กรอกข้อมูลให้ครบ','Please complete required fields'),L('กรุณากรอกช่องที่มีเครื่องหมาย *','Please fill in all fields marked *'));
+          return false;
+        }
+      }
+      const phoneLen=cleanPhone($('phone').value).length;
+      if(phoneLen<8||phoneLen>15){$('phone').focus();toast('warning',L('ตรวจสอบเบอร์โทร','Check phone number'),L('กรุณากรอกเบอร์โทรให้ถูกต้อง 8–15 หลัก','Please enter a valid phone number.'));return false}
       if(!$('email').checkValidity()){$('email').focus();toast('warning',L('ตรวจสอบอีเมล','Check email'),L('รูปแบบอีเมลไม่ถูกต้อง','Please enter a valid email address.'));return false}
+      const foreign=!!$('isForeigner').checked;
+      const identity=String($('identityNumber').value||'').trim();
+      if(!foreign&&!/^\d{13}$/.test(identity)){
+        $('identityNumber').focus();toast('warning','ตรวจสอบเลขประจำตัวประชาชน','กรุณากรอกตัวเลข 13 หลัก');return false
+      }
+      if(foreign&&identity.length<5){
+        $('identityNumber').focus();toast('warning','ตรวจสอบเลขหนังสือเดินทาง','กรุณากรอกเลขหนังสือเดินทางให้ถูกต้อง');return false
+      }
     }
-    if(n===2){const ed=collectEducation();if(!ed.length||!ed[0].institution){toast('warning',L('เพิ่มประวัติการศึกษา','Add education'),L('กรุณาระบุสถาบันการศึกษาอย่างน้อย 1 รายการ','Please provide at least one education entry.'));return false}}
+    if(n===2){
+      if(!$('educationTier')?.value){$('educationTier')?.focus();toast('warning','เลือกระดับการศึกษา','ระบบใช้ข้อมูลนี้เพื่อกำหนดอัตราค่าตอบแทนเบื้องต้น');return false}
+      const ed=collectEducation();
+      if(!ed.length||!ed[0].institution){toast('warning',L('เพิ่มประวัติการศึกษา','Add education'),L('กรุณาระบุสถาบันการศึกษาอย่างน้อย 1 รายการ','Please provide at least one education entry.'));return false}
+    }
     if(n===3){
       if(!checked('subjects').length){toast('warning',L('เลือกวิชาที่สอน','Select subjects'),L('กรุณาเลือกอย่างน้อย 1 วิชา','Please select at least one subject.'));return false}
       if(!checked('levels').length){toast('warning',L('เลือกระดับผู้เรียน','Select learner levels'),L('กรุณาเลือกอย่างน้อย 1 ระดับ','Please select at least one learner level.'));return false}
       if(!checked('modes').length){toast('warning',L('เลือกรูปแบบการสอน','Select teaching mode'),L('กรุณาเลือก Online หรือ Onsite อย่างน้อย 1 แบบ','Please select Online or Onsite.'));return false}
       if(!collectAvailability().length){toast('warning',L('เลือกวันที่สะดวก','Select availability'),L('กรุณาเลือกอย่างน้อย 1 วัน','Please select at least one available day.'));return false}
     }
-    if(n===4&&!($('accuracyCheck').checked&&$('pdpaCheck').checked)){toast('warning',L('กรุณายืนยันข้อมูล','Please confirm'),L('ต้องยืนยันความถูกต้องและการใช้ข้อมูลก่อนส่งใบสมัคร','Please certify accuracy and consent to data use before submitting.'));return false}
+    if(n===4){
+      if(!$('isForeigner').checked&&!$('identityDocumentFile')?.files?.[0]){
+        $('identityDocumentFile')?.focus();
+        toast('warning','กรุณาแนบสำเนาบัตรประชาชน','เอกสารนี้จำเป็นสำหรับผู้สมัครชาวไทย หากเป็นชาวต่างชาติให้ติ๊ก “ข้าพเจ้าเป็นชาวต่างชาติ” ใน Step 01');
+        return false;
+      }
+      for(const id of ['bankName','bankAccountName','bankAccountNumber']){
+        const el=$(id);
+        if(!String(el?.value||'').trim()){el?.focus();toast('warning','กรอกข้อมูลบัญชีธนาคารให้ครบ','ใช้สำหรับรับค่าตอบแทนเมื่อได้รับอนุมัติเป็นติวเตอร์');return false}
+      }
+      if(!validateFiles())return false;
+    }
+    if(n===5){
+      const confirms=checked('agreementConfirm');
+      if(confirms.length<7){toast('warning','กรุณายืนยัน NOTICE ให้ครบ','โปรดอ่านและติ๊กยืนยันทุกข้อก่อนลงนาม');return false}
+      if(!$('agreementAccept')?.checked){$('agreementAccept')?.focus();toast('warning','กรุณายอมรับข้อตกลง','ต้องยอมรับข้อตกลงการให้บริการสอนก่อนส่งใบสมัคร');return false}
+      if(!($('accuracyCheck')?.checked&&$('pdpaCheck')?.checked)){toast('warning',L('กรุณายืนยันข้อมูล','Please confirm'),L('ต้องยืนยันความถูกต้องและการใช้ข้อมูลก่อนส่งใบสมัคร','Please certify accuracy and acknowledge data processing before submitting.'));return false}
+      if(!applicantSignatureDirty){toast('warning','กรุณาลงลายมือชื่อ','วาดลายเซ็นในช่องลายมือชื่ออิเล็กทรอนิกส์ก่อนยืนยัน');return false}
+      if(contractMeta && contractMeta.signature_ready===false){
+        toast('warning','ระบบยังไม่พร้อมลงนาม','Manager ยังไม่ได้ตั้งค่าลายเซ็นผู้แทนสถาบัน กรุณาติดต่อทีมงาน');
+        return false;
+      }
+    }
     return true;
   }
 
   let draftTimer;function saveDraftSoon(){clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,350)}
-  function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(payload()));$('draftStatus').innerHTML=`<i class="fas fa-check text-emerald-500 mr-1"></i> ${L('บันทึกร่างแล้ว','Draft saved')}`;setTimeout(()=>{$('draftStatus').innerHTML=`<i class="far fa-floppy-disk mr-1"></i> ${L('บันทึกร่างอัตโนมัติ','Autosave draft')}`},1300)}catch{}}
-  function restoreDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');if(!d)return false;const map={firstName:d.first_name,lastName:d.last_name,nickname:d.nickname,phone:d.phone,email:d.email,lineId:d.line_id,nationality:d.nationality,countryResidence:d.country_residence,province:d.province,currentOccupation:d.current_occupation,intro:d.intro,achievements:d.achievements,experienceYears:d.teaching_experience_years,expectedRate:d.expected_rate,preferredLocation:d.preferred_location,teachingStyle:d.teaching_style,whyJoin:d.why_join,additionalNote:d.additional_note};Object.entries(map).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v});$('educationList').innerHTML='';(d.education?.length?d.education:[{}]).forEach(educationRow);$('workList').innerHTML='';(d.work_experience||[]).forEach(workRow);renderAvailability(d.availability||[]);setTimeout(()=>{(d.subjects||[]).forEach(v=>{const el=document.querySelector(`input[name="subjects"][value="${CSS.escape(v)}"]`);if(el)el.checked=true});(d.levels||[]).forEach(v=>{const el=document.querySelector(`input[name="levels"][value="${CSS.escape(v)}"]`);if(el)el.checked=true});(d.teaching_modes||[]).forEach(v=>{const el=document.querySelector(`input[name="modes"][value="${CSS.escape(v)}"]`);if(el)el.checked=true})},300);return true}catch{return false}}
+  function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(payload({includeSensitive:false})));$('draftStatus').innerHTML=`<i class="fas fa-check text-emerald-500 mr-1"></i> ${L('บันทึกร่างแล้ว','Draft saved')}`;setTimeout(()=>{$('draftStatus').innerHTML=`<i class="far fa-floppy-disk mr-1"></i> ${L('บันทึกร่างอัตโนมัติ','Autosave draft')}`},1300)}catch{}}
+  function restoreDraft(){
+    try{
+      const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+      if(!d)return false;
+      const map={
+        firstName:d.first_name,lastName:d.last_name,nickname:d.nickname,birthDate:d.birth_date,
+        phone:d.phone,email:d.email,lineId:d.line_id,nationality:d.nationality,
+        countryResidence:d.country_residence,province:d.province,currentOccupation:d.current_occupation,
+        address:d.address,intro:d.intro,educationTier:d.education_tier,achievements:d.achievements,
+        experienceYears:d.teaching_experience_years,preferredLocation:d.preferred_location,
+        teachingStyle:d.teaching_style,whyJoin:d.why_join,additionalNote:d.additional_note
+      };
+      Object.entries(map).forEach(([id,v])=>{if($(id)&&v!=null)$(id).value=v});
+      if($('isForeigner'))$('isForeigner').checked=!!d.is_foreigner;
+      $('educationList').innerHTML='';(d.education?.length?d.education:[{}]).forEach(educationRow);
+      $('workList').innerHTML='';(d.work_experience||[]).forEach(workRow);
+      renderAvailability(d.availability||[]);
+      setTimeout(()=>{
+        (d.subjects||[]).forEach(v=>{const el=document.querySelector(`input[name="subjects"][value="${CSS.escape(v)}"]`);if(el)el.checked=true});
+        (d.levels||[]).forEach(v=>{const el=document.querySelector(`input[name="levels"][value="${CSS.escape(v)}"]`);if(el)el.checked=true});
+        (d.teaching_modes||[]).forEach(v=>{const el=document.querySelector(`input[name="modes"][value="${CSS.escape(v)}"]`);if(el)el.checked=true})
+      },300);
+      updateForeignerUI();
+      updateCompensationUI();
+      updateAgreementPreview();
+      return true;
+    }catch{return false}
+  }
 
-  function validateFiles(){const rules=[['profilePhoto',5],['resumeFile',10],['portfolioFile',10],['transcriptFile',10]];for(const [id,max] of rules){const f=$(id).files[0];if(f&&f.size>max*1024*1024){toast('warning',L('ไฟล์ใหญ่เกินไป','File too large'),L(`${f.name} ต้องไม่เกิน ${max} MB`,`${f.name} must be no larger than ${max} MB`));return false}}return true}
+  function validateFiles(){const rules=[['identityDocumentFile',10],['profilePhoto',5],['resumeFile',10],['portfolioFile',10],['transcriptFile',10],['bankbookFile',10]];for(const [id,max] of rules){const f=$(id)?.files?.[0];if(f&&f.size>max*1024*1024){toast('warning',L('ไฟล์ใหญ่เกินไป','File too large'),L(`${f.name} ต้องไม่เกิน ${max} MB`,`${f.name} must be no larger than ${max} MB`));return false}}return true}
   async function submitApplication(){
     if(!sb||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY)return toast('error',L('ยังไม่ได้เชื่อมระบบ','System not connected'),L('ไม่พบการตั้งค่า Supabase','Supabase configuration was not found.'));
     if(!validateFiles())return;
     const fd=new FormData();fd.append('payload',JSON.stringify(payload()));
-    [['profile_photo','profilePhoto'],['resume','resumeFile'],['portfolio','portfolioFile'],['transcript','transcriptFile']].forEach(([key,id])=>{const f=$(id).files[0];if(f)fd.append(key,f,f.name)});
+    [['identity_document','identityDocumentFile'],['profile_photo','profilePhoto'],['resume','resumeFile'],['portfolio','portfolioFile'],['transcript','transcriptFile'],['bankbook','bankbookFile']].forEach(([key,id])=>{const f=$(id)?.files?.[0];if(f)fd.append(key,f,f.name)});
     $('btnSubmit').disabled=true;$('btnSubmit').innerHTML=`<i class="fas fa-circle-notch fa-spin"></i> ${L('กำลังส่ง...','Submitting...')}`;
     try{
       const controller=new AbortController();
@@ -229,7 +513,7 @@
         : (e.message||L('กรุณาลองใหม่อีกครั้ง','Please try again.'));
       toast('error',L('ส่งใบสมัครไม่สำเร็จ','Could not submit application'),message)
     }
-    finally{$('btnSubmit').disabled=false;$('btnSubmit').innerHTML=`${L('ส่งใบสมัคร','Submit application')} <i class="fas fa-paper-plane"></i>`}
+    finally{$('btnSubmit').disabled=false;$('btnSubmit').innerHTML=`${L('ยืนยันและลงนาม','Confirm & sign')} <i class="fas fa-file-signature"></i>`}
   }
 
   const statusInfo={
@@ -271,14 +555,18 @@
   $('phone').addEventListener('input',()=>{formatPhoneInput();saveDraftSoon()});
   $('addEducation').onclick=()=>educationRow();$('addWork').onclick=()=>workRow();
   $('btnNext').onclick=()=>{if(validateStep(step))setStep(step+1)};$('btnBack').onclick=()=>setStep(step-1);
-  $('applicationForm').onsubmit=e=>{e.preventDefault();if(validateStep(4))submitApplication()};
+  $('applicationForm').onsubmit=e=>{e.preventDefault();if(validateStep(5))submitApplication()};
   $('btnCheckStatus').onclick=checkStatus;$('btnCheckStatusMobile').onclick=checkStatus;$('btnWelcomeCheckStatus').onclick=checkStatus;
   $('langTh').onclick=()=>setLanguage('th');$('langEn').onclick=()=>setLanguage('en');
   $('btnStartTutorApply').onclick=()=>{showOnboardView('policy')};$('btnPolicyBack').onclick=()=>showOnboardView('welcome');
   $('btnAcceptTutorPolicy').onclick=()=>{if(!$('tutorPolicyConsent').checked)return toast('warning',L('กรุณายอมรับนโยบาย','Please accept the policies'),L('อ่านและยอมรับกติกาก่อนเริ่มกรอกใบสมัคร','Please read and accept the policies before starting.'));showOnboardView('application');setStep(1)};
+  $('isForeigner')?.addEventListener('change',updateForeignerUI);
+  $('educationTier')?.addEventListener('change',()=>{updateCompensationUI();updateAgreementPreview();saveDraftSoon()});
+  ['firstName','lastName','identityNumber'].forEach(id=>$(id)?.addEventListener('input',updateAgreementPreview));
+  document.querySelectorAll('input[name="agreementConfirm"],#agreementAccept,#accuracyCheck,#pdpaCheck').forEach(el=>el.addEventListener('change',saveDraftSoon));
   document.querySelectorAll('#applicationForm input,#applicationForm textarea,#applicationForm select').forEach(el=>{if(!['file','checkbox'].includes(el.type))el.addEventListener('input',saveDraftSoon);if(el.type==='checkbox')el.addEventListener('change',saveDraftSoon)});
   translateStatic();
-  educationRow();renderAvailability([]);
-  Promise.all([loadBrandAndSubjects(),loadTutorPolicy()]).then(()=>{restoreDraft();rerenderDynamicForLanguage()});
+  educationRow();renderAvailability([]);initSignaturePad();updateForeignerUI();updateCompensationUI();
+  Promise.all([loadBrandAndSubjects(),loadTutorPolicy(),loadContractMeta()]).then(()=>{restoreDraft();rerenderDynamicForLanguage();updateAgreementPreview()});
   showOnboardView('welcome');
 })();
