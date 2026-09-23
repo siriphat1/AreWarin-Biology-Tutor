@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AreWarin Library V2.5</title>
-<meta name="arewarin-library-build" content="2.5-smart-external-cover">
+<title>AreWarin Library V2.6</title>
+<meta name="arewarin-library-build" content="2.6-google-drive-reader">
 <meta name="theme-color" content="#102944">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -83,6 +83,96 @@ function googleDriveId(url){
     || s.match(/[?&]id=([A-Za-z0-9_-]{10,})/)
     || s.match(/\/file\/d\/([A-Za-z0-9_-]{10,})/);
   return m?m[1]:'';
+}
+
+
+function googleWorkspacePreviewUrl(url){
+  if(!validHttpUrl(url))return'';
+  try{
+    const u=new URL(String(url));
+    const host=u.hostname.toLowerCase();
+    const p=u.pathname;
+
+    // Google Docs / Sheets / Slides native preview.
+    let m=p.match(/^\/(document|spreadsheets|presentation)\/d\/([A-Za-z0-9_-]{10,})/);
+    if(host==='docs.google.com'&&m){
+      return `https://docs.google.com/${m[1]}/d/${encodeURIComponent(m[2])}/preview`;
+    }
+
+    // Google Drive file preview, including PDF and Office files uploaded to Drive.
+    const id=googleDriveId(url);
+    if(id&&(host.includes('drive.google.com')||host.includes('docs.google.com'))){
+      return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
+    }
+  }catch(_){}
+  return'';
+}
+
+function externalReaderInfo(url){
+  if(!validHttpUrl(url))return null;
+  const href=String(url).trim();
+
+  try{
+    const u=new URL(href);
+    const host=u.hostname.toLowerCase();
+
+    const gPreview=googleWorkspacePreviewUrl(href);
+    if(gPreview){
+      return{
+        mode:'iframe',
+        provider:host.includes('docs.google.com')?'Google':'Google Drive',
+        reader_url:gPreview,
+        original_url:href
+      };
+    }
+
+    if(host.includes('dropbox.com')||host.includes('dropboxusercontent.com')){
+      const candidates=externalPdfCandidates(href);
+      return{
+        mode:'pdfjs',
+        provider:'Dropbox',
+        pdf_candidates:candidates,
+        iframe_url:dropboxRawUrl(href),
+        original_url:href
+      };
+    }
+
+    if(host.includes('1drv.ms')||host.includes('onedrive.live.com')){
+      return{
+        mode:'pdfjs',
+        provider:'OneDrive',
+        pdf_candidates:externalPdfCandidates(href),
+        iframe_url:href,
+        original_url:href
+      };
+    }
+
+    if(host.includes('sharepoint.com')){
+      return{
+        mode:'pdfjs',
+        provider:'SharePoint',
+        pdf_candidates:externalPdfCandidates(href),
+        iframe_url:href,
+        original_url:href
+      };
+    }
+
+    if(/\.pdf(?:[?#].*)?$/i.test(href)){
+      return{
+        mode:'pdfjs',
+        provider:'Direct PDF',
+        pdf_candidates:[href],
+        iframe_url:href,
+        original_url:href
+      };
+    }
+  }catch(_){}
+
+  return null;
+}
+
+function externalCanReadInLibrary(url){
+  return !!externalReaderInfo(url);
 }
 
 function oneDriveShareToken(url){
@@ -374,14 +464,111 @@ async function fetchExternalCoverIntoForm(f){
   }
 }
 
-function bookCard(b){const type=contentTypeOf(b),linkLabel=linkButtonLabel(b);const sourceBadges=`${type==='sheet'?'<span class="pill sheet">LINK</span>':type==='hybrid'?'<span class="pill hybrid">PDF + LINK</span>':'<span class="pill pdf">PDF</span>'}`;const action=type==='sheet'?`<button class="btn green" data-sheet="${b.id}" data-sheet-url="${esc(b.external_url||'')}"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button>`:type==='hybrid'?`<button class="btn primary" data-open="${b.id}"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0&&!b.completed?'อ่านต่อ':'PDF'}</button><button class="btn green" data-sheet="${b.id}" data-sheet-url="${esc(b.external_url||'')}"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button>`:`<button class="btn primary" data-open="${b.id}"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0&&!b.completed?'อ่านต่อ':'เปิดอ่าน'}</button>`;return `<article class="book" data-card="${b.id}"><div class="cover">${resolvedCoverHtml(b,'card')}<div class="cover-badges">${sourceBadges}${b.computed_new?'<span class="pill new">NEW</span>':''}${b.featured?'<span class="pill featured">FEATURED</span>':''}${b.for_my_course?'<span class="pill course">MY COURSE</span>':''}</div><div class="cover-tools"><button class="heart ${b.favorite?'active':''}" data-fav="${b.id}" title="Favorite"><i class="${b.favorite?'fa-solid':'fa-regular'} fa-heart"></i></button><button class="pin ${b.pinned?'active':''}" data-pin="${b.id}" title="ปักหมุด"><i class="fa-solid fa-thumbtack"></i></button></div></div><div class="book-body"><div class="book-cat">${esc(b.category_name||'ทั่วไป')} · ${esc(b.author||'AreWarin')}</div><h3>${esc(b.title)}</h3>${b.subtitle?`<div class="book-sub">${esc(b.subtitle)}</div>`:''}<div class="tags">${(b.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>${type!=='sheet'&&b.progress_pct>0?`<div><div class="progress"><i style="width:${Math.min(100,b.progress_pct)}%"></i></div><div class="hint" style="margin-top:4px">${b.completed?'อ่านจบแล้ว':`อ่านแล้ว ${Math.round(b.progress_pct)}% · หน้า ${b.last_page||1}`}</div></div>`:''}<div class="book-actions"><button class="btn soft" data-detail="${b.id}"><i class="fa-solid fa-circle-info"></i></button>${action}</div></div></article>`}
+function bookCard(b){
+  const type=contentTypeOf(b),linkLabel=linkButtonLabel(b);
+  const readableExternal=externalCanReadInLibrary(b.external_url);
+  const sourceBadges=`${type==='sheet'?'<span class="pill sheet">LINK</span>':type==='hybrid'?'<span class="pill hybrid">PDF + LINK</span>':'<span class="pill pdf">PDF</span>'}`;
+
+  let action='';
+  if(type==='sheet'){
+    action=readableExternal
+      ? `<button class="btn primary" data-open="${b.id}"><i class="fa-solid fa-book-open-reader"></i> เปิดอ่าน</button><button class="btn green" data-sheet="${b.id}" data-sheet-url="${esc(b.external_url||'')}"><i class="fa-solid fa-arrow-up-right-from-square"></i> ต้นฉบับ</button>`
+      : `<button class="btn green" data-sheet="${b.id}" data-sheet-url="${esc(b.external_url||'')}"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button>`;
+  }else if(type==='hybrid'){
+    action=`<button class="btn primary" data-open="${b.id}"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0&&!b.completed?'อ่านต่อ':'เปิดอ่าน'}</button><button class="btn green" data-sheet="${b.id}" data-sheet-url="${esc(b.external_url||'')}"><i class="fa-solid fa-arrow-up-right-from-square"></i> ต้นฉบับ</button>`;
+  }else{
+    action=`<button class="btn primary" data-open="${b.id}"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0&&!b.completed?'อ่านต่อ':'เปิดอ่าน'}</button>`;
+  }
+
+  return `<article class="book" data-card="${b.id}">
+    <div class="cover">
+      ${resolvedCoverHtml(b,'card')}
+      <div class="cover-badges">
+        ${sourceBadges}
+        ${b.computed_new?'<span class="pill new">NEW</span>':''}
+        ${b.featured?'<span class="pill featured">FEATURED</span>':''}
+        ${b.for_my_course?'<span class="pill course">MY COURSE</span>':''}
+      </div>
+      <div class="cover-tools">
+        <button class="heart ${b.favorite?'active':''}" data-fav="${b.id}" title="Favorite"><i class="${b.favorite?'fa-solid':'fa-regular'} fa-heart"></i></button>
+        <button class="pin ${b.pinned?'active':''}" data-pin="${b.id}" title="ปักหมุด"><i class="fa-solid fa-thumbtack"></i></button>
+      </div>
+    </div>
+    <div class="book-body">
+      <div class="book-cat">${esc(b.category_name||'ทั่วไป')} · ${esc(b.author||'AreWarin')}</div>
+      <h3>${esc(b.title)}</h3>
+      ${b.subtitle?`<div class="book-sub">${esc(b.subtitle)}</div>`:''}
+      <div class="tags">${(b.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+      ${type!=='sheet'&&b.progress_pct>0?`<div><div class="progress"><i style="width:${Math.min(100,b.progress_pct)}%"></i></div><div class="hint" style="margin-top:4px">${b.completed?'อ่านจบแล้ว':`อ่านแล้ว ${Math.round(b.progress_pct)}% · หน้า ${b.last_page||1}`}</div></div>`:''}
+      <div class="book-actions">
+        <button class="btn soft" data-detail="${b.id}"><i class="fa-solid fa-circle-info"></i></button>
+        ${action}
+      </div>
+    </div>
+  </article>`;
+}
 function catalogHtml(){const filtered=getFiltered();const noFilter=S.filter==='all'&&!S.search&&!S.category&&!S.collection;const reading=S.items.filter(x=>x.progress_pct>0&&!x.completed).sort((a,b)=>new Date(b.last_opened_at||0)-new Date(a.last_opened_at||0));const shelfItems=S.items.filter(x=>x.pinned||x.favorite).sort((a,b)=>Number(b.pinned)-Number(a.pinned));const newest=S.items.filter(x=>x.computed_new).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,12);const mine=S.items.filter(x=>x.for_my_course).slice(0,12);const featured=S.items.filter(x=>x.featured||x.recommended).slice(0,12);const recent=S.items.filter(x=>x.last_opened_at).sort((a,b)=>new Date(b.last_opened_at)-new Date(a.last_opened_at)).slice(0,12);const popular=[...S.items].sort((a,b)=>(b.view_count||0)-(a.view_count||0)).slice(0,12);const authors=[...new Set(S.items.map(x=>x.author).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));const years=[...new Set(S.items.map(x=>x.publication_year).filter(Boolean))].sort((a,b)=>b-a);return `${topHtml()}<section class="hero"><div class="hero-in"><div><div class="hero-kicker">AREWARIN DIGITAL LIBRARY V2</div><h1>อ่าน เก็บ จด และ<br>กลับมาเรียนต่อได้เสมอ</h1><p>My Shelf, Favorite, Pin, Bookmark, Notes, Continue Reading และหนังสือแนะนำตามคอร์ส รวมอยู่ในระบบเดียว</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px"><button class="btn" id="heroShelf"><i class="fa-solid fa-thumbtack"></i> ชั้นหนังสือของฉัน</button><button class="btn" id="heroCourse"><i class="fa-solid fa-graduation-cap"></i> สำหรับคอร์สของฉัน</button></div></div><div class="hero-cards"><div class="hero-card"><i class="fa-solid fa-heart"></i><b>Favorite & Pin</b><span>เก็บเล่มที่ชอบไว้ใกล้มือ</span></div><div class="hero-card"><i class="fa-solid fa-bookmark"></i><b>Bookmark & Note</b><span>ปักหน้าและจดโน้ตส่วนตัว</span></div><div class="hero-card"><i class="fa-solid fa-clock-rotate-left"></i><b>Continue Reading</b><span>จำหน้าที่อ่านล่าสุด</span></div><div class="hero-card"><i class="fa-solid fa-graduation-cap"></i><b>My Course</b><span>แนะนำหนังสือตามคอร์สเรียน</span></div></div></div></section><main class="content"><div class="toolbar"><div class="search"><i class="fa-solid fa-magnifying-glass"></i><input id="search" value="${esc(S.search)}" placeholder="ค้นหาชื่อหนังสือ ผู้แต่ง ISBN สำนักพิมพ์ หรือ tag"></div><select id="category"><option value="">ทุกหมวดหมู่</option>${S.categories.map(c=>`<option value="${c.id}" ${S.category===c.id?'selected':''}>${esc(c.icon||'▤')} ${esc(c.name)}</option>`).join('')}</select><select id="collection"><option value="">ทุก Collection</option>${S.collections.map(c=>`<option value="${c.id}" ${S.collection===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div><div class="filtertabs" style="padding-top:8px"><select id="authorFilter" style="width:auto;min-width:170px"><option value="">ผู้แต่งทั้งหมด</option>${authors.map(a=>`<option value="${esc(a)}" ${S.author===a?'selected':''}>${esc(a)}</option>`).join('')}</select><select id="yearFilter" style="width:auto;min-width:130px"><option value="">ทุกปีพิมพ์</option>${years.map(y=>`<option value="${y}" ${String(S.year)===String(y)?'selected':''}>${y}</option>`).join('')}</select>${(S.author||S.year)?'<button class="filtertab" id="clearAdvanced"><i class="fa-solid fa-xmark"></i> ล้าง Author/Year</button>':''}</div><div class="filtertabs">${[['all','ทั้งหมด','fa-border-all'],['new','NEW','fa-sparkles'],['favorite','Favorite','fa-heart'],['pinned','ปักหมุด','fa-thumbtack'],['reading','อ่านต่อ','fa-clock-rotate-left'],['completed','อ่านจบ','fa-circle-check'],['course','คอร์สของฉัน','fa-graduation-cap'],['featured','แนะนำ','fa-star']].map(([k,l,i])=>`<button class="filtertab ${S.filter===k?'active':''}" data-filter="${k}"><i class="fa-solid ${i}"></i> ${l}</button>`).join('')}</div>${noFilter?`${shelf('อ่านต่อ','กลับไปยังเล่มที่อ่านค้างล่าสุด',reading.slice(0,10))}${shelf('เปิดดูล่าสุด','Recently Viewed ในบัญชีของคุณ',recent)}${shelf('ชั้นหนังสือของฉัน','Favorite และหนังสือที่ปักหมุดไว้',shelfItems.slice(0,12))}${collectionsHtml()}${shelf('หนังสือใหม่','เล่มใหม่ที่เพิ่งเพิ่มเข้าห้องสมุด',newest)}${shelf('สำหรับคอร์สของฉัน','หนังสือที่เชื่อมกับคอร์สที่คุณเรียน',mine)}${shelf('แนะนำโดย AreWarin','Featured และ Recommended',featured)}${shelf('ยอดนิยม','หนังสือที่ถูกเปิดอ่านบ่อย',popular)}`:''}<section><div class="section-head"><div><h2>${noFilter?'หนังสือทั้งหมด':'ผลการค้นหา'}</h2><p>${filtered.length} รายการที่คุณมีสิทธิ์เข้าถึง</p></div></div><div class="grid" id="bookGrid">${filtered.length?filtered.map(bookCard).join(''):'<div class="empty"><i class="fa-solid fa-book-open"></i><b>ไม่พบหนังสือที่ตรงกับตัวกรอง</b><br><span>ลองเปลี่ยนคำค้น หมวดหมู่ หรือ Collection</span></div>'}</div></section></main>`}
 function collectionsHtml(){if(!S.collections.length)return'';return `<section><div class="section-head"><div><h2>Collections</h2><p>ชุดหนังสือที่จัดไว้ตามเป้าหมายการเรียน</p></div></div><div class="collection-grid">${S.collections.filter(c=>c.item_count>0).slice(0,8).map(c=>`<div class="collection" data-collection-card="${c.id}" ${c.cover_path?`style="background:linear-gradient(90deg,rgba(16,41,68,.92),rgba(28,77,130,.72)),url('${coverUrl(c.cover_path)}') center/cover"`:''}><b>${esc(c.name)}</b><p>${esc(c.description||'ชุดหนังสือ AreWarin ที่คัดไว้สำหรับการเรียน')}</p><small>${c.item_count||0} เล่ม ${c.featured?'· Featured':''}</small></div>`).join('')}</div></section>`}
 function bindCatalog(){document.getElementById('logout').onclick=logout;document.getElementById('adminToggle')?.addEventListener('click',async()=>{S.admin=!S.admin;if(S.admin)await loadAdmin();render()});document.getElementById('requestBook').onclick=openRequestModal;document.getElementById('newBell').onclick=async()=>{S.filter='new';S.search='';S.category='';S.collection='';S.author='';S.year='';await sb.rpc('library_mark_new_seen');S.home.unseen_new=0;render()};document.getElementById('heroShelf').onclick=()=>{S.filter='pinned';render()};document.getElementById('heroCourse').onclick=()=>{S.filter='course';render()};let t;document.getElementById('search').oninput=e=>{clearTimeout(t);S.search=e.target.value;t=setTimeout(render,250)};document.getElementById('category').onchange=e=>{S.category=e.target.value;render()};document.getElementById('collection').onchange=e=>{S.collection=e.target.value;render()};document.getElementById('authorFilter').onchange=e=>{S.author=e.target.value;render()};document.getElementById('yearFilter').onchange=e=>{S.year=e.target.value;render()};document.getElementById('clearAdvanced')?.addEventListener('click',()=>{S.author='';S.year='';render()});document.querySelectorAll('[data-filter]').forEach(x=>x.onclick=()=>{S.filter=x.dataset.filter;render()});document.querySelectorAll('[data-collection-card]').forEach(x=>x.onclick=()=>{S.collection=x.dataset.collectionCard;render()});bindBookActions()}
 function bindBookActions(root=document){root.querySelectorAll('[data-open]').forEach(x=>x.onclick=e=>{e.stopPropagation();openReader(x.dataset.open)});root.querySelectorAll('[data-sheet]').forEach(x=>x.onclick=e=>{e.stopPropagation();openSheetLink(x.dataset.sheet,x.dataset.sheetUrl)});root.querySelectorAll('[data-detail]').forEach(x=>x.onclick=e=>{e.stopPropagation();openBookDetail(x.dataset.detail)});root.querySelectorAll('[data-fav]').forEach(x=>x.onclick=e=>{e.stopPropagation();toggleFav(x.dataset.fav)});root.querySelectorAll('[data-pin]').forEach(x=>x.onclick=e=>{e.stopPropagation();togglePin(x.dataset.pin)})}
 async function toggleFav(id){const {data,error}=await sb.rpc('library_toggle_favorite',{p_item_id:id});if(error||!data?.ok)return toast(error?.message||data?.message,'error');const b=S.items.find(x=>x.id===id);if(b)b.favorite=data.favorite;render()}
 async function togglePin(id){const {data,error}=await sb.rpc('library_toggle_pin',{p_item_id:id});if(error||!data?.ok)return toast(error?.message||data?.message,'error');const b=S.items.find(x=>x.id===id);if(b)b.pinned=data.pinned;render()}
-async function openBookDetail(id){const {data,error}=await sb.rpc('library_item_detail',{p_item_id:id});if(error||!data?.ok)return Swal.fire('เปิดรายละเอียดไม่ได้',error?.message||data?.message,'error');const b=data.item,related=data.related||[],type=contentTypeOf(b),linkLabel=linkButtonLabel(b);const openActions=type==='sheet'?`<button class="btn green" id="detailSheet" style="margin-top:14px"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button>`:type==='hybrid'?`<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px"><button class="btn primary" id="detailOpen"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0?'อ่าน PDF ต่อ':'เปิด PDF'}</button><button class="btn green" id="detailSheet"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button></div>`:`<button class="btn primary" id="detailOpen" style="margin-top:14px"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0?'อ่านต่อ':'เปิดอ่าน'}</button>`;modal(b.title,`<div class="detail-grid"><div><div class="detail-cover">${resolvedCoverHtml(b,'detail')}</div><div style="display:flex;gap:6px;margin-top:9px"><button class="btn ${b.favorite?'red':''}" id="detailFav"><i class="${b.favorite?'fa-solid':'fa-regular'} fa-heart"></i> Favorite</button><button class="btn ${b.pinned?'blue':''}" id="detailPin"><i class="fa-solid fa-thumbtack"></i> Pin</button></div></div><div class="detail-meta"><div style="display:flex;gap:5px;flex-wrap:wrap"><span class="pill ${type==='sheet'?'sheet':type==='hybrid'?'hybrid':'pdf'}">${contentTypeLabel(type)}</span>${b.is_new?'<span class="pill new">NEW</span>':''}${b.featured?'<span class="pill featured">FEATURED</span>':''}<span class="pill">${esc(b.category_name||'ทั่วไป')}</span></div><h2>${esc(b.title)}</h2>${b.subtitle?`<div class="muted">${esc(b.subtitle)}</div>`:''}<p>${esc(b.description||'ยังไม่มีคำอธิบาย')}</p><div class="detail-info">${[['ผู้แต่ง',b.author],['สำนักพิมพ์',b.publisher],['ปีพิมพ์',b.publication_year],['Edition',b.edition],['ISBN',b.isbn],['เปิด',`${b.view_count||0} ครั้ง`]].map(x=>`<div class="info"><small>${x[0]}</small><b>${esc(x[1]||'—')}</b></div>`).join('')}</div><div class="tags">${(b.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>${(data.courses||[]).length?`<div style="margin-top:12px"><div class="hint">เชื่อมกับคอร์ส</div><div class="tags">${data.courses.map(c=>`<span class="pill course">${esc(c.name)}</span>`).join('')}</div></div>`:''}${type!=='sheet'&&b.progress_pct>0?`<div style="margin-top:13px"><div class="progress"><i style="width:${b.progress_pct}%"></i></div><div class="hint" style="margin-top:4px">อ่านแล้ว ${Math.round(b.progress_pct)}% · หน้าล่าสุด ${b.last_page||1}</div></div>`:''}${type!=='pdf'?`<div class="message" style="margin-top:12px"><i class="fa-solid fa-link"></i> รองรับลิงก์ภายนอก เช่น Google Drive, OneDrive, Google Sheets และ URL อื่น ๆ โดยสิทธิ์การเปิดยังขึ้นกับการตั้งค่าแชร์ของผู้ให้บริการ</div>`:''}${openActions}</div></div>${related.length?`<div class="section-head"><div><h2 style="font-size:14px">หนังสือที่เกี่ยวข้อง</h2><p>หมวดหรือหัวข้อใกล้เคียงกัน</p></div></div><div class="related">${related.map(r=>`<div class="rel" data-rel="${r.id}">${resolvedCoverHtml(r,'rel')}<b>${esc(r.title)}</b></div>`).join('')}</div>`:''}`);document.getElementById('detailOpen')?.addEventListener('click',()=>{closeModal();openReader(id)});document.getElementById('detailSheet')?.addEventListener('click',()=>openSheetLink(id,b.external_url));document.getElementById('detailFav').onclick=async()=>{await toggleFav(id);closeModal();openBookDetail(id)};document.getElementById('detailPin').onclick=async()=>{await togglePin(id);closeModal();openBookDetail(id)};document.querySelectorAll('[data-rel]').forEach(x=>x.onclick=()=>{closeModal();openBookDetail(x.dataset.rel)})};setTimeout(()=>hydrateExternalCovers(document),0)
+async function openBookDetail(id){
+  const {data,error}=await sb.rpc('library_item_detail',{p_item_id:id});
+  if(error||!data?.ok)return Swal.fire('เปิดรายละเอียดไม่ได้',error?.message||data?.message,'error');
+
+  const b=data.item,related=data.related||[],type=contentTypeOf(b),linkLabel=linkButtonLabel(b);
+  const readableExternal=externalCanReadInLibrary(b.external_url);
+
+  let openActions='';
+  if(type==='sheet'){
+    openActions=readableExternal
+      ? `<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px"><button class="btn primary" id="detailOpen"><i class="fa-solid fa-book-open-reader"></i> เปิดอ่านใน Library</button><button class="btn green" id="detailSheet"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดต้นฉบับ</button></div>`
+      : `<button class="btn green" id="detailSheet" style="margin-top:14px"><i class="fa-solid fa-link"></i> ${esc(linkLabel)}</button>`;
+  }else if(type==='hybrid'){
+    openActions=`<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px"><button class="btn primary" id="detailOpen"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0?'อ่านต่อ':'เปิดอ่าน'}</button><button class="btn green" id="detailSheet"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดต้นฉบับ</button></div>`;
+  }else{
+    openActions=`<button class="btn primary" id="detailOpen" style="margin-top:14px"><i class="fa-solid fa-book-open-reader"></i> ${b.progress_pct>0?'อ่านต่อ':'เปิดอ่าน'}</button>`;
+  }
+
+  modal(b.title,`
+    <div class="detail-grid">
+      <div>
+        <div class="detail-cover">${resolvedCoverHtml(b,'detail')}</div>
+        <div style="display:flex;gap:6px;margin-top:9px">
+          <button class="btn ${b.favorite?'red':''}" id="detailFav"><i class="${b.favorite?'fa-solid':'fa-regular'} fa-heart"></i> Favorite</button>
+          <button class="btn ${b.pinned?'blue':''}" id="detailPin"><i class="fa-solid fa-thumbtack"></i> Pin</button>
+        </div>
+      </div>
+      <div class="detail-meta">
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="pill ${type==='sheet'?'sheet':type==='hybrid'?'hybrid':'pdf'}">${contentTypeLabel(type)}</span>
+          ${b.is_new?'<span class="pill new">NEW</span>':''}
+          ${b.featured?'<span class="pill featured">FEATURED</span>':''}
+          <span class="pill">${esc(b.category_name||'ทั่วไป')}</span>
+        </div>
+        <h2>${esc(b.title)}</h2>
+        ${b.subtitle?`<div class="muted">${esc(b.subtitle)}</div>`:''}
+        <p>${esc(b.description||'ยังไม่มีคำอธิบาย')}</p>
+        <div class="detail-info">
+          ${[['ผู้แต่ง',b.author],['สำนักพิมพ์',b.publisher],['ปีพิมพ์',b.publication_year],['Edition',b.edition],['ISBN',b.isbn],['เปิด',`${b.view_count||0} ครั้ง`]].map(x=>`<div class="info"><small>${x[0]}</small><b>${esc(x[1]||'—')}</b></div>`).join('')}
+        </div>
+        <div class="tags">${(b.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+        ${(data.courses||[]).length?`<div style="margin-top:12px"><div class="hint">เชื่อมกับคอร์ส</div><div class="tags">${data.courses.map(c=>`<span class="pill course">${esc(c.name)}</span>`).join('')}</div></div>`:''}
+        ${readableExternal?`<div class="message" style="margin-top:12px"><i class="fa-solid fa-circle-check"></i> ลิงก์นี้รองรับการเปิดอ่านภายใน AreWarin Library (${esc(externalReaderInfo(b.external_url)?.provider||'External')})</div>`:''}
+        ${openActions}
+      </div>
+    </div>
+    ${related.length?`<div class="section-head"><div><h2 style="font-size:14px">หนังสือที่เกี่ยวข้อง</h2><p>หมวดหรือหัวข้อใกล้เคียงกัน</p></div></div><div class="related">${related.map(r=>`<div class="rel" data-rel="${r.id}">${resolvedCoverHtml(r,'rel')}<b>${esc(r.title)}</b></div>`).join('')}</div>`:''}
+  `);
+
+  document.getElementById('detailOpen')?.addEventListener('click',()=>{closeModal();openReader(id)});
+  document.getElementById('detailSheet')?.addEventListener('click',()=>openSheetLink(id,b.external_url));
+  document.getElementById('detailFav').onclick=async()=>{await toggleFav(id);closeModal();openBookDetail(id)};
+  document.getElementById('detailPin').onclick=async()=>{await togglePin(id);closeModal();openBookDetail(id)};
+  document.querySelectorAll('[data-rel]').forEach(x=>x.onclick=()=>{closeModal();openBookDetail(x.dataset.rel)});
+  setTimeout(()=>hydrateExternalCovers(document),0);
+}
 function openRequestModal(){modal('ขอหนังสือเพิ่ม',`<div class="formgrid"><div class="field full"><label>ชื่อหนังสือ / ตำรา *</label><input id="reqTitle" class="input" placeholder="ชื่อหนังสือที่อยากให้เพิ่ม"></div><div class="field full"><label>ผู้แต่ง</label><input id="reqAuthor" class="input"></div><div class="field full"><label>เหตุผล / ใช้เรียนเรื่องอะไร</label><textarea id="reqReason" rows="4"></textarea></div></div>`,`<button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn primary" id="sendRequest">ส่งคำขอ</button>`);document.getElementById('sendRequest').onclick=async()=>{const title=document.getElementById('reqTitle').value.trim();if(!title)return toast('กรุณาระบุชื่อหนังสือ','warning');const {data,error}=await sb.rpc('library_request_book',{p_title:title,p_author:document.getElementById('reqAuthor').value,p_reason:document.getElementById('reqReason').value});if(error||!data?.ok)return toast(error?.message||data?.message,'error');closeModal();toast('ส่งคำขอให้ Library Admin แล้ว')}}
 async function readerToken(id){
   const {data:meta,error:metaError}=await sb.rpc('library_open_item',{p_item_id:id});
@@ -389,32 +576,265 @@ async function readerToken(id){
 
   const type=normalizeContentType(meta.content_type);
   const filePath=typeof meta.file_path==='string'?meta.file_path.trim():'';
+  const externalUrl=typeof meta.external_url==='string'?meta.external_url.trim():'';
+
+  // Local AreWarin PDF always has priority when available.
+  if(filePath){
+    const seconds=Math.max(30,Math.min(600,Number(meta.signed_url_seconds||90)));
+    const {data:signed,error:signError}=await sb.storage
+      .from('library-books')
+      .createSignedUrl(filePath,seconds);
+
+    if(signError||!signed?.signedUrl){
+      throw new Error(signError?.message||'สร้างลิงก์อ่านหนังสือไม่สำเร็จ');
+    }
+
+    return{
+      ...meta,
+      reader_kind:'local-pdf',
+      file_path:filePath,
+      signed_url:signed.signedUrl
+    };
+  }
+
+  // If there is no local PDF, allow supported external file links to open
+  // inside AreWarin Library rather than forcing a new tab.
+  if(externalUrl){
+    const info=externalReaderInfo(externalUrl);
+    if(info){
+      return{
+        ...meta,
+        ...info,
+        reader_kind:info.mode==='iframe'?'external-iframe':'external-pdf'
+      };
+    }
+  }
 
   if(type==='sheet'){
-    throw new Error('รายการนี้เป็นลิงก์ภายนอก กรุณากดปุ่มเปิดลิงก์');
+    throw new Error('ลิงก์นี้ยังไม่รองรับการเปิดใน Reader กรุณากด “เปิดลิงก์” เพื่อเปิดต้นฉบับ');
   }
 
-  if(!filePath){
-    throw new Error(
-      type==='hybrid'
-        ? 'รายการนี้มีลิงก์ภายนอก แต่ยังไม่มีไฟล์ PDF ที่เชื่อมอยู่ กรุณาเปิดลิงก์ หรือให้ Admin อัปโหลด PDF ใหม่ใน Library Studio'
-        : 'รายการนี้ถูกตั้งเป็น PDF แต่ไม่พบไฟล์ PDF ที่เชื่อมอยู่ กรุณาให้ Admin เข้า Library Studio แล้วอัปโหลด PDF ให้รายการนี้ใหม่'
-    );
+  if(type==='hybrid'){
+    throw new Error('รายการนี้ยังไม่มี PDF ใน AreWarin Library และลิงก์ภายนอกไม่ใช่ไฟล์ที่ Reader รองรับ');
   }
 
-  const seconds=Math.max(30,Math.min(600,Number(meta.signed_url_seconds||90)));
-  const {data:signed,error:signError}=await sb.storage
-    .from('library-books')
-    .createSignedUrl(filePath,seconds);
-
-  if(signError||!signed?.signedUrl){
-    throw new Error(signError?.message||'สร้างลิงก์อ่านหนังสือไม่สำเร็จ');
-  }
-
-  return {...meta,file_path:filePath,signed_url:signed.signedUrl};
+  throw new Error('รายการนี้ถูกตั้งเป็น PDF แต่ไม่พบไฟล์ PDF ที่เชื่อมอยู่ กรุณาให้ Admin อัปโหลด PDF ใหม่');
 }
 function readerHtml(){const r=S.reader;return `<div class="reader" id="reader"><div class="reader-head"><div style="display:flex;gap:7px;align-items:center"><button id="readerSideBtn" title="สารบัญ / Bookmark / Notes"><i class="fa-solid fa-bars"></i></button><div class="reader-title"><b>${esc(r.title)}</b><span id="readerStatus">Private Reader · ${esc(r.watermark||'AreWarin')}</span></div></div><div class="reader-tools"><button id="prevPage" title="หน้าก่อน"><i class="fa-solid fa-chevron-left"></i></button><input id="pageJump" value="${S.page}"><span style="font-size:8px;color:#9badc4">/ <span id="pageTotal">?</span></span><button id="nextPage" title="หน้าถัดไป"><i class="fa-solid fa-chevron-right"></i></button><button id="zoomOut"><i class="fa-solid fa-minus"></i></button><button id="zoomIn"><i class="fa-solid fa-plus"></i></button><select id="fitMode"><option value="width">Fit Width</option><option value="page">Fit Page</option><option value="manual">Manual</option></select><select id="themeMode"><option value="light">Light</option><option value="dark">Dark</option><option value="sepia">Sepia</option></select><button id="bookmarkPage" title="Bookmark"><i class="fa-regular fa-bookmark"></i></button><button id="notePage" title="Note"><i class="fa-regular fa-note-sticky"></i></button><button id="fullReader" title="Fullscreen"><i class="fa-solid fa-expand"></i></button><button id="closeReader" title="ปิด"><i class="fa-solid fa-xmark"></i></button></div></div><div class="reader-main" id="readerMain"><aside class="reader-side" id="readerSide"><div class="rside-tabs"><button class="active" data-rside="toc">สารบัญ</button><button data-rside="bookmarks">Bookmark</button><button data-rside="notes">Notes</button></div><div class="rside-body" id="rsideBody"><div class="reader-loading">กำลังโหลด…</div></div></aside><div class="reader-body" id="readerBody"><div class="reader-loading" id="readerLoading"><div class="spinner"></div>กำลังโหลดหนังสือ…</div><div class="page-wrap hidden" id="pageWrap"><canvas id="pdfCanvas"></canvas><div class="watermark" id="watermark"></div></div></div></div></div>`}
-async function openReader(id){try{Swal.fire({title:'กำลังเตรียมหนังสือ',allowOutsideClick:false,didOpen:()=>Swal.showLoading(),showConfirmButton:false});const d=await readerToken(id);const {data:state}=await sb.rpc('library_reader_state',{p_item_id:id});Swal.close();S.reader={...d,item_id:id};S.readerState=state?.ok?state:{bookmarks:[],notes:[]};S.page=Math.max(1,Number(d.last_page||1));S.scale=1.2;S.fit='width';S.theme='light';app.insertAdjacentHTML('beforeend',readerHtml());bindReader();const task=pdfjsLib.getDocument({url:d.signed_url,disableAutoFetch:false,disableStream:false});S.pdf=await task.promise;S.page=Math.min(S.page,S.pdf.numPages);document.getElementById('pageTotal').textContent=S.pdf.numPages;try{S.outline=await S.pdf.getOutline()||[]}catch(_){S.outline=[]}renderReaderSide();await renderPage()}catch(e){Swal.close();document.getElementById('reader')?.remove();Swal.fire({icon:'error',title:'เปิดหนังสือไม่ได้',html:`<div style="font-size:13px;line-height:1.65;color:#64748b">${esc(e?.message||'ไม่สามารถเปิดหนังสือได้')}</div>`,confirmButtonText:'ตกลง'})}}
+
+function externalReaderHtml(r){
+  return `<div class="reader" id="reader">
+    <div class="reader-head">
+      <div style="display:flex;gap:8px;align-items:center;min-width:0">
+        <div class="reader-title">
+          <b>${esc(r.title||'External document')}</b>
+          <span>${esc(r.provider||'External')} · เปิดผ่าน AreWarin Library</span>
+        </div>
+      </div>
+      <div class="reader-tools">
+        <button id="externalOpenOriginal" title="เปิดต้นฉบับ"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+        <button id="fullReader" title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
+        <button id="closeReader" title="ปิด"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div style="position:relative;flex:1;min-height:0;background:#e9eef5">
+      <div id="externalReaderLoading" class="reader-loading" style="position:absolute;inset:0;z-index:2;background:#eef3f9">
+        <div class="spinner"></div>กำลังเปิดเอกสารจาก ${esc(r.provider||'External')}…
+      </div>
+      <iframe
+        id="externalReaderFrame"
+        src="${esc(r.reader_url||r.iframe_url||r.original_url||'')}"
+        style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff"
+        referrerpolicy="no-referrer"
+        allow="fullscreen"
+        allowfullscreen></iframe>
+    </div>
+  </div>`;
+}
+
+function bindExternalReader(r){
+  const frame=document.getElementById('externalReaderFrame');
+  const loading=document.getElementById('externalReaderLoading');
+
+  if(frame){
+    frame.addEventListener('load',()=>loading?.classList.add('hidden'));
+  }
+
+  document.getElementById('closeReader').onclick=closeReader;
+  document.getElementById('fullReader').onclick=()=>{
+    const el=document.getElementById('reader');
+    if(!document.fullscreenElement)el.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  };
+  document.getElementById('externalOpenOriginal').onclick=()=>{
+    const target=r.original_url||r.external_url;
+    if(validHttpUrl(target)){
+      const a=document.createElement('a');
+      a.href=target;
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  };
+
+  document.getElementById('reader').oncontextmenu=e=>e.preventDefault();
+
+  // Some providers block framing. Show a fallback after a short delay
+  // instead of leaving the user on a blank loading state forever.
+  setTimeout(()=>{
+    if(!document.getElementById('reader'))return;
+    if(loading&&!loading.classList.contains('hidden')){
+      loading.innerHTML=`
+        <div style="max-width:420px;text-align:center;padding:24px">
+          <i class="fa-solid fa-file-circle-exclamation" style="font-size:26px;color:#718299"></i>
+          <div style="margin-top:12px;font-weight:800;color:#25364d">กำลังรอ ${esc(r.provider||'ผู้ให้บริการ')} แสดงเอกสาร</div>
+          <div style="font-size:9px;color:#718299;line-height:1.7;margin-top:7px">
+            ถ้าไฟล์ไม่ปรากฏ อาจเกิดจากสิทธิ์การแชร์ของไฟล์
+          </div>
+          <button class="btn primary" id="externalFallbackOpen" style="margin-top:12px">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดต้นฉบับ
+          </button>
+        </div>`;
+      document.getElementById('externalFallbackOpen')?.addEventListener('click',()=>{
+        document.getElementById('externalOpenOriginal')?.click();
+      });
+    }
+  },9000);
+}
+
+async function tryOpenExternalPdfWithPdfJs(d,id){
+  const candidates=Array.isArray(d.pdf_candidates)?d.pdf_candidates.filter(validHttpUrl):[];
+  let lastError=null;
+
+  for(const url of candidates){
+    try{
+      S.reader={...d,item_id:id,signed_url:url};
+      S.page=Math.max(1,Number(d.last_page||1));
+      S.scale=1.2;
+      S.fit='width';
+      S.theme='light';
+      app.insertAdjacentHTML('beforeend',readerHtml());
+      bindReader();
+
+      const task=pdfjsLib.getDocument({
+        url,
+        disableAutoFetch:false,
+        disableStream:false,
+        withCredentials:false
+      });
+
+      S.pdf=await task.promise;
+      S.page=Math.min(S.page,S.pdf.numPages);
+      document.getElementById('pageTotal').textContent=S.pdf.numPages;
+      try{S.outline=await S.pdf.getOutline()||[]}catch(_){S.outline=[]}
+      renderReaderSide();
+      await renderPage();
+      return true;
+    }catch(e){
+      lastError=e;
+      document.getElementById('reader')?.remove();
+      S.pdf=null;
+      S.reader=null;
+    }
+  }
+
+  console.debug('[Library V2.6] external PDF.js failed; using provider iframe fallback',lastError);
+  return false;
+}
+
+async function openExternalReader(d,id){
+  // Google Drive / Google Workspace preview is intentionally iframe-first.
+  if(d.reader_kind==='external-iframe'){
+    S.reader={...d,item_id:id};
+    app.insertAdjacentHTML('beforeend',externalReaderHtml({
+      ...d,
+      reader_url:d.reader_url||d.iframe_url||d.original_url
+    }));
+    bindExternalReader(d);
+    return;
+  }
+
+  // Dropbox / OneDrive / SharePoint / direct PDF:
+  // try native AreWarin PDF.js reader first.
+  if(d.reader_kind==='external-pdf'){
+    const ok=await tryOpenExternalPdfWithPdfJs(d,id);
+    if(ok)return;
+
+    const iframeUrl=d.iframe_url||d.original_url;
+    if(validHttpUrl(iframeUrl)){
+      S.reader={...d,item_id:id};
+      app.insertAdjacentHTML('beforeend',externalReaderHtml({
+        ...d,
+        reader_url:iframeUrl
+      }));
+      bindExternalReader(d);
+      return;
+    }
+  }
+
+  throw new Error('ไม่สามารถเปิดเอกสารภายนอกใน Reader ได้');
+}
+
+async function openReader(id){
+  try{
+    Swal.fire({
+      title:'กำลังเตรียมหนังสือ',
+      allowOutsideClick:false,
+      didOpen:()=>Swal.showLoading(),
+      showConfirmButton:false
+    });
+
+    const d=await readerToken(id);
+
+    let state={ok:true,bookmarks:[],notes:[]};
+    try{
+      const stateRes=await sb.rpc('library_reader_state',{p_item_id:id});
+      if(stateRes.data?.ok)state=stateRes.data;
+    }catch(_){}
+
+    Swal.close();
+    S.readerState=state;
+
+    if(d.reader_kind!=='local-pdf'){
+      await openExternalReader(d,id);
+      return;
+    }
+
+    S.reader={...d,item_id:id};
+    S.page=Math.max(1,Number(d.last_page||1));
+    S.scale=1.2;
+    S.fit='width';
+    S.theme='light';
+
+    app.insertAdjacentHTML('beforeend',readerHtml());
+    bindReader();
+
+    const task=pdfjsLib.getDocument({
+      url:d.signed_url,
+      disableAutoFetch:false,
+      disableStream:false
+    });
+
+    S.pdf=await task.promise;
+    S.page=Math.min(S.page,S.pdf.numPages);
+    document.getElementById('pageTotal').textContent=S.pdf.numPages;
+    try{S.outline=await S.pdf.getOutline()||[]}catch(_){S.outline=[]}
+    renderReaderSide();
+    await renderPage();
+
+  }catch(e){
+    Swal.close();
+    document.getElementById('reader')?.remove();
+    Swal.fire({
+      icon:'error',
+      title:'เปิดหนังสือไม่ได้',
+      html:`<div style="font-size:13px;line-height:1.65;color:#64748b">${esc(e?.message||'ไม่สามารถเปิดหนังสือได้')}</div>`,
+      confirmButtonText:'ตกลง'
+    });
+  }
+}
 function bindReader(){document.getElementById('closeReader').onclick=closeReader;document.getElementById('prevPage').onclick=()=>goPage(S.page-1);document.getElementById('nextPage').onclick=()=>goPage(S.page+1);document.getElementById('pageJump').onchange=e=>goPage(Number(e.target.value||1));document.getElementById('zoomOut').onclick=()=>{S.fit='manual';S.scale=Math.max(.5,S.scale-.15);document.getElementById('fitMode').value='manual';renderPage()};document.getElementById('zoomIn').onclick=()=>{S.fit='manual';S.scale=Math.min(3,S.scale+.15);document.getElementById('fitMode').value='manual';renderPage()};document.getElementById('fitMode').onchange=e=>{S.fit=e.target.value;renderPage()};document.getElementById('themeMode').onchange=e=>{S.theme=e.target.value;applyReaderTheme()};document.getElementById('readerSideBtn').onclick=()=>{const side=document.getElementById('readerSide'),main=document.getElementById('readerMain');side.classList.toggle('hidden-side');main.classList.toggle('side-off')};document.getElementById('bookmarkPage').onclick=toggleCurrentBookmark;document.getElementById('notePage').onclick=()=>openNoteModal();document.getElementById('fullReader').onclick=()=>{const el=document.getElementById('reader');if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()};document.querySelectorAll('[data-rside]').forEach(x=>x.onclick=()=>{S.sideTab=x.dataset.rside;document.querySelectorAll('[data-rside]').forEach(y=>y.classList.toggle('active',y===x));renderReaderSide()});document.getElementById('reader').oncontextmenu=e=>e.preventDefault();window.addEventListener('keydown',readerKeys)}
 function readerKeys(e){if(!document.getElementById('reader'))return;if((e.ctrlKey||e.metaKey)&&['s','p'].includes(e.key.toLowerCase())){e.preventDefault();toast('เอกสารนี้เปิดอ่านผ่าน AreWarin Library เท่านั้น','info');return}if(e.key==='ArrowLeft')goPage(S.page-1);if(e.key==='ArrowRight')goPage(S.page+1)}
 function applyReaderTheme(){const b=document.getElementById('readerBody');if(!b)return;b.classList.remove('dark','sepia');if(S.theme!=='light')b.classList.add(S.theme)}
@@ -426,7 +846,7 @@ function renderReaderSide(){const root=document.getElementById('rsideBody');if(!
 async function toggleCurrentBookmark(){const existing=(S.readerState.bookmarks||[]).find(x=>Number(x.page_no)===S.page);const {data,error}=await sb.rpc('library_toggle_bookmark',{p_item_id:S.reader.item_id,p_page:S.page,p_label:null});if(error||!data?.ok)return toast(error?.message||data?.message,'error');if(existing)S.readerState.bookmarks=S.readerState.bookmarks.filter(x=>x.id!==existing.id);else{const {data:state}=await sb.rpc('library_reader_state',{p_item_id:S.reader.item_id});S.readerState=state}toast(data.bookmarked?'Bookmark หน้านี้แล้ว':'นำ Bookmark ออก');renderReaderSide()}
 function openNoteModal(note=null){modal(`Note · หน้า ${note?.page_no||S.page}`,`<div class="rnote-modal"><textarea id="readerNoteText" class="input" placeholder="เขียนโน้ตส่วนตัวสำหรับหน้านี้…">${esc(note?.note||'')}</textarea></div>`,`<button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn primary" id="saveReaderNote">บันทึก Note</button>`);document.getElementById('saveReaderNote').onclick=async()=>{const v=document.getElementById('readerNoteText').value.trim();if(!v)return toast('กรุณาเขียน Note','warning');const {data,error}=await sb.rpc('library_note_save',{p_item_id:S.reader.item_id,p_page:note?.page_no||S.page,p_note:v,p_note_id:note?.id||null});if(error||!data?.ok)return toast(error?.message||data?.message,'error');const {data:state}=await sb.rpc('library_reader_state',{p_item_id:S.reader.item_id});S.readerState=state;closeModal();S.sideTab='notes';document.querySelectorAll('[data-rside]').forEach(x=>x.classList.toggle('active',x.dataset.rside==='notes'));renderReaderSide();toast('บันทึก Note แล้ว')}}
 async function deleteNote(id){const {data,error}=await sb.rpc('library_note_delete',{p_note_id:id});if(error||!data?.ok)return toast(error?.message||data?.message,'error');S.readerState.notes=S.readerState.notes.filter(x=>x.id!==id);renderReaderSide();toast('ลบ Note แล้ว')}
-function closeReader(){window.removeEventListener('keydown',readerKeys);document.getElementById('reader')?.remove();S.pdf=null;S.reader=null;loadHome().then(render)}
+function closeReader(){window.removeEventListener('keydown',readerKeys);document.getElementById('reader')?.remove();try{S.pdf?.destroy?.()}catch(_){}S.pdf=null;S.reader=null;loadHome().then(render)}
 async function loadAdmin(){const {data,error}=await sb.rpc('library_admin_bootstrap_v2');if(error||!data?.ok)throw new Error(error?.message||data?.message||'โหลด Library Studio ไม่สำเร็จ');S.adminData=data;S.selected.clear()}
 function adminHtml(){const d=S.adminData,s=d?.stats||{};return `${topHtml()}<main class="admin"><div class="admin-hero"><div><div class="admin-kicker">AREWARIN LIBRARY STUDIO</div><h1>จัดการห้องสมุด</h1><p>หนังสือ หมวดหมู่ Collection สิทธิ์ตามคอร์ส Import และสถิติการใช้งาน</p></div><div style="display:flex;gap:7px"><button class="btn" id="backLibrary"><i class="fa-solid fa-arrow-left"></i> กลับหน้าห้องสมุด</button><button class="btn primary" data-admin-new-book><i class="fa-solid fa-plus"></i> เพิ่มหนังสือ</button></div></div><div class="kpis">${[['หนังสือทั้งหมด',s.total||0],['Published',s.published||0],['Draft',s.draft||0],['NEW',s.new_count||0],['ไม่มีปก',s.no_cover||0],['เปิดอ่าน 30 วัน',s.reads_30d||0]].map(x=>`<div class="kpi"><span>${x[0]}</span><b>${money(x[1])}</b></div>`).join('')}</div><nav class="admin-tabs">${[['dashboard','Dashboard','fa-chart-line'],['books','หนังสือ','fa-book'],['categories','หมวดหมู่','fa-folder-tree'],['collections','Collections','fa-layer-group'],['import','Excel Import','fa-file-excel'],['requests','คำขอหนังสือ','fa-book-medical'],['covers','Cover Library','fa-images'],['audit','Audit Log','fa-clock-rotate-left'],['settings','Settings','fa-gear']].map(([k,l,i])=>`<button data-admin-tab="${k}" class="${S.adminTab===k?'active':''}"><i class="fa-solid ${i}"></i> ${l}${k==='requests'&&s.requests_pending?` (${s.requests_pending})`:''}</button>`).join('')}</nav><div id="adminPanel">${adminPanelHtml()}</div></main>`}
 function adminPanelHtml(){switch(S.adminTab){case'books':return adminBooksHtml();case'categories':return adminCategoriesHtml();case'collections':return adminCollectionsHtml();case'import':return adminImportHtml();case'requests':return adminRequestsHtml();case'covers':return adminCoversHtml();case'audit':return adminAuditHtml();case'settings':return adminSettingsHtml();default:return adminDashboardHtml()}}
@@ -486,7 +906,7 @@ function render(){app.innerHTML=S.admin?adminHtml():catalogHtml();S.admin?bindAd
 async function logout(){await sb.auth.signOut({scope:'local'});S.session=null;S.me=null;S.admin=false;S.signupMatch=null;S.mode='login';app.innerHTML=authHtml();bindAuth()}
 async function boot(){const {data}=await sb.auth.getSession();S.session=data.session;if(S.session){try{await bootSigned()}catch(e){app.innerHTML=authHtml();bindAuth();Swal.fire('เข้าใช้งานไม่ได้',e.message,'error')}}else{app.innerHTML=authHtml();bindAuth()}sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT'){S.session=null;app.innerHTML=authHtml();bindAuth()}})}
 boot();
-console.log('[AreWarin Library V2.5] Smart external cover + PDF first-page fallback loaded');
+console.log('[AreWarin Library V2.6] Google Drive / OneDrive / Dropbox inline reader loaded');
 </script>
 </body>
 </html>
