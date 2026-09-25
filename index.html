@@ -6653,6 +6653,49 @@
             </div>`;
         }
 
+
+        function awv269StatusScrollHost(){
+            return document.querySelector('.swal2-html-container') || document.querySelector('.swal2-popup');
+        }
+
+        function awv269ShowInlineSuccess(data,code){
+            const msg=document.getElementById('awLateDiscountMsg');
+            if(msg){
+                msg.className='text-[8.5px] text-emerald-600 mt-2 min-h-[12px] font-bold';
+                msg.innerHTML=`<i class="fas fa-circle-check mr-1"></i>ใช้ ${awStatusEscape(data?.promotion_name||code)} สำเร็จ · ลด ${awv269Money(data?.discount_amount)} บาท · ยอดใหม่ ${awv269Money(data?.amount)} บาท`;
+            }
+
+            const box=document.getElementById('awLatePayBox');
+            if(box){
+                const old=document.getElementById('awLateDiscountFlash');
+                old?.remove();
+
+                const flash=document.createElement('div');
+                flash.id='awLateDiscountFlash';
+                flash.className='mb-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 flex items-start gap-2.5 shadow-sm';
+                flash.innerHTML=`
+                    <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white grid place-items-center flex-shrink-0"><i class="fas fa-check"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[10px] font-extrabold text-emerald-800">ใช้ส่วนลดเรียบร้อย</p>
+                        <p class="text-[8.5px] text-emerald-700 mt-0.5 leading-relaxed">
+                            ${awStatusEscape(data?.promotion_name||code)} · ลด ${awv269Money(data?.discount_amount)} บาท · ยอดชำระใหม่ <b>${awv269Money(data?.amount)} บาท</b>
+                        </p>
+                    </div>`;
+                box.prepend(flash);
+
+                window.clearTimeout(window.__awLateDiscountFlashTimer);
+                window.__awLateDiscountFlashTimer=window.setTimeout(()=>{
+                    const current=document.getElementById('awLateDiscountFlash');
+                    if(current){
+                        current.style.transition='opacity .25s ease,transform .25s ease';
+                        current.style.opacity='0';
+                        current.style.transform='translateY(-4px)';
+                        window.setTimeout(()=>current.remove(),260);
+                    }
+                },4500);
+            }
+        }
+
         function awv269BindLateDiscount(info,phone,receiptNo){
             const input=document.getElementById('awLateDiscountCode');
             const btn=document.getElementById('awLateDiscountApplyBtn');
@@ -6689,19 +6732,21 @@
                     if(error)throw error;
                     if(!data?.ok)throw new Error(data?.message||'ไม่สามารถใช้ส่วนลดได้');
 
-                    await Swal.fire({
-                        icon:'success',
-                        title:'ใช้ส่วนลดเรียบร้อย',
-                        html:`<div class="text-sm text-slate-600 leading-relaxed">
-                            <b>${awStatusEscape(data.promotion_name||code)}</b><br>
-                            ลด ${awv269Money(data.discount_amount)} บาท<br>
-                            ยอดใหม่ <b class="text-emerald-600">${awv269Money(data.amount)} บาท</b>
-                        </div>`,
-                        confirmButtonText:'ตกลง',
-                        confirmButtonColor:'#0ea5e9'
-                    });
+                    // V26.9.6:
+                    // Do NOT open a second SweetAlert here.
+                    // The status page itself is already a SweetAlert popup; opening a new
+                    // one replaces it and forces the student to search the phone again.
+                    const scrollHost=awv269StatusScrollHost();
+                    const scrollTop=scrollHost?.scrollTop||0;
+                    const statusReceipt=receiptNo||info?.receipt_no||'';
 
-                    await awv266LoadLatePaymentInfo(phone,receiptNo||info?.receipt_no||'');
+                    await awv266LoadLatePaymentInfo(phone,statusReceipt);
+
+                    requestAnimationFrame(()=>{
+                        const host=awv269StatusScrollHost();
+                        if(host)host.scrollTop=scrollTop;
+                        awv269ShowInlineSuccess(data,code);
+                    });
                 }catch(err){
                     console.error('[AreWarin Register V26.9.1] late discount failed',err);
                     const raw=String(err?.message||'');
@@ -6713,9 +6758,11 @@
                     if(msg){msg.className='text-[8px] text-rose-500 mt-2 min-h-[12px]';msg.textContent=message;}
                     Swal.fire('ใช้ส่วนลดไม่ได้',message,'warning');
                 }finally{
-                    btn.disabled=false;
-                    input.disabled=false;
-                    btn.innerHTML=old;
+                    if(btn?.isConnected){
+                        btn.disabled=false;
+                        btn.innerHTML=old;
+                    }
+                    if(input?.isConnected)input.disabled=false;
                 }
             };
 
@@ -6959,13 +7006,21 @@
                         throw new Error(finish.data?.message||'บันทึกสลิปไม่สำเร็จ');
                     }
 
-                    await Swal.fire({
-                        icon:'success',
-                        title:'ส่งสลิปเรียบร้อย',
-                        html:'<p class="text-sm text-slate-600">ทีมงานได้รับหลักฐานการชำระแล้ว<br>กรุณารอการตรวจสอบยอด</p>',
-                        confirmButtonText:'ตกลง'
-                    });
+                    // Keep the existing status popup open; a nested Swal would replace it.
+                    const scrollHost=awv269StatusScrollHost();
+                    const scrollTop=scrollHost?.scrollTop||0;
                     await awv266LoadLatePaymentInfo(phone,receiptNo||info?.receipt_no||'');
+                    requestAnimationFrame(()=>{
+                        const host=awv269StatusScrollHost();
+                        if(host)host.scrollTop=scrollTop;
+                        const box=document.getElementById('awLatePayBox');
+                        if(box){
+                            const flash=document.createElement('div');
+                            flash.className='mb-3 rounded-2xl border border-sky-200 bg-sky-50 px-3.5 py-3 flex items-start gap-2.5';
+                            flash.innerHTML='<div class="w-8 h-8 rounded-xl bg-sky-500 text-white grid place-items-center flex-shrink-0"><i class="fas fa-file-circle-check"></i></div><div><p class="text-[10px] font-extrabold text-sky-800">ส่งสลิปเรียบร้อย</p><p class="text-[8.5px] text-sky-700 mt-0.5">ทีมงานได้รับหลักฐานแล้ว กรุณารอการตรวจสอบยอด</p></div>';
+                            box.prepend(flash);
+                        }
+                    });
                 }catch(err){
                     console.error('[AreWarin Register V26.7] slip upload failed',err);
                     Swal.fire('อัปโหลดสลิปไม่สำเร็จ',err?.message||String(err),'error');
@@ -8636,7 +8691,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script id="aw-v268-banner-autoplay-runtime">
 (()=>{
-  console.info('[AreWarin Register V26.9.1] Late discount always-visible fix loaded');
+  console.info('[AreWarin Register V26.9.6] Late discount stay-on-status fix loaded');
 
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden) return;
