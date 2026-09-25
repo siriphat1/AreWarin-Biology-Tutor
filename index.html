@@ -6569,8 +6569,157 @@
             </div>`;
         }
 
+
+        function awv269Money(value){
+            return Number(value||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
+        }
+
+        function awv269LateDiscountHTML(info){
+            const paid=String(info?.payment_status||'').toLowerCase()==='paid' || !!info?.paid;
+            const submitted=!!info?.slip_submitted && String(info?.payment_status||'').toLowerCase()==='pending';
+            const canApply=!!info?.can_apply_discount && !paid && !submitted;
+            const code=String(info?.promotion_code||'').trim().toUpperCase();
+            const name=String(info?.promotion_name||'').trim();
+            const desc=String(info?.promotion_description||'').trim();
+            const image=String(info?.promotion_image_url||'').trim();
+            const discount=Number(info?.discount_amount||0);
+            const base=Number(info?.base_amount||info?.amount||0);
+            const finalAmount=Number(info?.amount||0);
+            const lockedReason=String(info?.discount_locked_reason||'').trim();
+            const hasDiscount=discount>0 && code;
+
+            const applied=hasDiscount?`
+                <div class="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
+                    ${image?`<div class="h-[120px] overflow-hidden bg-slate-100"><img src="${awStatusEscape(image)}" alt="Promotion" class="w-full h-full object-cover" loading="lazy"></div>`:''}
+                    <div class="p-3.5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[8px] font-extrabold"><i class="fas fa-ticket mr-1"></i>${awStatusEscape(code)}</span>
+                                <p class="text-[11px] font-extrabold text-slate-800 mt-2">${awStatusEscape(name||'ใช้ส่วนลดแล้ว')}</p>
+                                ${desc?`<p class="text-[8.5px] text-slate-500 mt-1 leading-relaxed">${awStatusEscape(desc)}</p>`:''}
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <p class="text-[8px] text-slate-400 font-bold">ส่วนลด</p>
+                                <p class="text-[17px] font-extrabold text-emerald-600 mt-0.5">-${awv269Money(discount)} ฿</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <div class="rounded-xl bg-white/80 border border-emerald-100 px-3 py-2">
+                                <p class="text-[7.5px] text-slate-400 font-bold uppercase">ราคาก่อนลด</p>
+                                <p class="text-[10px] text-slate-500 line-through mt-0.5">${awv269Money(base)} บาท</p>
+                            </div>
+                            <div class="rounded-xl bg-white/80 border border-emerald-100 px-3 py-2">
+                                <p class="text-[7.5px] text-slate-400 font-bold uppercase">ยอดใหม่</p>
+                                <p class="text-[11px] font-extrabold text-emerald-700 mt-0.5">${awv269Money(finalAmount)} บาท</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>`:'';
+
+            const form=canApply?`
+                <div class="rounded-2xl border border-sky-200 bg-sky-50/60 p-3.5">
+                    <div class="flex items-start gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500 text-white grid place-items-center flex-shrink-0"><i class="fas fa-ticket"></i></div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[10px] font-extrabold text-slate-800">${hasDiscount?'เปลี่ยนโค้ดส่วนลด':'มีโค้ดส่วนลด?'}</p>
+                            <p class="text-[8px] text-slate-500 mt-0.5 leading-relaxed">ใช้โค้ดโปรโมชั่นได้ก่อนส่งสลิป ระบบจะคำนวณยอดและสร้าง QR ใหม่ให้อัตโนมัติ</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-[1fr_auto] gap-2 mt-3">
+                        <input id="awLateDiscountCode" type="text" maxlength="64" autocomplete="off" value="${hasDiscount?awStatusEscape(code):''}" placeholder="กรอกโค้ดส่วนลด" class="min-h-[43px] rounded-xl border border-sky-200 bg-white px-3 text-[10px] font-extrabold uppercase tracking-wider outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100">
+                        <button type="button" id="awLateDiscountApplyBtn" class="min-h-[43px] rounded-xl bg-sky-500 hover:bg-sky-600 text-white px-4 text-[9px] font-extrabold transition whitespace-nowrap">
+                            <i class="fas fa-check mr-1"></i>${hasDiscount?'เปลี่ยนโค้ด':'ใช้โค้ด'}
+                        </button>
+                    </div>
+                    <div id="awLateDiscountMsg" class="text-[8px] text-slate-400 mt-2 min-h-[12px]"></div>
+                </div>`:
+                (lockedReason && !paid?`
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 flex items-start gap-2">
+                        <i class="fas fa-lock text-slate-400 text-[9px] mt-0.5"></i>
+                        <p class="text-[8.5px] text-slate-500 leading-relaxed">${awStatusEscape(lockedReason)}</p>
+                    </div>`:'');
+
+            if(!applied && !form) return '';
+            return `<div class="mb-4 space-y-2.5">
+                <div class="flex items-center justify-between gap-3">
+                    <p class="text-[10px] font-extrabold text-slate-700"><i class="fas fa-percent text-sky-500 mr-1.5"></i>ส่วนลด</p>
+                    <span class="text-[8px] text-slate-400">ตรวจสอบจากระบบโปรโมชั่น</span>
+                </div>
+                ${applied}
+                ${form}
+            </div>`;
+        }
+
+        function awv269BindLateDiscount(info,phone,receiptNo){
+            const input=document.getElementById('awLateDiscountCode');
+            const btn=document.getElementById('awLateDiscountApplyBtn');
+            const msg=document.getElementById('awLateDiscountMsg');
+            if(!input||!btn)return;
+
+            const apply=async()=>{
+                const code=String(input.value||'').trim().toUpperCase();
+                input.value=code;
+                if(!code){
+                    if(msg){msg.className='text-[8px] text-amber-600 mt-2 min-h-[12px]';msg.textContent='กรุณากรอกโค้ดส่วนลด';}
+                    input.focus();
+                    return;
+                }
+
+                const sb=window.AreWarinAPI?.sb;
+                if(!sb?.rpc){
+                    Swal.fire('ระบบยังไม่พร้อม','ไม่พบการเชื่อมต่อ Supabase','error');
+                    return;
+                }
+
+                const old=btn.innerHTML;
+                try{
+                    btn.disabled=true;
+                    input.disabled=true;
+                    btn.innerHTML='<i class="fas fa-circle-notch fa-spin mr-1"></i>ตรวจสอบ';
+                    if(msg){msg.className='text-[8px] text-slate-400 mt-2 min-h-[12px]';msg.textContent='กำลังตรวจสอบโปรโมชั่น...';}
+
+                    const {data,error}=await sb.rpc('public_v269_apply_late_discount',{
+                        p_phone:awStatusNormalizePhone(phone),
+                        p_receipt_no:receiptNo||info?.receipt_no||null,
+                        p_code:code
+                    });
+                    if(error)throw error;
+                    if(!data?.ok)throw new Error(data?.message||'ไม่สามารถใช้ส่วนลดได้');
+
+                    await Swal.fire({
+                        icon:'success',
+                        title:'ใช้ส่วนลดเรียบร้อย',
+                        html:`<div class="text-sm text-slate-600 leading-relaxed">
+                            <b>${awStatusEscape(data.promotion_name||code)}</b><br>
+                            ลด ${awv269Money(data.discount_amount)} บาท<br>
+                            ยอดใหม่ <b class="text-emerald-600">${awv269Money(data.amount)} บาท</b>
+                        </div>`,
+                        confirmButtonText:'ตกลง',
+                        confirmButtonColor:'#0ea5e9'
+                    });
+
+                    await awv266LoadLatePaymentInfo(phone,receiptNo||info?.receipt_no||'');
+                }catch(err){
+                    console.error('[AreWarin Register V26.9] late discount failed',err);
+                    if(msg){msg.className='text-[8px] text-rose-500 mt-2 min-h-[12px]';msg.textContent=err?.message||String(err);}
+                    Swal.fire('ใช้ส่วนลดไม่ได้',err?.message||String(err),'warning');
+                }finally{
+                    btn.disabled=false;
+                    input.disabled=false;
+                    btn.innerHTML=old;
+                }
+            };
+
+            btn.addEventListener('click',apply);
+            input.addEventListener('keydown',e=>{
+                if(e.key==='Enter'){e.preventDefault();apply();}
+            });
+        }
+
         function awv266LatePayHTML(info) {
             const amount=Number(info?.amount||0);
+            const baseAmount=Number(info?.base_amount||amount);
+            const lateDiscount=Number(info?.discount_amount||0);
             const promptpay=String(info?.promptpay_id||PROMPTPAY||'').replace(/\D/g,'');
             const expected=awv266FormatDate(info?.expected_payment_date);
             const qrUrl='https://promptpay.io/'+encodeURIComponent(promptpay)+'/'+amount.toFixed(2);
@@ -6660,6 +6809,7 @@
                 </div>
 
                 <div class="p-4">
+                    ${awv269LateDiscountHTML(info)}
                     ${!paid?`<div class="grid md:grid-cols-[210px_1fr] gap-4 items-center">
                         <div class="mx-auto">
                             <div class="w-[205px] h-[205px] bg-white rounded-[1.5rem] border border-slate-200 p-2.5 shadow-inner relative">
@@ -6672,7 +6822,9 @@
                         <div class="space-y-2.5">
                             <div class="rounded-2xl bg-slate-900 text-white p-4">
                                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">ยอดที่ต้องชำระ</p>
-                                <p class="text-3xl font-extrabold tracking-tight mt-1">${amount.toLocaleString('th-TH')}<span class="text-[10px] text-slate-300 ml-1">บาท</span></p>
+                                ${lateDiscount>0?`<p class="text-[9px] text-slate-500 line-through mt-1">${awv269Money(baseAmount)} บาท</p>`:''}
+                                <p class="text-3xl font-extrabold tracking-tight ${lateDiscount>0?'mt-0.5':'mt-1'}">${awv269Money(amount)}<span class="text-[10px] text-slate-300 ml-1">บาท</span></p>
+                                ${lateDiscount>0?`<p class="text-[8px] font-bold text-emerald-400 mt-1"><i class="fas fa-ticket mr-1"></i>ประหยัด ${awv269Money(lateDiscount)} บาท</p>`:''}
                             </div>
                             <div class="rounded-xl bg-white border border-slate-100 px-3 py-2.5">
                                 <p class="text-[8px] text-slate-400 font-bold uppercase">PromptPay</p>
@@ -6840,6 +6992,7 @@
                 }
 
                 box.innerHTML=awv266LatePayHTML(info);
+                awv269BindLateDiscount(info,phone,receiptNo||info?.receipt_no||'');
                 awv267BindSlipUpload(info,phone,receiptNo||info?.receipt_no||'');
             }catch(err){
                 console.warn('[AreWarin Register V26.6] late status QR unavailable',err);
@@ -8469,7 +8622,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <script id="aw-v268-banner-autoplay-runtime">
 (()=>{
-  console.info('[AreWarin Register V26.8] Banner autoplay fix loaded');
+  console.info('[AreWarin Register V26.9] Late payment discount + Banner autoplay loaded');
 
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden) return;
