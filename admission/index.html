@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบรับสมัครนักเรียน โรงเรียนวัดหนองแวงวิทยา</title>
+    
+    <meta property="og:title" content="ระบบรับสมัครนักเรียนใหม่ โรงเรียนวัดหนองแวงวิทยา (พระปริยัติธรรม)">
+    <meta property="og:type" content="website">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Supabase: ใช้ฐานข้อมูล/ข้อมูลเว็บหลักเดียวกัน -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/app-config.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            background-color: #fff7ed; /* orange-50 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(38, 100%, 80%, 0.4) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(24, 100%, 80%, 0.4) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(15, 100%, 80%, 0.4) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        /* Glassmorphism & Layout */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9); 
+            box-shadow: 0 25px 50px -12px rgba(234, 88, 12, 0.15); 
+            position: relative; 
+            z-index: 10; 
+        }
+        
+        button, .cursor-pointer, .bento-item {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        button:active, .cursor-pointer:active {
+            transform: scale(0.97);
+        }
+        
+        /* Animations & Interactions */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; } 
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; } 
+        .custom-scroll::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 10px; }
+        
+        .step-content { display: none; opacity: 0; animation: fadeScaleUp 0.4s ease-out forwards; }
+        .step-content.active { display: block; opacity: 1; }
+        
+        .input-pastel { 
+            background: #fffaf5; 
+            border: 2px solid #fed7aa; 
+            transition: all 0.3s ease; 
+            font-weight: 400; 
+            color: #431407;
+        }
+        .input-pastel:focus { 
+            background: #fff; 
+            border-color: #f97316; /* orange-500 */
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15); 
+            outline: none; 
+            transform: translateY(-1px);
+        }
+        .input-pastel::placeholder { color: #fdba74; font-weight: 300; }
+        .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; animation: shake 0.3s; }
+        .input-success { border-color: #10b981 !important; background-color: #f0fdf4 !important; }
+
+        @keyframes fadeScaleUp { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        @keyframes floatBg { 0% { transform: translate(0, 0); } 100% { transform: translate(15px, 15px); } }
+
+        .float-shape { position: absolute; border-radius: 50%; filter: blur(60px); z-index: -1; opacity: 0.4; animation: floatBg 8s infinite alternate; }
+
+        .file-drop-area {
+            border: 2px dashed #fed7aa;
+            transition: all 0.3s ease;
+        }
+        .file-drop-area:hover, .file-drop-area.dragover {
+            border-color: #f97316;
+            background-color: #fff7ed;
+        }
+
+        /* Bento Grid Specific */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+        }
+        @media (min-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: 160px;
+            }
+        }
+        .bento-item {
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            border: 1px solid rgba(251, 146, 60, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .bento-item:hover {
+            box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Admin Table Styles */
+        .admin-table-container { max-height: 400px; overflow-y: auto; }
+        .admin-table th { position: sticky; top: 0; background-color: #f8fafc; z-index: 1; }
+
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white; }
+            .glass-card { box-shadow: none; border: none; background: white; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 pt-8 md:p-6 md:pt-10 pb-20">
+
+    <div id="mainContainer" class="w-full max-w-4xl glass-card rounded-[2.5rem] relative overflow-hidden transition-all duration-500">
+        
+        <!-- Floating Avatar (Persists across steps after uploaded) -->
+        <div id="floatingAvatar" class="hidden absolute top-4 right-4 md:top-6 md:right-6 z-50 animate-fade-in no-print">
+            <div class="w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-orange-100 flex items-center justify-center relative group">
+                <img id="avatarPreview" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer" onclick="showStep('stepPhoto')">
+                    <i class="fas fa-pen text-white text-xs md:text-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-orange-100/50 h-2 w-full no-print" id="progressContainer">
+            <div id="progressBar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-2 w-0 transition-all duration-500 ease-out rounded-r-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
+        </div>
+
+        <form id="admissionForm" class="relative p-0">
+            
+            <!-- Step 1: Welcome Page (Bento Grid) -->
+            <div id="step1" class="step-content active p-0 md:p-4">
+                <div class="bento-grid">
+                    
+                    <!-- Main Hero (Spans 2 cols, 2 rows) -->
+                    <div class="bento-item md:col-span-2 md:row-span-2 bg-gradient-to-br from-orange-600 to-amber-600 text-white flex flex-col justify-center p-6 md:p-8 min-h-[340px] md:min-h-full group">
+                        <img id="admissionHeroImage" src="https://images.unsplash.com/photo-1540968221243-29f5d7044087?q=80&w=2070&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30 transition-transform duration-[10s] group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-orange-900/90 via-orange-900/40 to-transparent"></div>
+                        
+                        <div class="relative z-10">
+                            <span class="inline-block bg-white/20 text-white border border-white/30 px-3 py-1 rounded-full text-[10px] font-bold mb-3 backdrop-blur-sm tracking-wider uppercase">Admission 2569</span>
+                            <h1 id="admissionSchoolName" class="text-3xl md:text-5xl font-bold mb-2 leading-tight">โรงเรียนวัดหนองแวงวิทยา</h1>
+                            <p class="text-orange-200 font-medium text-sm md:text-base mb-1">โรงเรียนพระปริยัติธรรม แผนกสามัญศึกษา</p>
+                            <p class="text-white/80 font-light text-xs md:text-sm mb-6">"ความรู้คู่คุณธรรม นำพระพุทธศาสนา"</p>
+                            
+                            <button type="button" onclick="showStep('step2')" class="bg-white text-orange-600 hover:bg-orange-50 font-bold py-3.5 px-8 rounded-full shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 w-max">
+                                สมัครเรียน <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Logo Cell -->
+                    <div class="bento-item md:col-span-1 md:row-span-1 bg-white flex flex-col justify-center items-center text-center p-6 border-orange-100 shadow-sm hover:border-orange-300">
+                        <div class="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center mb-2 overflow-hidden p-1">
+                            <img id="admissionSchoolLogo" src="https://img5.pic.in.th/file/secure-sv1/Screenshot_2026-03-05_230255-removebg-preview.png" alt="โลโก้โรงเรียน" class="w-full h-full object-contain drop-shadow-md hover:scale-110 transition-transform duration-300">
+                        </div>
+                    </div>
+
+                    <!-- Check Status Cell -->
+                    <div class="bento-item md:col-span-1 md:row-span-1 bg-white flex flex-col justify-center items-center p-6 border-orange-100 hover:border-orange-300 cursor-pointer" onclick="checkStatus()">
+                        <div class="w-12 h-12 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mb-3 text-xl">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 class="text-slate-700 font-bold">ตรวจสอบสถานะ</h3>
+                        <p class="text-[10px] text-slate-400 mt-1">พิมพ์ใบสมัคร / เช็คผลสอบ</p>
+                    </div>
+
+                    <!-- Feature 1 -->
+                    <div class="bento-item md:col-span-1 md:row-span-1 bg-orange-500 text-white flex flex-col justify-center items-center p-6 text-center group">
+                        <i class="fas fa-book-reader text-3xl mb-2 opacity-80 group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-sm">ปริยัติเข้มข้น</h3>
+                        <p class="text-[10px] text-orange-200 mt-1">ศึกษาพระธรรมวินัยและบาลี</p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bento-item md:col-span-1 md:row-span-1 bg-amber-400 text-amber-900 flex flex-col justify-center items-center p-6 text-center group">
+                        <i class="fas fa-laptop-code text-3xl mb-2 opacity-80 group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-sm">สามัญทันสมัย</h3>
+                        <p class="text-[10px] text-amber-800/80 mt-1">บูรณาการวิชาการยุคใหม่</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bento-item md:col-span-1 md:row-span-1 bg-white border-2 border-orange-100 flex flex-col justify-center items-center p-6 text-center group">
+                        <i class="fas fa-leaf text-3xl mb-2 text-orange-400 group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-slate-700 text-sm">จริยวัตรงดงาม</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">ขัดเกลาจิตใจตามวิถีพุทธ</p>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="bento-item md:col-span-3 bg-white border border-orange-100 p-6 flex flex-col md:flex-row items-center justify-between gap-4 text-left">
+                        <div class="flex items-center gap-4 flex-1 w-full">
+                            <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center text-xl flex-shrink-0"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm">ที่อยู่</p>
+                                <p id="admissionSchoolAddress" class="text-xs text-slate-500 leading-relaxed">593 ถ.กลางเมือง ต.ในเมือง อ.เมืองขอนแก่น จ.ขอนแก่น 40000</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 flex-1 w-full">
+                            <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center text-xl flex-shrink-0"><i class="fas fa-phone-alt"></i></div>
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm">ติดต่อสอบถาม</p>
+                                <p id="admissionSchoolPhone" class="text-xs text-slate-500">โทร: 043-320-171</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">จ.-ศ. 08:00-16:00</p>
+                            </div>
+                        </div>
+                        <a id="admissionFacebookLink" href="https://www.facebook.com/profile.php?id=100063745052570" target="_blank" class="w-full md:w-auto bg-[#1877F2] hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition font-bold text-sm shadow-md mt-2 md:mt-0">
+                            <i class="fab fa-facebook-square text-lg"></i> Facebook โรงเรียน
+                        </a>
+                    </div>
+
+                    <!-- Admin Access Button -->
+                    <div class="bento-item md:col-span-3 bg-slate-800 text-white flex justify-between items-center p-4 cursor-pointer hover:bg-slate-900 transition border-slate-700" onclick="window.location.href='./manager/'">
+                        <div class="flex items-center gap-3 pl-2">
+                            <i class="fas fa-user-shield text-xl text-slate-400"></i>
+                            <div class="text-left">
+                                <h3 class="font-bold text-sm">ระบบเจ้าหน้าที่รับสมัคร (Admin)</h3>
+                                <p class="text-[10px] text-slate-400">ตรวจใบสมัคร อนุมัติ ดูเอกสาร และพิมพ์ใบสมัคร</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-500 hidden md:block pr-4"></i>
+                    </div>
+
+                    <a href="../" class="bento-item md:col-span-3 bg-white text-slate-600 flex justify-center items-center p-3 hover:text-orange-600 border-orange-100 text-xs font-bold no-print">
+                        <i class="fas fa-arrow-left mr-2"></i> กลับเว็บไซต์หลักของโรงเรียน
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Step 2: Policy & PDPA -->
+            <div id="step2" class="step-content p-6 md:p-10">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">ระเบียบการรับสมัคร 📝</h2>
+                <div class="bg-orange-50/50 p-6 rounded-[2rem] border border-orange-100 h-80 overflow-y-auto custom-scroll mb-6 text-sm text-slate-700 space-y-4">
+                    <h3 class="font-bold text-orange-600 text-base"><i class="fas fa-info-circle"></i> คุณสมบัติผู้สมัคร</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>เป็นเยาวชนชายที่ผ่านการบรรพชาเป็นสามเณรแล้ว หรือมีความตั้งใจที่จะบรรพชา</li>
+                        <li><strong>ระดับ ม.ต้น (ม.1 - ม.3):</strong> สำเร็จการศึกษาชั้นประถมศึกษาปีที่ 6 หรือเทียบเท่า</li>
+                        <li><strong>ระดับ ม.ปลาย (ม.4 - ม.6):</strong> สำเร็จการศึกษาชั้นมัธยมศึกษาปีที่ 3 หรือเทียบเท่า</li>
+                        <li>มีความประพฤติเรียบร้อย มีความศรัทธาในพระพุทธศาสนา และปฏิบัติตามกฎระเบียบของโรงเรียนและวัดได้</li>
+                    </ul>
+
+                    <h3 class="font-bold text-orange-600 text-base mt-4"><i class="fas fa-file-alt"></i> เอกสารที่ต้องเตรียมอัปโหลด</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>รูปถ่ายหน้าตรง 1.5 นิ้ว ห่มจีวร หรือชุดนักเรียน (กรณีเตรียมบรรพชา) ถ่ายไม่เกิน 6 เดือน</li>
+                        <li>สำเนาผลการเรียน (ปพ.1) หรือ ใบรับรองการเป็นนักเรียน (ปพ.7)</li>
+                        <li>สำเนาใบสุทธิ (สำหรับผู้ที่บรรพชาแล้ว) หรือ สำเนาบัตรประจำตัวประชาชน</li>
+                        <li>สำเนาใบ ปพ.2</li>
+                        <li>สำเนาทะเบียนบ้าน</li>
+                        <li>ใบประกาศนียบัตรนักธรรม (ถ้ามี)</li>
+                    </ul>
+
+                    <div class="bg-amber-100/50 border border-amber-200 p-4 rounded-2xl mt-4">
+                        <strong class="text-amber-700"><i class="fas fa-exclamation-triangle"></i> คำเตือน</strong>
+                        <p class="text-amber-700 mt-1">ผู้สมัครต้องกรอกข้อมูลที่เป็นความจริงทุกประการ หากตรวจพบว่าข้อมูลหรือเอกสารเป็นเท็จ โรงเรียนขอสงวนสิทธิ์ในการยกเลิกการรับสมัครทันที</p>
+                    </div>
+                </div>
+                <!-- Updated PDPA Checkbox -->
+                <label class="flex items-start space-x-3 p-5 bg-white border-2 border-orange-100 rounded-2xl cursor-pointer hover:border-orange-400 transition shadow-sm">
+                    <input type="checkbox" id="pdpaCheck" class="w-5 h-5 text-orange-500 rounded focus:ring-orange-400 mt-0.5">
+                    <span class="text-slate-700 font-medium text-sm">ข้าพเจ้าขอยินยอมให้โรงเรียนวัดหนองแวงวิทยา เก็บรวบรวม ใช้ และประมวลผลข้อมูลส่วนบุคคลของข้าพเจ้า เพื่อการดำเนินการในระบบรับสมัครเรียน ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) และพระราชบัญญัติการศึกษา รวมถึงขอรับรองว่าข้อมูลที่จะกรอกเป็นความจริงทุกประการ</span>
+                </label>
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="showStep('step1')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStep2()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">รับทราบและดำเนินการต่อ</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Level -->
+            <div id="step3" class="step-content p-6 md:p-10 text-center">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">เลือกระดับชั้นที่ต้องการสมัคร 🎓</h2>
+                <p class="text-slate-500 text-sm mb-8">ปีการศึกษา 2569</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Section: มัธยมศึกษาตอนต้น -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-seedling text-emerald-500"></i>
+                            <h3 class="font-bold text-slate-700 text-left">มัธยมศึกษาตอนต้น</h3>
+                        </div>
+                        <label class="cursor-pointer group block">
+                            <input type="radio" name="admissionLevel" value="m1" class="peer sr-only" onchange="selectLevel('m1', 'มัธยมศึกษาปีที่ 1')">
+                            <div class="bg-gradient-to-br from-orange-500 to-amber-500 border border-orange-600 p-6 rounded-[2rem] hover:shadow-xl peer-checked:ring-4 peer-checked:ring-orange-300 peer-checked:shadow-2xl transition-all text-white relative overflow-hidden flex items-center justify-between">
+                                <div class="relative z-10 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold backdrop-blur-sm">1</div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-xl">มัธยมศึกษาปีที่ 1</h3>
+                                        <p class="text-orange-100 text-sm">รับผู้จบ ป.6</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-check-circle text-3xl text-white opacity-0 peer-checked:opacity-100 transition relative z-10"></i>
+                                <i class="fas fa-award absolute -right-4 -bottom-4 text-7xl text-white opacity-10"></i>
+                            </div>
+                        </label>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer group h-full">
+                                <input type="radio" name="admissionLevel" value="m2" class="peer sr-only" onchange="selectLevel('m2', 'มัธยมศึกษาปีที่ 2')">
+                                <div class="bg-white border-2 border-orange-100 p-4 rounded-2xl hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-center relative h-full flex flex-col items-center justify-center">
+                                    <span class="font-bold text-slate-700 text-lg group-hover:text-orange-600">ม.2</span>
+                                    <div class="absolute top-2 right-2 text-orange-500 opacity-0 peer-checked:opacity-100"><i class="fas fa-check-circle"></i></div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer group h-full">
+                                <input type="radio" name="admissionLevel" value="m3" class="peer sr-only" onchange="selectLevel('m3', 'มัธยมศึกษาปีที่ 3')">
+                                <div class="bg-white border-2 border-orange-100 p-4 rounded-2xl hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-center relative h-full flex flex-col items-center justify-center">
+                                    <span class="font-bold text-slate-700 text-lg group-hover:text-orange-600">ม.3</span>
+                                    <div class="absolute top-2 right-2 text-orange-500 opacity-0 peer-checked:opacity-100"><i class="fas fa-check-circle"></i></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section: มัธยมศึกษาตอนปลาย -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-tree text-emerald-600"></i>
+                            <h3 class="font-bold text-slate-700 text-left">มัธยมศึกษาตอนปลาย</h3>
+                        </div>
+                        <label class="cursor-pointer group block">
+                            <input type="radio" name="admissionLevel" value="m4" class="peer sr-only" onchange="selectLevel('m4', 'มัธยมศึกษาปีที่ 4')">
+                            <div class="bg-gradient-to-br from-amber-500 to-yellow-500 border border-amber-600 p-6 rounded-[2rem] hover:shadow-xl peer-checked:ring-4 peer-checked:ring-amber-300 peer-checked:shadow-2xl transition-all text-white relative overflow-hidden flex items-center justify-between">
+                                <div class="relative z-10 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold backdrop-blur-sm">4</div>
+                                    <div class="text-left">
+                                        <h3 class="font-bold text-xl">มัธยมศึกษาปีที่ 4</h3>
+                                        <p class="text-amber-100 text-sm">รับผู้จบ ม.3</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-check-circle text-3xl text-white opacity-0 peer-checked:opacity-100 transition relative z-10"></i>
+                                <i class="fas fa-graduation-cap absolute -right-4 -bottom-4 text-7xl text-white opacity-10"></i>
+                            </div>
+                        </label>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer group h-full">
+                                <input type="radio" name="admissionLevel" value="m5" class="peer sr-only" onchange="selectLevel('m5', 'มัธยมศึกษาปีที่ 5')">
+                                <div class="bg-white border-2 border-orange-100 p-4 rounded-2xl hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-center relative h-full flex flex-col items-center justify-center">
+                                    <span class="font-bold text-slate-700 text-lg group-hover:text-orange-600">ม.5</span>
+                                    <div class="absolute top-2 right-2 text-orange-500 opacity-0 peer-checked:opacity-100"><i class="fas fa-check-circle"></i></div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer group h-full">
+                                <input type="radio" name="admissionLevel" value="m6" class="peer sr-only" onchange="selectLevel('m6', 'มัธยมศึกษาปีที่ 6')">
+                                <div class="bg-white border-2 border-orange-100 p-4 rounded-2xl hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all text-center relative h-full flex flex-col items-center justify-center">
+                                    <span class="font-bold text-slate-700 text-lg group-hover:text-orange-600">ม.6</span>
+                                    <div class="absolute top-2 right-2 text-orange-500 opacity-0 peer-checked:opacity-100"><i class="fas fa-check-circle"></i></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="flex gap-4 mt-10">
+                    <button type="button" onclick="showStep('step2')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStep3()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">อัปโหลดรูปถ่าย</button>
+                </div>
+            </div>
+
+            <!-- Step Photo: Upload Photo -->
+            <div id="stepPhoto" class="step-content p-6 md:p-10 text-center">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">อัปโหลดรูปถ่าย 📸</h2>
+                <p class="text-slate-500 text-sm mb-8">รูปถ่ายหน้าตรง ขนาด 1.5 นิ้ว ห่มจีวรหรือชุดนักเรียน (ไม่เกิน 6 เดือน)</p>
+
+                <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-orange-100 shadow-sm max-w-sm mx-auto">
+                    <div id="photoPreviewContainer" class="w-32 h-40 md:w-40 md:h-48 mx-auto mb-6 bg-slate-50 rounded-2xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center overflow-hidden relative">
+                        <img id="photoPreviewInStep" src="" class="w-full h-full object-cover hidden absolute inset-0 z-10">
+                        <i class="fas fa-user-circle text-5xl text-slate-300 mb-2 relative z-0"></i>
+                        <p class="text-xs text-slate-400 relative z-0">ยังไม่มีรูปถ่าย</p>
+                    </div>
+
+                    <div class="relative overflow-hidden w-full">
+                        <button type="button" class="w-full bg-orange-100 text-orange-700 hover:bg-orange-200 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fas fa-camera"></i> เลือกรูปถ่าย 1.5 นิ้ว
+                        </button>
+                        <input type="file" id="inputPhotoOnly" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handlePhotoUpload(this)">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-10">
+                    <button type="button" onclick="showStep('step3')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStepPhoto()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">ถัดไป</button>
+                </div>
+            </div>
+
+            <!-- Step Name: Minimal Name Input -->
+            <div id="stepName" class="step-content p-6 md:p-14 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">ยินดีต้อนรับ! 🙏</h2>
+                <p class="text-slate-500 mb-10">กรุณาระบุชื่อและนามสกุลของคุณ</p>
+                
+                <div class="max-w-sm mx-auto space-y-5 text-left">
+                    <div>
+                        <select id="inpTitle" class="input-pastel w-full p-4 rounded-2xl text-xl font-bold text-center appearance-none focus:outline-none cursor-pointer text-slate-700" required onchange="this.classList.remove('input-error')">
+                            <option value="" disabled selected>-- เลือกคำนำหน้า --</option>
+                            <option value="สามเณร">สามเณร</option>
+                            <option value="พระภิกษุ">พระภิกษุ</option>
+                            <option value="เด็กชาย">เด็กชาย (เตรียมบรรพชา)</option>
+                            <option value="นาย">นาย (เตรียมบรรพชา)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" id="inpFname" class="input-pastel w-full p-4 rounded-2xl text-xl font-bold text-center placeholder-slate-300 focus:placeholder-transparent" placeholder="ชื่อจริง (ไม่ต้องใส่คำนำหน้า)" required>
+                    </div>
+                    <div>
+                        <input type="text" id="inpLname" class="input-pastel w-full p-4 rounded-2xl text-xl font-bold text-center placeholder-slate-300 focus:placeholder-transparent" placeholder="นามสกุล" required>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 mt-12 max-w-sm mx-auto">
+                    <button type="button" onclick="showStep('stepPhoto')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStepName()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">ถัดไป</button>
+                </div>
+            </div>
+
+            <!-- Step Ordination Status -->
+            <div id="stepOrdination" class="step-content p-6 md:p-10 text-center">
+                <h2 class="text-3xl font-bold text-orange-600 mb-2" id="greetingName">สวัสดี ... 👋</h2>
+                <p class="text-slate-500 mb-8">ปัจจุบันคุณมีสถานภาพใด?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <label class="cursor-pointer group h-full">
+                        <input type="radio" name="ordinationStatus" value="ordained" class="peer sr-only" onchange="toggleOrdinationOptions()">
+                        <div class="bg-white border-2 border-orange-100 p-6 rounded-[2rem] hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-lg transition-all text-center relative h-full flex flex-col items-center justify-center gap-3">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl peer-checked:bg-orange-500 peer-checked:text-white transition-colors"><i class="fas fa-praying-hands"></i></div>
+                            <h3 class="font-bold text-slate-700 text-lg mt-1">บวชแล้ว</h3>
+                            <p class="text-xs text-slate-500">เป็นสามเณร หรือ พระภิกษุ</p>
+                            <div class="absolute top-4 right-4 text-orange-500 opacity-0 peer-checked:opacity-100 transition"><i class="fas fa-check-circle text-xl"></i></div>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group h-full">
+                        <input type="radio" name="ordinationStatus" value="not_ordained" class="peer sr-only" onchange="toggleOrdinationOptions()">
+                        <div class="bg-white border-2 border-orange-100 p-6 rounded-[2rem] hover:border-orange-300 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-lg transition-all text-center relative h-full flex flex-col items-center justify-center gap-3">
+                            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl peer-checked:bg-orange-500 peer-checked:text-white transition-colors"><i class="fas fa-child"></i></div>
+                            <h3 class="font-bold text-slate-700 text-lg mt-1">ยังไม่ได้บวช</h3>
+                            <p class="text-xs text-slate-500">เป็นเด็กชาย หรือ นาย (เตรียมบรรพชา)</p>
+                            <div class="absolute top-4 right-4 text-orange-500 opacity-0 peer-checked:opacity-100 transition"><i class="fas fa-check-circle text-xl"></i></div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Ordained Additional Options -->
+                <div id="ordainedOptions" class="hidden mt-6 text-left max-w-2xl mx-auto p-5 bg-orange-50 rounded-2xl border border-orange-200 animate-fade-in">
+                    <label class="block text-sm font-bold text-orange-800 mb-3">ปัจจุบันพำนักอยู่ที่วัดใด? <span class="text-red-500">*</span></label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-orange-100 rounded-lg transition">
+                            <input type="radio" name="templeResidence" value="วัดหนองแวง พระอารามหลวง" class="w-5 h-5 text-orange-500 focus:ring-orange-400" onchange="toggleTempleOther()">
+                            <span class="text-slate-700 font-medium">วัดหนองแวง พระอารามหลวง</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-orange-100 rounded-lg transition">
+                            <input type="radio" name="templeResidence" value="วัดกลาง" class="w-5 h-5 text-orange-500 focus:ring-orange-400" onchange="toggleTempleOther()">
+                            <span class="text-slate-700 font-medium">วัดกลาง</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-orange-100 rounded-lg transition">
+                            <input type="radio" name="templeResidence" value="อื่นๆ" class="w-5 h-5 text-orange-500 focus:ring-orange-400" onchange="toggleTempleOther()">
+                            <span class="text-slate-700 font-medium">วัดอื่นๆ (โปรดระบุ)</span>
+                        </label>
+                    </div>
+                    <div id="templeOtherContainer" class="hidden mt-2 pl-8">
+                        <input type="text" id="templeOtherInput" class="input-pastel w-full p-2.5 rounded-xl text-sm" placeholder="ระบุชื่อวัดที่พำนัก">
+                    </div>
+                </div>
+
+                <!-- Not Ordained Additional Options -->
+                <div id="notOrdainedOptions" class="hidden mt-6 text-left max-w-2xl mx-auto p-5 bg-blue-50 rounded-2xl border border-blue-200 animate-fade-in">
+                    <label class="block text-sm font-bold text-blue-800 mb-3">ความประสงค์ในการบรรพชา? <span class="text-red-500">*</span></label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition">
+                            <input type="radio" name="ordinationIntention" value="ให้โรงเรียนจัดการบรรพชาให้ที่วัดหนองแวง" class="w-5 h-5 text-blue-500 focus:ring-blue-400">
+                            <span class="text-slate-700 font-medium text-sm">ประสงค์ให้โรงเรียนจัดการบรรพชาให้ (บวชที่วัดหนองแวง)</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 hover:bg-blue-100 rounded-lg transition">
+                            <input type="radio" name="ordinationIntention" value="บวชมาจากวัดตามภูมิลำเนา" class="w-5 h-5 text-blue-500 focus:ring-blue-400">
+                            <span class="text-slate-700 font-medium text-sm">จะบรรพชามาจากวัดตามภูมิลำเนา</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-10 max-w-sm mx-auto">
+                    <button type="button" onclick="showStep('stepName')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStepOrdination()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">ถัดไป</button>
+                </div>
+            </div>
+
+            <!-- Step Plan: Select Study Plan -->
+            <div id="stepPlan" class="step-content p-6 md:p-10 text-center">
+                <h2 class="text-2xl font-bold text-orange-600 mb-2" id="greetingNamePlan">สวัสดี ... 👋</h2>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">เลือกแผนการเรียน 📚</h3>
+                <p class="text-slate-500 text-sm mb-8" id="planSubtitle">สำหรับระดับชั้นมัธยมศึกษาตอนปลาย</p>
+
+                <div class="grid grid-cols-1 gap-3 text-left">
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="studyPlan" value="นักธรรม-บาลี" class="peer sr-only">
+                        <div class="bg-white border-2 border-orange-100 p-5 rounded-2xl hover:border-amber-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-md transition flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-lg peer-checked:bg-orange-500 peer-checked:text-white"><i class="fas fa-book-open"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">แผนการเรียน บาลี-นักธรรม (พระปริยัติธรรม)</h3>
+                                    <p class="text-xs text-slate-500">เน้นการศึกษาพระธรรมวินัย ภาษาบาลี และนักธรรม</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check-circle text-orange-500 opacity-0 peer-checked:opacity-100 text-xl"></i>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="studyPlan" value="วิทย์-คณิต" class="peer sr-only">
+                        <div class="bg-white border-2 border-orange-100 p-5 rounded-2xl hover:border-amber-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-md transition flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg peer-checked:bg-orange-500 peer-checked:text-white"><i class="fas fa-flask"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">แผนการเรียน วิทยาศาสตร์ - คณิตศาสตร์</h3>
+                                    <p class="text-xs text-slate-500">บูรณาการวิชาวิทยาศาสตร์และคณิตศาสตร์ควบคู่ปริยัติธรรม</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check-circle text-orange-500 opacity-0 peer-checked:opacity-100 text-xl"></i>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="studyPlan" value="ศิลป์-ทั่วไป" class="peer sr-only">
+                        <div class="bg-white border-2 border-orange-100 p-5 rounded-2xl hover:border-amber-400 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-md transition flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg peer-checked:bg-orange-500 peer-checked:text-white"><i class="fas fa-globe-asia"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">แผนการเรียน ทั่วไป (ศิลป์-สังคม)</h3>
+                                    <p class="text-xs text-slate-500">บูรณาการวิชาสังคมศึกษาและทักษะทั่วไปควบคู่ปริยัติธรรม</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check-circle text-orange-500 opacity-0 peer-checked:opacity-100 text-xl"></i>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="showStep('stepOrdination')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validatePlan()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">ถัดไป</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Personal Info -->
+            <div id="step4" class="step-content p-6 md:p-8"> 
+                <h2 class="text-2xl font-bold text-orange-600 mb-2 mt-4 md:mt-0" id="greetingNameInfo">สวัสดี ... 👋</h2>
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                    กรอกข้อมูลส่วนตัว
+                </h3>
+                
+                <div class="bg-white p-5 md:p-6 rounded-[2rem] border border-orange-100 shadow-sm space-y-4">
+                    <!-- ประวัตินักเรียน -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
+                        <h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg"><i class="fas fa-user mr-1"></i> ประวัติผู้สมัคร</h3>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-400">ชื่อ-นามสกุล</p>
+                            <p id="displayFullName" class="font-bold text-slate-700 text-sm"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex gap-2 col-span-1 md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 mb-1 w-full max-w-[120px] md:max-w-[160px]">คำนำหน้าชื่อ
+                                <select id="stuTitle" class="input-pastel w-full p-3.5 rounded-xl appearance-none mt-1 bg-slate-50" disabled>
+                                    <!-- Options injected dynamically via JS -->
+                                </select>
+                            </label>
+                            
+                            <div class="flex-1 hidden" id="chayaContainer">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">ฉายา (ถ้ามี)</label>
+                                <input type="text" id="stuChaya" class="input-pastel w-full p-3.5 rounded-xl" placeholder="เช่น ญาณเมธี">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">เลขประจำตัวประชาชน <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input type="text" id="stuIdCard" class="input-pastel w-full p-3.5 rounded-xl font-mono text-center tracking-widest" placeholder="13 หลัก" maxlength="13" required oninput="this.value = this.value.replace(/[^0-9]/g, ''); validateIDCardRealtime(this.value);">
+                                <div id="idCardStatus" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden"></div>
+                            </div>
+                            <p id="idCardErrorText" class="text-xs mt-1 hidden"></p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">วัน/เดือน/ปีเกิด <span class="text-red-500">*</span></label>
+                                <input type="date" id="stuDob" class="input-pastel w-full p-3.5 rounded-xl text-slate-500" required onchange="calculateAge()">
+                            </div>
+                            <div class="w-1/3">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">อายุ (ปี)</label>
+                                <input type="text" id="stuAge" class="input-pastel w-full p-3.5 rounded-xl bg-slate-50 text-center font-bold text-orange-600" readonly placeholder="-">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
+                            <input type="tel" id="stuPhone" class="input-pastel w-full p-3.5 rounded-xl" placeholder="08xxxxxxxx" maxlength="12" oninput="formatPhone(this)" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">อีเมล</label>
+                            <input type="email" id="stuEmail" class="input-pastel w-full p-3.5 rounded-xl" placeholder="Email (ถ้ามี)">
+                        </div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">ที่อยู่ตามทะเบียนบ้าน <span class="text-red-500">*</span></label>
+                            <textarea id="stuAddress" class="input-pastel w-full p-3.5 rounded-xl h-24" placeholder="บ้านเลขที่ หมู่ที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 my-4"></div>
+
+                    <!-- ประวัติการศึกษา -->
+                    <div><h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg mb-3"><i class="fas fa-graduation-cap mr-1"></i> ประวัติการศึกษา</h3></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Checkbox สำหรับ ม.4 ศิษย์เก่า -->
+                        <div id="nongwangAlumniContainer" class="hidden col-span-1 md:col-span-2 mb-2">
+                            <label class="flex items-center space-x-3 cursor-pointer p-4 bg-orange-50/50 rounded-xl border border-orange-200 hover:bg-orange-50 transition">
+                                <input type="checkbox" id="isNongwangAlumni" class="w-5 h-5 text-orange-500 rounded focus:ring-orange-400" onchange="toggleNongwangAlumni()">
+                                <span class="text-sm font-bold text-orange-800">สำเร็จการศึกษาชั้น ม.3 จากโรงเรียนวัดหนองแวงวิทยา</span>
+                            </label>
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">จบการศึกษา/กำลังศึกษาจากโรงเรียน <span class="text-red-500">*</span></label>
+                            <input type="text" id="oldSchool" class="input-pastel w-full p-3.5 rounded-xl transition-colors" placeholder="ชื่อโรงเรียนเดิม" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">จังหวัดของโรงเรียนเดิม <span class="text-red-500">*</span></label>
+                            <input type="text" id="oldProvince" class="input-pastel w-full p-3.5 rounded-xl transition-colors" placeholder="ระบุจังหวัด" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">เกรดเฉลี่ยสะสม (GPAX) <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.01" min="0" max="4.00" id="stuGpa" class="input-pastel w-full p-3.5 rounded-xl" placeholder="เช่น 3.50" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="goBackFromInfo()" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStep4()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">หน้าถัดไป (ข้อมูลครอบครัว)</button>
+                </div>
+            </div>
+
+            <!-- NEW STEP: Family Info -->
+            <div id="stepFamily" class="step-content p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 mt-4 md:mt-0">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 shadow-inner"><i class="fas fa-users text-xl"></i></div> ข้อมูลครอบครัว
+                </h2>
+
+                <div class="bg-white p-5 md:p-6 rounded-[2rem] border border-orange-100 shadow-sm space-y-6">
+                    
+                    <!-- ข้อมูลบิดา -->
+                    <div>
+                        <h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg mb-3">ข้อมูลบิดา</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-1 md:col-span-2 flex gap-2">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">ชื่อ-นามสกุล บิดา <span class="text-red-500">*</span></label>
+                                    <input type="text" id="fatherName" class="input-pastel w-full p-3.5 rounded-xl" placeholder="ชื่อ นามสกุล" required>
+                                </div>
+                                <div class="w-1/3">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">สถานภาพ <span class="text-red-500">*</span></label>
+                                    <select id="fatherStatus" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required>
+                                        <option value="">เลือก...</option>
+                                        <option value="มีชีวิต">มีชีวิต</option>
+                                        <option value="ถึงแก่กรรม">ถึงแก่กรรม</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">เลขประจำตัวประชาชนบิดา</label>
+                                <input type="text" id="fatherIdCard" class="input-pastel w-full p-3.5 rounded-xl" placeholder="13 หลัก (ถ้ามี)" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">อาชีพ</label>
+                                <input type="text" id="fatherOcc" class="input-pastel w-full p-3.5 rounded-xl" placeholder="เช่น เกษตรกร, ค้าขาย, รับจ้าง (ถ้ามี)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- ข้อมูลมารดา -->
+                    <div>
+                        <h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg mb-3">ข้อมูลมารดา</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-1 md:col-span-2 flex gap-2">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">ชื่อ-นามสกุล มารดา <span class="text-red-500">*</span></label>
+                                    <input type="text" id="motherName" class="input-pastel w-full p-3.5 rounded-xl" placeholder="ชื่อ นามสกุล" required>
+                                </div>
+                                <div class="w-1/3">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">สถานภาพ <span class="text-red-500">*</span></label>
+                                    <select id="motherStatus" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required>
+                                        <option value="">เลือก...</option>
+                                        <option value="มีชีวิต">มีชีวิต</option>
+                                        <option value="ถึงแก่กรรม">ถึงแก่กรรม</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">เลขประจำตัวประชาชนมารดา</label>
+                                <input type="text" id="motherIdCard" class="input-pastel w-full p-3.5 rounded-xl" placeholder="13 หลัก (ถ้ามี)" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">อาชีพ</label>
+                                <input type="text" id="motherOcc" class="input-pastel w-full p-3.5 rounded-xl" placeholder="เช่น เกษตรกร, ค้าขาย, รับจ้าง (ถ้ามี)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- ข้อมูลครอบครัว & พี่น้อง -->
+                    <div>
+                        <h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg mb-3">สถานภาพและการติดต่อ</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">สถานภาพบิดา-มารดา <span class="text-red-500">*</span></label>
+                                <select id="parentsStatus" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required>
+                                    <option value="">เลือกสถานภาพ...</option>
+                                    <option value="อยู่ด้วยกัน">อยู่ด้วยกัน</option>
+                                    <option value="แยกกันอยู่">แยกกันอยู่</option>
+                                    <option value="หย่าร้าง">หย่าร้าง</option>
+                                    <option value="บิดาแต่งงานใหม่">บิดาแต่งงานใหม่</option>
+                                    <option value="มารดาแต่งงานใหม่">มารดาแต่งงานใหม่</option>
+                                    <option value="อื่นๆ">อื่นๆ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">ผู้สมัครมีพี่น้องทั้งหมดกี่คน (ไม่รวมตัวผู้สมัคร) <span class="text-red-500">*</span></label>
+                                <select id="siblingCount" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required onchange="generateSiblingInputs()">
+                                    <option value="0">ไม่มีพี่น้อง (เป็นลูกคนเดียว)</option>
+                                    <option value="1">1 คน</option>
+                                    <option value="2">2 คน</option>
+                                    <option value="3">3 คน</option>
+                                    <option value="4">4 คน</option>
+                                    <option value="5">5 คนขึ้นไป</option>
+                                </select>
+                            </div>
+                            <!-- Dynamic Sibling Inputs -->
+                            <div id="siblingInputsContainer" class="col-span-1 md:col-span-2 space-y-2 mt-2"></div>
+
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- ข้อมูลผู้ปกครอง (สำหรับติดต่อ) -->
+                    <div>
+                        <h3 class="text-sm font-bold text-orange-700 bg-orange-50 inline-block px-3 py-1 rounded-lg mb-3">บุคคลที่สามารถติดต่อได้ (ผู้ปกครอง/พระอุปัชฌาย์)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex gap-2 col-span-1 md:col-span-2">
+                                <div class="w-1/3">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">คำนำหน้า <span class="text-red-500">*</span></label>
+                                    <select id="parentTitle" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required>
+                                        <option value="">เลือก...</option>
+                                        <option value="พระครู">พระครู</option>
+                                        <option value="พระอธิการ">พระอธิการ</option>
+                                        <option value="พระมหา">พระมหา</option>
+                                        <option value="พระ">พระ</option>
+                                        <option value="นาย">นาย</option>
+                                        <option value="นาง">นาง</option>
+                                        <option value="นางสาว">นางสาว</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">ชื่อจริง <span class="text-red-500">*</span></label>
+                                    <input type="text" id="parentFname" class="input-pastel w-full p-3.5 rounded-xl" placeholder="ชื่อ" required>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">นามสกุล <span class="text-red-500">*</span></label>
+                                    <input type="text" id="parentLname" class="input-pastel w-full p-3.5 rounded-xl" placeholder="นามสกุล" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">ความสัมพันธ์ <span class="text-red-500">*</span></label>
+                                <select id="parentRelation" class="input-pastel w-full p-3.5 rounded-xl appearance-none" required>
+                                    <option value="">เลือกความสัมพันธ์...</option>
+                                    <option value="พระอุปัชฌาย์">พระอุปัชฌาย์ / เจ้าอาวาส</option>
+                                    <option value="พระอาจารย์/พระพี่เลี้ยง">พระอาจารย์ / พระพี่เลี้ยง</option>
+                                    <option value="บิดา">บิดา</option>
+                                    <option value="มารดา">มารดา</option>
+                                    <option value="ญาติ">ญาติ (ปู่, ย่า, ตา, ยาย)</option>
+                                    <option value="อื่นๆ">อื่นๆ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
+                                <input type="tel" id="parentPhone" class="input-pastel w-full p-3.5 rounded-xl" placeholder="เบอร์โทรศัพท์ *" maxlength="12" oninput="formatPhone(this)" required>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="showStep('step4')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">ย้อนกลับ</button>
+                    <button type="button" onclick="validateStepFamily()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">อัปโหลดเอกสาร</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Document Upload -->
+            <div id="step5" class="step-content p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 mt-4 md:mt-0">
+                    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shadow-inner"><i class="fas fa-file-upload text-xl"></i></div> อัปโหลดหลักฐานเพิ่มเติม
+                </h2>
+                <p class="text-sm text-amber-800 mb-6 bg-amber-50 p-4 rounded-2xl border border-amber-200"><i class="fas fa-info-circle text-amber-500 mr-1"></i> กรุณาแนบไฟล์ภาพ (JPG, PNG) หรือ PDF ขนาดไม่เกินไฟล์ละ 5MB</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Transcript 1 -->
+                    <div class="bg-white p-4 rounded-[2rem] border border-orange-100 shadow-sm flex flex-col">
+                        <label class="block text-sm font-bold text-slate-700 mb-3 text-center">1. ผลการเรียน <span class="text-red-500">*</span><br><span class="text-[10px] font-normal text-slate-400">(ปพ.1 หรือ ปพ.7)</span></label>
+                        <div class="file-drop-area flex-1 rounded-2xl p-4 text-center cursor-pointer relative flex flex-col justify-center items-center">
+                            <input type="file" id="fileTranscript" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this, 'nameTranscript')" required>
+                            <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-2"><i class="fas fa-file-invoice text-xl text-orange-400"></i></div>
+                            <p id="nameTranscript" class="text-xs text-slate-500">คลิกหรือลากไฟล์มาวาง</p>
+                        </div>
+                    </div>
+
+                    <!-- P.P. 2 -->
+                    <div class="bg-white p-4 rounded-[2rem] border border-orange-100 shadow-sm flex flex-col">
+                        <label class="block text-sm font-bold text-slate-700 mb-3 text-center">2. สำเนาใบ ปพ.2 <span class="text-red-500">*</span><br><span class="text-[10px] font-normal text-slate-400">(ใบประกาศนียบัตร)</span></label>
+                        <div class="file-drop-area flex-1 rounded-2xl p-4 text-center cursor-pointer relative flex flex-col justify-center items-center">
+                            <input type="file" id="filePorPor2" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this, 'namePorPor2')" required>
+                            <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-2"><i class="fas fa-certificate text-xl text-orange-400"></i></div>
+                            <p id="namePorPor2" class="text-xs text-slate-500">คลิกหรือลากไฟล์มาวาง</p>
+                        </div>
+                    </div>
+
+                    <!-- House Registration -->
+                    <div class="bg-white p-4 rounded-[2rem] border border-orange-100 shadow-sm flex flex-col">
+                        <label class="block text-sm font-bold text-slate-700 mb-3 text-center">3. สำเนาทะเบียนบ้าน <span class="text-red-500">*</span><br><span class="text-[10px] font-normal text-slate-400">(หน้าที่มีชื่อนักเรียน)</span></label>
+                        <div class="file-drop-area flex-1 rounded-2xl p-4 text-center cursor-pointer relative flex flex-col justify-center items-center">
+                            <input type="file" id="fileHouseReg" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this, 'nameHouseReg')" required>
+                            <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-2"><i class="fas fa-home text-xl text-orange-400"></i></div>
+                            <p id="nameHouseReg" class="text-xs text-slate-500">คลิกหรือลากไฟล์มาวาง</p>
+                        </div>
+                    </div>
+
+                    <!-- ID Card / Monk ID -->
+                    <div class="bg-white p-4 rounded-[2rem] border border-orange-100 shadow-sm flex flex-col">
+                        <label class="block text-sm font-bold text-slate-700 mb-3 text-center">4. เอกสารยืนยันตัวตน <span class="text-red-500">*</span><br><span class="text-[10px] font-normal text-slate-400">(ใบสุทธิ/บัตรประชาชน)</span></label>
+                        <div class="file-drop-area flex-1 rounded-2xl p-4 text-center cursor-pointer relative flex flex-col justify-center items-center">
+                            <input type="file" id="fileIdCard" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this, 'nameIdCard')" required>
+                            <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-2"><i class="fas fa-id-card text-xl text-orange-400"></i></div>
+                            <p id="nameIdCard" class="text-xs text-slate-500">คลิกหรือลากไฟล์มาวาง</p>
+                        </div>
+                    </div>
+
+                    <!-- Dhamma Certificate (Optional) -->
+                    <div class="bg-white p-4 rounded-[2rem] border border-orange-100 shadow-sm flex flex-col lg:col-span-2">
+                        <label class="block text-sm font-bold text-slate-700 mb-3 text-center">5. ใบประกาศนียบัตรนักธรรม <span class="text-slate-400 font-normal text-xs">(ถ้ามี)</span><br><span class="text-[10px] font-normal text-slate-400">(ตรี / โท / เอก)</span></label>
+                        <div class="file-drop-area flex-1 rounded-2xl p-4 text-center cursor-pointer relative flex flex-col justify-center items-center">
+                            <input type="file" id="fileDhamma" accept="image/*,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this, 'nameDhamma')">
+                            <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-2"><i class="fas fa-scroll text-xl text-amber-500"></i></div>
+                            <p id="nameDhamma" class="text-xs text-slate-500">คลิกหรือลากไฟล์มาวาง</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="showStep('stepFamily')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">กลับ</button>
+                    <button type="button" onclick="validateStep5()" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1">สร้างใบตรวจสอบข้อมูล</button>
+                </div>
+            </div>
+
+            <!-- Step 6: Summary (Beautiful Ticket Layout) -->
+            <div id="step6" class="step-content p-4 md:p-8">
+                <div class="flex items-center justify-center gap-3 mb-6 mt-6 md:mt-0">
+                    <img src="https://img5.pic.in.th/file/secure-sv1/Screenshot_2026-03-05_230255-removebg-preview.png" class="h-10 md:h-12 w-auto object-contain">
+                    <h2 class="text-2xl font-bold text-slate-800">
+                        ใบตรวจสอบข้อมูล
+                    </h2>
+                </div>
+                
+                <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-orange-100 relative overflow-hidden max-w-2xl mx-auto">
+                    <!-- Ticket top decoration -->
+                    <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500"></div>
+
+                    <!-- Personal Section -->
+                    <div class="flex flex-col md:flex-row gap-6 border-b border-slate-100 pb-6 mt-2">
+                        <div class="w-28 h-36 mx-auto md:mx-0 rounded-xl overflow-hidden border-4 border-orange-100 shadow-md bg-slate-50 flex-shrink-0">
+                            <img id="sumRealPhoto" src="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 text-center md:text-left">
+                            <span id="sumBadgeLevel" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">ระดับชั้น</span>
+                            <span id="sumOrdinationStatus" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block ml-1">สถานะ</span>
+                            <h3 id="sumFullName" class="text-xl md:text-2xl font-bold text-slate-800 mb-3 leading-tight mt-1"></h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-left">
+                                <p class="text-slate-600 text-sm"><i class="fas fa-id-card text-slate-400 w-5 text-center"></i> <span id="sumIdCardText" class="font-mono"></span></p>
+                                <p class="text-slate-600 text-sm"><i class="fas fa-birthday-cake text-slate-400 w-5 text-center"></i> <span id="sumDobText"></span> (อายุ <span id="sumAgeText" class="font-bold text-orange-600"></span> ปี)</p>
+                                <p class="text-slate-600 text-sm"><i class="fas fa-phone-alt text-slate-400 w-5 text-center"></i> <span id="sumPhoneText"></span></p>
+                                <p class="text-slate-600 text-sm"><i class="fas fa-envelope text-slate-400 w-5 text-center"></i> <span id="sumEmailText"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Education Section -->
+                    <div class="grid grid-cols-2 gap-4 py-5 border-b border-slate-100">
+                        <div id="summaryPlanContainer">
+                            <p class="text-xs text-slate-400 mb-0.5">แผนการเรียน</p>
+                            <p id="sumPlanText" class="font-bold text-slate-700 text-sm">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 mb-0.5">เกรดเฉลี่ยสะสม</p>
+                            <p id="sumGpaText" class="font-bold text-emerald-600 text-lg leading-none"></p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-xs text-slate-400 mb-0.5">จบจากโรงเรียน</p>
+                            <p id="sumSchoolText" class="font-bold text-slate-700 text-sm"></p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-xs text-slate-400 mb-0.5">ที่อยู่ตามทะเบียนบ้าน</p>
+                            <p id="sumAddressText" class="font-bold text-slate-700 text-sm"></p>
+                        </div>
+                    </div>
+
+                    <!-- Family & Parent Section -->
+                    <div class="py-5 border-b border-slate-100 space-y-3">
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">ข้อมูลบิดา</p>
+                            <p class="text-sm font-bold text-slate-700"><span id="sumFatherName"></span> <span id="sumFatherStatus" class="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md ml-1"></span></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 mb-1">ข้อมูลมารดา</p>
+                            <p class="text-sm font-bold text-slate-700"><span id="sumMotherName"></span> <span id="sumMotherStatus" class="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md ml-1"></span></p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div>
+                                <p class="text-xs text-slate-400 mb-1">สถานภาพสมรส</p>
+                                <p id="sumParentsStatus" class="text-sm font-bold text-slate-700"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-400 mb-1">มีพี่น้องร่วมบิดามารดา</p>
+                                <p id="sumSiblings" class="text-sm font-bold text-slate-700"></p>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-50">
+                            <p class="text-xs text-slate-400 mb-1">ข้อมูลบุคคลติดต่อ (ผู้ปกครอง/พระอุปัชฌาย์)</p>
+                            <p id="sumParentText" class="font-bold text-slate-700"></p>
+                            <p class="text-sm text-slate-600 mt-1"><i class="fas fa-phone-alt text-slate-400 mr-1"></i> <span id="sumParentPhoneText"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Checklist Section -->
+                    <div class="pt-5">
+                        <p class="text-xs text-slate-400 mb-2">เอกสารที่แนบเข้าระบบ</p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium"><i class="fas fa-check-circle mr-1"></i> รูปถ่าย 1.5 นิ้ว</span>
+                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium"><i class="fas fa-check-circle mr-1"></i> ปพ.1/ปพ.7</span>
+                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium"><i class="fas fa-check-circle mr-1"></i> ปพ.2</span>
+                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium"><i class="fas fa-check-circle mr-1"></i> ทะเบียนบ้าน</span>
+                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium"><i class="fas fa-check-circle mr-1"></i> ยืนยันตัวตน</span>
+                            <span id="sumDhammaBadge" class="hidden bg-amber-50 text-amber-700 px-2.5 py-1.5 rounded-lg border border-amber-200 font-medium"><i class="fas fa-check-circle mr-1"></i> ใบนักธรรม</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex gap-3 shadow-inner max-w-2xl mx-auto mt-6">
+                    <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5 text-xl"></i>
+                    <p class="text-xs text-amber-800 leading-relaxed font-medium">กรุณาตรวจสอบข้อมูลให้ถูกต้อง หากกดยืนยันการส่งใบสมัครแล้ว จะไม่สามารถแก้ไขข้อมูลได้ด้วยตนเองอีก</p>
+                </div>
+
+                <div class="flex gap-4 mt-8 max-w-2xl mx-auto">
+                    <button type="button" onclick="showStep('step5')" class="w-1/3 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl py-4 font-bold transition">แก้ไข</button>
+                    <button type="button" onclick="submitApplication()" id="btnSubmit" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition transform hover:-translate-y-1 flex justify-center items-center gap-2 text-lg">
+                        <span>ยืนยันส่งใบสมัคร</span> <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+
+        </form>
+        
+        <!-- Success View -->
+        <div id="successView" class="hidden p-8 md:p-12 animate-fade-in relative z-20 bg-white min-h-[500px] flex flex-col justify-center">
+            <div class="text-center mb-6 no-print">
+                <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner animate-bounce-slow border-4 border-orange-50"><i class="fas fa-check text-5xl text-orange-500"></i></div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-1">ส่งใบสมัครสำเร็จ! 🎉</h2>
+                <p class="text-slate-500 text-sm">ระบบได้รับข้อมูลการสมัครเรียนของคุณเรียบร้อยแล้ว</p>
+            </div>
+            
+            <div class="bg-orange-50/50 border-2 border-orange-200 rounded-[2rem] p-6 md:p-8 mx-auto max-w-md mb-8 w-full relative shadow-sm">
+                <div class="absolute -top-4 -right-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md transform rotate-3">บันทึกหน้าจอไว้ได้</div>
+                
+                <div class="flex flex-col items-center border-b border-orange-200/50 pb-5 mb-5">
+                    <div class="w-20 h-24 rounded-lg overflow-hidden border-2 border-white shadow-md mb-3 bg-slate-100">
+                        <img id="finalPhotoPreview" src="" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wider">เลขที่ใบสมัคร (อ้างอิง)</h3>
+                    <p id="appNumber" class="text-2xl font-mono font-bold text-orange-600 mt-1 tracking-widest"></p>
+                </div>
+                
+                <div class="space-y-3 text-sm text-slate-600">
+                    <div class="flex justify-between items-start"><span>ชื่อผู้สมัคร:</span><span id="finalName" class="font-bold text-slate-800 text-right max-w-[65%] leading-tight"></span></div>
+                    <div class="flex justify-between"><span>ระดับชั้น:</span><span id="finalLevel" class="text-slate-800 font-medium"></span></div>
+                    <div class="flex justify-between"><span>วันที่สมัคร:</span><span id="finalDate" class="text-slate-500 font-mono text-xs mt-1"></span></div>
+                </div>
+                
+                <div class="mt-5 pt-5 border-t border-orange-200/50 text-center">
+                    <p class="text-xs text-orange-700 font-medium"><i class="fas fa-bullhorn mr-1"></i> รอประกาศรายชื่อผู้มีสิทธิ์สอบผ่านทางเว็บไซต์โรงเรียน</p>
+                </div>
+            </div>
+            
+            <div class="text-center space-y-4 no-print flex flex-col md:flex-row justify-center gap-4">
+                <button type="button" onclick="window.print()" class="bg-orange-100 text-orange-700 px-8 py-3.5 rounded-2xl hover:bg-orange-200 transition font-bold w-full md:w-auto flex items-center justify-center gap-2">
+                    <i class="fas fa-print"></i> พิมพ์ / บันทึก PDF
+                </button>
+                <button type="button" onclick="goHome()" class="bg-slate-800 text-white px-8 py-3.5 rounded-2xl hover:bg-slate-900 transition font-bold shadow-lg w-full md:w-auto flex items-center justify-center gap-2">
+                    <i class="fas fa-home"></i> กลับหน้าหลัก
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data storage
+        let admissionData = {
+            levelId: '', level: '', plan: '-', photoDataUrl: '', fname: '', lname: '',
+            isOrdained: false, templeResidence: '', ordinationIntention: '', title: '',
+            chaya: '', idCard: '', dob: '', age: '', phone: '', email: '', address: '', oldSchool: '',
+            oldProvince: '', gpa: '', parentTitle: '', parentFname: '', parentLname: '', parentFullName: '',
+            parentRelation: '', parentPhone: '', fatherName: '', fatherStatus: '', fatherIdCard: '', fatherOcc: '',
+            motherName: '', motherStatus: '', motherIdCard: '', motherOcc: '', parentsStatus: '', siblingCount: 0, siblings: [], hasDhamma: false
+        };
+
+
+        // Utility functions
+        function checkRequired(ids) {
+            let isValid = true;
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el || !el.value.trim()) {
+                    if (el) el.classList.add('input-error');
+                    isValid = false;
+                } else {
+                    el.classList.remove('input-error');
+                }
+            });
+            return isValid;
+        }
+
+        function removeErrorOnInput() {
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('input', () => el.classList.remove('input-error'));
+                el.addEventListener('change', () => el.classList.remove('input-error'));
+            });
+        }
+
+        function checkIDCard(idCard) {
+            if(idCard.length !== 13) return false;
+            let sum = 0;
+            for(let i=0; i < 12; i++) {
+                sum += parseFloat(idCard.charAt(i)) * (13 - i);
+            }
+            if((11 - sum % 11) % 10 !== parseFloat(idCard.charAt(12))) return false;
+            return true;
+        }
+        
+        function validateIDCardRealtime(idCard) {
+            const statusIcon = document.getElementById('idCardStatus');
+            const errorText = document.getElementById('idCardErrorText');
+            const inputField = document.getElementById('stuIdCard');
+
+            if (idCard.length === 0) {
+                statusIcon.classList.add('hidden');
+                errorText.classList.add('hidden');
+                inputField.classList.remove('input-error', 'input-success');
+                return;
+            }
+
+            if (idCard.length < 13) {
+                statusIcon.classList.add('hidden');
+                errorText.classList.remove('hidden');
+                errorText.className = "text-xs mt-1 text-slate-400";
+                errorText.innerHTML = `กำลังพิมพ์ ${idCard.length}/13 หลัก`;
+                inputField.classList.remove('input-error', 'input-success');
+                return;
+            }
+
+            const isValid = checkIDCard(idCard);
+            statusIcon.classList.remove('hidden');
+            errorText.classList.remove('hidden');
+
+            if (isValid) {
+                statusIcon.innerHTML = '<i class="fas fa-check-circle text-green-500 text-lg"></i>';
+                errorText.className = "text-xs mt-1 text-green-600 font-bold";
+                errorText.innerHTML = "เลขประจำตัวประชาชนถูกต้อง";
+                inputField.classList.remove('input-error');
+                inputField.classList.add('input-success');
+            } else {
+                statusIcon.innerHTML = '<i class="fas fa-times-circle text-red-500 text-lg"></i>';
+                errorText.className = "text-xs mt-1 text-red-500 font-bold";
+                errorText.innerHTML = "เลขประจำตัวประชาชนไม่ถูกต้อง";
+                inputField.classList.add('input-error');
+                inputField.classList.remove('input-success');
+            }
+        }
+        
+        function formatPhone(i) {
+            var v = i.value.replace(/\D/g, '');
+            if (v.length > 10) v = v.substring(0, 10);
+            if (v.length > 6) {
+                i.value = v.slice(0, 3) + '-' + v.slice(3, 6) + '-' + v.slice(6);
+            } else if (v.length > 3) {
+                i.value = v.slice(0, 3) + '-' + v.slice(3);
+            } else {
+                i.value = v;
+            }
+        }
+
+        window.onload = () => {
+            removeErrorOnInput();
+        };
+
+        function showStep(stepId) {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+            
+            const floatingAvatar = document.getElementById('floatingAvatar');
+            const showAvatarSteps = ['stepName', 'stepOrdination', 'stepPlan', 'step4', 'stepFamily', 'step5'];
+            if (showAvatarSteps.includes(stepId) && admissionData.photoDataUrl) {
+                floatingAvatar.classList.remove('hidden');
+            } else {
+                floatingAvatar.classList.add('hidden');
+            }
+
+            const mainContainer = document.getElementById('mainContainer');
+            if (stepId === 'stepAdminDashboard') {
+                mainContainer.classList.remove('max-w-4xl');
+                mainContainer.classList.add('max-w-6xl');
+            } else {
+                mainContainer.classList.add('max-w-4xl');
+                mainContainer.classList.remove('max-w-6xl');
+            }
+            
+            if (stepId.includes('Admin')) {
+                document.getElementById('progressContainer').classList.add('hidden');
+            } else {
+                document.getElementById('progressContainer').classList.remove('hidden');
+            }
+
+            let progress = 0;
+            if(stepId === 'step1') progress = 0;
+            else if(stepId === 'step2') progress = 10;
+            else if(stepId === 'step3') progress = 20;
+            else if(stepId === 'stepPhoto') progress = 30;
+            else if(stepId === 'stepName') progress = 40;
+            else if(stepId === 'stepOrdination') progress = 50;
+            else if(stepId === 'stepPlan') progress = 55;
+            else if(stepId === 'step4') progress = 65;
+            else if(stepId === 'stepFamily') progress = 75;
+            else if(stepId === 'step5') progress = 85;
+            else if(stepId === 'step6') progress = 95;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==========================
+        // NORMAL USER FUNCTIONS
+        // ==========================
+        
+        function checkStatus() {
+            Swal.fire({
+                title: 'ตรวจสอบสถานะการรับสมัคร',
+                input: 'text',
+                inputLabel: 'กรอกเลขประจำตัวประชาชน 13 หลัก',
+                inputPlaceholder: 'xxxxxxxxxxxxx',
+                inputAttributes: { maxlength: 13, inputmode: "numeric" },
+                showCancelButton: true,
+                confirmButtonText: 'ตรวจสอบ',
+                cancelButtonText: 'ปิด',
+                confirmButtonColor: '#f97316', 
+                customClass: { popup: 'rounded-[2rem]' },
+                preConfirm: (idCard) => {
+                    if (!idCard || idCard.length !== 13) {
+                        Swal.showValidationMessage('กรุณากรอกเลขประจำตัวประชาชนให้ครบ 13 หลัก');
+                        return false;
+                    }
+                    
+                    Swal.fire({
+                        title: 'กำลังค้นหาข้อมูล...',
+                        html: '<div class="text-orange-500 mt-2"><i class="fas fa-circle-notch fa-spin text-3xl"></i></div>',
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    });
+
+                    if (typeof google === 'undefined') {
+                        return new Promise(resolve => {
+                            setTimeout(() => {
+                                resolve({
+                                    found: true,
+                                    appNumber: 'NW69M4-12345',
+                                    date: new Date().toLocaleDateString('th-TH') + ' 10:30',
+                                    name: 'สามเณรสมชาย ญาณเมธี ใจดี',
+                                    level: 'มัธยมศึกษาปีที่ 4',
+                                    plan: 'บาลี-นักธรรม',
+                                    school: 'โรงเรียนบ้านหนองแวง',
+                                    status: 'รอประกาศผลสอบ',
+                                    photoUrl: 'https://via.placeholder.com/150'
+                                });
+                            }, 1500);
+                        });
+                    }
+
+                    return new Promise((resolve) => {
+                        google.script.run
+                            .withSuccessHandler(resolve)
+                            .withFailureHandler((error) => resolve({found: false, message: error.message}))
+                            .checkApplicationStatus(idCard);
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const res = result.value;
+                    if (res.found) {
+                        const photoElement = res.photoUrl && res.photoUrl !== "-" && res.photoUrl !== "Error Upload" 
+                            ? `<div class="w-20 h-24 mx-auto mb-4 rounded-xl overflow-hidden border-2 border-orange-200 shadow-md bg-slate-50 flex-shrink-0">
+                                   <img src="${res.photoUrl}" class="w-full h-full object-cover">
+                               </div>`
+                            : `<div class="w-20 h-24 mx-auto mb-4 rounded-xl overflow-hidden border-2 border-orange-200 shadow-md bg-orange-50 flex flex-col items-center justify-center flex-shrink-0 text-orange-300">
+                                   <i class="fas fa-user-circle text-4xl mb-1"></i>
+                                   <span class="text-[10px]">ไม่มีรูป</span>
+                               </div>`;
+
+                        const ticketHtml = `
+                            <div class="bg-white rounded-2xl border-2 border-orange-100 p-5 text-left shadow-sm relative overflow-hidden mt-2">
+                                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-amber-500"></div>
+                                <div class="absolute -right-6 -top-6 text-orange-100 opacity-30"><i class="fas fa-check-circle text-8xl"></i></div>
+                                
+                                <div class="relative z-10 flex flex-col md:flex-row gap-4 items-center md:items-start text-center md:text-left">
+                                    ${photoElement}
+                                    <div class="flex-1">
+                                        <p class="text-xs text-orange-500 font-bold uppercase tracking-widest mb-1">Admission Ticket</p>
+                                        <h3 class="text-xl font-bold text-slate-800 mb-3">${res.appNumber}</h3>
+                                        
+                                        <div class="space-y-3 text-sm w-full">
+                                            <div>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase">ชื่อ-นามสกุลผู้สมัคร</p>
+                                                <p class="text-slate-700 font-medium">${res.name}</p>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <p class="text-[10px] text-slate-400 font-bold uppercase">ระดับชั้น</p>
+                                                    <p class="text-slate-700 font-medium">${res.level}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] text-slate-400 font-bold uppercase">แผนการเรียน</p>
+                                                    <p class="text-slate-700 font-medium">${res.plan !== '-' ? res.plan : 'ทั่วไป'}</p>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase">โรงเรียนเดิม</p>
+                                                <p class="text-slate-700 font-medium">${res.school}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="border-t border-slate-100 pt-3 mt-4 flex justify-between items-center relative z-10">
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase">วันที่สมัคร</p>
+                                        <p class="text-slate-600 text-xs font-mono">${res.date}</p>
+                                    </div>
+                                    <div class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 flex items-center gap-1">
+                                        <i class="fas fa-info-circle"></i> ${res.status}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        Swal.fire({
+                            title: 'ตรวจสอบข้อมูลสำเร็จ',
+                            html: ticketHtml,
+                            showCloseButton: true,
+                            confirmButtonText: 'ปิดหน้าต่าง',
+                            confirmButtonColor: '#475569', 
+                            customClass: { popup: 'rounded-[2rem] w-[95%] md:w-[500px]' }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'ไม่พบข้อมูล',
+                            text: res.message || 'กรุณาตรวจสอบเลขประจำตัวประชาชนอีกครั้ง หรือติดต่อแอดมิน',
+                            icon: 'error',
+                            confirmButtonColor: '#f97316',
+                            customClass: { popup: 'rounded-[2rem]' }
+                        });
+                    }
+                }
+            });
+        }
+
+        function validateStep2() {
+            if (document.getElementById('pdpaCheck').checked) {
+                showStep('step3');
+            } else {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณากดยอมรับเงื่อนไขและระเบียบการรับสมัครก่อนดำเนินการต่อครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+            }
+        }
+
+        function selectLevel(levelId, levelName) {
+            admissionData.levelId = levelId;
+            admissionData.level = levelName;
+            
+            // Set plan to empty default when level changes
+            admissionData.plan = '-';
+            const studyPlans = document.querySelectorAll('input[name="studyPlan"]');
+            studyPlans.forEach(radio => radio.checked = false);
+        }
+
+        function validateStep3() {
+            const selected = document.querySelector('input[name="admissionLevel"]:checked');
+            if (!selected) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาเลือกระดับชั้นที่ต้องการสมัครครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+            showStep('stepPhoto');
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                if(!file) { resolve(null); return; }
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve({
+                    filename: file.name,
+                    mimeType: file.type,
+                    base64: reader.result.split(',')[1]
+                });
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function handlePhotoUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    admissionData.photoDataUrl = e.target.result;
+                    
+                    const stepPreview = document.getElementById('photoPreviewInStep');
+                    stepPreview.src = e.target.result;
+                    stepPreview.classList.remove('hidden');
+                    
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('sumRealPhoto').src = e.target.result;
+                    document.getElementById('finalPhotoPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function validateStepPhoto() {
+            if (!admissionData.photoDataUrl) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาอัปโหลดรูปถ่ายผู้สมัครก่อนดำเนินการต่อครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+            showStep('stepName');
+        }
+
+        function validateStepName() {
+            const title = document.getElementById('inpTitle').value;
+            const fname = document.getElementById('inpFname').value.trim();
+            const lname = document.getElementById('inpLname').value.trim();
+
+            if (!title || !fname || !lname) {
+                if(!title) document.getElementById('inpTitle').classList.add('input-error');
+                if(!fname) document.getElementById('inpFname').classList.add('input-error');
+                if(!lname) document.getElementById('inpLname').classList.add('input-error');
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาระบุคำนำหน้าและชื่อ-นามสกุลให้ครบถ้วนครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+
+            admissionData.title = title;
+            admissionData.fname = fname;
+            admissionData.lname = lname;
+            
+            admissionData.isOrdained = (title === 'สามเณร' || title === 'พระภิกษุ');
+            
+            document.getElementById('displayFullName').innerText = `${title}${fname} ${lname}`;
+            document.getElementById('greetingName').innerText = `สวัสดี ${fname} 👋`;
+
+            if (admissionData.isOrdained) {
+                document.querySelector('input[name="ordinationStatus"][value="ordained"]').checked = true;
+            } else {
+                document.querySelector('input[name="ordinationStatus"][value="not_ordained"]').checked = true;
+            }
+            toggleOrdinationOptions();
+
+            showStep('stepOrdination');
+        }
+
+        function toggleOrdinationOptions() {
+            const status = document.querySelector('input[name="ordinationStatus"]:checked')?.value;
+            const ordOpt = document.getElementById('ordainedOptions');
+            const notOrdOpt = document.getElementById('notOrdainedOptions');
+
+            if (status === 'ordained') {
+                ordOpt.classList.remove('hidden');
+                notOrdOpt.classList.add('hidden');
+            } else if (status === 'not_ordained') {
+                notOrdOpt.classList.remove('hidden');
+                ordOpt.classList.add('hidden');
+            }
+        }
+
+        function toggleTempleOther() {
+            const val = document.querySelector('input[name="templeResidence"]:checked')?.value;
+            const otherCont = document.getElementById('templeOtherContainer');
+            if (val === 'อื่นๆ') {
+                otherCont.classList.remove('hidden');
+            } else {
+                otherCont.classList.add('hidden');
+            }
+        }
+
+        function validateStepOrdination() {
+            const selected = document.querySelector('input[name="ordinationStatus"]:checked');
+            if (!selected) {
+                Swal.fire({ title: 'แจ้งเตือน', text: 'กรุณาเลือกสถานภาพปัจจุบันของคุณครับ', icon: 'warning', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem]' } });
+                return;
+            }
+
+            admissionData.isOrdained = (selected.value === 'ordained');
+
+            if (admissionData.isOrdained) {
+                const temple = document.querySelector('input[name="templeResidence"]:checked');
+                if (!temple) {
+                    Swal.fire({ title: 'แจ้งเตือน', text: 'กรุณาเลือกวัดที่พำนักปัจจุบันครับ', icon: 'warning', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem]' } });
+                    return;
+                }
+                if (temple.value === 'อื่นๆ') {
+                    const otherTemple = document.getElementById('templeOtherInput').value.trim();
+                    if (!otherTemple) {
+                        Swal.fire({ title: 'แจ้งเตือน', text: 'กรุณาระบุชื่อวัดที่พำนักครับ', icon: 'warning', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem]' } });
+                        return;
+                    }
+                    admissionData.templeResidence = otherTemple;
+                } else {
+                    admissionData.templeResidence = temple.value;
+                }
+                admissionData.ordinationIntention = '';
+            } else {
+                const intent = document.querySelector('input[name="ordinationIntention"]:checked');
+                if (!intent) {
+                    Swal.fire({ title: 'แจ้งเตือน', text: 'กรุณาเลือกความประสงค์ในการบรรพชาครับ', icon: 'warning', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem]' } });
+                    return;
+                }
+                admissionData.ordinationIntention = intent.value;
+                admissionData.templeResidence = '';
+            }
+
+            document.getElementById('stuTitle').innerHTML = `<option value="${admissionData.title}">${admissionData.title}</option>`;
+            
+            const chayaContainer = document.getElementById('chayaContainer');
+            if (admissionData.isOrdained) {
+                chayaContainer.classList.remove('hidden');
+            } else {
+                chayaContainer.classList.add('hidden');
+                document.getElementById('stuChaya').value = '';
+            }
+
+            if (['m5', 'm6'].includes(admissionData.levelId)) {
+                document.getElementById('planSubtitle').innerText = `สำหรับระดับชั้น${admissionData.level}`;
+                document.getElementById('greetingNamePlan').innerText = `สวัสดี ${admissionData.fname} 👋`;
+                showStep('stepPlan');
+            } else {
+                admissionData.plan = '-'; 
+                document.getElementById('greetingNameInfo').innerText = `สวัสดี ${admissionData.fname} 👋`;
+                showStep('step4');
+            }
+        }
+
+        function validatePlan() {
+            const selected = document.querySelector('input[name="studyPlan"]:checked');
+            if (!selected) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาเลือกแผนการเรียนครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+            admissionData.plan = selected.value;
+            document.getElementById('greetingNameInfo').innerText = `สวัสดี ${admissionData.fname} 👋`;
+            showStep('step4');
+        }
+
+        function goBackFromPlan() {
+            showStep('stepOrdination');
+        }
+
+        function goBackFromInfo() {
+            if (['m5', 'm6'].includes(admissionData.levelId)) {
+                showStep('stepPlan');
+            } else {
+                showStep('stepOrdination');
+            }
+        }
+
+        function toggleNongwangAlumni() {
+            const isChecked = document.getElementById('isNongwangAlumni').checked;
+            const sch = document.getElementById('oldSchool');
+            const prv = document.getElementById('oldProvince');
+            
+            if (isChecked) {
+                sch.value = 'โรงเรียนวัดหนองแวงวิทยา';
+                prv.value = 'ขอนแก่น';
+                sch.readOnly = true;
+                prv.readOnly = true;
+                sch.classList.add('bg-orange-50', 'text-orange-800', 'font-bold');
+                prv.classList.add('bg-orange-50', 'text-orange-800', 'font-bold');
+            } else {
+                sch.value = '';
+                prv.value = '';
+                sch.readOnly = false;
+                prv.readOnly = false;
+                sch.classList.remove('bg-orange-50', 'text-orange-800', 'font-bold');
+                prv.classList.remove('bg-orange-50', 'text-orange-800', 'font-bold');
+            }
+        }
+        
+        function calculateAge() {
+            const dob = document.getElementById('stuDob').value;
+            if (!dob) return;
+            
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 0) age = 0;
+            document.getElementById('stuAge').value = age;
+            admissionData.age = age;
+        }
+
+        function validateStep4() {
+            const requiredFields = [
+                'stuIdCard', 'stuDob', 
+                'stuAddress', 'oldSchool', 'oldProvince', 'stuGpa'
+            ];
+            
+            if (!checkRequired(requiredFields)) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณากรอกข้อมูลส่วนตัวและประวัติการศึกษาให้ครบถ้วนครับ',
+                    icon: 'error',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+
+            const idCard = document.getElementById('stuIdCard').value;
+            if (!checkIDCard(idCard)) {
+                document.getElementById('idCardErrorText').classList.remove('hidden');
+                document.getElementById('stuIdCard').classList.add('input-error');
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'เลขประจำตัวประชาชน 13 หลัก ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+
+            admissionData.chaya = document.getElementById('stuChaya').value.trim();
+            admissionData.idCard = idCard;
+            admissionData.dob = document.getElementById('stuDob').value;
+            admissionData.address = document.getElementById('stuAddress').value.trim();
+            admissionData.oldSchool = document.getElementById('oldSchool').value;
+            admissionData.gpa = document.getElementById('stuGpa').value;
+            admissionData.email = document.getElementById('stuEmail').value;
+            admissionData.phone = document.getElementById('stuPhone').value;
+            
+            showStep('stepFamily');
+        }
+
+        function generateSiblingInputs() {
+            const count = parseInt(document.getElementById('siblingCount').value) || 0;
+            const container = document.getElementById('siblingInputsContainer');
+            container.innerHTML = '';
+            
+            if (count > 0) {
+                let html = '<label class="block text-xs font-bold text-slate-500 mb-1">ชื่อ-นามสกุล พี่น้อง (ระบุให้ครบ)</label>';
+                for (let i = 1; i <= count; i++) {
+                    html += `
+                        <div class="flex gap-2 mb-2">
+                            <span class="bg-orange-100 text-orange-700 font-bold px-3 py-2 rounded-xl text-sm flex items-center">${i}</span>
+                            <input type="text" id="siblingName_${i}" class="input-pastel flex-1 p-2.5 rounded-xl text-sm" placeholder="ชื่อ-นามสกุล คนที่ ${i}" required>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+        }
+
+        function validateStepFamily() {
+            const requiredFields = [
+                'fatherName', 'fatherStatus', 
+                'motherName', 'motherStatus', 
+                'parentsStatus', 'siblingCount',
+                'parentTitle', 'parentFname', 'parentLname', 'parentRelation', 'parentPhone'
+            ];
+
+            if (!checkRequired(requiredFields)) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณากรอกข้อมูลครอบครัวและบุคคลติดต่อให้ครบถ้วนครับ',
+                    icon: 'error',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+
+            // Check siblings
+            const count = parseInt(document.getElementById('siblingCount').value) || 0;
+            let siblings = [];
+            if (count > 0) {
+                for (let i = 1; i <= count; i++) {
+                    const sibInput = document.getElementById(`siblingName_${i}`);
+                    if (!sibInput.value.trim()) {
+                        sibInput.classList.add('input-error');
+                        Swal.fire({ title: 'แจ้งเตือน', text: 'กรุณาระบุชื่อพี่น้องให้ครบตามจำนวนที่เลือก', icon: 'warning', confirmButtonColor: '#f97316', customClass: { popup: 'rounded-[2rem]' }});
+                        return;
+                    }
+                    siblings.push(sibInput.value.trim());
+                }
+            }
+
+            admissionData.fatherName = document.getElementById('fatherName').value;
+            admissionData.fatherStatus = document.getElementById('fatherStatus').value;
+            admissionData.fatherIdCard = document.getElementById('fatherIdCard').value;
+            admissionData.fatherOcc = document.getElementById('fatherOcc').value;
+
+            admissionData.motherName = document.getElementById('motherName').value;
+            admissionData.motherStatus = document.getElementById('motherStatus').value;
+            admissionData.motherIdCard = document.getElementById('motherIdCard').value;
+            admissionData.motherOcc = document.getElementById('motherOcc').value;
+
+            admissionData.parentsStatus = document.getElementById('parentsStatus').value;
+            admissionData.siblingCount = count;
+            admissionData.siblings = siblings;
+
+            const pTitle = document.getElementById('parentTitle').value;
+            const pFname = document.getElementById('parentFname').value;
+            const pLname = document.getElementById('parentLname').value;
+            const pRel = document.getElementById('parentRelation').value;
+            admissionData.parentFullName = `${pTitle}${pFname} ${pLname}`;
+            admissionData.parentPhone = document.getElementById('parentPhone').value;
+            admissionData.parentRelation = pRel;
+
+            showStep('step5');
+        }
+
+        function updateFileName(input, textId) {
+            const textEl = document.getElementById(textId);
+            if (input.files && input.files[0]) {
+                textEl.innerText = input.files[0].name;
+                textEl.classList.add('text-orange-600', 'font-bold');
+                textEl.classList.remove('text-slate-500');
+            } else {
+                textEl.innerText = "คลิกหรือลากไฟล์มาวาง";
+                textEl.classList.remove('text-orange-600', 'font-bold');
+                textEl.classList.add('text-slate-500');
+            }
+        }
+
+        function validateStep5() {
+            const trans = document.getElementById('fileTranscript').files.length > 0;
+            const pp2 = document.getElementById('filePorPor2').files.length > 0;
+            const houseReg = document.getElementById('fileHouseReg').files.length > 0;
+            const idc = document.getElementById('fileIdCard').files.length > 0;
+            const dhamma = document.getElementById('fileDhamma').files.length > 0;
+
+            if (!trans || !pp2 || !houseReg || !idc) {
+                Swal.fire({
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาแนบไฟล์เอกสารบังคับ (ข้อ 1-4) ให้ครบถ้วนครับ',
+                    icon: 'warning',
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'rounded-[2rem]' }
+                });
+                return;
+            }
+            
+            admissionData.hasDhamma = dhamma;
+
+            document.getElementById('sumBadgeLevel').innerText = admissionData.level;
+            
+            const ordBadge = document.getElementById('sumOrdinationStatus');
+            if (admissionData.isOrdained) {
+                ordBadge.innerText = `บวชแล้ว (พำนัก: ${admissionData.templeResidence})`;
+                ordBadge.className = 'bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block ml-1';
+            } else {
+                let intentText = admissionData.ordinationIntention.includes('หนองแวง') ? 'บวชที่ รร.' : 'บวชจากภูมิลำเนา';
+                ordBadge.innerText = `ยังไม่บวช (${intentText})`;
+                ordBadge.className = 'bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block ml-1';
+            }
+
+            if(['m1', 'm2', 'm3', 'm4'].includes(admissionData.levelId)) {
+                document.getElementById('summaryPlanContainer').style.display = 'none';
+            } else {
+                document.getElementById('summaryPlanContainer').style.display = 'block';
+                document.getElementById('sumPlanText').innerText = admissionData.plan;
+            }
+            
+            const maskedId = admissionData.idCard.substring(0, 1) + '-' + admissionData.idCard.substring(1, 5) + '-xxxxx-' + admissionData.idCard.substring(10);
+            document.getElementById('sumIdCardText').innerText = maskedId;
+            document.getElementById('sumAgeText').innerText = admissionData.age || '-';
+            
+            const dobParts = admissionData.dob.split('-');
+            if(dobParts.length === 3) {
+                document.getElementById('sumDobText').innerText = `${dobParts[2]}/${dobParts[1]}/${parseInt(dobParts[0])+543}`;
+            } else {
+                document.getElementById('sumDobText').innerText = admissionData.dob;
+            }
+            
+            document.getElementById('sumPhoneText').innerText = admissionData.phone || 'ไม่ระบุ';
+            document.getElementById('sumEmailText').innerText = admissionData.email || 'ไม่ระบุ';
+            document.getElementById('sumAddressText').innerText = admissionData.address || '-';
+
+            let fullName = `${admissionData.title}${admissionData.fname} ${admissionData.lname}`;
+            if (admissionData.isOrdained && admissionData.chaya) {
+                fullName = `${admissionData.title}${admissionData.fname} ${admissionData.chaya} ${admissionData.lname}`;
+            }
+            document.getElementById('sumFullName').innerText = fullName;
+            
+            document.getElementById('sumGpaText').innerText = admissionData.gpa;
+            document.getElementById('sumSchoolText').innerText = admissionData.oldSchool;
+
+            document.getElementById('sumFatherName').innerText = admissionData.fatherName;
+            document.getElementById('sumFatherStatus').innerText = admissionData.fatherStatus;
+            document.getElementById('sumMotherName').innerText = admissionData.motherName;
+            document.getElementById('sumMotherStatus').innerText = admissionData.motherStatus;
+            document.getElementById('sumParentsStatus').innerText = admissionData.parentsStatus;
+            document.getElementById('sumSiblings').innerText = admissionData.siblingCount + ' คน';
+            
+            document.getElementById('sumParentText').innerText = admissionData.parentFullName + ` (${admissionData.parentRelation})`;
+            document.getElementById('sumParentPhoneText').innerText = admissionData.parentPhone;
+
+            if (admissionData.hasDhamma) {
+                document.getElementById('sumDhammaBadge').classList.remove('hidden');
+                document.getElementById('sumDhammaBadge').classList.add('inline-block');
+            } else {
+                document.getElementById('sumDhammaBadge').classList.add('hidden');
+                document.getElementById('sumDhammaBadge').classList.remove('inline-block');
+            }
+
+            showStep('step6');
+        }
+
+        async function submitApplication() {
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+
+            Swal.fire({
+                title: 'กำลังส่งข้อมูลการสมัคร...',
+                html: '<div class="text-orange-600 mt-2 font-medium text-sm" id="loading-text">รอสักครู่ ระบบกำลังเตรียมไฟล์เอกสาร...</div>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const texts = [
+                        "กำลังอัปโหลดเอกสารหลักฐาน...",
+                        "ระบบกำลังบันทึกข้อมูลของคุณ...",
+                        "อีกนิดเดียว...",
+                        "อึดใจเดียวครับ...",
+                        "กรุณาอย่าเพิ่งปิด หรือรีเฟรชหน้าจอนะครับ 🙏"
+                    ];
+                    let i = 0;
+                    window.loadingInterval = setInterval(() => {
+                        const el = document.getElementById('loading-text');
+                        if(el) {
+                            el.innerText = texts[i];
+                        }
+                        i = (i + 1) % texts.length;
+                    }, 3500);
+                },
+                willClose: () => {
+                    clearInterval(window.loadingInterval);
+                }
+            });
+
+            try {
+                const photoFile = document.getElementById('inputPhotoOnly').files[0];
+                const transFile = document.getElementById('fileTranscript').files[0];
+                const pp2File = document.getElementById('filePorPor2').files[0];
+                const houseRegFile = document.getElementById('fileHouseReg').files[0];
+                const idCardFile = document.getElementById('fileIdCard').files[0];
+                const dhammaFile = document.getElementById('fileDhamma').files[0];
+
+                admissionData.filePhoto = await getBase64(photoFile);
+                admissionData.fileTranscript = await getBase64(transFile);
+                admissionData.filePP2 = await getBase64(pp2File);
+                admissionData.fileHouseReg = await getBase64(houseRegFile);
+                admissionData.fileIdCard = await getBase64(idCardFile);
+                admissionData.fileDhamma = await getBase64(dhammaFile);
+
+                if (typeof google === 'undefined') {
+                    throw new Error('ไม่พบการเชื่อมต่อ Google Apps Script (กำลังรันในโหมดทดสอบแบบไม่บันทึกจริง)');
+                }
+
+                google.script.run
+                    .withSuccessHandler((response) => {
+                        Swal.close(); 
+                        if (response.success) {
+                            document.getElementById('admissionForm').style.display = 'none';
+                            document.getElementById('floatingAvatar').classList.add('hidden');
+                            document.getElementById('successView').classList.remove('hidden');
+                            
+                            document.getElementById('appNumber').innerText = response.appNumber;
+                            
+                            let fullName = `${admissionData.title}${admissionData.fname} ${admissionData.lname}`;
+                            if (admissionData.isOrdained && admissionData.chaya) {
+                                fullName = `${admissionData.title}${admissionData.fname} ${admissionData.chaya} ${admissionData.lname}`;
+                            }
+                            document.getElementById('finalName').innerText = fullName;
+                            
+                            let levelText = admissionData.level;
+                            if(admissionData.plan !== '-') levelText += ` (${admissionData.plan})`;
+                            document.getElementById('finalLevel').innerText = levelText;
+                            
+                            document.getElementById('finalDate').innerText = response.date;
+                            
+                            document.getElementById('progressBar').style.width = '100%';
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            Swal.fire({
+                                title: 'เกิดข้อผิดพลาด',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonColor: '#f97316',
+                                customClass: { popup: 'rounded-[2rem]' }
+                            });
+                            btn.disabled = false;
+                        }
+                    })
+                    .withFailureHandler((error) => {
+                        Swal.close(); 
+                        Swal.fire({
+                            title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                            text: error.message,
+                            icon: 'error',
+                            confirmButtonColor: '#f97316',
+                            customClass: { popup: 'rounded-[2rem]' }
+                        });
+                        btn.disabled = false;
+                    })
+                    .processAdmission(admissionData);
+
+            } catch (error) {
+                if(error.message.includes('ไม่พบการเชื่อมต่อ')) {
+                    setTimeout(() => {
+                        Swal.close();
+                        document.getElementById('admissionForm').style.display = 'none';
+                        document.getElementById('floatingAvatar').classList.add('hidden');
+                        document.getElementById('successView').classList.remove('hidden');
+                        
+                        const randomNum = Math.floor(10000 + Math.random() * 90000);
+                        const prefix = admissionData.levelId.toUpperCase();
+                        const year = new Date().getFullYear() + 543;
+                        document.getElementById('appNumber').innerText = `NW${year.toString().substring(2)}${prefix}-${randomNum}`;
+                        
+                        let fullName = `${admissionData.title}${admissionData.fname} ${admissionData.lname}`;
+                        if (admissionData.isOrdained && admissionData.chaya) {
+                            fullName = `${admissionData.title}${admissionData.fname} ${admissionData.chaya} ${admissionData.lname}`;
+                        }
+                        document.getElementById('finalName').innerText = fullName;
+                        
+                        let levelText = admissionData.level;
+                        if(admissionData.plan !== '-') levelText += ` (${admissionData.plan})`;
+                        document.getElementById('finalLevel').innerText = levelText;
+                        
+                        const now = new Date();
+                        document.getElementById('finalDate').innerText = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH');
+                        
+                        document.getElementById('progressBar').style.width = '100%';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 4000); 
+                } else {
+                    Swal.close();
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: error.message,
+                        icon: 'error',
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'rounded-[2rem]' }
+                    });
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        function goHome() {
+            admissionData = {
+                levelId: '', level: '', plan: '-', photoDataUrl: '', fname: '', lname: '',
+                isOrdained: false, templeResidence: '', ordinationIntention: '', title: '',
+                chaya: '', idCard: '', dob: '', age: '', phone: '', email: '', address: '', oldSchool: '',
+                oldProvince: '', gpa: '', parentTitle: '', parentFname: '', parentLname: '', parentFullName: '',
+                parentRelation: '', parentPhone: '', fatherName: '', fatherStatus: '', fatherIdCard: '', fatherOcc: '',
+                motherName: '', motherStatus: '', motherIdCard: '', motherOcc: '', parentsStatus: '', siblingCount: 0, siblings: [], hasDhamma: false
+            };
+
+            document.getElementById('admissionForm').reset();
+            document.getElementById('admissionForm').style.display = 'block';
+            document.getElementById('successView').classList.add('hidden');
+            
+            document.getElementById('displayFullName').innerText = '';
+            document.getElementById('stuAge').value = '';
+            document.getElementById('siblingInputsContainer').innerHTML = '';
+            
+            document.getElementById('photoPreviewInStep').classList.add('hidden');
+            ['photoPreviewInStep', 'avatarPreview', 'sumRealPhoto', 'finalPhotoPreview'].forEach(id => {
+                const img = document.getElementById(id);
+                if (img) img.src = '';
+            });
+
+            const fileTextIds = ['namePhoto', 'nameTranscript', 'namePorPor2', 'nameHouseReg', 'nameIdCard', 'nameDhamma'];
+            fileTextIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.innerText = 'คลิกหรือลากไฟล์มาวาง';
+                    el.className = 'text-xs text-slate-500';
+                }
+            });
+
+            document.querySelectorAll('.input-error, .input-success').forEach(el => {
+                el.classList.remove('input-error', 'input-success');
+            });
+            document.getElementById('idCardStatus').classList.add('hidden');
+            document.getElementById('idCardErrorText').classList.add('hidden');
+
+            const btn = document.getElementById('btnSubmit');
+            if (btn) {
+                btn.innerHTML = '<span>ยืนยันส่งใบสมัคร</span> <i class="fas fa-paper-plane"></i>';
+                btn.disabled = false;
+            }
+
+            showStep('step1');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+    <!-- Supabase integration overrides Google Apps Script / embedded admin -->
+    <script src="./admission-supabase.js"></script>
+</body>
+</html>

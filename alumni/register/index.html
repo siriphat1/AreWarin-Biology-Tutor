@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ลงทะเบียนข้อมูลศิษย์เก่า</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../assets/app-config.js"></script>
+  <style>
+    body{font-family:'Noto Sans Thai',sans-serif;background:#f8fafc;color:#1e293b}.glass{background:rgba(255,255,255,.82);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 40px rgba(15,23,42,.06)}.blob{position:fixed;filter:blur(110px);z-index:-1;opacity:.4}
+    .field{width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:.8rem 1rem;font-size:.875rem;outline:none}.field:focus{border-color:#fb923c;box-shadow:0 0 0 3px rgba(251,146,60,.14)}.label{display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:.45rem}.req{color:#ef4444}.step-dot{width:10px;height:10px;border-radius:999px;background:#cbd5e1}.step-dot.active{background:#f97316;box-shadow:0 0 0 5px rgba(249,115,22,.12)}
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+  <div class="blob bg-orange-300/50 w-[45vw] h-[45vw] rounded-full -top-40 -left-32"></div>
+  <div class="blob bg-rose-200/35 w-[35vw] h-[35vw] rounded-full -bottom-24 -right-24"></div>
+
+  <header class="sticky top-0 z-40 glass border-b border-white/80">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3">
+      <a href="../" class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-orange-500 text-white flex items-center justify-center"><i data-lucide="book-user" class="w-5 h-5"></i></div>
+        <div class="min-w-0"><p class="font-bold truncate">ลงทะเบียนข้อมูลศิษย์เก่า</p><p class="text-[11px] text-orange-600 font-semibold">Alumni Self Registration</p></div>
+      </a>
+      <a href="../" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 inline-flex items-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> ทำเนียบ</a>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <section class="rounded-[2.5rem] bg-slate-950 text-white p-7 sm:p-10 relative overflow-hidden mb-7">
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-500/35 via-transparent to-amber-400/10"></div>
+      <div class="relative z-10 max-w-3xl"><span class="inline-flex items-center gap-2 text-xs font-bold bg-white/10 border border-white/10 rounded-full px-3 py-1.5 text-orange-200"><i data-lucide="send" class="w-4 h-4"></i> ส่งข้อมูลเพื่อเข้าทำเนียบ</span><h1 class="text-3xl sm:text-4xl font-black mt-4">ร่วมบันทึกความทรงจำของศิษย์เก่า</h1><p class="text-slate-300 mt-3 leading-relaxed">กรอกข้อมูลของคุณแล้วส่งให้โรงเรียนตรวจสอบ ข้อมูลจะยังไม่เผยแพร่จนกว่าผู้ดูแลจะตรวจสอบและอนุมัติ</p></div>
+    </section>
+
+    <section id="form-card" class="glass rounded-[2.2rem] p-5 sm:p-8">
+      <div class="flex items-start gap-4 bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-7"><div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div><div><p class="text-sm font-bold text-orange-900">ข้อมูลจะเข้าสู่คิวตรวจสอบก่อน</p><p class="text-xs text-orange-700 mt-1">ผู้ดูแลสามารถแก้ไขข้อมูลที่สะกดผิดหรือไม่ครบก่อนอนุมัติให้แสดงในทำเนียบ</p></div></div>
+      <form id="submission-form" class="space-y-7">
+        <section>
+          <div class="flex items-center gap-3 mb-4"><div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-black">1</div><div><h2 class="font-black">ข้อมูลพื้นฐาน</h2><p class="text-xs text-slate-500">ชื่อ รุ่น และข้อมูลการศึกษาเดิม</p></div></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2"><label class="label">ชื่อ-นามสกุล <span class="req">*</span></label><input name="full_name" class="field" required placeholder="เช่น นายสมชาย ใจดี"></div>
+            <div><label class="label">รุ่นศิษย์เก่า <span class="req">*</span></label><select name="batch" class="field alumni-batch-select" required></select></div>
+            <div><label class="label">ปีที่จบ</label><select name="graduation_year" class="field graduation-year-select"></select></div>
+            <div><label class="label">ระดับมัธยมที่จบ</label><select name="graduation_level" class="field graduation-level-select"></select></div>
+            <div><label class="label">นักธรรม <span class="text-slate-400 font-normal">(ไม่บังคับ)</span></label><select name="naktham_level" class="field naktham-select"></select></div>
+            <div class="sm:col-span-2"><label class="label">เปรียญธรรม <span class="text-slate-400 font-normal">(ไม่บังคับ)</span></label><select name="pali_level" class="field pali-select"></select></div>
+            <div class="sm:col-span-2 rounded-2xl border border-fuchsia-100 bg-fuchsia-50/60 p-4"><label class="flex items-center gap-3 cursor-pointer"><input name="is_royal_scholarship" type="checkbox" class="royal-scholarship-toggle w-5 h-5 accent-fuchsia-600"><span><span class="block text-sm font-bold text-fuchsia-900">เป็นนักเรียนทุนเฉลิมราชกุมารี</span><span class="block text-[11px] text-fuchsia-700 mt-0.5">หากเป็นนักเรียนทุน กรุณาระบุรุ่นและระยะ</span></span></label><div class="royal-scholarship-fields hidden grid sm:grid-cols-2 gap-3 mt-4"><div><label class="label">ทุนรุ่นที่ <span class="req">*</span></label><input name="royal_scholarship_batch" class="field" placeholder="เช่น รุ่น 5"></div><div><label class="label">ระยะ <span class="req">*</span></label><input name="royal_scholarship_phase" class="field" placeholder="เช่น ระยะที่ 2"></div></div></div>
+          </div>
+        </section>
+
+        <section class="border-t border-slate-100 pt-7">
+          <div class="flex items-center gap-3 mb-4"><div class="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center text-sm font-black">2</div><div><h2 class="font-black">ข้อมูลปัจจุบัน</h2><p class="text-xs text-slate-500">อาชีพ การทำงาน และประวัติ</p></div></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label">ตำแหน่งปัจจุบัน</label><input name="current_position" class="field"></div>
+            <div><label class="label">อาชีพ</label><input name="occupation" class="field"></div>
+            <div class="sm:col-span-2"><label class="label">หน่วยงาน / สถานที่ทำงาน</label><input name="organization" class="field"></div>
+            <div class="sm:col-span-2"><label class="label">ประวัติการศึกษา</label><textarea name="education" class="field min-h-28" placeholder="กด Enter เพื่อแยกแต่ละรายการ"></textarea></div>
+            <div class="sm:col-span-2"><label class="label">ประวัติโดยย่อ / ผลงานที่อยากแบ่งปัน</label><textarea name="bio" class="field min-h-32"></textarea></div>
+          </div>
+        </section>
+
+        <section class="border-t border-slate-100 pt-7">
+          <div class="flex items-center gap-3 mb-4"><div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-sm font-black">3</div><div><h2 class="font-black">รูปภาพ</h2><p class="text-xs text-slate-500">เลือกอัปโหลดจากเครื่อง หรือใช้ลิงก์รูปภาพ</p></div></div>
+          <div class="grid sm:grid-cols-[180px_1fr] gap-5 items-start">
+            <div class="w-40 h-40 rounded-[1.7rem] bg-slate-100 overflow-hidden border border-slate-200 mx-auto sm:mx-0"><img id="photo-preview" class="w-full h-full object-cover hidden" alt="Preview"><div id="photo-placeholder" class="w-full h-full flex flex-col items-center justify-center text-slate-300"><i data-lucide="user-round" class="w-12 h-12"></i><span class="text-[10px] mt-2">ตัวอย่างรูป</span></div></div>
+            <div class="space-y-4"><div><label class="label">อัปโหลดรูปประจำตัว</label><label class="field cursor-pointer flex items-center justify-center gap-2 font-bold text-orange-600"><i data-lucide="upload" class="w-4 h-4"></i> เลือกรูปภาพ<input id="photo-file" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" class="hidden"></label><p id="file-note" class="text-[10px] text-slate-400 mt-1">สูงสุด 10 MB</p></div><div><label class="label">หรือ ลิงก์รูปภาพ</label><input name="photo_url" id="photo-url" type="url" class="field" placeholder="https://example.com/photo.jpg"><p class="text-[10px] text-slate-400 mt-1">หากเลือกไฟล์จากเครื่อง ระบบจะใช้ไฟล์นั้นแทนลิงก์</p></div></div>
+          </div>
+        </section>
+
+        <section class="border-t border-slate-100 pt-7">
+          <div class="flex items-center gap-3 mb-4"><div class="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-sm font-black">4</div><div><h2 class="font-black">ช่องทางติดต่อ</h2><p class="text-xs text-slate-500">ใช้สำหรับให้ผู้ดูแลติดต่อกลับและเลือกเผยแพร่ได้</p></div></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label class="label">เบอร์โทรศัพท์</label><input name="phone" type="tel" class="field" placeholder="อย่างน้อยเบอร์โทรหรือ Email 1 ช่อง"></div>
+            <div><label class="label">Email</label><input name="email" type="email" class="field" placeholder="name@example.com"></div>
+            <div class="sm:col-span-2"><label class="label">Facebook URL</label><input name="facebook_url" type="url" class="field" placeholder="https://facebook.com/..."></div>
+          </div>
+          <label class="mt-4 flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 cursor-pointer"><input name="show_contact" type="checkbox" class="mt-0.5 w-5 h-5 accent-orange-500"><span><span class="block text-sm font-bold">อนุญาตให้แสดงข้อมูลติดต่อในทำเนียบ</span><span class="block text-[11px] text-slate-500 mt-1">หากไม่เลือก ผู้ดูแลยังเห็นข้อมูลเพื่อใช้ตรวจสอบ แต่หน้า Public จะไม่แสดงเบอร์/Email/Facebook</span></span></label>
+        </section>
+
+        <section class="border-t border-slate-100 pt-7">
+          <label class="flex items-start gap-3 p-4 rounded-2xl bg-orange-50 border border-orange-100 cursor-pointer"><input id="consent" type="checkbox" class="mt-0.5 w-5 h-5 accent-orange-500" required><span class="text-xs leading-relaxed text-orange-900"><strong>ข้าพเจ้ารับรองว่าข้อมูลเป็นความจริง</strong> และยินยอมให้โรงเรียนเก็บข้อมูลเพื่อการตรวจสอบและจัดทำทำเนียบศิษย์เก่า โดยข้อมูลจะเผยแพร่หลังผ่านการตรวจสอบจากผู้ดูแลเท่านั้น</span></label>
+        </section>
+
+        <div id="form-status" class="hidden rounded-2xl p-4 text-sm"></div>
+        <button id="submit-btn" type="submit" class="w-full sm:w-auto sm:min-w-60 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl px-7 py-4 font-black inline-flex items-center justify-center gap-2 shadow-lg shadow-orange-100"><i data-lucide="send" class="w-5 h-5"></i> ส่งข้อมูลให้โรงเรียนตรวจสอบ</button>
+      </form>
+    </section>
+
+    <section id="success-card" class="hidden glass rounded-[2.2rem] p-8 sm:p-12 text-center">
+      <div class="w-20 h-20 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto"><i data-lucide="circle-check-big" class="w-10 h-10"></i></div>
+      <h2 class="text-2xl font-black mt-5">ส่งข้อมูลเรียบร้อยแล้ว</h2>
+      <p class="text-sm text-slate-500 mt-2">ข้อมูลถูกส่งไปยัง Alumni Manager เพื่อรอการตรวจสอบและอนุมัติ</p>
+      <div class="inline-block mt-6 bg-slate-950 text-white rounded-2xl px-6 py-4"><p class="text-[10px] text-slate-400 uppercase tracking-widest">หมายเลขรายการ</p><p id="submission-number" class="text-2xl font-black mt-1"></p></div>
+      <div class="flex flex-wrap justify-center gap-3 mt-7"><a href="../" class="px-5 py-3 rounded-xl bg-orange-500 text-white text-sm font-bold">กลับทำเนียบศิษย์เก่า</a><button id="submit-another" class="px-5 py-3 rounded-xl bg-white border border-slate-200 text-sm font-bold">ส่งข้อมูลอีกคน</button></div>
+    </section>
+  </main>
+
+  <script src="register.js?v=20260925-alumni-structured-2"></script>
+</body>
+</html>

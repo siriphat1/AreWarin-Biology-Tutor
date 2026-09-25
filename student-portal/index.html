@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Portal | โรงเรียนวัดหนองแวงวิทยา</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Noto Sans Thai',sans-serif;background:#f8fafc;color:#0f172a}
+    .glass{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 50px rgba(15,23,42,.08)}
+    .soft-card{background:white;border:1px solid #e2e8f0;box-shadow:0 8px 28px rgba(15,23,42,.05)}
+    .tab-btn.active{background:#0f172a;color:white;box-shadow:0 8px 20px rgba(15,23,42,.18)}
+    .hide{display:none!important}
+    .line-clamp-2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+    @media print{.no-print{display:none!important}.print-card{box-shadow:none!important;border:1px solid #ddd!important}body{background:white}}
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-32 -left-24 w-96 h-96 bg-orange-200/45 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-24 w-96 h-96 bg-sky-200/40 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 w-80 h-80 bg-amber-100/70 rounded-full blur-3xl"></div>
+  </div>
+
+  <header class="sticky top-0 z-40 border-b border-white/80 bg-white/75 backdrop-blur-xl no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+      <a href="../" class="flex items-center gap-3 min-w-0">
+        <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+          <img id="schoolLogo" class="w-full h-full object-contain hidden" alt="โลโก้โรงเรียน" />
+          <i id="schoolLogoIcon" data-lucide="graduation-cap" class="w-6 h-6 text-orange-500"></i>
+        </div>
+        <div class="min-w-0">
+          <p id="schoolName" class="font-extrabold text-slate-900 truncate">โรงเรียนวัดหนองแวงวิทยา</p>
+          <p class="text-xs font-semibold text-orange-600">Student Portal</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="../university-admission/" class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-orange-50 hover:text-orange-700"><i data-lucide="university" class="w-4 h-4"></i> ศึกษาต่อ</a>
+        <button id="logoutBtn" onclick="portalLogout()" class="hide items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800"><i data-lucide="log-out" class="w-4 h-4"></i> ออกจากระบบ</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-10">
+    <!-- PUBLIC / LOGIN -->
+    <div id="publicView">
+      <section class="grid lg:grid-cols-5 gap-6 items-stretch mb-8">
+        <div class="lg:col-span-3 rounded-[2rem] overflow-hidden relative min-h-[380px] bg-slate-950 text-white shadow-2xl">
+          <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950"></div>
+          <div class="absolute -right-12 -bottom-20 w-80 h-80 rounded-full bg-orange-500/30 blur-3xl"></div>
+          <div class="relative p-8 md:p-10 h-full flex flex-col justify-between">
+            <div>
+              <span class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 text-xs font-semibold"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i> พื้นที่สำหรับนักเรียน</span>
+              <h1 class="text-4xl md:text-5xl font-black mt-6 leading-tight">Student Portal<br><span class="text-orange-400">เรียน • สอบ • ศึกษาต่อ</span></h1>
+              <p class="mt-5 max-w-xl text-slate-300 leading-relaxed">ตรวจสอบข้อมูลส่วนตัว ตารางเรียนของวันนี้ ตารางสอบ อัปโหลดผลการเรียน และติดตามประกาศรับสมัครมหาวิทยาลัยได้จากที่เดียว</p>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-8 max-w-lg">
+              <div class="rounded-2xl bg-white/8 border border-white/10 p-4"><i data-lucide="calendar-days" class="w-5 h-5 text-orange-300 mb-2"></i><p class="text-xs text-slate-400">วันนี้เรียนอะไร</p><p class="font-bold text-sm mt-1">ดูอัตโนมัติ</p></div>
+              <div class="rounded-2xl bg-white/8 border border-white/10 p-4"><i data-lucide="clipboard-check" class="w-5 h-5 text-sky-300 mb-2"></i><p class="text-xs text-slate-400">วันสอบ</p><p class="font-bold text-sm mt-1">ไม่พลาดกำหนด</p></div>
+              <div class="rounded-2xl bg-white/8 border border-white/10 p-4"><i data-lucide="school" class="w-5 h-5 text-emerald-300 mb-2"></i><p class="text-xs text-slate-400">มหาวิทยาลัย</p><p class="font-bold text-sm mt-1">ลิงก์สมัครตรง</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 glass rounded-[2rem] p-6 md:p-8 flex flex-col justify-center">
+          <div class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mb-5"><i data-lucide="key-round" class="w-7 h-7"></i></div>
+          <h2 class="text-2xl font-extrabold">เข้าสู่ระบบนักเรียน</h2>
+          <p class="text-sm text-slate-500 mt-2 mb-6">ใช้รหัสนักเรียนและ PIN ที่โรงเรียนกำหนด</p>
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-500">รหัสนักเรียน</label>
+              <input id="loginStudentCode" autocomplete="username" required class="mt-1 w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 font-semibold" placeholder="เช่น 690001">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-500">PIN</label>
+              <div class="relative mt-1">
+                <input id="loginPin" type="password" autocomplete="current-password" required class="w-full px-4 py-3.5 pr-12 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 font-semibold" placeholder="PIN อย่างน้อย 6 หลัก">
+                <button type="button" onclick="togglePin()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"><i data-lucide="eye" class="w-5 h-5"></i></button>
+              </div>
+            </div>
+            <button id="loginSubmit" class="w-full py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-orange-200 transition">เข้าสู่ Student Portal</button>
+          </form>
+          <div id="loginMsg" class="mt-4 text-sm text-center"></div>
+          <p class="text-[11px] text-slate-400 mt-6 leading-relaxed">เพื่อความเป็นส่วนตัว ระบบใช้ PIN ร่วมกับรหัสนักเรียน หากลืม PIN กรุณาติดต่อเจ้าหน้าที่โรงเรียน</p>
+        </div>
+      </section>
+
+      <section class="mb-8">
+        <div class="flex items-end justify-between gap-4 mb-5">
+          <div><p class="text-xs font-bold text-orange-600 uppercase tracking-wider">University Admission</p><h2 class="text-2xl font-extrabold mt-1">ประชาสัมพันธ์วันรับสมัครมหาวิทยาลัย</h2><p class="text-sm text-slate-500 mt-1">ประกาศล่าสุดที่ควรติดตาม</p></div>
+          <a href="../university-admission/" class="text-sm font-bold text-orange-600 hover:text-orange-700">ดูทั้งหมด →</a>
+        </div>
+        <div id="publicUniversityCards" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+      </section>
+    </div>
+
+    <!-- PORTAL -->
+    <div id="portalView" class="hide">
+      <section class="grid lg:grid-cols-4 gap-5 mb-6">
+        <div class="lg:col-span-3 glass rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-5">
+          <div class="w-24 h-24 rounded-[1.75rem] bg-slate-100 border-4 border-white shadow-lg overflow-hidden shrink-0 flex items-center justify-center">
+            <img id="heroPhoto" class="w-full h-full object-cover hidden" alt="รูปนักเรียน"><i id="heroPhotoIcon" data-lucide="user-round" class="w-10 h-10 text-slate-300"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-2"><span id="heroClass" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold"></span><span id="heroCode" class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold"></span></div>
+            <h1 id="heroName" class="text-3xl font-black text-slate-900"></h1>
+            <p id="heroSub" class="text-sm text-slate-500 mt-1"></p>
+          </div>
+          <button onclick="showTab('profile')" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold hover:border-orange-300 hover:text-orange-700 no-print"><i data-lucide="pencil" class="w-4 h-4 inline mr-1"></i> แก้ข้อมูลติดต่อ</button>
+        </div>
+        <div class="rounded-[2rem] p-6 bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-xl shadow-orange-100">
+          <p class="text-xs text-orange-100 font-semibold">วันนี้</p><p id="todayDate" class="font-extrabold text-xl mt-1"></p><div class="border-t border-white/20 my-4"></div><p class="text-xs text-orange-100">คาบเรียนวันนี้</p><p id="todayClassCount" class="text-4xl font-black mt-1">0</p>
+        </div>
+      </section>
+
+      <div class="no-print flex gap-2 overflow-x-auto pb-2 mb-6">
+        <button class="tab-btn active shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="dashboard" onclick="showTab('dashboard')">ภาพรวม</button>
+        <button class="tab-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="profile" onclick="showTab('profile')">ข้อมูลของฉัน</button>
+        <button class="tab-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="timetable" onclick="showTab('timetable')">ตารางเรียน</button>
+        <button class="tab-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="exams" onclick="showTab('exams')">วันสอบ</button>
+        <button class="tab-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="grades" onclick="showTab('grades')">อัปโหลดเกรด</button>
+        <button class="tab-btn shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200" data-tab="security" onclick="showTab('security')">เปลี่ยน PIN</button>
+      </div>
+
+      <section id="tab-dashboard" class="portal-tab">
+        <div class="grid lg:grid-cols-3 gap-5">
+          <div class="lg:col-span-2 soft-card rounded-[2rem] p-6">
+            <div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-extrabold">วันนี้เรียนอะไร</h2><p id="todayDayName" class="text-sm text-slate-500"></p></div><button onclick="showTab('timetable')" class="text-sm font-bold text-orange-600">ดูทั้งสัปดาห์</button></div>
+            <div id="todaySchedule" class="space-y-3"></div>
+          </div>
+          <div class="soft-card rounded-[2rem] p-6">
+            <div class="flex items-center justify-between mb-5"><h2 class="text-xl font-extrabold">สอบที่กำลังจะมาถึง</h2><button onclick="showTab('exams')" class="text-sm font-bold text-orange-600">ทั้งหมด</button></div>
+            <div id="nextExamList" class="space-y-3"></div>
+          </div>
+        </div>
+        <div class="mt-5 soft-card rounded-[2rem] p-6">
+          <div class="flex items-center justify-between mb-5"><div><h2 class="text-xl font-extrabold">ข่าวศึกษาต่อ</h2><p class="text-sm text-slate-500">ประกาศรับสมัครมหาวิทยาลัยล่าสุด</p></div><a href="../university-admission/" class="text-sm font-bold text-orange-600">เปิด Admission Hub →</a></div>
+          <div id="portalUniversityCards" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </div>
+      </section>
+
+      <section id="tab-profile" class="portal-tab hide">
+        <div class="max-w-3xl soft-card rounded-[2rem] p-6 md:p-8">
+          <h2 class="text-2xl font-extrabold">ข้อมูลของฉัน</h2><p class="text-sm text-slate-500 mt-1 mb-7">ชื่อ รหัส และระดับชั้นแก้ไขโดยเจ้าหน้าที่ คุณสามารถอัปเดตข้อมูลติดต่อและรูปได้</p>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div>
+              <div class="w-36 h-44 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center mx-auto md:mx-0"><img id="profilePhotoPreview" class="w-full h-full object-cover hidden"><i id="profilePhotoIcon" data-lucide="image-plus" class="w-8 h-8 text-slate-300"></i></div>
+              <label class="mt-3 block text-center md:text-left"><span class="inline-flex cursor-pointer px-4 py-2 rounded-xl bg-orange-50 text-orange-700 text-sm font-bold">เปลี่ยนรูป<input id="profilePhotoFile" type="file" accept="image/jpeg,image/png,image/webp" class="hidden"></span></label>
+              <p class="text-[10px] text-slate-400 mt-2">JPG / PNG / WebP ไม่เกิน 3 MB</p>
+            </div>
+            <form id="profileForm" class="md:col-span-2 grid sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2"><label class="text-xs font-bold text-slate-500">ชื่อ-นามสกุล</label><input id="profileName" disabled class="mt-1 w-full px-4 py-3 rounded-xl bg-slate-100 border border-slate-200 font-semibold"></div>
+              <div><label class="text-xs font-bold text-slate-500">รหัสนักเรียน</label><input id="profileCode" disabled class="mt-1 w-full px-4 py-3 rounded-xl bg-slate-100 border border-slate-200 font-semibold"></div>
+              <div><label class="text-xs font-bold text-slate-500">ระดับชั้น</label><input id="profileClass" disabled class="mt-1 w-full px-4 py-3 rounded-xl bg-slate-100 border border-slate-200 font-semibold"></div>
+              <div><label class="text-xs font-bold text-slate-500">เบอร์โทรศัพท์</label><input id="profilePhone" class="mt-1 w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-orange-100 focus:outline-none"></div>
+              <div><label class="text-xs font-bold text-slate-500">Email</label><input id="profileEmail" type="email" class="mt-1 w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-orange-100 focus:outline-none"></div>
+              <div class="sm:col-span-2"><button class="px-5 py-3 rounded-xl bg-orange-500 text-white font-bold hover:bg-orange-600">บันทึกข้อมูล</button><span id="profileMsg" class="ml-3 text-sm"></span></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-timetable" class="portal-tab hide">
+        <div class="soft-card rounded-[2rem] p-5 md:p-7 overflow-hidden">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6"><div><h2 class="text-2xl font-extrabold">ตารางเรียน</h2><p id="timetableSubtitle" class="text-sm text-slate-500 mt-1"></p></div><button onclick="window.print()" class="no-print px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold">พิมพ์ตารางเรียน</button></div>
+          <div id="timetableDays" class="space-y-6"></div>
+        </div>
+      </section>
+
+      <section id="tab-exams" class="portal-tab hide">
+        <div class="soft-card rounded-[2rem] p-5 md:p-7">
+          <div class="flex items-center justify-between mb-6"><div><h2 class="text-2xl font-extrabold">กำหนดการสอบ</h2><p id="examSubtitle" class="text-sm text-slate-500 mt-1"></p></div><button onclick="window.print()" class="no-print px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold">พิมพ์</button></div>
+          <div id="examList" class="space-y-4"></div>
+        </div>
+      </section>
+
+      <section id="tab-grades" class="portal-tab hide">
+        <div class="grid lg:grid-cols-5 gap-5">
+          <div class="lg:col-span-2 soft-card rounded-[2rem] p-6">
+            <h2 class="text-xl font-extrabold">อัปโหลดผลการเรียน</h2><p class="text-sm text-slate-500 mt-1 mb-5">แนบ PDF / รูปภาพ / Excel โดยระบบจะผูกกับรหัสนักเรียนของคุณอัตโนมัติ</p>
+            <form id="gradeForm" class="space-y-4">
+              <div class="grid grid-cols-2 gap-3"><div><label class="text-xs font-bold text-slate-500">ปีการศึกษา</label><input id="gradeYear" required class="mt-1 w-full px-3 py-3 rounded-xl border border-slate-200" placeholder="2569"></div><div><label class="text-xs font-bold text-slate-500">ภาคเรียน</label><select id="gradeSemester" class="mt-1 w-full px-3 py-3 rounded-xl border border-slate-200"><option>1</option><option>2</option><option>ฤดูร้อน</option></select></div></div>
+              <div><label class="text-xs font-bold text-slate-500">ไฟล์ผลการเรียน</label><input id="gradeFile" required type="file" accept="image/jpeg,image/png,image/webp,application/pdf,.xlsx" class="mt-1 block w-full text-sm border border-slate-200 rounded-xl p-2 bg-white"></div>
+              <div><label class="text-xs font-bold text-slate-500">หมายเหตุ</label><textarea id="gradeNote" class="mt-1 w-full px-3 py-3 rounded-xl border border-slate-200" rows="3" placeholder="ถ้ามี"></textarea></div>
+              <button id="gradeSubmit" class="w-full py-3 rounded-xl bg-slate-900 text-white font-bold">อัปโหลด</button><p id="gradeMsg" class="text-sm text-center"></p>
+            </form>
+          </div>
+          <div class="lg:col-span-3 soft-card rounded-[2rem] p-6"><h2 class="text-xl font-extrabold mb-5">ไฟล์ที่เคยอัปโหลด</h2><div id="gradeHistory" class="space-y-3"></div></div>
+        </div>
+      </section>
+
+      <section id="tab-security" class="portal-tab hide">
+        <div class="max-w-xl soft-card rounded-[2rem] p-6 md:p-8"><h2 class="text-2xl font-extrabold">เปลี่ยน PIN</h2><p class="text-sm text-slate-500 mt-1 mb-6">PIN ใหม่ต้องมีอย่างน้อย 6 ตัวอักษร</p><form id="pinForm" class="space-y-4"><input id="currentPin" type="password" required class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="PIN ปัจจุบัน"><input id="newPin" type="password" required minlength="6" class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="PIN ใหม่"><input id="confirmPin" type="password" required minlength="6" class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="ยืนยัน PIN ใหม่"><button class="px-5 py-3 rounded-xl bg-slate-900 text-white font-bold">เปลี่ยน PIN</button><span id="pinMsg" class="ml-3 text-sm"></span></form></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="mt-10 border-t border-slate-200 bg-white/70 no-print"><div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row justify-between gap-3 text-xs text-slate-500"><span>Student Portal • โรงเรียนวัดหนองแวงวิทยา</span><span>ข้อมูลนักเรียนใช้เพื่อการศึกษาและการบริหารจัดการของโรงเรียน</span></div></footer>
+
+  <script src="../assets/app-config.js"></script>
+  <script src="./student-portal.js?v=20260922-1"></script>
+</body>
+</html>

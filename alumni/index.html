@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ทำเนียบศิษย์เก่า</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/app-config.js"></script>
+  <style>
+    body{font-family:'Noto Sans Thai',sans-serif;background:#f8fafc;color:#1e293b}.glass{background:rgba(255,255,255,.78);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 40px rgba(15,23,42,.06)}
+    .blob{position:fixed;filter:blur(110px);z-index:-1;opacity:.45}.field{width:100%;background:rgba(255,255,255,.95);border:1px solid #e2e8f0;border-radius:1rem;padding:.8rem 1rem;outline:none}.field:focus{border-color:#fb923c;box-shadow:0 0 0 3px rgba(251,146,60,.12)}
+    .alumni-card{transition:.25s ease}.alumni-card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(15,23,42,.1)}
+    @media print{.no-print{display:none!important}body{background:white}.blob{display:none}.glass{box-shadow:none;background:white;border:1px solid #e2e8f0}.alumni-card{break-inside:avoid;box-shadow:none!important}.print-title{display:block!important}}
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+  <div class="blob bg-orange-300/50 w-[45vw] h-[45vw] rounded-full -top-36 -left-28"></div>
+  <div class="blob bg-rose-200/40 w-[38vw] h-[38vw] rounded-full -bottom-28 -right-20"></div>
+
+  <header class="sticky top-0 z-40 glass border-b border-white/80 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <a href="../" class="flex items-center gap-3 min-w-0">
+        <div id="logo-frame" class="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shrink-0">
+          <img id="school-logo" class="w-full h-full object-contain hidden" alt="โลโก้โรงเรียน">
+          <div id="logo-fallback" class="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
+        </div>
+        <div class="min-w-0"><p id="school-name" class="font-bold text-slate-900 truncate">โรงเรียนวัดหนองแวงวิทยา</p><p class="text-xs text-orange-600 font-semibold">Alumni Directory</p></div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="./register/" class="hidden md:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-500 text-white text-xs font-bold"><i data-lucide="send" class="w-4 h-4"></i> ลงทะเบียนศิษย์เก่า</a>
+        <a href="./manager/" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold"><i data-lucide="shield" class="w-4 h-4"></i> หลังบ้าน</a>
+        <a href="../" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700"><i data-lucide="home" class="w-4 h-4"></i> เว็บหลัก</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <section id="alumni-hero" class="relative overflow-hidden rounded-[2.5rem] bg-slate-950 text-white p-7 sm:p-10 lg:p-12 mb-8 shadow-2xl shadow-slate-200 no-print">
+      <img id="alumni-hero-bg" class="hidden absolute inset-0 w-full h-full object-cover" alt="พื้นหลังทำเนียบศิษย์เก่า">
+      <div id="alumni-hero-overlay" class="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/82 to-slate-950/45"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-amber-400/10"></div>
+      <div class="absolute -right-20 -top-24 w-80 h-80 rounded-full bg-orange-500/20 blur-3xl"></div>
+      <div class="relative z-10 max-w-3xl">
+        <span class="inline-flex items-center gap-2 bg-white/10 border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-orange-200"><i data-lucide="book-open" class="w-4 h-4"></i> สมุดทำเนียบรุ่น</span>
+        <h1 class="text-3xl sm:text-5xl font-black mt-5 leading-tight">ทำเนียบศิษย์เก่า<br><span class="text-orange-400" id="hero-school-name">โรงเรียนวัดหนองแวงวิทยา</span></h1>
+        <p class="text-slate-300 mt-4 max-w-2xl leading-relaxed">ค้นหาเพื่อนร่วมรุ่น รุ่นพี่ รุ่นน้อง และบุคลากรที่เป็นศิษย์เก่า พร้อมเปิดดูประวัติรายบุคคลจากสมุดทำเนียบออนไลน์</p>
+        <div class="flex flex-wrap gap-3 mt-6"><a href="./register/" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-lg"><i data-lucide="send" class="w-4 h-4"></i> ส่งข้อมูลเข้าทำเนียบศิษย์เก่า</a><a href="#directory" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 border border-white/10 text-white text-sm font-bold"><i data-lucide="users" class="w-4 h-4"></i> เปิดสมุดทำเนียบ</a></div>
+      </div>
+    </section>
+
+    <div class="print-title hidden mb-6"><h1 class="text-3xl font-bold">ทำเนียบศิษย์เก่า</h1><p id="print-filter-label" class="text-slate-500 mt-1"></p></div>
+
+    <section class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6 no-print">
+      <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ศิษย์เก่าที่เผยแพร่</p><p id="stat-total" class="text-3xl font-black text-orange-600 mt-2">0</p></div>
+      <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">จำนวนรุ่น</p><p id="stat-batches" class="text-3xl font-black text-slate-900 mt-2">0</p></div>
+      <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">บุคลากรที่เป็นศิษย์เก่า</p><p id="stat-staff" class="text-3xl font-black text-amber-600 mt-2">0</p></div>
+      <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ทุนเฉลิมราชกุมารี</p><p id="stat-scholarship" class="text-3xl font-black text-fuchsia-600 mt-2">0</p></div>
+      <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">กำลังแสดง</p><p id="stat-visible" class="text-3xl font-black text-slate-900 mt-2">0</p></div>
+    </section>
+
+    <section class="glass rounded-[2rem] p-4 sm:p-5 mb-8 no-print">
+      <div class="flex flex-wrap gap-2 mb-4" id="directory-mode-tabs">
+        <button type="button" data-directory-mode="all" class="directory-mode-btn px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> ศิษย์เก่าทั้งหมด</button>
+        <button type="button" data-directory-mode="scholarship" class="directory-mode-btn px-4 py-2.5 rounded-xl bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-100 text-xs font-bold flex items-center gap-2"><i data-lucide="award" class="w-4 h-4"></i> นักเรียนทุนเฉลิมราชกุมารี</button>
+      </div>
+      <div class="grid md:grid-cols-[1fr_240px_auto] gap-3 items-center">
+        <div class="relative"><i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i><input id="search-input" class="field pl-11" placeholder="ค้นหาชื่อ อาชีพ หน่วยงาน หรือรุ่น..."></div>
+        <select id="batch-filter" class="field"><option value="">ทุกรุ่น</option></select>
+        <button id="print-btn" class="px-5 py-3 rounded-2xl bg-slate-900 text-white text-sm font-bold flex items-center justify-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> พิมพ์ทำเนียบ</button>
+      </div>
+    </section>
+
+    <section id="directory" class="space-y-10"></section>
+    <div id="empty-state" class="hidden glass rounded-[2rem] p-12 text-center text-slate-500"><i data-lucide="users" class="w-10 h-10 mx-auto text-slate-300 mb-3"></i><p class="font-bold text-slate-700">ไม่พบรายชื่อศิษย์เก่า</p><p class="text-sm mt-1">ลองเปลี่ยนคำค้นหาหรือเลือกรุ่นอื่น</p></div>
+  </main>
+
+  <footer class="no-print mt-10 bg-slate-950 text-slate-400 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row gap-3 justify-between text-xs"><p>ทำเนียบศิษย์เก่าออนไลน์</p><a href="../" class="hover:text-orange-400">กลับเว็บไซต์โรงเรียน</a></div>
+  </footer>
+
+  <div id="profile-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 no-print">
+    <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-close-profile></div>
+    <div class="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto glass bg-white/95 rounded-[2rem] p-6 sm:p-8 shadow-2xl">
+      <button data-close-profile class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start pr-8">
+        <img id="profile-photo" class="w-32 h-32 rounded-[2rem] object-cover bg-slate-100 border-4 border-white shadow-lg" alt="">
+        <div class="text-center sm:text-left flex-1"><div id="profile-badges" class="flex flex-wrap justify-center sm:justify-start gap-2 mb-2"></div><h2 id="profile-name" class="text-2xl font-black text-slate-900"></h2><p id="profile-career" class="text-sm text-orange-600 font-bold mt-2"></p><p id="profile-org" class="text-sm text-slate-500 mt-1"></p></div>
+      </div>
+      <div class="mt-7 grid gap-4">
+        <details id="profile-bio-wrap" class="hidden group bg-orange-50 rounded-2xl border border-orange-100 overflow-hidden">
+          <summary class="list-none cursor-pointer select-none px-5 py-4 flex items-center justify-between gap-3 hover:bg-orange-100/60 transition-colors">
+            <div class="flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-orange-600"></i><h3 class="font-bold text-orange-800 text-sm">ประวัติโดยย่อ</h3></div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-orange-600"><span id="profile-bio-toggle-text">ดูรายละเอียด</span><i data-lucide="chevron-down" class="w-4 h-4 group-open:rotate-180 transition-transform"></i></div>
+          </summary>
+          <div class="px-5 pb-5 pt-1 border-t border-orange-100/80"><p id="profile-bio" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p></div>
+        </details>
+        <div id="profile-education-wrap" class="hidden bg-slate-50 rounded-2xl p-5 border border-slate-100"><h3 class="font-bold text-slate-800 text-sm mb-2">ประวัติการศึกษา</h3><p id="profile-education" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p></div>
+        <div id="profile-contact-wrap" class="hidden flex flex-wrap gap-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="alumni.js?v=20260925-bio-dropdown-1"></script>
+</body>
+</html>

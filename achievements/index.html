@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ผลงานแห่งความภาคภูมิใจ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/app-config.js"></script>
+  <style>
+    body{font-family:'Noto Sans Thai',sans-serif;background:#f8fafc}.glass{background:rgba(255,255,255,.68);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.85);box-shadow:0 8px 32px rgba(31,38,135,.06)}
+    .blob{position:fixed;filter:blur(100px);z-index:-1;opacity:.55}
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 selection:bg-orange-200">
+  <div class="blob bg-orange-300/40 w-[50vw] h-[50vw] rounded-full -top-32 -left-32"></div>
+  <div class="blob bg-rose-300/30 w-[40vw] h-[40vw] rounded-full -bottom-32 -right-24"></div>
+
+  <nav class="sticky top-0 z-50 glass border-b border-white/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <a href="../" class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white overflow-hidden shadow-lg">
+          <img id="site-logo" class="w-full h-full object-cover hidden" alt="โลโก้">
+          <i id="site-logo-icon" data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0"><h1 id="school-name" class="font-bold text-slate-900 truncate">โรงเรียนวัดหนองแวงวิทยา</h1><p class="text-xs text-orange-600 font-medium">ผลงานแห่งความภาคภูมิใจ</p></div>
+      </a>
+      <a href="../" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/70 border border-white text-sm font-bold text-slate-600 hover:text-orange-600 shadow-sm"><i data-lucide="arrow-left" class="w-4 h-4"></i><span class="hidden sm:inline">กลับหน้าเว็บไซต์หลัก</span></a>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section class="mb-8">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center"><i data-lucide="award" class="w-6 h-6"></i></div>
+        <div><h2 class="text-3xl sm:text-4xl font-bold text-slate-900">ผลงานแห่งความภาคภูมิใจ</h2><p class="text-slate-500 mt-2">รวบรวมรางวัล เกียรติคุณ และความสำเร็จของโรงเรียน เรียงจากรายการล่าสุด</p></div>
+      </div>
+    </section>
+
+    <section class="glass rounded-[2rem] p-4 sm:p-5 mb-8 flex flex-col md:flex-row gap-3">
+      <div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i><input id="search" class="w-full bg-white/70 rounded-2xl border border-white px-11 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" placeholder="ค้นหาชื่อผลงาน..."></div>
+      <select id="year-filter" class="bg-white/70 rounded-2xl border border-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"><option value="all">ทุกปี</option></select>
+    </section>
+
+    <div id="status" class="glass rounded-[2rem] p-10 text-center text-slate-500">กำลังโหลดข้อมูล...</div>
+    <section id="grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></section>
+  </main>
+
+  <footer class="mt-12 bg-slate-900 text-slate-400 py-8 text-center text-xs border-t-4 border-orange-500"><a href="../" class="hover:text-orange-400">กลับสู่เว็บไซต์หลัก</a></footer>
+  <script src="./achievements.js"></script>
+</body>
+</html>

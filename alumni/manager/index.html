@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../assets/app-config.js"></script>
+  <style>
+    body{font-family:'Noto Sans Thai',sans-serif;background:#f8fafc;color:#1e293b}.glass{background:rgba(255,255,255,.8);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 40px rgba(15,23,42,.06)}.blob{position:fixed;filter:blur(110px);z-index:-1;opacity:.42}
+    .field{width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:.75rem 1rem;font-size:.875rem;outline:none}.field:focus{border-color:#fb923c;box-shadow:0 0 0 3px rgba(251,146,60,.14)}.label{display:block;font-size:.75rem;font-weight:700;color:#475569;margin-bottom:.4rem}
+    .btn{border-radius:.85rem;padding:.65rem .9rem;font-size:.78rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:.45rem}.btn-primary{background:#f97316;color:#fff}.btn-dark{background:#0f172a;color:#fff}.btn-light{background:#fff;border:1px solid #e2e8f0;color:#475569}
+    .scroll-thin::-webkit-scrollbar{width:6px}.scroll-thin::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="blob bg-orange-300/50 w-[45vw] h-[45vw] rounded-full -top-40 -left-32"></div>
+  <div class="blob bg-rose-300/30 w-[35vw] h-[35vw] rounded-full -bottom-24 -right-24"></div>
+
+  <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="w-full max-w-md glass rounded-[2rem] p-8 bg-white/95">
+      <div class="w-14 h-14 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-5"><i data-lucide="users-round" class="w-7 h-7"></i></div>
+      <h1 class="text-2xl font-black">Alumni Manager</h1><p class="text-sm text-slate-500 mt-2 mb-6">จัดการสมุดทำเนียบศิษย์เก่า ด้วยบัญชี Supabase Authentication</p>
+      <form id="login-form" class="space-y-4"><div><label class="label">อีเมลผู้ดูแล</label><input id="login-email" type="email" class="field" required></div><div><label class="label">รหัสผ่าน</label><input id="login-password" type="password" class="field" required></div><button class="w-full btn btn-primary py-3"><i data-lucide="log-in" class="w-4 h-4"></i> เข้าสู่ระบบ</button></form>
+      <p id="login-error" class="hidden text-xs text-red-500 mt-4"></p><a href="../" class="inline-flex mt-6 text-xs text-slate-500 hover:text-orange-600">← กลับทำเนียบศิษย์เก่า</a>
+    </div>
+  </div>
+
+  <div id="app" class="hidden min-h-screen lg:grid lg:grid-cols-[270px_1fr]">
+    <aside class="lg:sticky lg:top-0 lg:h-screen bg-slate-950 text-slate-300 p-5 flex flex-col z-40">
+      <div class="flex items-center gap-3 py-3 mb-6"><div class="w-11 h-11 rounded-xl bg-orange-500 text-white flex items-center justify-center"><i data-lucide="book-user" class="w-5 h-5"></i></div><div><h1 class="font-bold text-white">Alumni Manager</h1><p class="text-[10px] text-slate-500">สมุดทำเนียบศิษย์เก่า</p></div></div>
+      <nav class="space-y-2 flex-1">
+        <button data-view="directory" class="nav-btn w-full bg-orange-500 text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold"><i data-lucide="users" class="w-4 h-4"></i> รายชื่อศิษย์เก่า</button>
+        <button data-view="submissions" class="nav-btn w-full hover:bg-white/5 flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold"><span class="flex items-center gap-3"><i data-lucide="inbox" class="w-4 h-4"></i> แบบฟอร์มรอตรวจสอบ</span><span id="pending-badge" class="hidden min-w-6 h-6 px-1.5 rounded-full bg-red-500 text-white text-[10px] items-center justify-center">0</span></button>
+        <button data-view="staff-alumni" class="nav-btn w-full hover:bg-white/5 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold"><i data-lucide="badge-check" class="w-4 h-4"></i> บุคลากรที่เป็นศิษย์เก่า</button>
+        <button data-view="settings" class="nav-btn w-full hover:bg-white/5 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold"><i data-lucide="image" class="w-4 h-4"></i> ตั้งค่าหน้าทำเนียบ</button>
+      </nav>
+      <div class="border-t border-white/10 pt-4 space-y-2"><a href="../" target="_blank" class="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs hover:bg-white/5"><i data-lucide="external-link" class="w-4 h-4"></i> เปิดทำเนียบ</a><a href="../../manager/" class="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs hover:bg-white/5"><i data-lucide="settings" class="w-4 h-4"></i> Website Manager</a><button id="logout-btn" class="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs text-red-300 hover:bg-red-500/10"><i data-lucide="log-out" class="w-4 h-4"></i> ออกจากระบบ</button></div>
+    </aside>
+
+    <main class="min-w-0">
+      <header class="sticky top-0 z-30 glass border-b border-white/70 px-4 sm:px-8 py-4 flex items-center justify-between"><div><h2 id="page-title" class="font-bold text-slate-900">รายชื่อศิษย์เก่า</h2><p id="page-subtitle" class="text-[11px] text-slate-500">เพิ่ม แก้ไข ลบ และจัดการการเผยแพร่</p></div><button id="add-btn" class="btn btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> เพิ่มศิษย์เก่า</button></header>
+      <div class="p-4 sm:p-8 max-w-7xl mx-auto space-y-6">
+        <section id="panel-directory" class="space-y-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ทั้งหมดในฐานข้อมูล</p><p id="stat-total" class="text-3xl font-black text-slate-900 mt-2">0</p></div><div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">เผยแพร่</p><p id="stat-published" class="text-3xl font-black text-green-600 mt-2">0</p></div><div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">จำนวนรุ่น</p><p id="stat-batches" class="text-3xl font-black text-orange-600 mt-2">0</p></div><div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ศิษย์เก่าเด่น</p><p id="stat-featured" class="text-3xl font-black text-amber-600 mt-2">0</p></div></div>
+          <div class="glass rounded-[2rem] p-4"><div class="grid md:grid-cols-[1fr_220px_160px_auto] gap-3"><input id="search" class="field" placeholder="ค้นหาชื่อ รุ่น อาชีพ หน่วยงาน..."><select id="batch-filter" class="field"><option value="">ทุกรุ่น</option></select><select id="status-filter" class="field"><option value="">ทุกสถานะ</option><option value="published">เผยแพร่</option><option value="draft">ซ่อน</option></select><button id="export-btn" class="btn btn-dark"><i data-lucide="download" class="w-4 h-4"></i> CSV</button></div></div>
+          <div id="alumni-list" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        </section>
+
+        <section id="panel-submissions" class="hidden space-y-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">รอตรวจสอบ</p><p id="sub-stat-pending" class="text-3xl font-black text-orange-600 mt-2">0</p></div>
+            <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">อนุมัติแล้ว</p><p id="sub-stat-approved" class="text-3xl font-black text-green-600 mt-2">0</p></div>
+            <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ไม่อนุมัติ</p><p id="sub-stat-rejected" class="text-3xl font-black text-red-500 mt-2">0</p></div>
+            <div class="glass rounded-3xl p-5"><p class="text-xs text-slate-500">ทั้งหมด</p><p id="sub-stat-total" class="text-3xl font-black text-slate-900 mt-2">0</p></div>
+          </div>
+          <div class="glass rounded-[2rem] p-4"><div class="grid md:grid-cols-[1fr_220px_180px] gap-3"><input id="submission-search" class="field" placeholder="ค้นหาชื่อ รุ่น เบอร์โทร Email..."><select id="submission-batch-filter" class="field"><option value="">ทุกรุ่น</option></select><select id="submission-status-filter" class="field"><option value="pending">รอตรวจสอบ</option><option value="">ทุกสถานะ</option><option value="approved">อนุมัติแล้ว</option><option value="rejected">ไม่อนุมัติ</option></select></div></div>
+          <div class="glass rounded-[2rem] overflow-hidden"><div class="overflow-x-auto"><table class="w-full min-w-[820px] text-sm"><thead class="bg-slate-50 text-slate-500 text-xs"><tr><th class="text-left px-5 py-4">รายการ</th><th class="text-left px-4 py-4">ชื่อ-นามสกุล</th><th class="text-left px-4 py-4">รุ่น</th><th class="text-left px-4 py-4">ส่งเมื่อ</th><th class="text-left px-4 py-4">สถานะ</th><th class="text-right px-5 py-4">จัดการ</th></tr></thead><tbody id="submission-list" class="divide-y divide-slate-100"></tbody></table></div></div>
+          <div class="glass rounded-[2rem] p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"><div><h3 class="font-bold">ลิงก์สำหรับส่งให้ศิษย์เก่ากรอกข้อมูล</h3><p class="text-xs text-slate-500 mt-1">ส่ง URL หน้าแบบฟอร์มนี้ให้ศิษย์เก่าได้โดยตรง</p></div><a href="../register/" target="_blank" class="btn btn-primary"><i data-lucide="external-link" class="w-4 h-4"></i> เปิดแบบฟอร์ม</a></div>
+        </section>
+
+        <section id="panel-staff-alumni" class="hidden space-y-6">
+          <div class="glass rounded-[2rem] p-6 sm:p-8"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center"><i data-lucide="badge-check" class="w-6 h-6"></i></div><div><h3 class="text-xl font-bold">บุคลากรที่ถูกติ๊กว่าเป็นศิษย์เก่า</h3><p class="text-sm text-slate-500 mt-2">รายชื่อส่วนนี้ดึงจาก Website Manager อัตโนมัติ และจะแสดงในทำเนียบศิษย์เก่าโดยไม่ต้องเพิ่มซ้ำ หากต้องการแก้ข้อมูลให้แก้จากเมนู “บุคลากร” ใน Website Manager</p><a href="../../manager/" class="btn btn-dark mt-4"><i data-lucide="settings" class="w-4 h-4"></i> ไป Website Manager</a></div></div></div>
+          <div id="staff-alumni-list" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        </section>
+
+        <section id="panel-settings" class="hidden space-y-6">
+          <div class="glass rounded-[2rem] p-6 sm:p-8 max-w-4xl">
+            <div class="flex items-start gap-4 mb-6"><div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center"><i data-lucide="image" class="w-6 h-6"></i></div><div><h3 class="text-xl font-bold">พื้นหลัง Banner ทำเนียบศิษย์เก่า</h3><p class="text-sm text-slate-500 mt-1">วางลิงก์รูปภาพเพื่อใช้เป็นพื้นหลังส่วนหัวของหน้าทำเนียบ</p></div></div>
+            <form id="alumni-settings-form" class="space-y-4">
+              <div><label class="label">ลิงก์ภาพพื้นหลัง</label><input id="hero-background-url" type="url" class="field" placeholder="https://example.com/alumni-banner.jpg"></div>
+              <div class="rounded-[1.6rem] overflow-hidden bg-slate-950 aspect-[16/5] border border-slate-200 relative"><img id="hero-background-preview" class="hidden absolute inset-0 w-full h-full object-cover" alt="ตัวอย่างพื้นหลัง"><div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/30"></div><div class="absolute inset-0 p-6 flex items-center"><div><p class="text-xs font-bold text-orange-300">ตัวอย่าง Banner</p><p class="text-xl sm:text-3xl font-black text-white mt-2">ทำเนียบศิษย์เก่า</p></div></div></div>
+              <p class="text-[11px] text-slate-500">แนะนำภาพแนวนอนอย่างน้อย 1600×600 px หากเว้นว่างจะใช้พื้นหลังสีเข้มแบบเดิม</p>
+              <div id="settings-status" class="hidden text-xs rounded-xl p-3"></div>
+              <button class="btn btn-primary"><i data-lucide="save" class="w-4 h-4"></i> บันทึกพื้นหลัง</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="editor-modal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/65 backdrop-blur-sm" data-close></div>
+    <div class="relative z-10 w-full max-w-3xl max-h-[92vh] overflow-y-auto scroll-thin glass bg-white/95 rounded-[2rem] p-6 sm:p-8 shadow-2xl">
+      <div class="flex justify-between items-start gap-4 mb-6"><div><h3 id="editor-title" class="text-xl font-black">เพิ่มศิษย์เก่า</h3><p class="text-xs text-slate-500 mt-1">ข้อมูลที่เผยแพร่จะขึ้นในสมุดทำเนียบรุ่นทันที</p></div><button data-close class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="editor-form" class="space-y-5">
+        <input type="hidden" name="id">
+        <div class="grid sm:grid-cols-[150px_1fr] gap-5 items-start">
+          <div>
+            <label class="label">รูปประจำตัว</label>
+            <div class="w-36 h-36 rounded-[1.6rem] bg-slate-100 overflow-hidden border border-slate-200">
+              <img id="photo-preview" class="w-full h-full object-cover hidden" alt="Preview">
+              <div id="photo-placeholder" class="w-full h-full flex items-center justify-center text-slate-300"><i data-lucide="user" class="w-12 h-12"></i></div>
+            </div>
+            <label class="btn btn-light mt-2 cursor-pointer w-full"><i data-lucide="upload" class="w-4 h-4"></i> อัปโหลดรูป<input id="photo-file" type="file" accept="image/*" class="hidden"></label>
+            <div class="mt-3">
+              <label class="label">หรือวางลิงก์รูปภาพ</label>
+              <div class="flex gap-2">
+                <input id="photo-url-input" name="photo_url" type="url" class="field min-w-0" placeholder="https://example.com/photo.jpg">
+                <button id="photo-url-open" type="button" class="btn btn-light px-3" title="เปิดลิงก์รูป"><i data-lucide="external-link" class="w-4 h-4"></i></button>
+              </div>
+              <p id="photo-source-note" class="text-[10px] text-slate-400 mt-1">รองรับทั้งอัปโหลดจากเครื่องและลิงก์รูปภาพ</p>
+            </div>
+          </div>
+          <div class="space-y-4"><div><label class="label">ชื่อ-นามสกุล *</label><input name="full_name" class="field" required></div><div class="grid sm:grid-cols-2 gap-3"><div><label class="label">รุ่นศิษย์เก่า *</label><select name="batch" class="field alumni-batch-select" required></select></div><div><label class="label">ปีที่จบ</label><select name="graduation_year" class="field graduation-year-select"></select></div></div><div class="grid sm:grid-cols-3 gap-3"><div><label class="label">ระดับมัธยมที่จบ</label><select name="graduation_level" class="field graduation-level-select"></select></div><div><label class="label">นักธรรม (ไม่บังคับ)</label><select name="naktham_level" class="field naktham-select"></select></div><div><label class="label">เปรียญธรรม (ไม่บังคับ)</label><select name="pali_level" class="field pali-select"></select></div></div></div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4"><div><label class="label">ตำแหน่งปัจจุบัน</label><input name="current_position" class="field"></div><div><label class="label">อาชีพ</label><input name="occupation" class="field"></div><div class="sm:col-span-2"><label class="label">หน่วยงาน / สถานที่ทำงาน</label><input name="organization" class="field"></div></div>
+        <div><label class="label">ประวัติการศึกษา</label><textarea name="education" class="field min-h-24" placeholder="กด Enter เพื่อแยกแต่ละรายการ"></textarea></div>
+        <div><label class="label">ประวัติโดยย่อ / ผลงาน</label><textarea name="bio" class="field min-h-28"></textarea></div>
+        <div class="grid sm:grid-cols-2 gap-4"><div><label class="label">เบอร์โทรศัพท์</label><input name="phone" class="field" type="tel"></div><div><label class="label">Email</label><input name="email" class="field" type="email"></div><div class="sm:col-span-2"><label class="label">Facebook URL</label><input name="facebook_url" class="field" type="url"></div></div>
+        <div class="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/60 p-4"><label class="flex items-center gap-3 cursor-pointer"><input name="is_royal_scholarship" type="checkbox" class="royal-scholarship-toggle w-5 h-5 accent-fuchsia-600"><span><span class="text-sm font-bold text-fuchsia-900">เป็นนักเรียนทุนเฉลิมราชกุมารี</span><span class="block text-[11px] text-fuchsia-700 mt-0.5">ติ๊กเพื่อระบุรุ่นและระยะของทุน</span></span></label><div class="royal-scholarship-fields hidden grid sm:grid-cols-2 gap-3 mt-4"><div><label class="label">ทุนรุ่นที่ *</label><input name="royal_scholarship_batch" class="field" placeholder="เช่น รุ่น 5"></div><div><label class="label">ระยะ *</label><input name="royal_scholarship_phase" class="field" placeholder="เช่น ระยะที่ 2"></div></div></div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3"><label class="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl"><input name="show_contact" type="checkbox" class="w-5 h-5 accent-orange-500"><span class="text-xs font-bold">แสดงข้อมูลติดต่อ</span></label><label class="flex items-center gap-3 bg-amber-50 p-4 rounded-2xl"><input name="featured" type="checkbox" class="w-5 h-5 accent-amber-500"><span class="text-xs font-bold">ศิษย์เก่าเด่น</span></label><label class="flex items-center gap-3 bg-green-50 p-4 rounded-2xl"><input name="published" type="checkbox" class="w-5 h-5 accent-green-500" checked><span class="text-xs font-bold">เผยแพร่</span></label><div><label class="label">ลำดับ</label><input name="sort_order" type="number" class="field" value="0"></div></div>
+        <div id="form-status" class="hidden text-xs rounded-xl p-3"></div>
+        <div class="flex justify-end gap-2 pt-2"><button type="button" data-close class="btn btn-light">ยกเลิก</button><button class="btn btn-primary"><i data-lucide="save" class="w-4 h-4"></i> บันทึก</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="review-modal" class="fixed inset-0 z-[130] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-close-review></div>
+    <div class="relative z-10 w-full max-w-4xl max-h-[94vh] overflow-y-auto scroll-thin glass bg-white/95 rounded-[2rem] p-6 sm:p-8 shadow-2xl">
+      <div class="flex justify-between items-start gap-4 mb-6"><div><div class="flex items-center gap-2"><h3 class="text-xl font-black">ตรวจสอบข้อมูลศิษย์เก่า</h3><span id="review-status-pill" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-orange-50 text-orange-700">รอตรวจสอบ</span></div><p id="review-reference" class="text-xs text-slate-500 mt-1"></p></div><button data-close-review class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="review-form" class="space-y-5">
+        <input type="hidden" name="submission_id">
+        <div class="grid sm:grid-cols-[170px_1fr] gap-5 items-start">
+          <div><label class="label">รูปที่ผู้สมัครส่งมา</label><div class="w-40 h-40 rounded-[1.6rem] bg-slate-100 overflow-hidden border border-slate-200"><img id="review-photo" class="w-full h-full object-cover hidden" alt=""><div id="review-photo-placeholder" class="w-full h-full flex items-center justify-center text-slate-300"><i data-lucide="user" class="w-12 h-12"></i></div></div><a id="review-photo-open" href="#" target="_blank" class="hidden btn btn-light mt-2 w-full"><i data-lucide="image" class="w-4 h-4"></i> เปิดรูปเต็ม</a><div class="mt-3"><label class="label">ลิงก์รูปภาพ (ถ้ามี)</label><input id="review-photo-url" class="field" type="url" placeholder="https://..."></div></div>
+          <div class="space-y-4"><div><label class="label">ชื่อ-นามสกุล *</label><input name="full_name" class="field" required></div><div class="grid sm:grid-cols-2 gap-3"><div><label class="label">รุ่นศิษย์เก่า *</label><select name="batch" class="field alumni-batch-select" required></select></div><div><label class="label">ปีที่จบ</label><select name="graduation_year" class="field graduation-year-select"></select></div></div><div class="grid sm:grid-cols-3 gap-3"><div><label class="label">ระดับมัธยมที่จบ</label><select name="graduation_level" class="field graduation-level-select"></select></div><div><label class="label">นักธรรม (ไม่บังคับ)</label><select name="naktham_level" class="field naktham-select"></select></div><div><label class="label">เปรียญธรรม (ไม่บังคับ)</label><select name="pali_level" class="field pali-select"></select></div></div></div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4"><div><label class="label">ตำแหน่งปัจจุบัน</label><input name="current_position" class="field"></div><div><label class="label">อาชีพ</label><input name="occupation" class="field"></div><div class="sm:col-span-2"><label class="label">หน่วยงาน / สถานที่ทำงาน</label><input name="organization" class="field"></div></div>
+        <div><label class="label">ประวัติการศึกษา</label><textarea name="education" class="field min-h-24"></textarea></div>
+        <div><label class="label">ประวัติโดยย่อ / ผลงาน</label><textarea name="bio" class="field min-h-28"></textarea></div>
+        <div class="grid sm:grid-cols-2 gap-4"><div><label class="label">เบอร์โทรศัพท์</label><input name="phone" class="field"></div><div><label class="label">Email</label><input name="email" type="email" class="field"></div><div class="sm:col-span-2"><label class="label">Facebook URL</label><input name="facebook_url" type="url" class="field"></div></div>
+        <div class="rounded-2xl border border-fuchsia-100 bg-fuchsia-50/60 p-4"><label class="flex items-center gap-3 cursor-pointer"><input name="is_royal_scholarship" type="checkbox" class="royal-scholarship-toggle w-5 h-5 accent-fuchsia-600"><span><span class="text-sm font-bold text-fuchsia-900">เป็นนักเรียนทุนเฉลิมราชกุมารี</span><span class="block text-[11px] text-fuchsia-700 mt-0.5">หากเลือก กรุณาระบุรุ่นและระยะ</span></span></label><div class="royal-scholarship-fields hidden grid sm:grid-cols-2 gap-3 mt-4"><div><label class="label">ทุนรุ่นที่ *</label><input name="royal_scholarship_batch" class="field" placeholder="เช่น รุ่น 5"></div><div><label class="label">ระยะ *</label><input name="royal_scholarship_phase" class="field" placeholder="เช่น ระยะที่ 2"></div></div></div>
+        <div class="grid sm:grid-cols-2 gap-3"><label class="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl"><input name="show_contact" type="checkbox" class="w-5 h-5 accent-orange-500"><span class="text-xs font-bold">อนุญาตแสดงข้อมูลติดต่อ</span></label><label class="flex items-center gap-3 bg-amber-50 p-4 rounded-2xl"><input name="featured" type="checkbox" class="w-5 h-5 accent-amber-500"><span class="text-xs font-bold">กำหนดเป็นศิษย์เก่าเด่นเมื่ออนุมัติ</span></label></div>
+        <div><label class="label">หมายเหตุของผู้ดูแล</label><textarea name="admin_note" class="field min-h-20" placeholder="เช่น ตรวจสอบชื่อ/รุ่นแล้ว หรือเหตุผลที่ไม่อนุมัติ"></textarea></div>
+        <div id="review-form-status" class="hidden text-xs rounded-xl p-3"></div>
+        <div class="flex flex-wrap justify-end gap-2 pt-2"><button type="button" id="review-save-btn" class="btn btn-light"><i data-lucide="save" class="w-4 h-4"></i> บันทึกการแก้ไข</button><button type="button" id="review-reject-btn" class="btn bg-red-50 text-red-600"><i data-lucide="x-circle" class="w-4 h-4"></i> ไม่อนุมัติ</button><button type="button" id="review-approve-btn" class="btn bg-green-600 text-white"><i data-lucide="badge-check" class="w-4 h-4"></i> อนุมัติและเผยแพร่</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-[200] hidden px-5 py-3 rounded-2xl bg-slate-950 text-white shadow-2xl text-sm font-bold"></div>
+  <script src="manager.js?v=20260925-alumni-structured-2"></script>
+</body>
+</html>

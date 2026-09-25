@@ -1,0 +1,23 @@
+University Admission Subweb
+===========================
+Public: /university-admission/
+Manager: /university-admission/manager/
+Database table: public.university_admissions
+
+Install:
+1. Supabase > SQL Editor > New query
+2. Run supabase/university-admissions.sql
+3. Upload this entire website folder to GitHub Pages.
+4. Login to /university-admission/manager/ with an existing Supabase Authentication account.
+
+Manager supports:
+- University name / faculty / program / TCAS round / academic year / campus
+- Open / upcoming / closed status
+- Start and end dates
+- University logo via URL or file upload + preview
+- Poster via URL or file upload + preview
+- Application URL (required)
+- Announcement URL
+- University website URL
+- Details / requirements
+- Featured / publish-hide / order / CSV export

@@ -1,0 +1,7 @@
+PERSONNEL MODAL LIVE FIX
+- Staff cards remain compact.
+- Clicking a card opens a detail modal.
+- The modal fetches the selected staff row from Supabase public.personnel by id every time it opens.
+- Displays education, phone, email, alumni status and alumni batch explicitly.
+- Empty values display "–" instead of silently hiding sections.
+- No SQL change required if public.personnel already exists.

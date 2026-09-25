@@ -1,0 +1,29 @@
+ALUMNI SELF-REGISTRATION / REVIEW QUEUE
+=======================================
+
+New public page:
+  /alumni/register/
+
+Manager review queue:
+  /alumni/manager/ -> เมนู "แบบฟอร์มรอตรวจสอบ"
+
+INSTALL
+1. Supabase -> SQL Editor -> New query
+2. Run: supabase/alumni-submissions.sql
+3. Upload this website folder to GitHub Pages.
+4. Open /alumni/register/ and submit one test entry.
+5. Sign in /alumni/manager/ and open "แบบฟอร์มรอตรวจสอบ".
+
+FLOW
+Public form -> alumni_submissions (pending) -> Admin review/edit -> Approve -> alumni table -> Public Alumni Directory
+
+PHOTOS
+- Direct image link: stored as URL in submission.
+- Uploaded image: stored privately in bucket alumni-submission-files while pending.
+- On approval, Manager copies the approved photo into the existing public site-media bucket and stores that public URL on the alumni record.
+
+SECURITY
+- Public cannot directly read alumni_submissions.
+- Public submission uses security-definer RPC functions.
+- Pending uploaded photos are in a private bucket.
+- Only authenticated Website Managers can read/edit/reject/approve submissions.

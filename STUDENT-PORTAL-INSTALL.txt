@@ -1,0 +1,33 @@
+STUDENT PORTAL INSTALL
+======================
+
+1) Supabase > SQL Editor > New query
+2) Run: supabase/student-portal.sql
+3) Table Editor ควรเห็น:
+   - students
+   - student_timetables
+   - student_exams
+   - student_grade_uploads
+   - student_portal_sessions
+4) Storage ควรเห็น private bucket: student-portal-files
+5) Deploy ZIP ชุดนี้ขึ้น GitHub Pages
+6) เปิด /student-portal/manager/ แล้ว Login ด้วย Supabase Authentication
+7) ดาวน์โหลด student-import-template.xlsx แล้วเพิ่มรายชื่อนักเรียน
+8) ดาวน์โหลด timetable-import-template.xlsx เพื่อ Import ตารางเรียน
+9) ดาวน์โหลด exam-import-template.xlsx เพื่อ Import วันสอบ
+
+PUBLIC URLs
+-----------
+/student-portal/              Student Portal
+/university-admission/        University Admission Hub
+
+ADMIN URLs
+----------
+/manager/                     Website Manager
+/student-portal/manager/      Student Manager
+/university-admission/manager/ University Admission Manager
+
+IMPORTANT
+---------
+Student Portal ใช้รหัสนักเรียน + PIN เพื่อปกป้องข้อมูลส่วนบุคคล
+ห้ามนำ service_role key ใส่ใน GitHub Pages

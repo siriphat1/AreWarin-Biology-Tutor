@@ -1,0 +1,322 @@
+{
+  "branding": {
+    "logoUrl": ""
+  },
+  "introPage": {
+    "show": true,
+    "type": "mourning",
+    "image": "https://spacebar.th/_next/image?url=%2Fapi%2Fmedia%2Ffile%2FHer%2520Majesty-the-Queen%2520Mother-has-preserved-works-of-art-as-the-artistic-treasures-of-Thailand-SPACEBAR-Hero.jpg&w=3840&q=75",
+    "title": "น้อมรำลึกในพระมหากรุณาธิคุณอันหาที่สุดมิได้",
+    "subtitle": "ข้าพระพุทธเจ้า คณะผู้บริหาร คณะครู บุคลากร และสามเณรนักเรียน\nโรงเรียนวัดหนองแวงวิทยา"
+  },
+  "announcement": {
+    "show": false,
+    "text": "แจ้งเตือน: เปิดรับสมัครสามเณรนักเรียนใหม่ ประจำปีการศึกษา 2569 ตั้งแต่วันนี้ - 30 เมษายน 2569 ณ ห้องวิชาการ โรงเรียนวัดหนองแวงวิทยา"
+  },
+  "info": {
+    "nameTh": "โรงเรียนวัดหนองแวงวิทยา",
+    "nameEn": "Wat Nongwang Wittaya School",
+    "directorName": "พระครูสุธีกิตติวรญาณ",
+    "directorImage": "",
+    "directorMsg": "เรามุ่งมั่นที่จะสร้างสภาพแวดล้อมแห่งการเรียนรู้ที่ผสมผสานหลักธรรมทางพระพุทธศาสนาเข้ากับวิชาการสมัยใหม่ เปิดโอกาสให้นักเรียนทุกคนได้ค้นพบศักยภาพของตนเองอย่างเต็มที่",
+    "phone": "043-123-4567",
+    "email": "info@nongwang.ac.th",
+    "address": "123 ถนนประชาสโมสร ตำบลในเมือง อำเภอเมือง จังหวัดขอนแก่น 40000",
+    "stats": [
+      {
+        "label": "สามเณรนักเรียน",
+        "value": "1,845",
+        "icon": "users"
+      },
+      {
+        "label": "บุคลากร",
+        "value": "112",
+        "icon": "award"
+      }
+    ]
+  },
+  "history": {
+    "paragraph1": "โรงเรียนวัดหนองแวงวิทยา เป็นโรงเรียนพระปริยัติธรรม แผนกสามัญศึกษา สังกัดสำนักงานพระพุทธศาสนาแห่งชาติ ตั้งอยู่ ณ วัดหนองแวง พระอารามหลวง จังหวัดขอนแก่น ก่อตั้งขึ้นโดยมีวัตถุประสงค์หลักเพื่อให้การศึกษาแก่พระภิกษุสามเณร ทั้งในด้านหลักธรรมคำสอนทางพระพุทธศาสนา ควบคู่ไปกับวิชาการทางโลกตามหลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน",
+    "paragraph2": "จากอดีตที่เริ่มต้นจากศาลาการเปรียญเล็กๆ สู่การเป็นสถานศึกษาที่มีอาคารเรียนอันทันสมัย โรงเรียนวัดหนองแวงวิทยาได้ผลิตศาสนทายาทและบุคลากรที่มีคุณภาพออกสู่สังคมอย่างต่อเนื่อง ถือเป็นเสาหลักสำคัญในการสืบทอดพระพุทธศาสนาในภาคตะวันออกเฉียงเหนือ",
+    "vision": "\"มุ่งพัฒนาศาสนทายาท ให้เพียบพร้อมด้วยศีลาจารวัตร และเป็นเลิศทางวิชาการ สู่มาตรฐานสากล\"",
+    "oldImage": "https://images.unsplash.com/photo-1574345511867-0c7f212f4ba1?q=80&w=1200&auto=format&fit=crop&grayscale=1",
+    "newImage": "https://pukmudmuangthai.com/wp-content/uploads/2021/02/%E0%B8%82%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%81%E0%B9%88%E0%B8%99-%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%AB%E0%B8%99%E0%B8%AD%E0%B8%87%E0%B9%81%E0%B8%A7%E0%B8%87%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%AD%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87-Medium.jpg"
+  },
+  "examStats": {
+    "naktham": [
+      {
+        "name": "นักธรรมชั้นตรี",
+        "passRate": 95
+      },
+      {
+        "name": "นักธรรมชั้นโท",
+        "passRate": 88
+      },
+      {
+        "name": "นักธรรมชั้นเอก",
+        "passRate": 82
+      }
+    ],
+    "pali": [
+      {
+        "name": "ประโยค ๑-๒",
+        "passRate": 75
+      },
+      {
+        "name": "เปรียญธรรม ๓ ประโยค",
+        "passRate": 60
+      },
+      {
+        "name": "เปรียญธรรม ๔ ประโยค",
+        "passRate": 45
+      }
+    ]
+  },
+  "donation": {
+    "bankName": "ธนาคารกรุงไทย",
+    "accNumber": "123-4-56789-0",
+    "accName": "ชื่อบัญชี: กองทุนการศึกษา โรงเรียนวัดหนองแวงวิทยา",
+    "qrImage": "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+  },
+  "social": {
+    "facebook": "https://www.facebook.com/profile.php?id=100063745052570",
+    "line": "#",
+    "youtube": "#"
+  },
+  "map": {
+    "linkUrl": "https://maps.app.goo.gl/C1YfMnZP2YkvTuoa7",
+    "embedIframe": "https://maps.google.com/maps?q=โรงเรียนวัดหนองแวงวิทยา%20ขอนแก่น&t=&z=16&ie=UTF8&iwloc=&output=embed"
+  },
+  "media": {
+    "videoPromo": "https://www.youtube.com/watch?v=YOUR_VIDEO_ID",
+    "vrTour": "https://my.matterport.com/show/?m=YOUR_VR_ID"
+  },
+  "examDate": "2026-02-15T09:00:00",
+  "paliWord": {
+    "word": "วิริยะ",
+    "reading": "วิ-ริ-ยะ",
+    "meaning": "ความเพียร, ความพยายาม"
+  },
+  "promoBanners": [
+    "https://img5.pic.in.th/file/secure-sv1/641434808_1513538270780994_4742841130745667713_n.jpg",
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop"
+  ],
+  "welcomeImage": "https://pukmudmuangthai.com/wp-content/uploads/2021/02/%E0%B8%82%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%81%E0%B9%88%E0%B8%99-%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%AB%E0%B8%99%E0%B8%AD%E0%B8%87%E0%B9%81%E0%B8%A7%E0%B8%87%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%AD%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87-Medium.jpg",
+  "news": [
+    {
+      "date": "5",
+      "monthYear": "มี.ค. 69",
+      "type": "รับสมัคร",
+      "typeColor": "bg-red-100 text-red-600",
+      "title": "ประกาศรับสมัครนักเรียนใหม่ ประจำปีการศึกษา 2570",
+      "image": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop",
+      "summary": "ติดตามรายละเอียดการรับสมัคร คุณสมบัติ และช่วงเวลาการสมัครของนักเรียนใหม่ประจำปีการศึกษา",
+      "url": "",
+      "published": true
+    },
+    {
+      "date": "1",
+      "monthYear": "มี.ค. 69",
+      "type": "กิจกรรม",
+      "typeColor": "bg-green-100 text-green-600",
+      "title": "ขอเชิญร่วมงานนิทรรศการวิชาการ นวัตกรรมล้ำหน้า หนองแวงวิทยาพัฒน์",
+      "image": "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop",
+      "summary": "รวมข่าวสารและความเคลื่อนไหวด้านกิจกรรมทางวิชาการของโรงเรียน",
+      "url": "",
+      "published": true
+    },
+    {
+      "date": "28",
+      "monthYear": "ก.พ. 69",
+      "type": "วิชาการ",
+      "typeColor": "bg-blue-100 text-blue-600",
+      "title": "ประกาศผลการสอบคัดเลือกนักเรียน โครงการห้องเรียนพิเศษ (SMTE)",
+      "image": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop",
+      "summary": "ประกาศและข้อมูลสำคัญด้านผลการเรียนและการสอบของนักเรียน",
+      "url": "",
+      "published": true
+    }
+  ],
+  "events": [
+    {
+      "date": "15 มีนาคม",
+      "title": "วันสถาปนาโรงเรียน",
+      "time": "08:00 - 12:00"
+    },
+    {
+      "date": "20-24 กรกฎาคม",
+      "title": "สอบกลางภาคเรียนที่ 1",
+      "time": "ตลอดวัน"
+    }
+  ],
+  "executives": [
+    {
+      "name": "พระครูสุธีกิตติวรญาณ",
+      "position": "ผู้อำนวยการโรงเรียน",
+      "img": "https://ui-avatars.com/api/?name=ผอ&background=fed7aa&color=c2410c&size=200"
+    },
+    {
+      "name": "นายสมเกียรติ รักวิชา",
+      "position": "รองผู้อำนวยการ ฝ่ายวิชาการ",
+      "img": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop"
+    },
+    {
+      "name": "นางสาวศิริพร พูนสุข",
+      "position": "รองผู้อำนวยการ ฝ่ายงบประมาณ",
+      "img": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
+    },
+    {
+      "name": "นายธนวัฒน์ พัฒนกิจ",
+      "position": "รองผู้อำนวยการ ฝ่ายบริหารทั่วไป",
+      "img": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
+    }
+  ],
+  "teachers": [
+    {
+      "name": "นางวิภาวี สอนดี",
+      "department": "กลุ่มสาระฯ วิทยาศาสตร์",
+      "img": "https://images.unsplash.com/photo-1580894732444-8ecded790047?q=80&w=200&auto=format&fit=crop"
+    },
+    {
+      "name": "นายอดิศักดิ์ คิดเร็ว",
+      "department": "กลุ่มสาระฯ คณิตศาสตร์",
+      "img": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
+    },
+    {
+      "name": "นางพรรณนภา รักไทย",
+      "department": "กลุ่มสาระฯ ภาษาไทย",
+      "img": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"
+    },
+    {
+      "name": "นายสุรพล พาทำ",
+      "department": "กลุ่มสาระฯ ศิลปะ",
+      "img": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200&auto=format&fit=crop"
+    }
+  ],
+  "specialTeachers": [
+    {
+      "name": "พระมหาสมชาย จิตฺตทนฺโต",
+      "department": "ครูสอนภาษาบาลีพิเศษ",
+      "img": "https://ui-avatars.com/api/?name=พระ&background=fef08a&color=ca8a04&size=200"
+    },
+    {
+      "name": "Mr. John Smith",
+      "department": "ครูพิเศษภาษาอังกฤษ (NES)",
+      "img": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
+    }
+  ],
+  "curriculums": [
+    {
+      "title": "แผนกปริยัติธรรม",
+      "subtitle": "นักธรรม / บาลี",
+      "desc": "หลักสูตรมุ่งเน้นการศึกษาหลักธรรมคำสอนทางพระพุทธศาสนา เพื่อปลูกฝังคุณธรรมและจริยธรรม ขัดเกลาจิตใจตามวิถีพุทธ",
+      "icon": "book",
+      "color": "bg-amber-100 text-amber-600"
+    },
+    {
+      "title": "แผนกสามัญ",
+      "subtitle": "มัธยมศึกษาตอนต้น และ ตอนปลาย",
+      "desc": "หลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน มุ่งเน้นวิชาการควบคู่เทคโนโลยี สู่ความเป็นเลิศในศตวรรษที่ 21 เพื่อการศึกษาต่อระดับอุดมศึกษา",
+      "icon": "monitor-play",
+      "color": "bg-blue-100 text-blue-600"
+    }
+  ],
+  "achievements": [
+    {
+      "title": "รางวัลชนะเลิศ การประกวดสวดมนต์หมู่ทำนองสรภัญญะ ระดับภาค",
+      "year": "2568",
+      "img": "https://images.unsplash.com/photo-1589321599763-888463db8342?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+      "title": "เหรียญทอง การแข่งขันโครงงานวิทยาศาสตร์ งานศิลปหัตถกรรมนักเรียน",
+      "year": "2568",
+      "img": "https://images.unsplash.com/photo-1564473379204-7431e11440cc?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+      "title": "โรงเรียนส่งเสริมคุณธรรมจริยธรรมดีเด่น ระดับจังหวัด",
+      "year": "2567",
+      "img": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+      "title": "รางวัลเหรียญทองแดง โอลิมปิกวิชาการ สาขาคณิตศาสตร์ระดับชาติ",
+      "year": "2567",
+      "img": "https://images.unsplash.com/photo-1632516643720-e7f5d7d6eca8?q=80&w=400&auto=format&fit=crop"
+    }
+  ],
+  "documents": [
+    {
+      "title": "ใบสมัครเข้าศึกษาต่อ ปีการศึกษา 2569",
+      "size": "1.2 MB",
+      "type": "PDF"
+    },
+    {
+      "title": "คู่มือนักเรียนและผู้ปกครอง",
+      "size": "3.5 MB",
+      "type": "PDF"
+    },
+    {
+      "title": "ปฏิทินวิชาการ ประจำภาคเรียนที่ 1/2569",
+      "size": "0.8 MB",
+      "type": "PDF"
+    }
+  ],
+  "environment": {
+    "aqi": 24,
+    "status": "อากาศดีมาก",
+    "temp": 32
+  },
+  "routines": [
+    {
+      "time": "04:30 น.",
+      "task": "ตื่นนอน ทำวัตรเช้า",
+      "icon": "bell"
+    },
+    {
+      "time": "06:00 น.",
+      "task": "ออกบิณฑบาต",
+      "icon": "sun"
+    },
+    {
+      "time": "08:30 น.",
+      "task": "เรียนปริยัติธรรม/สามัญ",
+      "icon": "book-open"
+    },
+    {
+      "time": "16:00 น.",
+      "task": "ทำความสะอาดบริเวณวัด",
+      "icon": "leaf"
+    },
+    {
+      "time": "18:00 น.",
+      "task": "ทำวัตรเย็น นั่งสมาธิ",
+      "icon": "moon"
+    }
+  ],
+  "dhammaQuote": {
+    "pali": "นตฺถิ ปญฺญาสมา อาภา",
+    "thai": "แสงสว่างเสมอด้วยปัญญา ไม่มี"
+  },
+  "quickLinks": [
+    {
+      "icon": "users",
+      "label": "ระบบสารสนเทศ",
+      "bg": "bg-orange-100",
+      "text": "text-orange-600",
+      "url": "#"
+    },
+    {
+      "icon": "book-open",
+      "label": "E-Learning",
+      "bg": "bg-orange-100",
+      "text": "text-orange-600",
+      "url": "#"
+    },
+    {
+      "icon": "graduation-cap",
+      "label": "รับสมัครนักเรียน",
+      "bg": "bg-orange-500",
+      "text": "text-white",
+      "url": "./admission/"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+ALUMNI STRUCTURED PROFILE UPGRADE
+
+1. Supabase > SQL Editor
+2. Run: supabase/alumni-structured-profile-upgrade.sql
+3. Upload this web package to GitHub Pages.
+
+Adds:
+- Alumni batch dropdown 1-50
+- Graduation year 2500-current Buddhist year
+- Graduation level M.1-M.6
+- Optional Naktham / Pali levels
+- Royal Scholarship fields (รุ่น / ระยะ)
+- Public scholarship filter/tab
+- Alumni hero background URL managed in Alumni Manager

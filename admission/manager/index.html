@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admission Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../assets/app-config.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Prompt',sans-serif;background:#f8fafc}
+    .glass{background:rgba(255,255,255,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.85);box-shadow:0 18px 50px rgba(15,23,42,.08)}
+    .field-label{font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em}
+    .field-value{font-size:.9rem;color:#334155;word-break:break-word}
+    .scrollbar::-webkit-scrollbar{width:7px;height:7px}.scrollbar::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+    @media print {.no-print{display:none!important}}
+  </style>
+</head>
+<body class="min-h-screen text-slate-800">
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-32 w-96 h-96 bg-orange-200/50 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-40 -right-32 w-96 h-96 bg-amber-100/60 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Login -->
+  <main id="loginView" class="min-h-screen flex items-center justify-center p-4">
+    <section class="glass w-full max-w-md rounded-[2rem] p-7 md:p-9">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
+          <img id="loginLogo" class="w-full h-full object-contain hidden" alt="โลโก้โรงเรียน">
+          <span id="loginLogoFallback" class="text-2xl">🎓</span>
+        </div>
+        <div>
+          <p class="text-xs text-orange-600 font-bold">ADMISSION MANAGER</p>
+          <h1 id="loginSchoolName" class="text-xl font-bold text-slate-900">โรงเรียนวัดหนองแวงวิทยา</h1>
+          <p class="text-xs text-slate-500 mt-1">ระบบเจ้าหน้าที่รับสมัคร</p>
+        </div>
+      </div>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-500">อีเมล Admin</label>
+          <input id="loginEmail" type="email" required class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="admin@school.ac.th">
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-500">รหัสผ่าน</label>
+          <input id="loginPassword" type="password" required class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="••••••••">
+        </div>
+        <button class="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white py-3.5 font-bold transition">เข้าสู่ระบบ</button>
+      </form>
+      <div id="loginError" class="hidden mt-4 bg-red-50 text-red-600 border border-red-100 rounded-xl p-3 text-xs"></div>
+      <a href="../" class="mt-6 flex items-center justify-center text-xs font-bold text-slate-400 hover:text-orange-600">← กลับระบบรับสมัคร</a>
+    </section>
+  </main>
+
+  <!-- Dashboard -->
+  <div id="appView" class="hidden min-h-screen">
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200 no-print">
+      <div class="max-w-[1500px] mx-auto px-4 md:px-6 h-20 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-11 h-11 rounded-xl bg-white border border-slate-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <img id="headerLogo" class="w-full h-full object-contain hidden" alt="logo"><span id="headerLogoFallback">🎓</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[10px] font-bold text-orange-600 tracking-wider">ADMISSION MANAGER</p>
+            <h1 id="headerSchoolName" class="font-bold text-slate-900 truncate">โรงเรียนวัดหนองแวงวิทยา</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="../" class="hidden md:inline-flex px-3 py-2 text-xs font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200">หน้ารับสมัคร</a>
+          <a href="../../" class="hidden md:inline-flex px-3 py-2 text-xs font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200">เว็บไซต์หลัก</a>
+          <button id="refreshBtn" class="px-3 py-2 text-xs font-bold text-orange-700 bg-orange-50 rounded-lg hover:bg-orange-100">รีเฟรช</button>
+          <button id="logoutBtn" class="px-3 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800">ออกจากระบบ</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-[1500px] mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-slate-900">ข้อมูลการสมัครเรียน</h2>
+          <p class="text-sm text-slate-500 mt-1">ตรวจสอบเอกสาร อนุมัติใบสมัคร และพิมพ์ข้อมูลผู้สมัคร</p>
+        </div>
+        <div class="text-xs text-slate-400">บัญชี: <span id="currentUserEmail" class="font-bold text-slate-600">-</span></div>
+      </div>
+
+      <!-- Stats -->
+      <section class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div class="glass rounded-2xl p-4"><p class="text-[10px] text-slate-500 font-bold">ทั้งหมด</p><p id="statAll" class="text-3xl font-bold mt-1">0</p></div>
+        <div class="glass rounded-2xl p-4"><p class="text-[10px] text-amber-600 font-bold">รอตรวจสอบ</p><p id="statPending" class="text-3xl font-bold text-amber-600 mt-1">0</p></div>
+        <div class="glass rounded-2xl p-4"><p class="text-[10px] text-sky-600 font-bold">กำลังตรวจสอบ</p><p id="statReview" class="text-3xl font-bold text-sky-600 mt-1">0</p></div>
+        <div class="glass rounded-2xl p-4"><p class="text-[10px] text-emerald-600 font-bold">อนุมัติแล้ว</p><p id="statApproved" class="text-3xl font-bold text-emerald-600 mt-1">0</p></div>
+        <div class="glass rounded-2xl p-4"><p class="text-[10px] text-red-600 font-bold">ไม่อนุมัติ</p><p id="statRejected" class="text-3xl font-bold text-red-600 mt-1">0</p></div>
+      </section>
+
+      <!-- Filters -->
+      <section class="glass rounded-2xl p-4 mb-5 no-print">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <div class="md:col-span-5">
+            <input id="searchInput" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="ค้นหาเลขใบสมัคร ชื่อ เลขบัตร เบอร์โทร...">
+          </div>
+          <div class="md:col-span-3">
+            <select id="statusFilter" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+              <option value="all">ทุกสถานะ</option><option value="pending">รอตรวจสอบ</option><option value="under_review">กำลังตรวจสอบ</option><option value="approved">อนุมัติแล้ว</option><option value="rejected">ไม่อนุมัติ</option><option value="waitlist">สำรอง / รอเรียก</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <select id="levelFilter" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><option value="all">ทุกชั้น</option><option value="m1">ม.1</option><option value="m2">ม.2</option><option value="m3">ม.3</option><option value="m4">ม.4</option><option value="m5">ม.5</option><option value="m6">ม.6</option></select>
+          </div>
+          <div class="md:col-span-2">
+            <button id="exportBtn" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 text-xs font-bold">Export CSV</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="glass rounded-[1.5rem] overflow-hidden">
+        <div class="overflow-x-auto scrollbar">
+          <table class="w-full min-w-[980px] text-sm">
+            <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase">
+              <tr><th class="p-4 text-left">เลขใบสมัคร</th><th class="p-4 text-left">ผู้สมัคร</th><th class="p-4 text-left">ระดับ</th><th class="p-4 text-left">วันที่สมัคร</th><th class="p-4 text-left">สถานะ</th><th class="p-4 text-center">จัดการ</th></tr>
+            </thead>
+            <tbody id="applicationTable" class="divide-y divide-slate-100 bg-white/60"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="hidden p-12 text-center text-slate-400">ไม่พบข้อมูลใบสมัคร</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Applicant Detail Modal -->
+  <div id="detailModal" class="hidden fixed inset-0 z-[100]">
+    <div id="detailBackdrop" class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 md:p-5 flex items-end md:items-center justify-center pointer-events-none">
+      <section class="pointer-events-auto bg-slate-50 w-full md:max-w-6xl h-[94vh] md:h-[92vh] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col">
+        <header class="bg-white px-5 md:px-7 py-4 border-b border-slate-200 flex items-center justify-between gap-4 no-print">
+          <div class="min-w-0"><p class="text-[10px] font-bold text-orange-600">APPLICATION DETAIL</p><h3 id="detailTitle" class="text-lg md:text-xl font-bold truncate">ข้อมูลใบสมัคร</h3></div>
+          <div class="flex items-center gap-2"><button id="printBtn" class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200">🖨️ Print</button><button id="closeDetailBtn" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-600">✕</button></div>
+        </header>
+        <div id="detailBody" class="flex-1 overflow-y-auto scrollbar p-4 md:p-7"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="./manager.js"></script>
+</body>
+</html>
