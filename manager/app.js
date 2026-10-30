@@ -1,4 +1,4 @@
-const sb = window.AreWarinAPI.sb;
+const sb = window.AreWarinAPI?.sb || null;
 let state = { tutors: [], courses: [], reviews: [], prices: [], promotions: [], enrollments: [], payments: [], speakers: [], tutorApplications: [], receipt: null, settings: {}, scheduleTemplates: [], schedules: [], scheduleReservations: [], branding: null, banners: [], categories: [], policyPages: [], policySections: [] };
 window.state = state;
 let activeScheduleTutorId = null;
@@ -22,7 +22,6 @@ async function ensureManager(session) {
   const { data, error } = await sb.from('profiles').select('display_name,role').eq('id',session.user.id).maybeSingle();
   if (error) {
     lastManagerAccessError = `อ่าน public.profiles ไม่ได้: ${error.message}`;
-    await sb.auth.signOut();
     return false;
   }
   if (!data) {
@@ -40,18 +39,20 @@ async function ensureManager(session) {
 }
 
 async function boot() {
+  if(!sb?.auth){const panel=document.getElementById('login');if(panel){const msg=document.createElement('p');msg.className='text-rose-600 text-xs mt-4 text-center';msg.textContent='ไม่พบ Supabase client กรุณาตรวจสอบไฟล์ config.js และ js/supabase-bridge.js';panel.appendChild(msg)}return;}
   const { data:{session} } = await sb.auth.getSession();
   if (await ensureManager(session)) { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); await loadAll(); }
   sb.auth.onAuthStateChange(async (_e,s) => { if(!s){$('app').classList.add('hidden');$('login').classList.remove('hidden');} });
 }
 
 $('btnLogin').onclick = async () => {
+  if(!sb?.auth)return notify('error','ไม่สามารถเข้าสู่ระบบ','Supabase client ยังไม่พร้อมใช้งาน');
   const { data, error } = await sb.auth.signInWithPassword({ email:$('loginEmail').value.trim(), password:$('loginPassword').value });
   if (error) return notify('error','เข้าสู่ระบบไม่สำเร็จ',error.message);
   if (!(await ensureManager(data.session))) return notify('error','ไม่มีสิทธิ์ Manager',lastManagerAccessError || 'บัญชีนี้ยังไม่มี role manager/admin');
   $('login').classList.add('hidden'); $('app').classList.remove('hidden'); await loadAll(); applyManagerDeepLink();
 };
-$('btnLogout').onclick = () => sb.auth.signOut();
+$('btnLogout').onclick = () => sb?.auth?.signOut();
 
 document.querySelectorAll('.nav[data-section]').forEach(b => b.onclick = () => {
   document.querySelectorAll('.nav[data-section]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
@@ -79,8 +80,14 @@ async function loadAll() {
     sb.from('subject_categories').select('*').order('sort_order').order('name_th'),
     sb.from('policy_pages').select('*').order('page_key'),
     sb.from('policy_sections').select('*').order('page_key').order('sort_order').order('created_at')
-  ]);
-  for (const x of [t,c,rv,p,pr,en,pay,sp,ta,rs,as,st,sch,sr,brand,bn,cat,pp,ps]) if(x.error) console.error(x.error);
+  ].map(p=>Promise.resolve(p).catch(error=>({data:null,error}))));
+  const queryResults=[t,c,rv,p,pr,en,pay,sp,ta,rs,as,st,sch,sr,brand,bn,cat,pp,ps];
+  const failed=queryResults.filter(x=>x?.error);
+  for (const x of failed) console.error('[AreWarin Manager] data fetch failed',x.error);
+  let banner=document.getElementById('awDataHealthWarning');
+  if(!banner){banner=document.createElement('div');banner.id='awDataHealthWarning';banner.setAttribute('role','alert');banner.className='hidden mx-auto max-w-[1480px] px-4 py-3 text-xs border border-amber-200 bg-amber-50 text-amber-900 rounded-xl';document.querySelector('.manager-content')?.prepend(banner)}
+  if(banner){banner.classList.toggle('hidden',!failed.length);banner.textContent=failed.length?`โหลดข้อมูลบางส่วนไม่สำเร็จ (${failed.length}/${queryResults.length} ชุด) โปรดตรวจสอบสิทธิ์ฐานข้อมูลหรือเครือข่ายก่อนแก้ไขข้อมูล`:'';}
+
   state.tutors=t.data||[];
   state.courses=c.data||[];
   state.reviews=rv.data||[];
@@ -594,7 +601,7 @@ $('promoForm').onsubmit=async e=>{e.preventDefault();try{const row={code:$('prom
 
 function renderPayments(){$('paymentRows').innerHTML=state.payments.map(p=>{const e=p.enrollments||{};return `<tr class="border-b"><td class="py-3 font-mono text-xs">${esc(e.receipt_no||'-')}</td><td><b>${esc(e.fullname||'-')}</b><div class="text-[10px] text-slate-400">${esc(e.phone||'')}</div></td><td class="max-w-[260px] text-xs">${esc(e.course_text||'-')}</td><td class="font-bold">${Number(p.amount_submitted||0).toLocaleString()}</td><td>${p.payment_method==='cash'?'เงินสด':'โอนเงิน'}</td><td><span class="tag">${esc(p.status)}</span></td><td class="text-right"><div class="flex justify-end gap-1">${p.slip_path?`<button onclick="viewSlip('${p.id}')" class="px-2 py-1 bg-sky-50 text-sky-600 rounded-lg text-xs">สลิป</button>`:''}${p.status==='pending'?`<button onclick="verifyPayment('${p.id}',true)" class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-xs">ยืนยัน</button><button onclick="verifyPayment('${p.id}',false)" class="px-2 py-1 bg-red-50 text-red-600 rounded-lg text-xs">ไม่ผ่าน</button>`:''}<button onclick="receiptPdf('${e.receipt_token}')" class="px-2 py-1 bg-slate-100 rounded-lg text-xs">ใบเสร็จ</button></div></td></tr>`}).join('')||'<tr><td colspan="7" class="py-10 text-center text-slate-400">ไม่มีข้อมูล</td></tr>';}
 window.viewSlip=async id=>{const p=state.payments.find(x=>x.id===id);if(!p?.slip_path)return;const{data,error}=await sb.storage.from('payment-slips').createSignedUrl(p.slip_path,300);if(error)return notify('error','เปิดสลิปไม่ได้',error.message);Swal.fire({imageUrl:data.signedUrl,imageAlt:'Slip',showConfirmButton:false,showCloseButton:true,customClass:{popup:'rounded-[1.5rem]'}});};
-window.verifyPayment=async(id,ok)=>{const p=state.payments.find(x=>x.id===id);if(!p)return;let reason=null;if(!ok){const r=await Swal.fire({title:'เหตุผลที่ไม่ผ่าน',input:'text',showCancelButton:true});if(!r.isConfirmed)return;reason=r.value||'ไม่ผ่านการตรวจสอบ';}const session=(await sb.auth.getSession()).data.session;const body=ok?{status:'paid',verified_amount:Number(p.amount_submitted),verified_at:new Date().toISOString(),verified_by:session.user.id,rejection_reason:null,updated_at:new Date().toISOString()}:{status:'rejected',rejection_reason:reason,verified_at:new Date().toISOString(),verified_by:session.user.id,updated_at:new Date().toISOString()};const{error}=await sb.from('payments').update(body).eq('id',id);if(error)return notify('error','อัปเดตไม่ได้',error.message);await sb.from('enrollments').update({status:ok?'confirmed':'rejected',updated_at:new Date().toISOString()}).eq('id',p.enrollment_id);await sb.from('schedule_reservations').update({status:ok?'confirmed':'cancelled',updated_at:new Date().toISOString()}).eq('enrollment_id',p.enrollment_id);await loadAll();notify('success',ok?'ยืนยันการชำระเงินแล้ว':'บันทึกว่าไม่ผ่านแล้ว');};
+window.verifyPayment=async(id,ok)=>{const p=state.payments.find(x=>x.id===id);if(!p)return;let reason=null;if(!ok){const r=await Swal.fire({title:'เหตุผลที่ไม่ผ่าน',input:'text',showCancelButton:true});if(!r.isConfirmed)return;reason=r.value||'ไม่ผ่านการตรวจสอบ';}const session=(await sb.auth.getSession()).data.session;const body=ok?{status:'paid',verified_amount:Number(p.amount_submitted),verified_at:new Date().toISOString(),verified_by:session.user.id,rejection_reason:null,updated_at:new Date().toISOString()}:{status:'rejected',rejection_reason:reason,verified_at:new Date().toISOString(),verified_by:session.user.id,updated_at:new Date().toISOString()};const{error}=await sb.from('payments').update(body).eq('id',id);if(error)return notify('error','อัปเดตไม่ได้',error.message);const enr=await sb.from('enrollments').update({status:ok?'confirmed':'rejected',updated_at:new Date().toISOString()}).eq('id',p.enrollment_id);const sch=await sb.from('schedule_reservations').update({status:ok?'confirmed':'cancelled',updated_at:new Date().toISOString()}).eq('enrollment_id',p.enrollment_id);await loadAll();if(enr.error||sch.error){notify('warning','ปรับสถานะได้เพียงบางส่วน',`Payments อัปเดตแล้ว แต่ ${enr.error?.message||sch.error?.message} · กรุณาตรวจสอบรายการสมัครและตารางเรียน`);return;}notify('success',ok?'ยืนยันการชำระเงินแล้ว':'บันทึกว่าไม่ผ่านแล้ว');};
 window.receiptPdf=token=>window.AreWarinReceipt.download(token); $('refreshPayments').onclick=loadAll;
 
 
