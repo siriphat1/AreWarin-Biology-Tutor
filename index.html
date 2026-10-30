@@ -3,8 +3,8 @@
 <head>
   <!-- AREWARIN REGISTER V26.8 · BANNER AUTOPLAY + V26.7 PAYMENT FLOW -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>กวดวิชาชีววิทยา อาวริน (AreWarin Biology)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AreWarin Biology · สมัครเรียนออนไลน์</title>
     
     <meta property="og:title" content="สมัครเรียนและระบบจ้างวิทยากร กวดวิชาชีววิทยา อาวริน">
     <meta property="og:image" content="https://img2.pic.in.th/pic/531691933_1782062845771076_6500762805646335341_n.jpg">
@@ -1699,6 +1699,34 @@
 
 </style>
 
+
+<style id="aw-register-v280-polish">
+/* V28: effective mobile layout, readable controls, safe forms */
+html,body{max-width:100%;overflow-x:clip}
+#mainForm{min-width:0;max-width:100%}
+.aw-reg-step-hint{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 20px;background:#ffffffec;border-bottom:1px solid #e5edec;font-size:11px;color:#356c5a;font-weight:700}
+#awRegisterStepCounter{color:#758a83;font-size:10px;white-space:nowrap}
+.aw-reg-step-hint[hidden]{display:none!important}
+#mainForm :is(.grid,.flex)>*{min-width:0}
+#mainForm :is(input,select,textarea){min-width:0;max-width:100%;font-size:max(14px,1em)}
+#mainForm :is(h1,h2,h3,p,label){overflow-wrap:break-word}
+#mainForm :is(img,canvas,video){max-width:100%}
+#mainForm .overflow-x-auto{max-width:100%;-webkit-overflow-scrolling:touch}
+#mainForm button:focus-visible,#mainForm a:focus-visible{outline:3px solid #159d83;outline-offset:2px}
+#mainForm button:disabled{opacity:.55;cursor:not-allowed;pointer-events:none;transform:none!important}
+.swal2-popup{max-width:calc(100vw - 20px)!important}
+.swal2-html-container{overflow-wrap:anywhere}
+@media(max-width:640px){
+ #mainForm .step-content{width:100%;max-width:100%}
+ #mainForm .step-content [class*="grid-cols-["]{grid-template-columns:minmax(0,1fr)!important}
+ #mainForm .step-content :is(input,select,textarea){font-size:16px!important}
+ #mainForm .step-content .flex.gap-2{flex-wrap:wrap}
+ .receipt-box{padding:18px!important}
+ .glass-card{max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){#mainForm .step-content,.course-card{animation:none!important;transition:none!important}}
+</style>
+
 </head>
 <body class="bg-gradient-to-br from-sky-50 via-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-3 pt-14 md:p-6 md:pt-16 pb-20">
 
@@ -1759,7 +1787,8 @@
             <div id="progressBar" class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-500 h-2 w-0 transition-all duration-700 ease-out rounded-r-full shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
         </div>
 
-        <form id="mainForm" class="relative p-0">
+        <div id="awRegisterStepHint" class="aw-reg-step-hint no-print" aria-live="polite"><span id="awRegisterStepName">เริ่มต้นสมัครเรียน</span><span id="awRegisterStepCounter">ขั้นตอน 1 / 10</span></div>
+        <form id="mainForm" class="relative p-0" novalidate>
             
             <!-- Step 1: Welcome Page (Bento Grid Pocket Edition) -->
             <div id="step1" class="step-content active p-4 md:p-6 bg-slate-50/50 rounded-b-[2.5rem]">
@@ -3524,7 +3553,7 @@
             <div id="receiptBoxPrint" class="receipt-box mx-auto max-w-sm mb-10 border border-slate-100">
                 <div class="text-center border-b-2 border-dashed border-slate-100 pb-5 mb-5">
                     <i class="fas fa-receipt text-sky-500 text-3xl mb-3"></i>
-                    <h3 class="font-bold text-slate-800 text-lg">ใบเสร็จรับเงิน (E-Receipt)</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">ใบยืนยันการสมัคร (รอตรวจสอบการชำระ)</h3>
                     <p class="text-xs text-slate-400">กวดวิชาชีววิทยา อาวริน</p>
                     <p class="text-[10px] text-slate-400 mt-1">เลขผู้เสียภาษี: 1901001151577</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">122/7 ม.2 ต.มิตรภาพ อ.สีคิ้ว จ.นครราชสีมา 30140</p>
@@ -3701,71 +3730,8 @@
             return v;
         }
 
-        // --- MOCK BACKEND ---
-        if (typeof google === 'undefined') {
-            console.log('Running in Preview Mode: Mock Backend Activated');
-            const createMockRunner = (successCallback, failureCallback) => {
-                const api = {
-                    checkDiscountCode: function(code) {
-                        setTimeout(() => {
-                            if(code.toUpperCase() === 'SALE500') { successCallback && successCallback({valid: true, amount: 500}); } 
-                            else if(code.toUpperCase() === 'SALE100') { successCallback && successCallback({valid: true, amount: 100}); } 
-                            else if (code.toUpperCase() === 'EXPIRED') { successCallback && successCallback({valid: false, message: 'โค้ดนี้หมดอายุแล้วครับ'}); } 
-                            else { successCallback && successCallback({valid: false, message: 'ไม่พบโค้ดส่วนลด'}); }
-                        }, 800);
-                    },
-                    processApplication: function(data) {
-                        setTimeout(() => { console.log("Application Processed:", data); successCallback && successCallback({success: true}); }, 2000);
-                    },
-                    submitSpeakerRequest: function(data) {
-                        setTimeout(() => { console.log("Speaker Request Processed:", data); successCallback && successCallback({success: true}); }, 2000);
-                    },
-                    checkApplicationStatus: function(phone) {
-                        setTimeout(() => {
-                            successCallback && successCallback({ found: true, name: "น้องทดสอบ (Preview Mode)", course: "A-Level ชีววิทยา", tutor: "พี่อาร์", time: "เสาร์ (09:00-11:00)", price: 6500, date: new Date().toLocaleDateString('th-TH'), paymentStatus: "pending", enrollmentStatus: "pending_payment_verification", receiptNo: "AR-PREVIEW-0001", receiptToken: null });
-                        }, 1500);
-                    },
-                    getTutorAvailability: function(tutorName) {
-                        setTimeout(() => {
-                            var schedule = {};
-                            if(tutorName === 'พี่อาร์') schedule['Mon_Slot_0900'] = 'ไม่ว่าง';
-                            if(tutorName === 'พี่ต้อง') schedule['Tue_Slot_1100'] = 'ไม่ว่าง';
-                            successCallback && successCallback(schedule); 
-                        }, 500);
-                    },
-                    getAppConfig: function() {
-                        setTimeout(() => {
-                            successCallback && successCallback({ 
-                                'COURSE_30H': 'OPEN', 'COURSE_20H': 'OPEN', 'COURSE_10H': 'OPEN', 'COURSE_HOURLY': 'OPEN', 'COURSE_YEARLY': 'OPEN', 'ONSITE_OPTION': 'OPEN',
-                                'ANNOUNCEMENT_STATUS': 'CLOSE',
-                                'ANNOUNCEMENT_IMG': 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=800',
-                                'ANNOUNCEMENT_MSG': 'ยินดีต้อนรับน้องๆ ทุกคนเข้าสู่ครอบครัวอาวริน<br>สมัครวันนี้รับส่วนลดพิเศษ!',
-                                'MAINTENANCE_START': '',
-                                'MAINTENANCE_END': ''
-                            });
-                        }, 300);
-                    },
-                    saveAppConfig: function(configData) {
-                        setTimeout(() => {
-                            console.log("Saved config:", configData);
-                            appConfig = configData;
-                            successCallback && successCallback({success: true});
-                        }, 1000);
-                    },
-                    exportCSV: function(type) {
-                        setTimeout(() => {
-                            let csv = "Timestamp,ชื่อ-นามสกุล,คอร์ส,เบอร์โทร,ยอดชำระ\n";
-                            csv += "2024-01-01 10:00:00,นายทดสอบ ระบบ," + (type==='old'?'คอร์สเดิม':'คอร์สใหม่') + ",0801112222,4900\n";
-                            successCallback && successCallback(csv);
-                        }, 1000);
-                    }
-                };
-                api.withSuccessHandler = function(s) { return createMockRunner(s, failureCallback); };
-                api.withFailureHandler = function(f) { return createMockRunner(successCallback, f); };
-                return api;
-            };
-            window.google = { script: { run: createMockRunner(null, null) } };
-        }
+        // V28: Production must never create a mock google.script.run client.
+        // Without a configured backend registration stays read-only and reports an error.
 
         const PROMPTPAY = "1901001151577";
         var currentPrice = 4900, finalPrice = 4900, studentType = 'new', selectedMode = 'monthly', selectedTimes = [], paymentMethod = 'transfer';
@@ -4599,6 +4565,8 @@
         }
 
         function resetForm() {
+            window.__AWSubmittingRegistration=false;
+            document.getElementById('btnSubmit')?.removeAttribute('disabled');
             document.getElementById('mainForm').reset();
             currentPrice = PRICE_STD_30H; finalPrice = PRICE_STD_30H; studentType = 'new'; selectedMode = 'monthly'; selectedTimes = []; selectedScheduleSlots = []; scheduleDayFilter = 'all'; paymentMethod = 'transfer'; selectedTutor = ''; selectedCategory = ''; selectedLevel = 'all';
             selectedStudyType = 'individual'; groupSize = 1; groupRegistrationMode = null; groupModeAfterCourse = false;
@@ -7406,6 +7374,8 @@
 
         function handleSubmit(e) {
             if(e) e.preventDefault();
+            if(window.__AWSubmittingRegistration) return;
+            if(window.__AWPartialEnrollment){window.awRegistrationFailed("ใบสมัครถูกสร้างแล้ว","มีรายการสมัครที่ยังบันทึกขั้นตอนชำระไม่ครบ กรุณาติดต่อผู้ดูแลและแจ้งเลขรายการ "+window.__AWPartialEnrollment.id+" ก่อนสมัครอีกครั้ง");return;}
             var planMode = window.awv261PaymentPlanMode || 'full';
             if(planMode === 'full'){
                 if(paymentMethod === 'transfer') { 
@@ -7424,9 +7394,14 @@
                 if(!firstSlip){ Swal.fire('ต้องชำระงวดแรกก่อน','กรุณาสแกน QR และแนบสลิปงวดแรกก่อนยืนยันสมัคร','warning'); return; }
             }
             
+            const upload=document.getElementById('slipFile')?.files?.[0];
+            if(upload && (!upload.type.startsWith('image/') || upload.size>10*1024*1024)){Swal.fire('ไฟล์หลักฐานไม่ถูกต้อง','กรุณาใช้ไฟล์ภาพไม่เกิน 10 MB','warning');return;}
+            window.__AWSubmittingRegistration=true;
+            document.getElementById('btnSubmit')?.setAttribute('disabled','disabled');
             Swal.fire({ title: 'กำลังส่งข้อมูล...', html: '<div class="dna-spinner"><div class="dna-dot"></div><div class="dna-dot"></div></div>', showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2rem]' } });
             
             var showReceipt = function(result) { 
+                if (!result || (result.success !== true && result.ok !== true)) { window.awRegistrationFailed('ยังไม่ได้บันทึกใบสมัคร',result?.message || 'ระบบยังไม่ยืนยันผลการสมัคร กรุณาตรวจสอบก่อนลองใหม่'); return; }
                 Swal.close();
                 if(result && result.amount !== undefined) finalPrice = Number(result.amount);
                 if(result && result.receiptToken) window.lastReceiptToken = result.receiptToken;
@@ -7456,19 +7431,19 @@
                 window.scrollTo(0,0); 
             };
             
-            if (typeof google === 'undefined' && !window.AreWarinAPI?.sb?.functions) { setTimeout(()=>showReceipt({paymentDeferred:planMode!=='full',paymentPlanMode:planMode,amount:finalPrice}), 1200); return; }
+            if (!(typeof google !== 'undefined' && google.script?.run) && !window.AreWarinAPI?.sb?.functions && !window.AreWarinAPI?.sb?.rpc) { window.awRegistrationFailed('ไม่สามารถเชื่อมต่อระบบสมัครเรียน','ยังไม่มีการเชื่อมต่อฐานข้อมูล โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ'); return; }
             
             if(planMode === 'late'){
                 sendData(null, null, null, showReceipt);
             }else if(planMode === 'installment'){
                 var f=document.getElementById('slipFile').files[0];
                 var r=new FileReader();
-                r.onload=function(ev){ sendData(ev.target.result.split(',')[1], f.name, f.type, showReceipt); };
+                r.onload=function(ev){ sendData(ev.target.result.split(',')[1], f.name, f.type, showReceipt); }; r.onerror=function(){window.awRegistrationFailed('อ่านไฟล์สลิปไม่สำเร็จ','โปรดเลือกไฟล์ภาพใหม่แล้วลองอีกครั้ง')};
                 r.readAsDataURL(f);
             }else if(paymentMethod === 'transfer') { 
                 var f=document.getElementById('slipFile').files[0]; 
                 var r=new FileReader(); 
-                r.onload=function(ev){ sendData(ev.target.result.split(',')[1], f.name, f.type, showReceipt); }; 
+                r.onload=function(ev){ sendData(ev.target.result.split(',')[1], f.name, f.type, showReceipt); }; r.onerror=function(){window.awRegistrationFailed('อ่านไฟล์สลิปไม่สำเร็จ','โปรดเลือกไฟล์ภาพใหม่แล้วลองอีกครั้ง')}; 
                 r.readAsDataURL(f); 
             } else { 
                 sendData(null, null, null, showReceipt); 
@@ -7594,7 +7569,7 @@
                 // the private receipt token returned for that new enrollment.
                 if(fd.paymentPlanMode==='late'){
                     if(!window.AreWarinAPI?.sb?.rpc){
-                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.5 แล้วรีเฟรชหน้าอีกครั้ง','warning');
+                        window.awRegistrationFailed('ยังไม่พร้อมใช้งาน','ระบบรับใบสมัครยังเชื่อมต่อไม่ครบ กรุณาติดต่อผู้ดูแล');
                         return;
                     }
                     (async()=>{
@@ -7625,6 +7600,7 @@
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
                             if(!created.data?.enrollmentId) throw new Error('ไม่พบ Enrollment ID หลังสร้างใบสมัคร');
                             if(!created.data?.receiptToken) throw new Error('ไม่พบรหัสยืนยันใบสมัคร กรุณาติดต่อแอดมิน');
+                            window.__AWPartialEnrollment={id:String(created.data.enrollmentId),mode:fd.paymentPlanMode};
                             const finalized=await window.AreWarinAPI.sb.rpc('public_v262_finalize_deferred_registration',{
                                 p_enrollment_id:created.data.enrollmentId,
                                 p_receipt_token:String(created.data.receiptToken),
@@ -7633,10 +7609,11 @@
                             });
                             if(finalized.error) throw finalized.error;
                             if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกเงื่อนไขการชำระไม่สำเร็จ');
+                            window.__AWPartialEnrollment=null;
                             callback && callback({...created.data,...finalized.data,success:true,paymentDeferred:true,paymentPlanMode:'late',amount:created.data.amount!==undefined?created.data.amount:fd.price,receiptToken:created.data.receiptToken,receiptNo:created.data.receiptNo});
                         }catch(err){
                             console.error('[AreWarin Register V26.5] late registration failed',err);
-                            Swal.fire('สมัครแบบชำระล่าช้าไม่สำเร็จ',err?.message||String(err),'error');
+                            window.awRegistrationFailed(window.__AWPartialEnrollment?'ใบสมัครถูกสร้างแล้ว (บันทึกแผนชำระไม่สำเร็จ)':'สมัครแบบชำระล่าช้าไม่สำเร็จ',window.__AWPartialEnrollment?'เลขรายการ '+window.__AWPartialEnrollment.id+' · โปรดติดต่อแอดมินก่อนกดสมัครใหม่ เพื่อหลีกเลี่ยงรายการซ้ำ':(err?.message||String(err)));
                         }
                     })();
                     return;
@@ -7644,7 +7621,7 @@
 
                 if(fd.paymentPlanMode==='installment'){
                     if(!window.AreWarinAPI?.sb?.functions || !window.AreWarinAPI?.sb?.rpc){
-                        Swal.fire('ยังไม่พร้อมใช้งาน','กรุณาติดตั้ง SQL V26.3 และรีเฟรชหน้าอีกครั้ง','warning');
+                        window.awRegistrationFailed('ยังไม่พร้อมใช้งาน','ระบบรับใบสมัครยังเชื่อมต่อไม่ครบ กรุณาติดต่อผู้ดูแล');
                         return;
                     }
                     (async()=>{
@@ -7660,6 +7637,7 @@
                             if(!created.data?.success) throw new Error(created.data?.message||'สร้างใบสมัครไม่สำเร็จ');
                             if(!created.data?.enrollmentId) throw new Error('ไม่พบ Enrollment ID หลังสร้างใบสมัคร');
                             if(!created.data?.receiptToken) throw new Error('ไม่พบรหัสยืนยันใบสมัคร กรุณาติดต่อแอดมิน');
+                            window.__AWPartialEnrollment={id:String(created.data.enrollmentId),mode:fd.paymentPlanMode};
                             const finalized=await window.AreWarinAPI.sb.rpc('public_v263_finalize_installment_registration',{
                                 p_enrollment_id:created.data.enrollmentId,
                                 p_receipt_token:String(created.data.receiptToken),
@@ -7667,10 +7645,11 @@
                             });
                             if(finalized.error) throw finalized.error;
                             if(!finalized.data?.success && !finalized.data?.ok) throw new Error(finalized.data?.message||'บันทึกงวดแรกไม่สำเร็จ');
+                            window.__AWPartialEnrollment=null;
                             callback && callback({...created.data,...finalized.data,success:true,paymentDeferred:false,paymentPlanMode:'installment',amount:created.data.amount!==undefined?created.data.amount:fd.price,receiptToken:created.data.receiptToken,receiptNo:created.data.receiptNo});
                         }catch(err){
                             console.error('[AreWarin Register V26.3] installment registration failed',err);
-                            Swal.fire('สมัครแบบแบ่งชำระไม่สำเร็จ',err?.message||String(err),'error');
+                            window.awRegistrationFailed(window.__AWPartialEnrollment?'ใบสมัครถูกสร้างแล้ว (บันทึกแผนชำระไม่สำเร็จ)':'สมัครแบบแบ่งชำระไม่สำเร็จ',window.__AWPartialEnrollment?'เลขรายการ '+window.__AWPartialEnrollment.id+' · โปรดติดต่อแอดมินก่อนกดสมัครใหม่ เพื่อหลีกเลี่ยงรายการซ้ำ':(err?.message||String(err)));
                         }
                     })();
                     return;
@@ -7681,24 +7660,24 @@
                     (async()=>{try{
                         const r=await window.AreWarinAPI.sb.functions.invoke('create-group-class-enrollment-proxy',{body:fd});
                         if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครคลาสกลุ่มไม่สำเร็จ');callback&&callback(r.data);
-                    }catch(err){Swal.fire('สมัครคลาสกลุ่มไม่สำเร็จ',err?.message||String(err),'error')}})();
+                    }catch(err){window.awRegistrationFailed('สมัครคลาสกลุ่มไม่สำเร็จ',err?.message||String(err))}})();
                 }else if(window.AreWarinAPI?.sb?.functions && fd.renewalMode==='legacy_profile'&&fd.legacyStudentId){
                     (async()=>{try{
                         const r=await window.AreWarinAPI.sb.functions.invoke('create-legacy-returning-enrollment',{body:fd});
                         if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครเรียนไม่สำเร็จ');callback&&callback(r.data);
-                    }catch(err){Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error')}})();
+                    }catch(err){window.awRegistrationFailed('สมัครเรียนไม่สำเร็จ',err?.message||String(err))}})();
                 }else if(typeof google!=='undefined' && google.script?.run){
-                    google.script.run.withSuccessHandler(callback).withFailureHandler(err=>{Swal.fire('Error',err.message,'error')}).processApplication(fd);
+                    google.script.run.withSuccessHandler(callback).withFailureHandler(err=>{window.awRegistrationFailed('ส่งใบสมัครไม่สำเร็จ',err.message)}).processApplication(fd);
                 }else if(window.AreWarinAPI?.sb?.functions){
                     // Static hosting fallback for full payment.
                     (async()=>{try{
                         const r=await window.AreWarinAPI.sb.functions.invoke('create-enrollment',{body:fd});
                         if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.message||'สมัครเรียนไม่สำเร็จ');callback&&callback(r.data);
-                    }catch(err){Swal.fire('สมัครเรียนไม่สำเร็จ',err?.message||String(err),'error')}})();
+                    }catch(err){window.awRegistrationFailed('สมัครเรียนไม่สำเร็จ',err?.message||String(err))}})();
                 }else{
                     throw new Error('No enrollment backend available');
                 }
-            } catch(e) { Swal.fire('Error', e?.message || 'No backend function', 'error'); }
+            } catch(e) { window.awRegistrationFailed('ส่งใบสมัครไม่สำเร็จ',e?.message || 'No backend function'); }
         }
 
         function submitSpeakerRequest() {
@@ -7725,13 +7704,20 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({ title: 'กำลังส่งคำขอ...', html: '<div class="dna-spinner"><div class="dna-dot"></div><div class="dna-dot"></div></div>', showConfirmButton: false, allowOutsideClick: false, customClass: { popup: 'rounded-[2rem]' } });
-                    if (typeof google === 'undefined') {
-                        setTimeout(() => { Swal.close(); document.getElementById('mainForm').style.display='none'; document.getElementById('successSpeakerView').classList.remove('hidden'); window.scrollTo(0,0); }, 2000);
-                        return;
-                    }
-                    try {
-                        google.script.run.withSuccessHandler(function() { Swal.close(); document.getElementById('mainForm').style.display='none'; document.getElementById('successSpeakerView').classList.remove('hidden'); window.scrollTo(0,0); }).withFailureHandler(function(err) { Swal.fire('Error', err.message, 'error'); }).submitSpeakerRequest(fd);
-                    } catch(e) { Swal.fire('Error', 'No backend', 'error'); }
+                    const done = function(response) {
+                        if (!response || (response.success !== true && !response.id && !response.requestId)) { Swal.fire('ส่งคำขอไม่สำเร็จ',response?.message||'ระบบไม่สามารถรับข้อมูลได้','error');return; }
+                        Swal.close();document.getElementById('mainForm').style.display='none';document.getElementById('successSpeakerView').classList.remove('hidden');window.scrollTo(0,0);
+                    };
+                    const fail = e => Swal.fire('ส่งคำขอไม่สำเร็จ',e?.message||String(e),'error');
+                    if (typeof google !== 'undefined' && google.script?.run) {
+                        try { google.script.run.withSuccessHandler(done).withFailureHandler(fail).submitSpeakerRequest(fd); }
+                        catch(e) {fail(e)}
+                    } else if (window.AreWarinAPI?.sb?.functions?.invoke) {
+                        // Requires the deployed create-speaker-request Edge Function. Never simulate storage.
+                        window.AreWarinAPI.sb.functions.invoke('create-speaker-request',{body:fd})
+                            .then(({data,error})=>{if(error)throw error;if(!data?.success)throw new Error(data?.message||'เซิร์ฟเวอร์ยังไม่ยืนยันการส่งคำขอ');done(data)})
+                            .catch(fail);
+                    } else {fail(new Error('ยังไม่ได้เชื่อมต่อระบบรับคำขอวิทยากร'));}
                 }
             });
         }
@@ -8679,7 +8665,7 @@ async function loadOptions(){
   refreshPayable();
 }
 function boot(){
-  const d=$('awv261ExpectedDate');if(d){const today=new Date();d.min=today.toISOString().slice(0,10);if(!d.value){today.setDate(today.getDate()+3);d.value=today.toISOString().slice(0,10)}}
+  const d=$('awv261ExpectedDate');if(d){const today=new Date();const localISO=x=>[x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-');d.min=localISO(today);if(!d.value){today.setDate(today.getDate()+3);d.value=localISO(today)}}
   loadOptions();window.awv261SelectPaymentPlan('full');
   const oldReset=window.resetForm;if(typeof oldReset==='function'&&!oldReset.__v263){const wrapped=function(){const out=oldReset.apply(this,arguments);setTimeout(()=>{window.awv261PaymentPlanMode='full';document.querySelector('input[name="paymentPlanMode"][value="full"]')?.click();window.awv261SelectPaymentPlan('full')},0);return out};wrapped.__v263=true;window.resetForm=wrapped}
   console.info('[AreWarin Register] V26.5 Group Class Late No-Edge loaded');
@@ -8701,6 +8687,38 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       // Main scope uses `banners`; this branch is only a harmless fallback.
     }
   });
+})();
+</script>
+
+
+<script id="aw-register-v280-runtime">
+(()=>{
+  'use strict';
+  window.awRegistrationFailed=(title,message)=>{
+    window.__AWSubmittingRegistration=false;
+    document.getElementById('btnSubmit')?.removeAttribute('disabled');
+    if(window.Swal?.fire)Swal.fire(title,message||'โปรดลองใหม่อีกครั้ง','error');
+    else alert([title,message].filter(Boolean).join('\n'));
+  };
+  const stepLabels={step1:['เริ่มต้นสมัครเรียน',1],step2:['อ่านกติกาและยอมรับเงื่อนไข',2],step3:['ข้อมูลเบื้องต้น',3],stepStudyType:['เลือกรูปแบบการเรียน',3],stepCategory:['เลือกหมวดวิชา',4],stepGroupModeChoice:['เลือกรูปแบบคลาสกลุ่ม',4],stepTutor:['เลือกติวเตอร์',5],stepCourseCart:['เลือกคอร์ส',6],stepOldLookup:['ค้นหาข้อมูลนักเรียนเดิม',6],stepOldLegacyInfo:['ยืนยันข้อมูลนักเรียนเดิม',6],stepOldInfo:['ยืนยันและต่อคอร์ส',6],stepGroupClassChoice:['เลือกคลาสกลุ่ม',7],step4:['กรอกข้อมูลนักเรียน',7],step5:['เลือกแพ็กเกจและเวลาเรียน',8],step6:['ตรวจสอบสรุปการสมัคร',9],step7:['ส่งข้อมูลและชำระเงิน',10],stepSpeaker:['จ้างวิทยากร',10]};
+  function renderProgress(){
+    const active=document.querySelector('#mainForm .step-content.active');
+    const info=stepLabels[active?.id]||stepLabels.step1;
+    const label=document.getElementById('awRegisterStepName'),count=document.getElementById('awRegisterStepCounter'),hint=document.getElementById('awRegisterStepHint');
+    if(label)label.textContent=info[0];if(count)count.textContent=`ขั้นตอน ${info[1]} / 10`;
+    if(hint)hint.hidden=!!(document.getElementById('successView')&&!document.getElementById('successView').classList.contains('hidden'));
+  }
+  function boot(){
+    const form=document.getElementById('mainForm');
+    if(form) form.addEventListener('submit',e=>e.preventDefault());
+    if(form){const observer=new MutationObserver(renderProgress);form.querySelectorAll('.step-content').forEach(el=>observer.observe(el,{attributes:true,attributeFilter:['class']}));renderProgress();}
+    // Keep the original step navigation and validation; only help users correct errors.
+    form?.addEventListener('input',e=>{const target=e.target;if(target?.classList?.contains('input-error') && String(target.value||'').trim()) target.classList.remove('input-error')});
+    // Prevent accidental outdated date on the public deferred-payment form.
+    const date=document.getElementById('awv261ExpectedDate');
+    date?.addEventListener('change',()=>{if(date.value && date.min && date.value < date.min){date.setCustomValidity('กรุณาเลือกวันปัจจุบันหรือวันในอนาคต');date.reportValidity()}else date.setCustomValidity('')});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 </script>
 
