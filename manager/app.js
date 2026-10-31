@@ -398,16 +398,23 @@ function renderTutorPresetPanel(){
 
 function renderScheduleManager(){
   if(!$('scheduleTemplateList'))return;
-  $('scheduleTemplateCount').textContent=state.scheduleTemplates.length;
-  $('scheduleTemplateList').innerHTML=state.scheduleTemplates.map(t=>`<button type="button" onclick="editScheduleTemplate('${t.id}')" class="w-full text-left border rounded-xl p-3 hover:border-sky-300 ${t.active?'bg-white':'bg-slate-50 opacity-60'}"><div class="flex justify-between items-center gap-2"><div><div class="font-bold text-xs text-slate-700">${esc(templateDisplay(t))}</div><div class="text-[10px] text-slate-400">${timeShort(t.start_time)} → ${timeShort(t.end_time)}</div></div><span class="tag">${t.active?'OPEN':'OFF'}</span></div></button>`).join('')||'<p class="text-xs text-slate-400">ยังไม่มีช่วงเวลา</p>';
-  if($('scheduleTutorFilter')){$('scheduleTutorFilter').innerHTML=state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name)}</option>`).join('');if(activeScheduleTutorId)$('scheduleTutorFilter').value=activeScheduleTutorId;}
-  renderTutorPresetPanel();
-  renderScheduleCalendar();
+  const templates=[...state.scheduleTemplates].sort((a,b)=>timeShort(a.start_time).localeCompare(timeShort(b.start_time))||timeShort(a.end_time).localeCompare(timeShort(b.end_time)));
+  $('scheduleTemplateCount').textContent=String(templates.length);
+  $('scheduleTemplateList').innerHTML=templates.map(t=>`<div class="aw-schedule-slot ${t.active?'':'inactive'}">
+    <span class="aw-schedule-slot-info"><strong>${esc(timeShort(t.start_time))}–${esc(timeShort(t.end_time))}</strong><small>${esc(t.label||'ช่วงเวลาเรียน')}</small></span>
+    <span class="aw-schedule-slot-state">${t.active?'เปิดใช้':'ปิดใช้'}</span>
+    <button class="aw-schedule-slot-action" type="button" title="แก้ไขช่วงเวลา" aria-label="แก้ไขช่วงเวลา ${esc(templateDisplay(t))}" onclick="editScheduleTemplate('${t.id}')"><i class="fas fa-pen"></i></button>
+  </div>`).join('')||'<div class="aw-schedule-empty">ยังไม่มีช่วงเวลา — เพิ่มด้านบนเพื่อเริ่มต้น</div>';
+  if($('scheduleTutorFilter')){
+    $('scheduleTutorFilter').innerHTML=state.tutors.map(t=>`<option value="${t.id}">${esc(t.display_name||'ติวเตอร์')}</option>`).join('');
+    if(activeScheduleTutorId)$('scheduleTutorFilter').value=activeScheduleTutorId;
+  }
+  renderTutorPresetPanel();renderScheduleCalendar();
 }
 
 window.editScheduleTemplate=id=>{const t=state.scheduleTemplates.find(x=>x.id===id);if(!t)return;$('scheduleTemplateId').value=t.id;$('scheduleStart').value=timeShort(t.start_time);$('scheduleEnd').value=timeShort(t.end_time);$('scheduleLabel').value=t.label||'';$('scheduleTemplateActive').checked=t.active;};
 $('scheduleTemplateReset').onclick=()=>{$('scheduleTemplateForm').reset();$('scheduleTemplateId').value='';$('scheduleTemplateActive').checked=true;};
-$('scheduleTemplateForm').onsubmit=async e=>{e.preventDefault();try{const start=$('scheduleStart').value,end=$('scheduleEnd').value;if(!start||!end||end<=start)return notify('warning','ตรวจสอบช่วงเวลา','เวลาสิ้นสุดต้องมากกว่าเวลาเริ่ม');const row={start_time:start,end_time:end,label:$('scheduleLabel').value.trim()||null,active:$('scheduleTemplateActive').checked,updated_at:new Date().toISOString()};let q=$('scheduleTemplateId').value?sb.from('schedule_templates').update(row).eq('id',$('scheduleTemplateId').value):sb.from('schedule_templates').insert(row);const{error}=await q;if(error)throw error;$('scheduleTemplateForm').reset();$('scheduleTemplateId').value='';$('scheduleTemplateActive').checked=true;await loadAll();notify('success','บันทึกช่วงเวลาแล้ว');}catch(err){notify('error','บันทึกช่วงเวลาไม่สำเร็จ',err.message)}};
+$('scheduleTemplateForm').onsubmit=async e=>{e.preventDefault();try{const start=$('scheduleStart').value,end=$('scheduleEnd').value;if(!start||!end||end<=start)return notify('warning','ตรวจสอบช่วงเวลา','เวลาสิ้นสุดต้องมากกว่าเวลาเริ่ม');if(state.scheduleTemplates.some(t=>t.id!==$('scheduleTemplateId').value&&timeShort(t.start_time)===start&&timeShort(t.end_time)===end))return notify('warning','ช่วงเวลาซ้ำ','มีช่วงเวลาเริ่มและสิ้นสุดนี้อยู่แล้ว');const row={start_time:start,end_time:end,label:$('scheduleLabel').value.trim()||null,active:$('scheduleTemplateActive').checked,updated_at:new Date().toISOString()};let q=$('scheduleTemplateId').value?sb.from('schedule_templates').update(row).eq('id',$('scheduleTemplateId').value):sb.from('schedule_templates').insert(row);const{error}=await q;if(error)throw error;$('scheduleTemplateForm').reset();$('scheduleTemplateId').value='';$('scheduleTemplateActive').checked=true;await loadAll();notify('success','บันทึกช่วงเวลาแล้ว');}catch(err){notify('error','บันทึกช่วงเวลาไม่สำเร็จ',err.message)}};
 
 if($('scheduleTutorFilter')) $('scheduleTutorFilter').onchange=e=>{
   activeScheduleTutorId=e.target.value;
@@ -415,6 +422,7 @@ if($('scheduleTutorFilter')) $('scheduleTutorFilter').onchange=e=>{
   renderTutorPresetPanel();renderScheduleCalendar();
 };
 if($('refreshSchedule')) $('refreshSchedule').onclick=loadAll;
+if($('awScheduleAdvancedJump')) $('awScheduleAdvancedJump').onclick=()=>{const panel=$('scheduleAdvanced');if(panel){panel.open=true;panel.scrollIntoView({behavior:'smooth',block:'start'});}};
 if($('scheduleSelectWeekdays')) $('scheduleSelectWeekdays').onclick=()=>setScheduleDayChecks([1,2,3,4,5]);
 if($('scheduleSelectWeekend')) $('scheduleSelectWeekend').onclick=()=>setScheduleDayChecks([6,7]);
 if($('scheduleSelectAllDays')) $('scheduleSelectAllDays').onclick=()=>setScheduleDayChecks([1,2,3,4,5,6,7]);
@@ -500,14 +508,46 @@ if($('scheduleCloseWeekBtn')) $('scheduleCloseWeekBtn').onclick=closeTutorWeek;
 
 function renderScheduleCalendar(){
   const el=$('scheduleCalendar');if(!el)return;
-  const templates=state.scheduleTemplates.filter(t=>t.active);
-  if(!activeScheduleTutorId||!templates.length){el.innerHTML='<div class="py-12 text-center text-slate-400 text-sm">เพิ่มติวเตอร์และช่วงเวลาก่อน</div>';return;}
+  const templates=state.scheduleTemplates.filter(t=>t.active).sort((a,b)=>timeShort(a.start_time).localeCompare(timeShort(b.start_time))||timeShort(a.end_time).localeCompare(timeShort(b.end_time)));
+  const count=(id,n)=>{if($(id))$(id).textContent=String(n)};
+  count('scheduleStatTemplates',templates.length);
+  if(!activeScheduleTutorId||!templates.length){
+    el.innerHTML=`<div class="aw-schedule-empty"><i class="far fa-calendar-xmark" aria-hidden="true"></i><p>${!activeScheduleTutorId?'กรุณาเลือกติวเตอร์':'ยังไม่มีช่วงเวลาเปิดใช้งาน'}</p></div>`;
+    ['scheduleStatOpen','scheduleStatBooked','scheduleStatBlocked','scheduleStatFull','scheduleStatUnconfigured'].forEach(id=>count(id,0));return;
+  }
   const days=[1,2,3,4,5,6,7];
-  let open=0,booked=0,blocked=0;
-  const header='<div class="grid grid-cols-[130px_repeat(7,minmax(100px,1fr))] gap-2 mb-2"><div class="p-2 text-xs font-bold text-slate-400">เวลา</div>'+days.map(d=>`<div class="p-2 text-center text-xs font-bold text-slate-600 bg-slate-50 rounded-xl">${DAY_NAMES[d]}</div>`).join('')+'</div>';
-  const rows=templates.map(t=>`<div class="grid grid-cols-[130px_repeat(7,minmax(100px,1fr))] gap-2 mb-2"><div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><div class="font-bold text-xs">${esc(templateDisplay(t))}</div><div class="text-[9px] text-slate-400">${timeShort(t.start_time)}-${timeShort(t.end_time)}</div></div>${days.map(d=>{const s=state.schedules.find(x=>x.tutor_id===activeScheduleTutorId&&Number(x.weekday)===d&&x.time_template_id===t.id);if(!s){blocked++;return `<button type="button" onclick="editScheduleCell(${d},'${t.id}')" class="schedule-cell rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-400 p-2"><i class="fas fa-plus text-xs"></i><div class="text-[9px] mt-1">ยังไม่เปิด</div></button>`;}const used=scheduleUsed(s.id),remain=Math.max(0,Number(s.capacity||1)-used);if(s.status==='blocked'){blocked++;return `<button type="button" onclick="editScheduleCell(${d},'${t.id}')" class="schedule-cell rounded-xl border border-slate-200 bg-slate-100 text-slate-500 p-2"><i class="fas fa-ban text-xs"></i><div class="text-[9px] mt-1">บล็อก</div>${used?`<div class="text-[8px] text-amber-600 mt-1">มีจอง ${used}</div>`:''}</button>`;}open++;if(used>0)booked++;return `<button type="button" onclick="editScheduleCell(${d},'${t.id}')" class="schedule-cell rounded-xl border ${used>0?'border-amber-200 bg-amber-50':'border-emerald-200 bg-emerald-50'} p-2 text-left"><div class="flex justify-between"><i class="fas fa-circle ${used>0?'text-amber-400':'text-emerald-400'} text-[8px]"></i><span class="text-[9px] font-bold ${used>0?'text-amber-700':'text-emerald-700'}">${remain}/${s.capacity}</span></div><div class="text-[9px] mt-2 font-bold text-slate-600">${used>0?'มีการจอง':'เปิดรับ'}</div></button>`;}).join('')}</div>`).join('');
-  el.innerHTML=header+rows;
-  $('scheduleStatOpen').textContent=open;$('scheduleStatBooked').textContent=booked;$('scheduleStatBlocked').textContent=blocked;
+  const key=(d,tid)=>`${Number(d)}::${String(tid)}`;
+  const cells=new Map();
+  for(const row of state.schedules){if(row.tutor_id===activeScheduleTutorId)cells.set(key(row.weekday,row.time_template_id),row)}
+  const usedBySchedule=new Map();
+  for(const r of state.scheduleReservations){
+    if(['reserved','confirmed'].includes(r.status))usedBySchedule.set(String(r.tutor_schedule_id),(usedBySchedule.get(String(r.tutor_schedule_id))||0)+Number(r.seats||0));
+  }
+  let openings=0, bookings=0, full=0, blocked=0, unscheduled=0;
+  const thead='<thead><tr><th scope="col" style="width:134px">เวลา</th>'+days.map(d=>`<th scope="col">${DAY_NAMES[d]}</th>`).join('')+'</tr></thead>';
+  const tbody=templates.map(t=>{
+    const start=esc(timeShort(t.start_time)),end=esc(timeShort(t.end_time));
+    const time=`${start}–${end}`;
+    return `<tr><th scope="row"><div>${time}</div>${t.label?`<div class="aw-time-label">${esc(t.label)}</div>`:''}</th>`+days.map(d=>{
+      const s=cells.get(key(d,t.id));
+      let status='none',label='ยังไม่กำหนด',note='เพิ่มช่วงสอน';
+      if(!s){unscheduled++}
+      else{
+        const used=usedBySchedule.get(String(s.id))||0,capacity=Math.max(1,Number(s.capacity||1)),remain=Math.max(0,capacity-used);
+        if(used>0)bookings++;
+        if(s.status==='blocked'){status='blocked';label='ปิดรับ';blocked++;note=used?`มีจองเดิม ${used}`:'ปิดรับจอง'}
+        else if(remain===0){status='full';label='เต็ม';full++;note=`${used}/${capacity} คิว`}
+        else if(used>0){status='booked';label='มีการจอง';openings++;note=`${used}/${capacity} คิว`}
+        else {status='open';label='เปิดรับ';openings++;note=`ว่าง ${remain}/${capacity}`}
+      }
+      const accessible=`${DAY_NAMES[d]} ${time} ${label} ${note}`;
+      return `<td><button type="button" class="aw-schedule-cell" aria-label="${esc(accessible)} — คลิกเพื่อแก้ไข" title="${esc(accessible)}" onclick="editScheduleCell(${d},'${t.id}')"><span class="aw-schedule-pill ${status}">${label}</span><span class="aw-schedule-capacity">${note}</span></button></td>`;
+    }).join('')+'</tr>';
+  }).join('');
+  el.innerHTML=`<table class="aw-schedule-table" aria-label="ตารางสอนประจำสัปดาห์ของติวเตอร์ที่เลือก">${thead}<tbody>${tbody}</tbody></table>`;
+  // "เปิดรับได้" counts available slots with remaining seats (including partially booked).
+  count('scheduleStatOpen',openings);count('scheduleStatBooked',bookings);
+  count('scheduleStatBlocked',full+blocked);count('scheduleStatFull',full);count('scheduleStatUnconfigured',unscheduled);
 }
 
 window.editScheduleCell=async(weekday,templateId)=>{
@@ -518,6 +558,7 @@ window.editScheduleCell=async(weekday,templateId)=>{
   const result=await Swal.fire({title:`${esc(tutor?.display_name||'')} • ${DAY_NAMES[weekday]} • ${templateDisplay(t)}`,html:`<div class="text-left space-y-3"><label class="text-xs font-bold text-slate-600">สถานะ<select id="swalScheduleStatus" class="input mt-1"><option value="available" ${!s||s.status==='available'?'selected':''}>เปิดรับ</option><option value="blocked" ${s?.status==='blocked'?'selected':''}>บล็อก</option></select></label><label class="text-xs font-bold text-slate-600">จำนวนคิวที่รับพร้อมกัน<input id="swalScheduleCapacity" type="number" min="1" max="100" class="input mt-1" value="${s?.capacity||1}"></label><label class="text-xs font-bold text-slate-600">หมายเหตุ<input id="swalScheduleNote" class="input mt-1" value="${esc(s?.note||'')}"></label>${used?`<div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700">มีการจองแล้ว ${used} คิว การลดจำนวนคิวต่ำกว่านี้จะไม่สามารถบันทึกได้</div>`:''}</div>`,showCancelButton:true,confirmButtonText:'บันทึก',cancelButtonText:'ยกเลิก',confirmButtonColor:'#0ea5e9',preConfirm:()=>({status:document.getElementById('swalScheduleStatus').value,capacity:Number(document.getElementById('swalScheduleCapacity').value||1),note:document.getElementById('swalScheduleNote').value.trim()})});
   if(!result.isConfirmed)return;
   try{
+    if(!Number.isInteger(result.value.capacity)||result.value.capacity<1||result.value.capacity>100)throw new Error('จำนวนคิวต้องเป็นจำนวนเต็มระหว่าง 1–100');
     if(result.value.capacity<used)throw new Error(`มีผู้จองแล้ว ${used} คิว`);
     const row={tutor_id:activeScheduleTutorId,weekday:Number(weekday),time_template_id:templateId,status:result.value.status,capacity:result.value.capacity,note:result.value.note||null,updated_at:new Date().toISOString()};
     const q=s?sb.from('tutor_schedules').update(row).eq('id',s.id):sb.from('tutor_schedules').insert(row);const{error}=await q;if(error)throw error;await loadAll();

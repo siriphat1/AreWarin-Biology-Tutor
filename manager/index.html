@@ -31577,6 +31577,133 @@ html,body{max-width:100%;overflow-x:clip}
 @media(prefers-reduced-motion:reduce){.aw-nav-group *,#awMobileNavToggle{transition:none!important}}
 </style>
 
+<style id="aw-schedule-v29">
+/* AreWarin V29 — isolated weekly schedule redesign */
+#section-schedule{--aw-forest:#124837;--aw-forest-dark:#103e30;--aw-mint:#eaf8f2;--aw-line:#e2eaf0;--aw-ink:#18314b;color:var(--aw-ink);max-width:100%;min-width:0}
+#section-schedule *{box-sizing:border-box;min-width:0}
+#section-schedule button,#section-schedule select,#section-schedule input{font:inherit}
+#section-schedule button{cursor:pointer}
+#section-schedule button:focus-visible,#section-schedule input:focus-visible,#section-schedule select:focus-visible,#section-schedule summary:focus-visible,#section-schedule .aw-schedule-table-scroll:focus-visible{outline:3px solid #5bbec4;outline-offset:2px}
+#section-schedule .aw-schedule-head{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:5px 0 1px}
+#section-schedule .aw-schedule-title-group{display:flex;align-items:center;gap:14px;flex:1;min-width:245px}
+#section-schedule .aw-schedule-icon{display:grid;place-items:center;flex:0 0 56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#ddf7ed,#e4f1ff);color:#087d63;font-size:24px;border:1px solid #ccefe0}
+#section-schedule .aw-schedule-eyebrow{font-size:10px;letter-spacing:.12em;font-weight:800;color:#16816b}
+#section-schedule .aw-schedule-title{font-size:clamp(20px,2.1vw,29px);font-weight:800;letter-spacing:-.035em;color:#123d32;margin:3px 0 2px;line-height:1.3}
+#section-schedule .aw-schedule-subtitle{font-size:12px;color:#71849a;line-height:1.6}
+#section-schedule .aw-schedule-top-actions{display:flex;gap:9px;flex-wrap:wrap}
+#section-schedule .aw-schedule-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:12px;padding:10px 15px;font-weight:700;font-size:12px;border:1px solid transparent;transition:transform .16s,box-shadow .16s,background-color .16s}
+#section-schedule .aw-schedule-btn:hover{transform:translateY(-1px);box-shadow:0 8px 16px -12px #173c32}
+#section-schedule .aw-schedule-btn.primary{background:linear-gradient(135deg,#12604b,#124837);color:#fff;box-shadow:0 8px 15px -15px #0d4b38}
+#section-schedule .aw-schedule-btn.light{background:#f4f7fa;border-color:#e6edf2;color:#53647a}
+#section-schedule .aw-schedule-btn.danger{background:#fff1f2;border-color:#ffe0e4;color:#b42344}
+#section-schedule .aw-schedule-btn.wide{width:100%}
+#section-schedule .aw-schedule-tutor-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(105deg,#f9fefb,#f2f8fd);border:1px solid #d9e9e4;border-radius:19px;padding:15px 20px}
+#section-schedule .aw-schedule-tutor-profile{display:flex;gap:12px;align-items:center;flex:1}
+#section-schedule .aw-schedule-avatar{flex:0 0 51px;height:51px;border-radius:16px;display:grid;place-items:center;background:#174c3c;color:white;font-weight:800;overflow:hidden}
+#section-schedule .aw-schedule-mini-label{font-size:10px;font-weight:700;color:#6e9587}
+#section-schedule .aw-schedule-tutor-name{font-size:17px;line-height:1.4;font-weight:800;color:#174737}
+#section-schedule .aw-schedule-tutor-summary{font-size:11px;color:#81909e;margin-top:2px}
+#section-schedule .aw-schedule-tutor-select-wrap{display:grid;gap:4px;width:min(100%,310px);font-size:11px;font-weight:700;color:#6a7d8d}
+#section-schedule .aw-schedule-field{display:block;width:100%;min-width:0;min-height:43px;padding:9px 11px;border:1px solid #dce6ec;border-radius:12px;background:#fff;color:#29435e;font-size:13px;outline:none}
+#section-schedule .aw-schedule-field:focus{border-color:#48b395;box-shadow:0 0 0 3px #c8f3e5}
+#section-schedule .aw-schedule-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#section-schedule .aw-schedule-metric{display:flex;gap:12px;align-items:center;padding:16px;border:1px solid;border-radius:19px;min-height:108px}
+#section-schedule .aw-schedule-metric-icon{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border-radius:13px;font-size:19px;background:#fff9}
+#section-schedule .metric-blue{background:#f0f6ff;border-color:#dce9fb;color:#2173bc}
+#section-schedule .metric-green{background:#edfbf5;border-color:#cef2de;color:#087e5a}
+#section-schedule .metric-orange{background:#fff8ec;border-color:#ffebcc;color:#c47213}
+#section-schedule .metric-rose{background:#fff3f5;border-color:#f8dce2;color:#b53651}
+#section-schedule .aw-schedule-metric-label{font-size:11px;font-weight:750}
+#section-schedule .aw-schedule-metric-number{font-size:29px;font-weight:850;line-height:1.2;letter-spacing:-.04em}
+#section-schedule .aw-schedule-metric-note{font-size:10px;opacity:.75}
+#section-schedule .aw-schedule-workspace{display:grid;grid-template-columns:minmax(265px,310px) minmax(0,1fr);align-items:start;gap:16px;min-width:0}
+#section-schedule .aw-schedule-panel{background:#fff;border:1px solid #e1ebef;border-radius:20px;padding:18px;box-shadow:0 12px 30px -25px #314d58;min-width:0;max-width:100%;overflow:hidden}
+#section-schedule .aw-schedule-panel-title{display:flex;gap:10px;align-items:center;margin-bottom:15px}
+#section-schedule .aw-schedule-panel-title h2,#section-schedule .aw-schedule-calendar-head h2{font-size:17px;font-weight:800;color:#253c51;letter-spacing:-.02em}
+#section-schedule .aw-schedule-panel-title p,#section-schedule .aw-schedule-calendar-head p{font-size:10.5px;color:#8a9bad;margin-top:2px;line-height:1.6}
+#section-schedule .aw-schedule-panel-symbol{font-size:17px;color:#14886a}
+#section-schedule .aw-schedule-timeform{border:1px solid #e8eff1;padding:13px;border-radius:15px;background:#f9fcfb;display:grid;gap:10px}
+#section-schedule .aw-schedule-form-label{display:block;font-weight:750;color:#546a7f;font-size:11px}
+#section-schedule .aw-schedule-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#section-schedule .aw-schedule-form-grid label{display:grid;gap:5px;font-size:11px;color:#65788d;font-weight:700}
+#section-schedule .aw-schedule-check{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:#617386;line-height:1.5;cursor:pointer}
+#section-schedule input[type="checkbox"]{accent-color:#0b9a72;width:15px;height:15px;flex-shrink:0}
+#section-schedule .aw-schedule-form-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#section-schedule .aw-schedule-slots-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 10px}
+#section-schedule .aw-schedule-slots-header h3{font-size:13px;font-weight:800;color:#2b4256}
+#section-schedule .aw-schedule-count{display:grid;place-items:center;min-width:25px;height:25px;border-radius:30px;padding:0 7px;background:#ecf3f7;color:#56738a;font-size:11px;font-weight:700}
+#section-schedule .aw-schedule-slot-list{display:grid;gap:7px;max-height:460px;overflow-y:auto;padding:2px 4px 3px 1px}
+#section-schedule .aw-schedule-slot{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;padding:10px 9px;border:1px solid #e4ebf1;border-radius:12px;background:#fff}
+#section-schedule .aw-schedule-slot.inactive{background:#f7f8fb;opacity:.72}
+#section-schedule .aw-schedule-slot-info{display:grid;gap:3px}
+#section-schedule .aw-schedule-slot-info strong{font-size:11px;color:#2c4861;font-variant-numeric:tabular-nums}
+#section-schedule .aw-schedule-slot-info small{font-size:9px;color:#94a4b1;overflow-wrap:anywhere}
+#section-schedule .aw-schedule-slot-state{font-size:9px;border-radius:100px;padding:5px 7px;font-weight:800;white-space:nowrap;background:#e6f9ef;color:#13835e}
+#section-schedule .aw-schedule-slot.inactive .aw-schedule-slot-state{background:#eaedf2;color:#6d7788}
+#section-schedule .aw-schedule-slot-action{border:1px solid #e5ecf1;background:#f8fafb;color:#50798e;border-radius:9px;width:30px;height:30px;display:grid;place-items:center}
+#section-schedule .aw-schedule-slot-action:hover{background:#e8f7f0;color:#0c795c}
+#section-schedule .aw-schedule-calendar-panel{padding:18px}
+#section-schedule .aw-schedule-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+#section-schedule .aw-schedule-week-label{font-size:10px;color:#117756;background:#edfbf4;padding:9px 12px;border:1px solid #cceede;border-radius:99px;font-weight:800;white-space:nowrap}
+#section-schedule .aw-schedule-table-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #e5edf2;border-radius:15px;background:#fff}
+#section-schedule .aw-schedule-table{width:100%;min-width:790px;table-layout:fixed;border-collapse:separate;border-spacing:0;margin:0}
+#section-schedule .aw-schedule-table th,#section-schedule .aw-schedule-table td{padding:10px 7px;text-align:center;vertical-align:middle;border-right:1px solid #e7edf1;border-bottom:1px solid #e7edf1;background:#fff}
+#section-schedule .aw-schedule-table th:last-child,#section-schedule .aw-schedule-table td:last-child{border-right:none}
+#section-schedule .aw-schedule-table tbody tr:last-child>*{border-bottom:none}
+#section-schedule .aw-schedule-table thead th{height:55px;background:#f3f7fa;color:#536b82;font-size:11px;font-weight:800}
+#section-schedule .aw-schedule-table tbody th{color:#304960;font-size:11px;font-weight:800;text-align:left;font-variant-numeric:tabular-nums}
+#section-schedule .aw-schedule-table tbody th .aw-time-label{font-size:9px;font-weight:500;color:#8a9baf;margin-top:3px;overflow-wrap:anywhere}
+#section-schedule .aw-schedule-table thead th:first-child,#section-schedule .aw-schedule-table tbody th{position:sticky;left:0;z-index:2;box-shadow:1px 0 0 #e7edf1;background:#f8fbfc}
+#section-schedule .aw-schedule-table thead th:first-child{z-index:3;background:#eef5f6}
+#section-schedule .aw-schedule-table td{height:66px}
+#section-schedule .aw-schedule-cell{border:1px solid transparent;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 3px;border-radius:12px;min-height:49px;width:100%;transition:background .15s,transform .15s}
+#section-schedule .aw-schedule-cell:hover{transform:translateY(-1px);filter:saturate(1.15)}
+#section-schedule .aw-schedule-pill{display:inline-flex;justify-content:center;align-items:center;gap:6px;padding:6px 7px;width:100%;border-radius:100px;font-size:10px;font-weight:800;white-space:nowrap}
+#section-schedule .aw-schedule-pill:before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:currentColor}
+#section-schedule .aw-schedule-pill.open{background:#dff9ed;color:#06875c}
+#section-schedule .aw-schedule-pill.booked{background:#fff2df;color:#c17414}
+#section-schedule .aw-schedule-pill.full{background:#ffe7e9;color:#c6324c}
+#section-schedule .aw-schedule-pill.blocked{background:#edf1f4;color:#6c7785}
+#section-schedule .aw-schedule-pill.none{background:#f8fafc;color:#a4adb8}
+#section-schedule .aw-schedule-pill.none:before{background:transparent;border:1px solid #aab6c2}
+#section-schedule .aw-schedule-capacity{font-size:9px;color:#798c9d;white-space:nowrap;font-variant-numeric:tabular-nums}
+#section-schedule .aw-schedule-table-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:15px}
+#section-schedule .aw-schedule-legend{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+#section-schedule .aw-schedule-legend>span{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#6f8294}
+#section-schedule .aw-schedule-legend .dot{width:7px;height:7px;display:inline-block;border-radius:50%}
+#section-schedule .dot.green{background:#14b983}#section-schedule .dot.orange{background:#f5a52a}#section-schedule .dot.red{background:#ef4362}#section-schedule .dot.gray{background:#8795a6}#section-schedule .dot.pale{background:#d3dde5}
+#section-schedule .aw-schedule-legend-note{font-size:10px;color:#8192a6}
+#section-schedule .aw-schedule-info-line{margin-top:15px;padding:11px 13px;background:#f7fafb;color:#7b8b9a;border-radius:11px;font-size:10px;line-height:1.6}
+#section-schedule .aw-schedule-empty{padding:40px 20px;text-align:center;font-size:12px;color:#8295a3}
+#section-schedule .aw-schedule-advanced{border:1px solid #dfece6;background:#fff;border-radius:19px;overflow:hidden}
+#section-schedule .aw-schedule-advanced>summary{cursor:pointer;list-style:none;padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#174737;background:linear-gradient(90deg,#f1faf6,#f8fcfa)}
+#section-schedule .aw-schedule-advanced>summary::-webkit-details-marker{display:none}
+#section-schedule .aw-schedule-advanced>summary>div{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+#section-schedule .aw-schedule-advanced>summary strong{font-size:13px}
+#section-schedule .aw-schedule-advanced>summary span{font-size:10px;color:#749486}
+#section-schedule .aw-schedule-advanced[open] .aw-advanced-chevron{transform:rotate(180deg)}
+#section-schedule .aw-schedule-advanced-inner{padding:19px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+#section-schedule .aw-schedule-advanced-col{display:grid;align-content:start;gap:12px}
+#section-schedule .aw-schedule-advanced-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#section-schedule .aw-schedule-advanced-row h3{font-size:12px;font-weight:800;color:#526c5f}
+#section-schedule .aw-schedule-advanced-row>div{display:flex;flex-wrap:wrap;gap:6px}
+#section-schedule .aw-schedule-advanced-row button{border:1px solid #dcece4;border-radius:8px;padding:5px 8px;color:#13775c;background:#f7fdf9;font-size:10px}
+#section-schedule .aw-schedule-day-picker{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+#section-schedule .aw-schedule-day-picker label{position:relative;cursor:pointer}
+#section-schedule .aw-schedule-day-picker input{position:absolute;opacity:0}
+#section-schedule .aw-schedule-day-picker span{display:grid;place-items:center;border:1px solid #dbe7e2;color:#66827a;background:#fff;border-radius:10px;min-height:40px;font-size:11px;font-weight:700}
+#section-schedule .aw-schedule-day-picker input:checked+span{background:#d9f8e9;color:#057a58;border-color:#68c4a3}
+#section-schedule .aw-schedule-day-picker input:focus-visible+span{outline:3px solid #5bbec4}
+#section-schedule .aw-schedule-bulk-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto}
+#section-schedule .aw-schedule-advanced-config{background:#f8fbf9;padding:16px;border-radius:15px;border:1px solid #e1eee6}
+#section-schedule .aw-schedule-replace{padding:11px;border:1px solid #dfede6;border-radius:12px;background:#fff}
+#section-schedule .aw-schedule-copy-row{display:flex;gap:8px;align-items:end;border-top:1px solid #e0e9e2;padding-top:12px}
+#section-schedule .aw-schedule-copy-row label{flex:1;font-size:11px;font-weight:700;color:#607568;display:grid;gap:5px}
+@media(max-width:1320px){#section-schedule .aw-schedule-metric{padding:13px 11px;gap:9px}#section-schedule .aw-schedule-metric-icon{width:36px;height:36px;flex-basis:36px}#section-schedule .aw-schedule-workspace{grid-template-columns:minmax(250px,285px) minmax(0,1fr)}}
+@media(max-width:1450px){#section-schedule .aw-schedule-workspace{grid-template-columns:minmax(0,1fr)}#section-schedule .aw-schedule-edit-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px}#section-schedule .aw-schedule-edit-panel .aw-schedule-panel-title{grid-column:1/-1}#section-schedule .aw-schedule-edit-panel .aw-schedule-slots-header{grid-column:2;grid-row:2;align-self:start;margin:0}#section-schedule .aw-schedule-edit-panel .aw-schedule-slot-list{grid-column:2;grid-row:2;margin-top:32px;max-height:320px}}
+@media(max-width:1050px){#section-schedule .aw-schedule-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#section-schedule .aw-schedule-workspace{grid-template-columns:minmax(0,1fr)}#section-schedule .aw-schedule-edit-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px}#section-schedule .aw-schedule-edit-panel .aw-schedule-panel-title{grid-column:1/-1}#section-schedule .aw-schedule-edit-panel .aw-schedule-slots-header{grid-column:2;grid-row:2;align-self:start;margin:0}#section-schedule .aw-schedule-edit-panel .aw-schedule-slot-list{grid-column:2;grid-row:2;margin-top:32px;max-height:320px}#section-schedule .aw-schedule-advanced-inner{grid-template-columns:1fr}}
+@media(max-width:640px){#section-schedule .aw-schedule-head{align-items:flex-start}#section-schedule .aw-schedule-top-actions{width:100%}#section-schedule .aw-schedule-top-actions>.aw-schedule-btn{flex:1}#section-schedule .aw-schedule-metrics{gap:9px}#section-schedule .aw-schedule-metric{min-height:100px}#section-schedule .aw-schedule-metric-number{font-size:26px}#section-schedule .aw-schedule-metric-icon{display:none}#section-schedule .aw-schedule-panel{padding:13px}#section-schedule .aw-schedule-edit-panel{display:block}#section-schedule .aw-schedule-edit-panel .aw-schedule-slots-header{margin-top:20px}#section-schedule .aw-schedule-edit-panel .aw-schedule-slot-list{margin-top:0}#section-schedule .aw-schedule-tutor-bar{padding:13px}#section-schedule .aw-schedule-tutor-select-wrap{width:100%}#section-schedule .aw-schedule-metric-note{font-size:9px}#section-schedule .aw-schedule-advanced-inner{padding:12px}#section-schedule .aw-schedule-bulk-times{grid-template-columns:1fr 1fr}#section-schedule .aw-schedule-table-footer{align-items:flex-start}#section-schedule .aw-schedule-subtitle{font-size:11px}}
+</style>
 </head>
 <body class="text-slate-800">
   <div id="login" class="min-h-screen flex items-center justify-center p-5">
@@ -32209,150 +32336,104 @@ html,body{max-width:100%;overflow-x:clip}
           </div>
         </section>
 
-<section id="section-schedule" class="section space-y-5">
-          <div class="page-head">
-            <div>
-              <div class="page-kicker">Schedule</div>
-              <h1 class="page-title">จัดการตารางสอน</h1>
-              <p class="page-subtitle">กำหนดวันและช่วงเวลาสอนแยกเฉพาะติวเตอร์แต่ละคน พร้อมเปิดรับคิว บล็อกเวลา และคัดลอกตารางได้</p>
-            </div>
-          </div>
+<section id="section-schedule" class="section aw-schedule-section space-y-5">
+  <div class="aw-schedule-head">
+    <div class="aw-schedule-title-group">
+      <div class="aw-schedule-icon"><i class="fas fa-calendar-week" aria-hidden="true"></i></div>
+      <div class="min-w-0">
+        <div class="aw-schedule-eyebrow">AREWARIN · TEACHING OPERATIONS</div>
+        <h1 class="aw-schedule-title">จัดการตารางสอน</h1>
+        <p class="aw-schedule-subtitle">ตารางสอนประจำสัปดาห์ · เลือกติวเตอร์เพื่อดูช่วงเวลาที่เปิดรับและจำนวนคิวจริง</p>
+      </div>
+    </div>
+    <div class="aw-schedule-top-actions">
+      <button type="button" id="refreshSchedule" class="aw-schedule-btn light"><i class="fas fa-arrows-rotate" aria-hidden="true"></i> รีเฟรชข้อมูล</button>
+      <button type="button" id="awScheduleAdvancedJump" class="aw-schedule-btn primary"><i class="fas fa-sliders" aria-hidden="true"></i> ตั้งค่าตารางติวเตอร์</button>
+    </div>
+  </div>
 
-          <!-- Tutor-specific weekly availability builder -->
-          <div class="card p-5 md:p-6 overflow-hidden relative">
-            <div class="absolute -right-12 -top-14 w-44 h-44 rounded-full bg-sky-50 pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col xl:flex-row xl:items-start justify-between gap-5">
-              <div class="min-w-0 xl:max-w-[330px]">
-                <div class="flex items-center gap-3">
-                  <div id="scheduleTutorAvatar" class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-sm overflow-hidden shrink-0">AW</div>
-                  <div class="min-w-0">
-                    <div class="text-[9px] uppercase tracking-[.12em] font-semibold text-sky-500">Tutor availability</div>
-                    <h2 id="schedulePresetTutorName" class="text-[16px] font-bold text-slate-800 truncate">เลือกติวเตอร์</h2>
-                    <p id="scheduleTutorSummary" class="text-[10px] text-slate-400 mt-1">กำหนดตารางประจำรายบุคคล</p>
-                  </div>
-                </div>
-                <div class="mt-4">
-                  <label class="text-[10px] font-semibold text-slate-500">ติวเตอร์ที่ต้องการจัดตาราง</label>
-                  <select id="scheduleTutorFilter" class="input mt-1.5 w-full"></select>
-                </div>
-                <div class="mt-3 grid grid-cols-2 gap-2">
-                  <button id="scheduleSelectWeekdays" type="button" class="py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-semibold text-slate-600 hover:border-sky-200">จันทร์–ศุกร์</button>
-                  <button id="scheduleSelectWeekend" type="button" class="py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-semibold text-slate-600 hover:border-sky-200">เสาร์–อาทิตย์</button>
-                </div>
-              </div>
+  <div class="aw-schedule-tutor-bar">
+    <div class="aw-schedule-tutor-profile">
+      <div id="scheduleTutorAvatar" class="aw-schedule-avatar">AW</div>
+      <div class="min-w-0">
+        <div class="aw-schedule-mini-label">ติวเตอร์ที่กำลังจัดการ</div>
+        <h2 id="schedulePresetTutorName" class="aw-schedule-tutor-name">เลือกติวเตอร์</h2>
+        <p id="scheduleTutorSummary" class="aw-schedule-tutor-summary">กำหนดตารางประจำรายบุคคล</p>
+      </div>
+    </div>
+    <label class="aw-schedule-tutor-select-wrap"><span>เลือกติวเตอร์</span><select id="scheduleTutorFilter" class="aw-schedule-field" aria-label="เลือกติวเตอร์เพื่อดูตารางสอน"></select></label>
+  </div>
 
-              <div class="flex-1 min-w-0 grid lg:grid-cols-[.85fr_1.15fr] gap-5">
-                <div>
-                  <div class="flex items-center justify-between gap-2 mb-2">
-                    <label class="text-[10px] font-semibold text-slate-500">วันที่เปิดสอน</label>
-                    <div class="flex gap-1">
-                      <button id="scheduleSelectAllDays" type="button" class="text-[9px] font-semibold text-sky-600 px-2 py-1 rounded-lg hover:bg-sky-50">ทั้งหมด</button>
-                      <button id="scheduleClearDays" type="button" class="text-[9px] font-semibold text-slate-400 px-2 py-1 rounded-lg hover:bg-slate-50">ล้าง</button>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 gap-2">
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="1"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">จ.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="2"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">อ.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="3"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">พ.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="4"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">พฤ.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="5"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-sky-50 peer-checked:border-sky-300 peer-checked:text-sky-700">ศ.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="6"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-violet-50 peer-checked:border-violet-300 peer-checked:text-violet-700">ส.</span></label>
-                    <label class="cursor-pointer"><input class="peer sr-only schedule-day-check" type="checkbox" value="7"><span class="block text-center py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-semibold text-slate-500 peer-checked:bg-violet-50 peer-checked:border-violet-300 peer-checked:text-violet-700">อา.</span></label>
-                  </div>
+  <div class="aw-schedule-metrics" aria-label="สรุปสถานะตารางสอน">
+    <div class="aw-schedule-metric metric-blue"><div class="aw-schedule-metric-icon"><i class="far fa-clock"></i></div><div><div class="aw-schedule-metric-label">ช่วงเวลาเรียนที่ใช้งาน</div><div id="scheduleStatTemplates" class="aw-schedule-metric-number">0</div><div class="aw-schedule-metric-note">ช่วงเวลาต่อวัน</div></div></div>
+    <div class="aw-schedule-metric metric-green"><div class="aw-schedule-metric-icon"><i class="fas fa-circle-check"></i></div><div><div class="aw-schedule-metric-label">เปิดรับได้</div><div id="scheduleStatOpen" class="aw-schedule-metric-number">0</div><div class="aw-schedule-metric-note">ช่องที่ยังมีที่ว่าง</div></div></div>
+    <div class="aw-schedule-metric metric-orange"><div class="aw-schedule-metric-icon"><i class="fas fa-users"></i></div><div><div class="aw-schedule-metric-label">มีการจอง</div><div id="scheduleStatBooked" class="aw-schedule-metric-number">0</div><div class="aw-schedule-metric-note">ช่องที่มีผู้จองแล้ว</div></div></div>
+    <div class="aw-schedule-metric metric-rose"><div class="aw-schedule-metric-icon"><i class="fas fa-lock"></i></div><div><div class="aw-schedule-metric-label">เต็ม / ปิดรับ</div><div id="scheduleStatBlocked" class="aw-schedule-metric-number">0</div><div class="aw-schedule-metric-note">ช่องที่ไม่รับจองใหม่</div></div></div>
+  </div>
 
-                  <div class="flex items-center justify-between gap-2 mt-4 mb-2">
-                    <label class="text-[10px] font-semibold text-slate-500">ช่วงเวลาที่สอนได้</label>
-                    <div class="flex gap-1">
-                      <button id="scheduleSelectAllTimes" type="button" class="text-[9px] font-semibold text-sky-600 px-2 py-1 rounded-lg hover:bg-sky-50">ทั้งหมด</button>
-                      <button id="scheduleClearTimes" type="button" class="text-[9px] font-semibold text-slate-400 px-2 py-1 rounded-lg hover:bg-slate-50">ล้าง</button>
-                    </div>
-                  </div>
-                  <div id="scheduleBulkTimes" class="grid sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[180px] overflow-y-auto custom-scroll pr-1"></div>
-                </div>
+  <div class="aw-schedule-workspace">
+    <aside class="aw-schedule-panel aw-schedule-edit-panel">
+      <div class="aw-schedule-panel-title"><div class="aw-schedule-panel-symbol"><i class="far fa-clock"></i></div><div><h2>จัดการช่วงเวลาเรียน</h2><p>เพิ่มหรือแก้ไขช่วงเวลามาตรฐาน</p></div></div>
+      <form id="scheduleTemplateForm" class="aw-schedule-timeform">
+        <input type="hidden" id="scheduleTemplateId">
+        <div class="aw-schedule-form-label">เพิ่ม / แก้ไขช่วงเวลา</div>
+        <div class="aw-schedule-form-grid">
+          <label>เริ่ม<input id="scheduleStart" type="time" class="aw-schedule-field" required></label>
+          <label>สิ้นสุด<input id="scheduleEnd" type="time" class="aw-schedule-field" required></label>
+        </div>
+        <label class="aw-schedule-form-label" for="scheduleLabel">ชื่อแสดง (ไม่บังคับ)</label>
+        <input id="scheduleLabel" class="aw-schedule-field" placeholder="เช่น รอบเช้า / รอบบ่าย">
+        <label class="aw-schedule-check"><input id="scheduleTemplateActive" type="checkbox" checked> เปิดใช้งานช่วงเวลานี้</label>
+        <div class="aw-schedule-form-actions"><button type="submit" class="aw-schedule-btn primary"><i class="fas fa-floppy-disk"></i> บันทึก</button><button id="scheduleTemplateReset" type="button" class="aw-schedule-btn light">ล้าง</button></div>
+      </form>
+      <div class="aw-schedule-slots-header"><h3>ช่วงเวลาทั้งหมด</h3><span id="scheduleTemplateCount" class="aw-schedule-count">0</span></div>
+      <div id="scheduleTemplateList" class="aw-schedule-slot-list" aria-label="ช่วงเวลาเรียนที่สร้างไว้"></div>
+    </aside>
 
-                <div class="bg-slate-50/70 border border-slate-100 rounded-2xl p-4">
-                  <div class="grid sm:grid-cols-2 gap-3">
-                    <label class="text-[10px] font-semibold text-slate-500">สถานะ
-                      <select id="scheduleBulkStatus" class="input mt-1.5">
-                        <option value="available">เปิดรับนักเรียน</option>
-                        <option value="blocked">บล็อก / ไม่รับคิว</option>
-                      </select>
-                    </label>
-                    <label class="text-[10px] font-semibold text-slate-500">จำนวนที่รับพร้อมกัน
-                      <input id="scheduleBulkCapacity" type="number" min="1" max="100" value="1" class="input mt-1.5">
-                    </label>
-                  </div>
-                  <label class="block text-[10px] font-semibold text-slate-500 mt-3">หมายเหตุ
-                    <input id="scheduleBulkNote" class="input mt-1.5" placeholder="เช่น รับเฉพาะ Online / เตรียมสอบ A-Level">
-                  </label>
-                  <label class="flex items-start gap-2 mt-3 p-3 rounded-xl bg-white border border-slate-100 cursor-pointer">
-                    <input id="scheduleReplaceMode" type="checkbox" checked class="mt-0.5">
-                    <span><span class="block text-[10px] font-semibold text-slate-700">ใช้เป็นตารางหลักของติวเตอร์คนนี้</span><span class="block text-[9px] text-slate-400 mt-0.5 leading-relaxed">ช่วงอื่นที่ไม่ได้เลือกจะถูกปิดรับ แต่รายการจองเดิมจะไม่ถูกลบ</span></span>
-                  </label>
-                  <button id="scheduleApplyPreset" type="button" class="w-full mt-3 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold shadow-sm"><i class="fas fa-check mr-1.5"></i> บันทึกตารางประจำติวเตอร์</button>
+    <div class="aw-schedule-panel aw-schedule-calendar-panel">
+      <div class="aw-schedule-calendar-head">
+        <div><h2><i class="far fa-calendar text-emerald-600" aria-hidden="true"></i> ตารางสอนรายสัปดาห์</h2><p>แสดงตารางประจำทุกสัปดาห์ของติวเตอร์ที่เลือก (ไม่ใช่ตารางตามวันที่)</p></div>
+        <span class="aw-schedule-week-label"><i class="fas fa-repeat"></i> จันทร์–อาทิตย์</span>
+      </div>
+      <div id="scheduleCalendarScroll" class="aw-schedule-table-scroll" tabindex="0" role="region" aria-label="ตารางสอนรายสัปดาห์ เลื่อนแนวนอนได้บนมือถือ">
+        <div id="scheduleCalendar" aria-live="polite"></div>
+      </div>
+      <div class="aw-schedule-table-footer">
+        <div class="aw-schedule-legend"><span><i class="dot green"></i>เปิดรับ</span><span><i class="dot orange"></i>มีการจอง</span><span><i class="dot red"></i>เต็ม</span><span><i class="dot gray"></i>ปิดรับ</span><span><i class="dot pale"></i>ยังไม่กำหนด</span></div>
+        <div class="aw-schedule-legend-note"><i class="fas fa-circle-info"></i> กดช่องในตารางเพื่อแก้ไขสถานะ / จำนวนคิว</div>
+      </div>
+      <div class="aw-schedule-info-line">ตารางด้านบนเป็นรูปแบบประจำสัปดาห์ ไม่ใช่ข้อมูลการเข้าเรียนจริงหรือการนัดเรียนเฉพาะวันที่</div>
+    </div>
+  </div>
 
-                  <div class="border-t border-slate-200 mt-4 pt-4">
-                    <div class="text-[10px] font-semibold text-slate-600 mb-2">คัดลอกตารางจากติวเตอร์คนอื่น</div>
-                    <div class="flex gap-2">
-                      <select id="scheduleCopySource" class="input flex-1"><option value="">เลือกต้นแบบ</option></select>
-                      <button id="scheduleCopyBtn" type="button" class="px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-[10px] font-semibold hover:border-violet-200 hover:text-violet-600">คัดลอก</button>
-                    </div>
-                    <button id="scheduleCloseWeekBtn" type="button" class="w-full mt-2 py-2.5 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-semibold hover:bg-rose-100"><i class="fas fa-calendar-xmark mr-1"></i> ปิดรับทั้งสัปดาห์</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid xl:grid-cols-[330px_1fr] gap-5">
-            <div class="space-y-5">
-              <form id="scheduleTemplateForm" class="card p-5 space-y-3">
-                <div>
-                  <h2 class="font-bold text-lg flex items-center gap-2"><i class="far fa-clock text-sky-500"></i> ช่วงเวลาเรียน</h2>
-                  <p class="text-xs text-slate-400 mt-1">เพิ่มช่วงเวลาได้เอง แล้วนำไปใช้กับติวเตอร์แต่ละคน</p>
-                </div>
-                <input type="hidden" id="scheduleTemplateId">
-                <div class="grid grid-cols-2 gap-2">
-                  <label class="text-[11px] font-bold text-slate-500">เริ่ม<input id="scheduleStart" type="time" class="input mt-1" required></label>
-                  <label class="text-[11px] font-bold text-slate-500">สิ้นสุด<input id="scheduleEnd" type="time" class="input mt-1" required></label>
-                </div>
-                <input id="scheduleLabel" class="input" placeholder="ชื่อแสดง เช่น รอบเช้า (ไม่ใส่ก็ได้)">
-                <label class="flex items-center gap-2 text-sm"><input id="scheduleTemplateActive" type="checkbox" checked> เปิดใช้งานช่วงเวลานี้</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <button class="py-2.5 rounded-xl bg-sky-500 text-white font-bold text-sm">บันทึก</button>
-                  <button id="scheduleTemplateReset" type="button" class="py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">ล้าง</button>
-                </div>
-              </form>
-              <div class="card p-5">
-                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">ช่วงเวลาทั้งหมด</h3><span id="scheduleTemplateCount" class="tag">0</span></div>
-                <div id="scheduleTemplateList" class="space-y-2 max-h-[420px] overflow-y-auto"></div>
-              </div>
-            </div>
-
-            <div class="card p-5 overflow-hidden">
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                <div>
-                  <h2 class="font-bold text-lg flex items-center gap-2"><i class="fas fa-calendar-week text-purple-500"></i> ตารางว่างรายสัปดาห์</h2>
-                  <p class="text-xs text-slate-400 mt-1">ตารางด้านล่างเป็นของติวเตอร์ที่เลือกด้านบน คลิกแต่ละช่องเพื่อปรับเฉพาะช่องได้</p>
-                </div>
-                <button id="refreshSchedule" type="button" class="px-3 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold"><i class="fas fa-sync-alt mr-1"></i> รีเฟรช</button>
-              </div>
-              <div class="grid grid-cols-3 gap-2 mb-4">
-                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-3"><div class="text-[10px] text-emerald-600">เปิดรับ</div><div id="scheduleStatOpen" class="text-xl font-bold text-emerald-700">0</div></div>
-                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-3"><div class="text-[10px] text-amber-600">มีการจอง</div><div id="scheduleStatBooked" class="text-xl font-bold text-amber-700">0</div></div>
-                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3"><div class="text-[10px] text-slate-500">ปิด/ยังไม่เปิด</div><div id="scheduleStatBlocked" class="text-xl font-bold text-slate-700">0</div></div>
-              </div>
-              <div class="overflow-x-auto custom-scroll pb-2">
-                <div id="scheduleCalendar" class="min-w-[900px]"></div>
-              </div>
-              <div class="mt-4 flex flex-wrap gap-3 text-[10px] text-slate-500">
-                <span><i class="fas fa-circle text-emerald-400 mr-1"></i> เปิดรับ</span>
-                <span><i class="fas fa-circle text-amber-400 mr-1"></i> มีผู้จอง</span>
-                <span><i class="fas fa-circle text-slate-300 mr-1"></i> ยังไม่เปิด/บล็อก</span>
-              </div>
-            </div>
-          </div>
-        </section>
+  <details id="scheduleAdvanced" class="aw-schedule-advanced">
+    <summary><div><i class="fas fa-sliders" aria-hidden="true"></i><strong>ตั้งค่าตารางรายติวเตอร์ (ขั้นสูง)</strong><span>กำหนดหลายวันพร้อมกัน / คัดลอกตาราง / ปิดรับทั้งสัปดาห์</span></div><i class="fas fa-chevron-down aw-advanced-chevron" aria-hidden="true"></i></summary>
+    <div class="aw-schedule-advanced-inner">
+      <div class="aw-schedule-advanced-col">
+        <div class="aw-schedule-advanced-row"><h3>วันที่เปิดสอน</h3><div><button id="scheduleSelectWeekdays" type="button">จันทร์–ศุกร์</button><button id="scheduleSelectWeekend" type="button">เสาร์–อาทิตย์</button><button id="scheduleSelectAllDays" type="button">ทั้งหมด</button><button id="scheduleClearDays" type="button">ล้าง</button></div></div>
+        <div class="aw-schedule-day-picker">
+          <label><input class="schedule-day-check" type="checkbox" value="1"><span>จ.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="2"><span>อ.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="3"><span>พ.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="4"><span>พฤ.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="5"><span>ศ.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="6"><span>ส.</span></label>
+          <label><input class="schedule-day-check" type="checkbox" value="7"><span>อา.</span></label>
+        </div>
+        <div class="aw-schedule-advanced-row"><h3>ช่วงเวลาที่สอนได้</h3><div><button id="scheduleSelectAllTimes" type="button">ทั้งหมด</button><button id="scheduleClearTimes" type="button">ล้าง</button></div></div>
+        <div id="scheduleBulkTimes" class="aw-schedule-bulk-times"></div>
+      </div>
+      <div class="aw-schedule-advanced-col aw-schedule-advanced-config">
+        <div class="aw-schedule-form-grid"><label>สถานะ<select id="scheduleBulkStatus" class="aw-schedule-field"><option value="available">เปิดรับนักเรียน</option><option value="blocked">บล็อก / ไม่รับคิว</option></select></label><label>จำนวนที่รับพร้อมกัน<input id="scheduleBulkCapacity" type="number" min="1" max="100" value="1" class="aw-schedule-field"></label></div>
+        <label class="aw-schedule-form-label" for="scheduleBulkNote">หมายเหตุ</label><input id="scheduleBulkNote" class="aw-schedule-field" placeholder="เช่น รับเฉพาะ Online">
+        <label class="aw-schedule-check aw-schedule-replace"><input id="scheduleReplaceMode" type="checkbox" checked> ใช้เป็นตารางหลัก (ช่องอื่นที่ไม่ได้เลือกจะปิดรับ แต่ไม่ลบการจอง)</label>
+        <button id="scheduleApplyPreset" type="button" class="aw-schedule-btn primary wide"><i class="fas fa-check"></i> บันทึกตารางประจำติวเตอร์</button>
+        <div class="aw-schedule-copy-row"><label>คัดลอกจากติวเตอร์อื่น<select id="scheduleCopySource" class="aw-schedule-field"><option value="">เลือกต้นแบบ</option></select></label><button id="scheduleCopyBtn" type="button" class="aw-schedule-btn light">คัดลอก</button></div>
+        <button id="scheduleCloseWeekBtn" type="button" class="aw-schedule-btn danger wide"><i class="fas fa-calendar-xmark"></i> ปิดรับทั้งสัปดาห์</button>
+      </div>
+    </div>
+  </details>
+</section>
 
 
         <section id="section-legacyintake" class="section aw-li-section">
@@ -32540,7 +32621,7 @@ html,body{max-width:100%;overflow-x:clip}
       </main>
     </div>
   </div>
-  <script src="./app.js?v=20261030-28"></script>
+  <script src="./app.js?v=20261030-29"></script>
   <script src="./v17-control.js?v=17.0-20260916-3"></script>
 
   <!-- AW COURSE CATEGORY READY v2 -->
