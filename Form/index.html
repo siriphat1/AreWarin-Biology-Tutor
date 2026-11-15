@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#00796b" />
-  <meta name="description" content="แบบประเมินวิทยากร พี่อาร์ โดย The AC Lab" />
-  <title>ประเมินวิทยากร พี่อาร์ | The AC Lab</title>
+  <meta name="description" content="BioAre | แบบประเมินวิทยากรพี่อาร์" />
+  <title>BioAre — Speaker Feedback</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -141,6 +141,10 @@
       .scale {gap:6px;}.scale span {height:42px;}
       .button {padding:0 15px;min-height:46px;}
     }
+    .parent-site-link {text-decoration:none;font-weight:700;white-space:nowrap;}
+    .parent-site-link:hover {color:var(--teal);}
+    .parent-site-link::before {display:none;}
+    @media(max-width:600px) { .topbar .parent-site-link {display:inline-flex;font-size:11px;} }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}}
 
     /* Step 3: only pace, difficulty, and a message to the speaker */
@@ -156,23 +160,122 @@
     .feedback-extra { gap:28px; }
     .feedback-extra textarea { min-height:135px; }
     @media(max-width:420px){ .choice-options { gap:5px; } .choice-pill span { font-size:11px; padding:6px 2px; } }
+
+    /* BioAre / landing + privacy-first journey */
+    :root { --page:#f3f7f5; --ink:#17342f; --teal:#00796b; --stroke:#dfebe5; }
+    .topbar {height:76px;position:relative;z-index:2}
+    .brandmark {border-radius:14px;font-size:23px;font-weight:800;letter-spacing:-.04em}
+    .brandname {font-family:'DM Sans','Noto Sans Thai',sans-serif;font-size:19px;letter-spacing:-.045em;font-weight:800}
+    .brandname small {font-family:'Noto Sans Thai',sans-serif;letter-spacing:.02em;font-size:10px}
+    .welcome-layout {max-width:1260px;margin:28px auto 48px;padding:0 24px;display:grid;grid-template-columns:minmax(0,1.04fr) minmax(460px,.96fr);gap:22px;align-items:stretch;min-height:min(760px,calc(100vh - 150px));}
+    .welcome-hero {position:relative;overflow:hidden;border-radius:28px;background:radial-gradient(circle at 15% 85%,rgba(63,193,153,.42),transparent 35%),linear-gradient(137deg,#053d37 0%,#006f61 55%,#079782 100%);color:white;padding:42px 46px 28px;display:flex;flex-direction:column;isolation:isolate;}
+    .welcome-hero::before {content:'';position:absolute;width:550px;height:550px;border-radius:50%;border:1px solid rgba(255,255,255,.12);top:-350px;right:-300px;box-shadow:0 0 0 76px rgba(255,255,255,.035),0 0 0 145px rgba(255,255,255,.02);z-index:-1}
+    .welcome-meta {display:flex;align-items:center;gap:12px;color:#d2fbed;font:700 10px 'DM Sans',sans-serif;letter-spacing:.14em;}
+    .welcome-dot {width:8px;height:8px;border-radius:50%;background:#87ffd6;box-shadow:0 0 12px rgba(135,255,214,.7)}
+    .meta-line {height:1px;width:28px;background:#8edabf;opacity:.65}
+    .welcome-copy {padding-top:45px}
+    .welcome-pill {width:fit-content;border:1px solid rgba(219,255,241,.19);color:#dbffed;border-radius:100px;background:rgba(255,255,255,.07);padding:9px 13px;font-size:11px;letter-spacing:.02em}
+    .welcome-hero h1 {font-size:clamp(38px,4.1vw,62px);font-weight:800;letter-spacing:-.065em;line-height:1.22;margin:24px 0 19px}
+    .welcome-hero h1 span {color:#a6efcf}
+    .welcome-lead {font-size:14px;color:#e1fff2;line-height:1.95;margin:0;max-width:460px}
+    .bio-visual {width:100%;margin:auto 0;min-height:245px;display:flex;align-items:center;justify-content:center}
+    .bio-visual svg {width:100%;max-height:315px}
+    .welcome-foot {border-top:1px solid rgba(235,255,246,.2);padding-top:20px;display:flex;justify-content:space-between;gap:12px;color:#b8ebdb;font:600 10px 'DM Sans',sans-serif;letter-spacing:.08em}
+    .welcome-foot b{font-size:14px;color:#fff}
+    .privacy-card {border:1px solid var(--stroke);border-radius:28px;background:#fff;padding:34px 38px;box-shadow:var(--shadow);display:flex;flex-direction:column;}
+    .pdpa-kicker {display:flex;gap:10px;align-items:center;font:700 11px 'DM Sans',sans-serif;letter-spacing:.1em;color:var(--teal);}
+    .pdpa-icon {font-size:18px}
+    .pdpa-step {margin-left:auto;color:#b4c3bc}
+    .privacy-card h2{font-size:clamp(25px,2.35vw,35px);letter-spacing:-.055em;line-height:1.38;margin:16px 0 10px;font-weight:800}
+    .pdpa-lead {margin:0 0 22px;color:#677d73;font-size:12px;line-height:1.85}
+    .privacy-sheet {border:1px solid #dcece4;background:#f8fcfa;border-radius:18px;padding:20px 21px 12px;}
+    .privacy-sheet-heading{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #e0eee7}
+    .privacy-shield {width:35px;height:35px;border-radius:11px;color:#00796b;background:#e1f3e9;display:grid;place-items:center;font-size:22px}
+    .privacy-sheet-heading strong{font-size:13px;display:block;line-height:1.4}
+    .privacy-sheet-heading small{display:block;font:500 10px 'DM Sans',sans-serif;color:#899e92;margin-top:3px}
+    .privacy-point{display:grid;grid-template-columns:26px 1fr;gap:8px;padding-top:13px;}
+    .privacy-num{font:700 11px 'DM Sans',sans-serif;color:#0a907b;padding-top:2px}
+    .privacy-point strong{font-size:12px;display:block;line-height:1.45}
+    .privacy-point p{font-size:11px;line-height:1.72;color:#61796e;margin:3px 0 0}
+    .privacy-point a,.pdpa-details a{color:#006c60;text-underline-offset:3px;overflow-wrap:anywhere}
+    .pdpa-details {border-top:1px solid #e2eee8;margin-top:15px;padding-top:12px;padding-bottom:0}
+    .pdpa-details summary{font-size:11px;color:#00796b;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;list-style:none;gap:9px}
+    .pdpa-details summary::-webkit-details-marker{display:none}
+    .details-copy{font-size:11px;color:#637a70;line-height:1.8;margin-top:9px}
+    .consent-box {display:grid;grid-template-columns:20px 1fr;align-items:start;gap:11px;margin-top:20px;font-size:11px;line-height:1.75;color:#47695e;cursor:pointer;position:relative}
+    .consent-box input{appearance:none;width:19px;height:19px;border:1.7px solid #9bbdb0;border-radius:6px;grid-column:1;grid-row:1;margin:0;cursor:pointer;position:relative}
+    .consent-box input:checked{background:#00796b;border-color:#00796b}
+    .consent-box input:focus-visible{outline:3px solid #88cdbb;outline-offset:3px}
+    .checkbox-visual {display:none;position:absolute;top:-3px;left:4px;color:white;font-size:15px;pointer-events:none}
+    .consent-box input:checked ~ .checkbox-visual{display:block}
+    .consent-box > span:last-child{grid-column:2;grid-row:1}
+    .welcome-start{min-height:54px;border-radius:13px;background:#00796b;color:#fff;border:0;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;padding:0 21px;margin-top:21px;transition:background .2s,transform .2s}
+    .welcome-start span{font-size:21px}
+    .welcome-start:not(:disabled):hover{background:#005e54;transform:translateY(-1px)}
+    .welcome-start:disabled{opacity:.44;cursor:not-allowed}
+    .welcome-help{text-align:center;color:#94a49c;font-size:10px;margin-top:14px}
+    .welcome-help a{color:#708e82;text-underline-offset:3px}
+    .privacy a{color:inherit;text-underline-offset:3px}
+    #survey-workspace[hidden],#welcome-screen[hidden]{display:none!important}
+    @media(max-width:1020px){.welcome-layout{grid-template-columns:1fr;max-width:680px;min-height:auto;margin-top:18px}.welcome-hero{padding:34px;min-height:0}.welcome-copy{padding-top:24px}.welcome-hero h1{font-size:39px}.bio-visual{display:none}.welcome-foot{margin-top:32px}.privacy-card{padding:28px 33px}}
+    @media(max-width:600px){.welcome-layout{padding:0 12px;gap:12px;margin-top:12px}.welcome-hero{padding:25px 24px 20px;border-radius:19px}.welcome-meta{font-size:9px}.welcome-pill{font-size:10px}.welcome-copy{padding-top:12px}.welcome-hero h1{font-size:32px;line-height:1.3;margin:13px 0 11px}.welcome-lead{font-size:12px}.welcome-foot{margin-top:25px;gap:5px;font-size:8px}.welcome-foot b{font-size:11px}.privacy-card{border-radius:19px;padding:25px 22px}.privacy-card h2{font-size:25px}.privacy-sheet{padding:16px 15px 13px}.pdpa-lead{font-size:12px}.privacy-point p{font-size:11px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand" aria-label="The AC Lab">
-        <div class="brandmark" aria-hidden="true">AC</div>
-        <div class="brandname">THE AC LAB<small>Speaker Experience & Feedback</small></div>
+      <div class="brand" aria-label="BioAre">
+        <div class="brandmark" aria-hidden="true">B</div>
+        <div class="brandname">BioAre<small>Biology · Learning · Feedback</small></div>
       </div>
-      <div class="top-tag">แบบประเมินหลังการบรรยาย</div>
+      <a class="top-tag parent-site-link" href="../" aria-label="กลับสู่เว็บไซต์หลัก">← กลับเว็บหลัก</a>
     </div>
   </header>
 
-  <main>
+
+  <section id="welcome-screen" class="welcome-layout" aria-labelledby="welcome-title">
+    <div class="welcome-hero">
+      <div class="welcome-meta"><span class="welcome-dot" aria-hidden="true"></span> BIOARE / SPEAKER FEEDBACK <span class="meta-line"></span> 2026</div>
+      <div class="welcome-copy">
+        <div class="welcome-pill">✳ &nbsp; A better learning experience begins here</div>
+        <h1 id="welcome-title">ทุกความคิดเห็น<br>ช่วยให้เรา<span>เติบโต.</span></h1>
+        <p class="welcome-lead">ขอบคุณที่ร่วมเรียนรู้กับพี่อาร์<br>ใช้เวลาสักนิดแบ่งปันความคิดเห็น เพื่อทำให้การบรรยายครั้งต่อไปดียิ่งขึ้น</p>
+      </div>
+      <div class="bio-visual" aria-hidden="true">
+        <svg viewBox="0 0 600 330" role="presentation" focusable="false">
+          <defs><linearGradient id="mol-g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#a8f8c9"/><stop offset="1" stop-color="#18ac90"/></linearGradient><radialGradient id="mol-h"><stop stop-color="#e2fff2" stop-opacity=".38"/><stop offset="1" stop-color="#e2fff2" stop-opacity="0"/></radialGradient></defs>
+          <circle cx="315" cy="170" r="143" fill="url(#mol-h)"/>
+          <g stroke="#99e6cc" stroke-opacity=".35" stroke-width="1.8"><path d="M132 178 211 108 293 147 356 82 451 137 492 224 394 260 293 219 199 270 132 178"/><path d="M211 108 199 270M293 147 394 260M356 82 293 219M451 137 293 147"/></g>
+          <g fill="url(#mol-g)"><circle cx="132" cy="178" r="13"/><circle cx="211" cy="108" r="19"/><circle cx="293" cy="147" r="13"/><circle cx="356" cy="82" r="16"/><circle cx="451" cy="137" r="11"/><circle cx="492" cy="224" r="15"/><circle cx="394" cy="260" r="23"/><circle cx="293" cy="219" r="11"/><circle cx="199" cy="270" r="13"/></g>
+          <g fill="none" stroke="#e8fff2" stroke-opacity=".42"><circle cx="315" cy="170" r="125" stroke-dasharray="4 11"/><circle cx="315" cy="170" r="86"/></g>
+          <text x="40" y="46" fill="#cafce3" fill-opacity=".75" font-family="Arial,sans-serif" font-size="12" letter-spacing="3">SHARE  /  REFLECT  /  GROW</text>
+          <text x="431" y="318" fill="#e9fff6" fill-opacity=".6" font-family="Arial,sans-serif" font-size="13">01 — BIOARE</text>
+        </svg>
+      </div>
+      <div class="welcome-foot"><span><b>02</b> MINUTES</span><span><b>06</b> RATING TOPICS</span><span>NAME <b>OPTIONAL</b></span></div>
+    </div>
+    <div class="privacy-card">
+      <div class="pdpa-kicker"><span class="pdpa-icon">✦</span> WELCOME TO BIOARE <span class="pdpa-step">01 / 04</span></div>
+      <h2>ยินดีต้อนรับ<br>สู่แบบประเมินของพี่อาร์</h2>
+      <p class="pdpa-lead">ก่อนเริ่ม ขอให้คุณอ่านรายละเอียดการใช้ข้อมูลส่วนบุคคล เพื่อให้มั่นใจว่าทราบว่าข้อมูลของคุณจะถูกนำไปใช้อย่างไร</p>
+      <div class="privacy-sheet" aria-labelledby="pdpa-heading">
+        <div class="privacy-sheet-heading"><span class="privacy-shield" aria-hidden="true">♧</span><div><strong id="pdpa-heading">ประกาศความเป็นส่วนตัว (PDPA)</strong><small>Privacy notice · BioAre Feedback</small></div></div>
+        <div class="privacy-point"><span class="privacy-num">01</span><div><strong>ข้อมูลที่เก็บ</strong><p>โรงเรียน ระดับชั้น คะแนนประเมิน และคำตอบที่คุณเลือกส่ง ส่วนชื่อเล่น ชื่อ–นามสกุล และหัวข้อบรรยายเป็นข้อมูลไม่บังคับ</p></div></div>
+        <div class="privacy-point"><span class="privacy-num">02</span><div><strong>นำไปใช้เพื่ออะไร</strong><p>วิเคราะห์ผลการประเมิน ปรับปรุงเนื้อหาและรูปแบบการบรรยายของพี่อาร์ ไม่ใช้เพื่อโฆษณาหรือขายข้อมูล</p></div></div>
+        <div class="privacy-point"><span class="privacy-num">03</span><div><strong>การเข้าถึงและสิทธิของคุณ</strong><p>บันทึกข้อมูลใน Supabase โดยผู้ดูแลที่ได้รับอนุญาตเป็นผู้เข้าถึงผล หากต้องการสอบถาม ขอเข้าถึง หรือขอลบข้อมูล ติดต่อ <a href="mailto:arewarin.biology@gmail.com">arewarin.biology@gmail.com</a></p></div></div>
+        <details class="pdpa-details"><summary>รายละเอียดเพิ่มเติมเกี่ยวกับข้อมูลของคุณ <span aria-hidden="true">＋</span></summary><div class="details-copy">การตอบแบบประเมินนี้เป็นความสมัครใจ คุณสามารถออกจากหน้านี้โดยไม่ส่งข้อมูลได้ ข้อมูลจะถูกเก็บเท่าที่จำเป็นต่อการสรุปและพัฒนาการบรรยาย และควรมีการทบทวนระยะเวลาจัดเก็บเป็นระยะ การไม่ระบุชื่อช่วยลดข้อมูลระบุตัวบุคคล แต่โรงเรียน ระดับชั้น และข้อความที่กรอกอาจทำให้เชื่อมโยงถึงผู้ตอบได้ในบางบริบท จึงไม่ควรใส่ข้อมูลส่วนตัวที่ไม่จำเป็น สำหรับคำขอเกี่ยวกับข้อมูลส่วนบุคคล ผู้ดูแลอาจต้องตรวจสอบข้อมูลให้ตรงกับรายการที่ต้องการดำเนินการ</div></details>
+      </div>
+      <label class="consent-box" for="privacy-agree"><input id="privacy-agree" type="checkbox"><span class="checkbox-visual" aria-hidden="true">✓</span><span>ฉันได้อ่านและรับทราบประกาศความเป็นส่วนตัว และยินยอมส่งข้อมูลที่กรอกเพื่อใช้ประเมินและพัฒนาการบรรยาย</span></label>
+      <button id="start-btn" type="button" class="welcome-start" disabled>เริ่มทำแบบประเมิน <span aria-hidden="true">↗</span></button>
+      <div class="welcome-help">ไม่ต้องระบุชื่อก็ส่งแบบประเมินได้ &nbsp;·&nbsp; <a href="./manager.html">สำหรับผู้ดูแล</a></div>
+    </div>
+  </section>
+
+  <main id="survey-workspace" hidden>
     <aside class="intro" aria-label="ข้อมูลแบบประเมิน">
       <div>
-        <div class="eyebrow">THE AC LAB / SPEAKER FEEDBACK</div>
+        <div class="eyebrow">BIOARE / YOUR VOICE</div>
         <h1>ขอบคุณที่มาเรียนรู้<br>ไปกับ<span>พี่อาร์.</span></h1>
         <p class="intro-lead">ทุกความคิดเห็นมีความหมาย ช่วยให้การบรรยายครั้งต่อไปชัดเจน สนุก และตอบโจทย์ผู้เรียนมากขึ้น</p>
       </div>
@@ -266,14 +369,14 @@
           <div class="honeypot" aria-hidden="true"><label for="website">เว็บไซต์</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
           <div id="notice" class="notice" hidden role="alert" aria-live="polite"></div>
           <div class="actions">
-            <button class="button secondary" type="button" id="back-btn" hidden>
+            <button class="button secondary" type="button" id="back-btn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg> ย้อนกลับ
             </button>
             <button class="button primary" type="button" id="next-btn">ถัดไป
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
           </div>
-          <div class="privacy">ไม่มีการบังคับกรอกชื่อ • กรุณาให้ความคิดเห็นอย่างสุภาพและตรงไปตรงมา</div>
+          <div class="privacy">ชื่อเล่นและชื่อ–นามสกุลไม่บังคับ · <a href="#" id="privacy-link">อ่านประกาศความเป็นส่วนตัว</a></div>
         </form>
       </div>
       <section id="success-screen" class="success" hidden aria-live="polite">
@@ -282,7 +385,7 @@
         <p>ขอบคุณสำหรับความคิดเห็นของคุณ ทุกคำตอบมีส่วนช่วยให้การบรรยายครั้งต่อไปดียิ่งขึ้น</p>
         <button class="button primary" type="button" id="reset-btn">กลับไปหน้าแรก</button>
       </section>
-      <div class="powered">THE AC LAB · MADE FOR BETTER LEARNING</div>
+      <div class="powered">BIOARE · MADE FOR BETTER LEARNING · <a href="./manager.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px">MANAGER</a></div>
     </div>
   </main>
 
@@ -308,6 +411,24 @@
       // Publishable keys are intended for public browser clients. Never place a secret or service_role key here.
       const SUPABASE_URL = 'https://ihmiqtwclnqrezsnswfz.supabase.co';
       const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR';
+      const workspace = document.querySelector('#survey-workspace');
+      const welcome = document.querySelector('#welcome-screen');
+      const privacyAgree = document.querySelector('#privacy-agree');
+      const startBtn = document.querySelector('#start-btn');
+      privacyAgree.addEventListener('change', () => { startBtn.disabled = !privacyAgree.checked; });
+      const goWelcome = () => {
+        workspace.hidden = true;
+        welcome.hidden = false;
+        window.scrollTo({top:0,behavior:'smooth'});
+      };
+      startBtn.addEventListener('click', () => {
+        if (!privacyAgree.checked) return;
+        welcome.hidden = true;
+        workspace.hidden = false;
+        setStep(0);
+        window.scrollTo({top:0,behavior:'smooth'});
+      });
+      document.querySelector('#privacy-link').addEventListener('click', e => { e.preventDefault(); goWelcome(); document.querySelector('.privacy-card').scrollIntoView({behavior:'smooth'}); });
       let currentStep = 0;
       let busy = false;
 
@@ -360,7 +481,10 @@
         progress.setAttribute('aria-valuenow', step + 1);
         progressFill.style.width = `${(step + 1) * 100 / 3}%`;
         document.querySelector('.intro-index').textContent = `0${step + 1}/03`;
-        backBtn.hidden = step === 0;
+        backBtn.hidden = false;
+        backBtn.innerHTML = step === 0
+          ? '<span aria-hidden="true">←</span> หน้าต้อนรับ'
+          : '<span aria-hidden="true">←</span> ย้อนกลับ';
         nextBtn.innerHTML = step === 2
           ? 'ส่งแบบประเมิน <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>'
           : 'ถัดไป <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
@@ -458,7 +582,7 @@
           showNotice('บันทึกไม่สำเร็จ โปรดลองอีกครั้ง หากยังไม่สำเร็จให้แจ้งผู้ดูแลตรวจสอบฐานข้อมูล Supabase');
         }
       });
-      backBtn.addEventListener('click', () => { if (currentStep > 0 && !busy) setStep(currentStep - 1); });
+      backBtn.addEventListener('click', () => { if (busy) return; if (currentStep > 0) setStep(currentStep - 1); else goWelcome(); });
       document.querySelector('#reset-btn').addEventListener('click', () => {
         form.reset();
         document.querySelectorAll('.rating-card').forEach(card => card.classList.remove('selected', 'invalid'));
@@ -466,7 +590,8 @@
         document.querySelector('#form-screen').hidden = false;
         document.querySelector('#success-screen').hidden = true;
         setStep(0);
-        window.scrollTo({top:0,behavior:'smooth'});
+        privacyAgree.checked = false; startBtn.disabled = true;
+        goWelcome();
       });
       form.addEventListener('submit', event => event.preventDefault());
       document.querySelector('#school').addEventListener('input', () => document.querySelector('#school-field').classList.remove('invalid'));
