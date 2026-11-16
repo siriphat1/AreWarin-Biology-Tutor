@@ -1,67 +1,76 @@
-# BioAre — ติดตั้งเป็นโฟลเดอร์ย่อยของเว็บไซต์หลัก
+# BioAre · Speaker Feedback Intelligence (v3)
 
-BioAre (แบบประเมินวิทยากรพี่อาร์ + Manager เฉพาะระบบ) แยกจากเว็บไซต์หลักอย่างสมบูรณ์ในด้านเส้นทางหน้าเว็บ ไม่ทับ `index.html` หรือ `manager.html` ที่ root ของเว็บไซต์หลัก
+A GitHub Pages-ready subfolder for an existing website. **Do not replace the root `index.html` or root `manager.html`.**
 
-## โครงสร้างไฟล์ที่จะเพิ่มใน GitHub
+## Files and URLs
 
 ```text
-เว็บไซต์หลัก/                  ← ไฟล์เดิมทั้งหมดอยู่เหมือนเดิม
-├── index.html                 ← เว็บหลัก (ไม่ต้องแทนที่)
-├── manager.html               ← Manager เว็บหลัก (ไม่ต้องแทนที่)
-└── bioare/                    ← ยกโฟลเดอร์นี้ไปวาง
-    ├── index.html             ← หน้าต้อนรับ + PDPA + แบบประเมิน
-    ├── manager.html           ← BioAre Manager แยกจาก Manager เว็บหลัก
+main-website/
+├── index.html                   <- old main website, unchanged
+├── manager.html                 <- old main manager, unchanged
+└── bioare/
+    ├── index.html               <- welcome / PDPA / 3-step survey
+    ├── manager.html             <- BioAre Manager ONLY
+    ├── assets/
+    │   ├── config.js            <- public Supabase publishable key only
+    │   ├── style.css
+    │   ├── student.js
+    │   └── manager.js
     ├── database/
-    │   ├── setup_all.sql      ← สร้าง/ตั้งค่าสิทธิ์ใน Supabase
-    │   └── grant_manager.sql  ← ให้สิทธิ์บัญชีผู้ดูแล
-    └── README.md
+    │   ├── install.sql          <- consolidated full install (run this)
+    │   ├── 01_existing_core.sql
+    │   ├── 02_school_aliases.sql
+    │   ├── 03_new_features.sql
+    │   └── 04_grant_manager.sql <- run after Auth user exists
+    └── supabase/functions/bioare-insights/index.ts
 ```
 
-**URL หลังเผยแพร่ (สมมุติ repo อยู่ที่ `https://username.github.io/repo/`):**
-- เว็บหลัก: `https://username.github.io/repo/`
-- BioAre Feedback: `https://username.github.io/repo/bioare/`
-- BioAre Manager: `https://username.github.io/repo/bioare/manager.html`
-- Manager เดิมของเว็บหลัก: `https://username.github.io/repo/manager.html` (ยังอยู่)
+Published via GitHub Pages: `/bioare/` and `/bioare/manager.html`. The Manager login email is `arewarin.biology@gmail.com` (password is **not** in code). Supabase URL is `https://ihmiqtwclnqrezsnswfz.supabase.co` and the public browser key is `sb_publishable_wODtFcX141odUfA1FxZckQ_OXXkOZLR`.
 
-> ต้องวาง *โฟลเดอร์* `bioare` ทั้งโฟลเดอร์ลงใน root ของเว็บหลัก **ไม่ใช่** นำไฟล์ `index.html` กับ `manager.html` ไปทับไฟล์ที่ root
+## Install
 
-## วิธีติดตั้ง
+1. In Supabase Dashboard > **SQL Editor**, run **`database/install.sql`**. This combines the existing feedback table, school alias mappings and the ten-feature upgrade. The new schema does not drop old feedback. **Note:** the new consent validation requires deploying the updated student `index.html` and `assets/student.js` at the same time. Older forms using the same table cannot insert until updated.
+2. Supabase Dashboard > **Authentication > Users**: create or confirm the user `arewarin.biology@gmail.com` with a password (do not put passwords in GitHub). **Run `database/04_grant_manager.sql`** to grant access. Passwords are never committed. If email confirmation is enabled, complete the corresponding email verification first.
+3. Upload the entire `bioare` folder **alongside** the existing root website files to your GitHub repository, enable GitHub Pages, open `/bioare/`, then `/bioare/manager.html`.
+4. **Test**: submit a test response, view it in BioAre Manager, create a session, open the QR link and submit a second response. Test PDPA acknowledgement, school merging and CSV export. Remove test responses via the Supabase Dashboard if needed.
+5. Optional AI Insights: install Supabase CLI, deploy the function from the repo root `supabase/functions/bioare-insights` (or copy this function into your existing Supabase project's `supabase/functions` directory) and set server-side secret `OPENAI_API_KEY`. Never add it to HTML or GitHub. To deploy from a Supabase CLI project: `supabase functions deploy bioare-insights` and `supabase secrets set OPENAI_API_KEY=...`. The function requires a valid Auth JWT and checks admin membership before calling AI. Default model is `gpt-4.1-mini`; optional `OPENAI_MODEL` can override it. **AI is not enabled until this step is completed.**
+6. Optional instant updates: turn on database replication for `public.speaker_feedback` under Supabase Realtime. The Manager always polls every ~45 seconds even without this.
 
-1. แตก ZIP จะได้โฟลเดอร์ `bioare/` จากนั้นลากทั้งโฟลเดอร์ไปใส่ GitHub repo เว็บไซต์หลัก (ตำแหน่งเดียวกับ `index.html` ของเว็บหลัก) แล้ว commit
-2. ใช้ Supabase project `ihmiqtwclnqrezsnswfz` เหมือนเดิม ไปที่ SQL Editor แล้วรัน `bioare/database/setup_all.sql` **ครั้งเดียว**; SQL เป็นแบบไม่ลบคำตอบเก่า
-3. ใน Supabase Authentication → Users ตรวจสอบว่ามีบัญชี `arewarin.biology@gmail.com` แล้ว หากยังไม่มี ให้สร้างและตั้งรหัสผ่านผ่านหน้า Dashboard เท่านั้น
-4. รัน `bioare/database/grant_manager.sql` ใน SQL Editor เพื่อให้สิทธิ์บัญชีนี้เป็นผู้ดูแลผลประเมิน
-5. เปิดหน้า `.../bioare/` ทดสอบส่งคำตอบ และเปิด `.../bioare/manager.html` ลงชื่อเข้าใช้ด้วยอีเมลที่ตั้งไว้
-6. หากเว็บหลักมีเมนู Manager อยู่แล้ว เพิ่มเพียงลิงก์ BioAre เข้าไปใน Manager หลัก ตามตัวอย่างด้านล่าง (ไฟล์เว็บไซต์หลักไม่ได้ถูกแก้ไขให้อัตโนมัติ)
+## Implemented modules
 
-## เพิ่มลิงก์ภายในเว็บหลัก (ตัวอย่าง)
+1. **Lecture Sessions:** create/edit, open/close sessions, per-session questions and analytics; linked survey overrides student-typed school/grade/topic on the server.
+2. **Smart QR:** unique link for each session; QR PNG download uses a browser QR library. Requires internet to load CDN resources.
+3. **Smart School Directory:** autocomplete for public form, admin add/hide names, manually merge/unmerge aliases without altering original response text, similarity suggestions.
+4. **Live Dashboard:** total responses, six average scores, pace/difficulty distribution, schools and sessions; 45-second refresh with optional realtime.
+5. **Teaching Analytics:** breakdown across schools and sessions, filters.
+6. **AI Feedback Insights:** optional Edge Function; sends **only whitelisted aggregate counts**, not names or raw student comments.
+7. **One-click PDF:** manager report generates a print-friendly page, then opens browser Print > **Save as PDF**; CSV also available. No server-side PDF writer or extra PDF API key required.
+8. **Feedback Wall:** administrator reviews/edits excerpts manually before publishing; site-wide switch defaults **off**. Does not automatically expose full student responses.
+9. **Privacy & Data Rights:** editable privacy notice and version, recorded acknowledgement version and timestamp, optional names, receipt UUID, privacy request form, manager workflow, manual retention purge. **Important:** manual identity confirmation is necessary before fulfilling access/delete requests; a receipt UUID alone is not conclusive identity verification. Review language and retention with your data-protection adviser, especially for minors. Automated email replies are not included.
+10. **Form Builder:** add and activate/deactivate optional questions (short/long/choice/scale), global or per-session, with results stored as JSON in `speaker_feedback.custom_answers`. Built-in six ratings and three feedback prompts remain unchanged.
 
-วางในหน้าเมนูหรือ Manager หลัก:
+## Security and limitations
+
+- `sb_publishable_...` is public and safe in client code **only with RLS in place**. **Never** publish `service_role`, `sb_secret_*`, `OPENAI_API_KEY`, passwords or student response exports in GitHub.
+- Anonymous website visitors can insert (but not select/update/delete) feedback. Admin access is checked with `speaker_feedback_admins` and Supabase Auth; SQL policies enforce permissions, not just UI restrictions.
+- Published Wall excerpts are reviewed by the manager; avoid disclosing identifiers. Public sessions expose school and title while accepting responses.
+- Browser-based anonymous submissions cannot completely prevent spam or multiple submissions. To harden for heavy public use, add bot protection/rate limiting using Edge Functions and CAPTCHA server verification.
+- School similarity suggestions are **not automatic merges**; a manager confirms them.
+- Reports and visual charts represent responses from participants only, not an unbiased study sample. The browser Manager fetches up to 20,000 records per table, warns if this cap is hit.
+- The PDF action uses your browser's **Print / Save as PDF** menu; it does not directly download PDF bytes.
+- This package has been syntax-checked and static-tested, but **has not** been run against the user's live Supabase project because access was not provided. Verify live end-to-end after SQL migration.
+
+## Github Pages navigation
+
+Main website link example:
 
 ```html
-<a href="./bioare/">BioAre · แบบประเมินวิทยากร</a>
-<a href="./bioare/manager.html">BioAre · จัดการผลประเมิน</a>
+<a href="./bioare/">ประเมินวิทยากร BioAre</a>
+<a href="./bioare/manager.html">จัดการ BioAre</a>
 ```
 
-ถ้าลิงก์ถูกวางไว้ในหน้าเว็บหลักที่ **ไม่ได้อยู่ที่ root** ต้องปรับ URL ตามตำแหน่งหน้าเว็บที่เรียกใช้งาน (เช่น `/ชื่อ-repo/bioare/manager.html`)
+If GitHub Pages is set up as a project site, both links remain relative to your repo root.
 
-## ทำงานแยกจาก Manager เว็บหลักอย่างไร
+## GDPR / PDPA handling
 
-- `bioare/manager.html` มีระบบล็อกอินและ Dashboard ของตัวเอง
-- `manager.html` ที่ root ไม่ถูกเขียนทับและจะทำงานเหมือนเดิม
-- Manager ของ BioAre ใช้ Supabase Auth storage key เฉพาะ (`bioare-feedback-manager-auth-v1`) เพื่อลดการชนกับเซสชันล็อกอินของ Manager เดิมที่อาจใช้ Supabase project เดียวกัน
-- หน้าแบบประเมินกับ BioAre Manager ลิงก์ไปหากันแบบ relative `./manager.html`, `./index.html` และมีลิงก์ `../` สำหรับกลับเว็บไซต์หลัก
-- สิทธิ์ข้อมูลจาก Supabase ตรวจจาก `speaker_feedback_admins` โดย RLS; URL ของ Manager เป็นสาธารณะได้ แต่ผลประเมินต้องผ่านการยืนยันตัวตนและสิทธิ์ในฐานข้อมูล
-
-## ความปลอดภัย/การใช้งานจริง
-
-- รหัสผ่าน **ไม่อยู่** ใน HTML, SQL, GitHub หรือ ZIP
-- `sb_publishable_...` ใช้ได้บน frontend เมื่อกำหนด RLS ตาม SQL แล้ว ห้ามนำ `service_role` หรือ `sb_secret_...` ขึ้น GitHub
-- ผู้ตอบส่งข้อมูลได้แต่ไม่สามารถอ่านผลประเมินจาก public key; มีเฉพาะบัญชีที่ได้รับสิทธิ์ใน `speaker_feedback_admins` อ่านข้อมูลได้
-- ระบบเก็บข้อมูลโรงเรียน/ระดับชั้น และชื่อเล่นหรือชื่อ-นามสกุลเมื่อผู้ตอบเลือกกรอก โปรดตรวจทานประกาศ PDPA ระยะเวลาเก็บรักษา และแนวทางจัดการข้อมูลผู้เยาว์ก่อนเผยแพร่
-- **SQL นี้ใช้ตาราง `speaker_feedback` เดิม** จึงสามารถดูผลประเมินเดิมได้ ไม่สร้างตารางใหม่ซ้ำ
-- ยังไม่ได้รัน SQL หรือทดสอบเขียนข้อมูลใน Supabase จริง เนื่องจากไม่มีสิทธิ์เข้าโปรเจกต์ของคุณ
-
-## ข้อจำกัดของเว็บที่มี Routing
-
-โครงสร้างนี้เหมาะกับ GitHub Pages หรือ static hosting ที่เปิดไฟล์ใน subfolder ได้ตรง ๆ หากเว็บหลักใช้ React/Vue Router หรือ Vercel rewrites ที่ส่งทุก route ไป root `index.html` ต้องเพิ่มข้อยกเว้นสำหรับ `/bioare/*` เพื่อให้เปิดไฟล์ HTML ในโฟลเดอร์นี้โดยตรง
+Publish a clear notice identifying the real data controller, contact details, processing purpose, optional/required fields, lawful basis, retention and rights. This package provides editable text, not an automatically legally compliant privacy policy. A student's age and the context of the school may affect consent/notification requirements; review prior to release.
