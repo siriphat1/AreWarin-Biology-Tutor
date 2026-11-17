@@ -1,3 +1,5 @@
+> **2026-11-16 UPDATE:** Run `database/00_RUN_THIS_FIRST.sql` in full for missing `bioare_sessions` and trigger errors. See `../README_SQL_FIX.md`.
+
 # BioAre · Speaker Feedback Intelligence (v3)
 
 A GitHub Pages-ready subfolder for an existing website. **Do not replace the root `index.html` or root `manager.html`.**
