@@ -1,19 +1,3 @@
--- BioAre | COMPLETE DATABASE INITIALIZATION + REPAIR (2026-11-16)
--- PROJECT: ihmiqtwclnqrezsnswfz
--- Run this ENTIRE FILE in Supabase Dashboard > SQL Editor > New query > Run.
--- FIXES: missing public.bioare_sessions; missing bioare_validate_submission()
--- This safely creates any missing tables/columns/functions/policies in order.
--- Existing rows in public.speaker_feedback are preserved.
--- No DROP TABLE / TRUNCATE / DELETE statements are executed by this file.
--- Existing BioAre RLS policies and submission trigger are refreshed; existing data stays.
--- Warning: update the website's bioare/index.html and assets together:
---          older forms without PDPA consent fields will be rejected on future INSERTs.
--- This does NOT create a login/password; run 04_grant_manager.sql AFTER creating the Auth user.
-
-BEGIN;
-
-
--- ===== PHASE 01: CORE FEEDBACK AND ADMIN PERMISSIONS =====
 -- BioAre | setup_all.sql — non-destructive setup + Manager access
 -- Paste into Supabase Dashboard > SQL Editor for project ihmiqtwclnqrezsnswfz
 -- Re-running is safe: create table if not exists and drop/recreate only access policies.
@@ -132,8 +116,6 @@ using (
 
 -- Do not add an anonymous SELECT policy. Do not grant write to authenticated.
 -- To enroll yourself, create a Supabase Auth user and then run grant_manager.sql.
-
--- ===== PHASE 02: SCHOOL ALIASES =====
 -- BioAre · School name grouping / upgrade (non-destructive)
 -- Run AFTER database/setup_all.sql. Can be run again safely.
 -- Stores alias -> canonical name; DOES NOT change the original school field
@@ -179,8 +161,6 @@ with check (
 -- from public.bioare_school_aliases order by canonical_name, alias_name;
 -- To undo a mapping, use the "ยกเลิกการรวม" button in BioAre Manager.
 -- No data is deleted from public.speaker_feedback by this feature.
-
--- ===== PHASE 03: SESSIONS + NEW FEATURES + VALIDATION =====
 -- BioAre v3 · Add-on for the existing feedback and admin tables.
 -- Non-destructive and repeatable. Run AFTER 01_existing_core.sql and 02_school_aliases.sql.
 -- Existing feedback rows and original school names are kept.
@@ -383,20 +363,3 @@ grant execute on function public.bioare_purge_expired() to authenticated;
 
 -- Optional enable of realtime needs Supabase replication setting. The manager polls even if realtime is OFF.
 -- alter publication supabase_realtime add table public.speaker_feedback;
-
-COMMIT;
-
--- FINAL VERIFICATION: all columns should show true.
-SELECT
-    to_regclass('public.speaker_feedback') IS NOT NULL AS feedback_table_exists,
-    to_regclass('public.bioare_schools') IS NOT NULL AS schools_table_exists,
-    to_regclass('public.bioare_sessions') IS NOT NULL AS sessions_table_exists,
-    to_regclass('public.bioare_form_questions') IS NOT NULL AS form_questions_exists,
-    to_regclass('public.bioare_school_aliases') IS NOT NULL AS school_aliases_exists,
-    to_regprocedure('public.bioare_validate_submission()') IS NOT NULL AS validate_function_exists,
-    EXISTS (
-        SELECT 1 FROM pg_trigger
-        WHERE tgrelid = to_regclass('public.speaker_feedback')
-        AND tgname = 'bioare_validate_submission_trg'
-        AND NOT tgisinternal
-    ) AS validation_trigger_exists;

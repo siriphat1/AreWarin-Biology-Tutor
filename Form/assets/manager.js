@@ -8,8 +8,8 @@ const nfmt=n=>new Intl.NumberFormat('th-TH').format(n);
 const labels={clarity:'ความชัดเจน',content:'คุณภาพเนื้อหา',delivery:'รูปแบบการสอน',interaction:'การมีส่วนร่วม',usefulness:'ประโยชน์',overall:'ความพึงพอใจ'};
 const paceLabels={too_slow:'ช้าไป',just_right:'พอดี',too_fast:'เร็วไป'};
 const diffLabels={too_easy:'ง่ายไป',just_right:'พอดี',too_hard:'ยากไป'};
-const pages={dashboard:['ภาพรวม','สรุปผลประเมินการบรรยาย'],sessions:['รอบบรรยาย','จัดการรอบและ QR Code'],schools:['จัดการชื่อโรงเรียน','Directory และรวมชื่อโรงเรียน'],responses:['ผลประเมิน','เรียกดูและส่งออกคำตอบ'],insights:['Teaching Insights','วิเคราะห์แนวโน้มและ AI'],questions:['Form Builder','ปรับคำถามแบบประเมิน'],wall:['Feedback Wall','คัดเลือกข้อความหลังตรวจสอบ'],privacy:['PDPA & Data Rights','นโยบายและคำขอใช้สิทธิ'],reports:['Reports','รายงานสำหรับงานบรรยาย'],settings:['Settings','สถานะระบบ BioAre']};
-const st={client:null,user:null,rows:[],sessions:[],schools:[],aliases:[],questions:[],settings:[],wall:[],requests:[],view:'dashboard',subscribed:null,selectedSchools:new Set(),busy:false,truncated:false};
+const pages={dashboard:['ภาพรวม','สรุปผลประเมินการบรรยาย'],sessions:['รอบบรรยาย','จัดการรอบและ QR Code'],schools:['จัดการชื่อโรงเรียน','Directory และรวมชื่อโรงเรียน'],responses:['ผลประเมิน','เรียกดูและส่งออกคำตอบ'],trash:['ถังขยะผลประเมิน','กู้คืนหรือลบถาวร พร้อมประวัติผู้ดำเนินการ'],insights:['Teaching Insights','วิเคราะห์แนวโน้มและ AI'],questions:['Form Builder','ปรับคำถามแบบประเมิน'],wall:['Feedback Wall','คัดเลือกข้อความหลังตรวจสอบ'],privacy:['PDPA & Data Rights','นโยบายและคำขอใช้สิทธิ'],reports:['Reports','รายงานสำหรับงานบรรยาย'],settings:['Settings','สถานะระบบ BioAre']};
+const st={client:null,user:null,rows:[],trashed:[],audit:[],missingTables:new Set(),sessions:[],schools:[],aliases:[],questions:[],settings:[],wall:[],requests:[],view:'dashboard',subscribed:null,selectedSchools:new Set(),busy:false,truncated:false};
 const avg=(a,fn)=>a.length?a.reduce((s,x)=>s+fn(x),0)/a.length:0;
 const mean=r=>avg(Object.keys(labels),k=>Number(r[k]||0));
 const rscore=rows=>avg(rows,mean);
@@ -25,6 +25,10 @@ const sdate=v=>v?new Date(v).toISOString().slice(0,10):'';
 async function getAllRows(table,{columns='*',sort='created_at',maxPages=40}={}){
  let rows=[];for(let i=0;i<maxPages;i++){const {data,error}=await st.client.from(table).select(columns).order(sort,{ascending:false}).range(i*500,(i+1)*500-1);if(error)throw new Error(`${table}: ${error.message}`);rows.push(...(data||[]));if((data||[]).length<500)return rows;}st.truncated=true;return rows;
 }
+async function getOptionalRows(table,options={}){
+ try{return await getAllRows(table,options);}
+ catch(e){if(/PGRST205|42P01|could not find the table|relation .* does not exist|schema cache/i.test(String(e.message||''))){st.missingTables.add(table);return [];}throw e;}
+}
 async function authStart(){if(!window.supabase?.createClient){$('login-error').hidden=false;$('login-error').textContent='ไม่สามารถโหลด Supabase SDK โปรดตรวจสอบอินเทอร์เน็ต';return;}
  st.client=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{storageKey:'bioare_feedback_manager_auth_v3',autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
  const {data:{session}}=await st.client.auth.getSession();if(session)await authorize(session.user);
@@ -32,11 +36,11 @@ async function authStart(){if(!window.supabase?.createClient){$('login-error').h
 }
 async function authorize(user){const {data,error}=await st.client.from('speaker_feedback_admins').select('user_id').eq('user_id',user.id).maybeSingle();if(error||!data){await st.client.auth.signOut();throw new Error('บัญชีนี้ยังไม่ได้รับสิทธิ์ BioAre Manager กรุณารัน 04_grant_manager.sql');}
  st.user=user;$('account-email').textContent=user.email;$('current-user').textContent=user.email;$('project-url').textContent=cfg.url;$('login-page').hidden=true;$('admin-page').hidden=false;await loadAll();startLive();}
-async function loadAll(){if(!st.user)return;$('sync-status').textContent='● กำลังซิงก์…';st.truncated=false;
+async function loadAll(){if(!st.user)return;$('sync-status').textContent='● กำลังซิงก์…';st.truncated=false;st.missingTables=new Set();
  try{
-  const [rows,sessions,schools,aliases,questions,settingsData,wall,requests]=await Promise.all([
-   getAllRows('speaker_feedback'),getAllRows('bioare_sessions',{sort:'starts_at'}),getAllRows('bioare_schools'),getAllRows('bioare_school_aliases',{sort:'updated_at'}),getAllRows('bioare_form_questions'),getAllRows('bioare_settings',{sort:'key'}),getAllRows('bioare_wall_items'),getAllRows('bioare_privacy_requests')]);
-  Object.assign(st,{rows,sessions,schools,aliases,questions,settings:settingsData,wall,requests});populateFilters();renderAll();$('sync-status').textContent='● ล่าสุด '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});clearAlert();if(st.truncated)alert('มีมากกว่า 20,000 รายการในบางตาราง รายงานอาจไม่ครอบคลุมทั้งหมด โปรดใช้การส่งออกผ่านเซิร์ฟเวอร์สำหรับข้อมูลขนาดใหญ่');
+  const [rows,sessions,schools,aliases,questions,settingsData,wall,requests,audit]=await Promise.all([
+   getAllRows('speaker_feedback'),getOptionalRows('bioare_sessions',{sort:'starts_at'}),getOptionalRows('bioare_schools'),getOptionalRows('bioare_school_aliases',{sort:'updated_at'}),getOptionalRows('bioare_form_questions'),getOptionalRows('bioare_settings',{sort:'key'}),getOptionalRows('bioare_wall_items'),getOptionalRows('bioare_privacy_requests'),getOptionalRows('bioare_feedback_delete_audit',{maxPages:5})]);
+  Object.assign(st,{rows:rows.filter(r=>!r.deleted_at),trashed:rows.filter(r=>!!r.deleted_at),audit,sessions,schools,aliases,questions,settings:settingsData,wall,requests});populateFilters();renderAll();$('sync-status').textContent='● ล่าสุด '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});if(st.missingTables.size)alert('บางโมดูลยังไม่พร้อม (ยังไม่มีตาราง: '+[...st.missingTables].join(', ')+') แต่ส่วนผลประเมินและถังขยะยังสามารถใช้งานได้หากติดตั้ง core และ 05_feedback_trash.sql แล้ว');else clearAlert();if(st.truncated)alert('มีมากกว่า 20,000 รายการในบางตาราง รายงานอาจไม่ครอบคลุมทั้งหมด โปรดใช้การส่งออกผ่านเซิร์ฟเวอร์สำหรับข้อมูลขนาดใหญ่');
  }catch(e){console.error('BioAre load',e);$('sync-status').textContent='● โหลดไม่สำเร็จ';alert('ไม่สามารถโหลดข้อมูลได้: '+e.message+' กรุณาตรวจสอบว่าได้รัน database/install.sql แล้ว');}
 }
 function startLive(){if(st.subscribed){st.client.removeChannel(st.subscribed);st.subscribed=null;}
@@ -70,11 +74,54 @@ function renderDashboard(){const rows=dashboardRows();$('kpi-count').textContent
  const sessions=st.sessions.filter(s=>rows.some(r=>r.session_id===s.id)).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at)).slice(-10);$('session-trend').innerHTML=sessions.length?sessions.map(s=>{const subset=rows.filter(r=>r.session_id===s.id);return bar(s.title,rscore(subset),5,rscore(subset).toFixed(2));}).join(''):'<div class="empty">เริ่มสร้างรอบบรรยายเพื่อเปรียบเทียบคะแนน</div>';
  const msgs=rows.filter(r=>r.message_to_are).slice(0,4);$('dashboard-comments').innerHTML=msgs.length?msgs.map(r=>`<div class="feedback-card"><div class="comment">${esc(r.message_to_are)}</div><footer>${esc(schoolName(r.school))} · ${date(r.created_at)}</footer></div>`).join(''):'<div class="empty">ยังไม่มีข้อความถึงพี่อาร์</div>';
 }
-function renderAll(){renderDashboard();renderSessions();renderSchools();renderResponses();renderInsights();renderQuestions();renderWall();renderPrivacy();}
+function renderAll(){renderDashboard();renderSessions();renderSchools();renderResponses();renderTrash();renderInsights();renderQuestions();renderWall();renderPrivacy();}
 ['filter-session','filter-school','filter-grade'].forEach(id=>$(id).addEventListener('change',()=>{renderDashboard();renderInsights();}));
 ['response-session','response-school','response-search','response-from','response-to'].forEach(id=>$(id).addEventListener('input',renderResponses));
-function renderResponses(){const rows=responseRows();$('response-count').textContent=`แสดง ${nfmt(rows.length)} จาก ${nfmt(st.rows.length)} รายการ · คะแนนเต็ม 5`;$('response-table').innerHTML=rows.length?rows.slice(0,700).map(r=>`<tr><td>${date(r.created_at)}</td><td><strong>${esc(schoolName(r.school))}</strong>${schoolName(r.school)!==r.school?`<div class="help">เดิม: ${esc(r.school)}</div>`:''}</td><td>${esc(r.grade)}</td><td>${esc(sessionName(r.session_id))}</td><td><strong>${mean(r).toFixed(2)}</strong></td><td>${esc(paceLabels[r.pace]||'—')} / ${esc(diffLabels[r.difficulty]||'—')}</td><td style="min-width:180px;max-width:280px;overflow-wrap:anywhere">${esc(r.message_to_are||'—')}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">ไม่มีผลประเมินตรงกับเงื่อนไข</td></tr>';
+function renderResponses(){const rows=responseRows();$('response-count').textContent=`แสดง ${nfmt(rows.length)} จาก ${nfmt(st.rows.length)} รายการ · คะแนนเต็ม 5`;$('response-table').innerHTML=rows.length?rows.slice(0,700).map(r=>`<tr><td>${date(r.created_at)}</td><td><strong>${esc(schoolName(r.school))}</strong>${schoolName(r.school)!==r.school?`<div class="help">เดิม: ${esc(r.school)}</div>`:''}</td><td>${esc(r.grade)}</td><td>${esc(sessionName(r.session_id))}</td><td><strong>${mean(r).toFixed(2)}</strong></td><td>${esc(paceLabels[r.pace]||'—')} / ${esc(diffLabels[r.difficulty]||'—')}</td><td style="min-width:180px;max-width:280px;overflow-wrap:anywhere">${esc(r.message_to_are||'—')}</td><td><button type="button" class="btn small danger" data-trash-id="${esc(r.id)}" aria-label="ย้ายผลประเมินไปถังขยะ">ย้ายไปถังขยะ</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">ไม่มีผลประเมินตรงกับเงื่อนไข</td></tr>';
  if(rows.length>700)$('response-count').textContent+=' (ตารางแสดง 700 รายการแรก ส่งออก CSV เพื่อดูทั้งหมด)';}
+/* Feedback Trash: authenticated, server-authorized reversible deletion. */
+function renderTrash(){
+ $('trash-count').textContent=nfmt(st.trashed.length);
+ $('trash-summary').textContent=`ในถังขยะ ${nfmt(st.trashed.length)} รายการ`;
+ $('trash-table').innerHTML=st.trashed.length?st.trashed.slice(0,500).map(r=>`<tr>
+ <td>${date(r.deleted_at)}</td><td>${date(r.created_at)}</td>
+ <td><strong>${esc(schoolName(r.school))}</strong><div class="help">${esc(r.grade||'—')}</div></td>
+ <td>${esc(sessionName(r.session_id))}</td>
+ <td>${esc(r.deleted_reason||'ไม่ได้ระบุ')}</td>
+ <td><div class="toolbar"><button type="button" class="btn small" data-restore-id="${esc(r.id)}">↶ กู้คืน</button><button type="button" class="btn small danger" data-purge-id="${esc(r.id)}">ลบถาวร</button></div></td></tr>`).join(''):'<tr><td colspan="6" class="empty">ไม่มีผลประเมินในถังขยะ</td></tr>';
+ const actions={trash:'ย้ายเข้าถังขยะ',restore:'กู้คืน',purge:'ลบถาวร'};
+ $('trash-audit').innerHTML=st.audit.length?st.audit.slice(0,30).map(a=>`<div class="item-card" style="padding:11px 13px;margin-top:7px"><span><strong>${esc(actions[a.action]||a.action)}</strong><span class="help"> · ${date(a.created_at)}</span><div class="help mono">รหัส ${esc(a.feedback_id)}</div>${a.reason?`<div class="help">เหตุผล: ${esc(a.reason)}</div>`:''}</span><span class="pill" title="รหัสผู้ดูแล">${esc((a.performed_by||'').slice(0,8))}…</span></div>`).join(''):'<div class="empty">ยังไม่มีประวัติการลบหรือกู้คืน</div>';
+}
+async function trashAction(functionName,id,reason){
+ if(st.busy)return;st.busy=true;
+ try{
+  const args={p_feedback_id:id};if(reason!==undefined)args.p_reason=reason;
+  const {error}=await st.client.rpc(functionName,args);
+  if(error)throw error;
+  await loadAll();
+  toast(functionName==='bioare_trash_feedback'?'ย้ายผลประเมินไปถังขยะแล้ว':functionName==='bioare_restore_feedback'?'กู้คืนผลประเมินแล้ว':'ลบถาวรสำเร็จ');
+ }catch(e){alert('ไม่สามารถดำเนินการได้: '+e.message+' (ตรวจสอบว่าได้รัน database/05_feedback_trash.sql แล้ว)');}
+ finally{st.busy=false;}
+}
+$('response-table').onclick=async e=>{
+ const b=e.target.closest('[data-trash-id]');if(!b)return;
+ const r=st.rows.find(x=>x.id===b.dataset.trashId);if(!r)return;
+ const reason=prompt('ระบุเหตุผลที่ย้ายคำตอบนี้เข้าถังขยะ (ไม่บังคับ)', 'คำตอบซ้ำ');
+ if(reason===null)return;
+ if(!confirm(`ย้ายผลประเมินจาก ${r.school} ไปถังขยะ? ข้อมูลจะไม่ถูกนำไปคำนวณ แต่กู้คืนได้`))return;
+ await trashAction('bioare_trash_feedback',r.id,reason.trim().slice(0,400));
+};
+$('trash-table').onclick=async e=>{
+ const restore=e.target.closest('[data-restore-id]'),purge=e.target.closest('[data-purge-id]');
+ if(restore){const r=st.trashed.find(x=>x.id===restore.dataset.restoreId);if(r&&confirm('กู้คืนคำตอบนี้กลับสู่รายงานและ Dashboard?'))await trashAction('bioare_restore_feedback',r.id);}
+ if(purge){const r=st.trashed.find(x=>x.id===purge.dataset.purgeId);if(!r)return;
+  const word=prompt(`ลบคำตอบจาก ${r.school} ถาวรและไม่สามารถกู้คืนได้\nพิมพ์ DELETE เพื่อยืนยัน`);
+  if(word!=='DELETE')return;
+  if(!confirm('ยืนยันลบถาวรอีกครั้ง? การดำเนินการนี้ย้อนกลับไม่ได้'))return;
+  await trashAction('bioare_purge_feedback',r.id);
+ }
+};
+$('trash-refresh').onclick=loadAll;
 function exportCSV(rows){const cols=[['created_at','วันที่ส่ง'],['submission_ref','รหัสอ้างอิง'],['school','ชื่อโรงเรียนเดิม'],['canonical_school','โรงเรียนมาตรฐาน'],['grade','ระดับชั้น'],['nickname','ชื่อเล่น'],['full_name','ชื่อ–นามสกุล'],['topic','หัวข้อ'],['session','รอบบรรยาย'],...Object.entries(labels),['pace','ความเร็ว'],['difficulty','ความยาก'],['message_to_are','ข้อความ'],['custom_answers','คำถามเพิ่มเติม']];
  const cell=x=>'"'+String(x??'').replace(/^[=+@\-\t\r]/,'\'$&').replace(/"/g,'""')+'"';const lines=[cols.map(c=>cell(c[1])).join(',')];for(const r of rows){lines.push(cols.map(([k])=>cell(k==='canonical_school'?schoolName(r.school):k==='session'?sessionName(r.session_id):k==='custom_answers'?JSON.stringify(r.custom_answers||{}):k==='pace'?paceLabels[r.pace]:k==='difficulty'?diffLabels[r.difficulty]:r[k])).join(','));}
  const url=URL.createObjectURL(new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='bioare-feedback-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(`ส่งออก ${nfmt(rows.length)} รายการ`);}
@@ -144,7 +191,7 @@ $('wall-confirm').onclick=async()=>{const id=$('wall-feedback-id').value,excerpt
 $('wall-published').onclick=async e=>{const sw=e.target.closest('[data-wall-switch]'),del=e.target.closest('[data-wall-delete]');const id=sw?.dataset.wallSwitch||del?.dataset.wallDelete;if(!id)return;const old=st.wall.find(w=>w.id===id);if(del&&!confirm('นำข้อความนี้ออกจาก Feedback Wall?'))return;const req=del?st.client.from('bioare_wall_items').delete().eq('id',id):st.client.from('bioare_wall_items').update({is_public:!old.is_public}).eq('id',id);const {error}=await req;if(error)alert(error.message);else await loadAll();};
 /* 9. Privacy policy, subject rights and retention controls */
 function renderPrivacy(){$('privacy-notice').value=String(settings('privacy_notice')||'');$('privacy-version').value=String(settings('privacy_version')||'');$('retention-days').value=Number(settings('retention_days')||365);$('privacy-requests').innerHTML=st.requests.length?st.requests.map(r=>{
- const matching=st.rows.filter(x=>x.submission_ref===r.submission_ref);
+ const matching=[...st.rows,...st.trashed].filter(x=>x.submission_ref===r.submission_ref);
  return `<div class="feedback-card"><strong>${esc(r.request_type)} · ${esc(r.status)}</strong><div class="help mono">${esc(r.submission_ref)}</div><p class="hint">${date(r.created_at)} · ${esc(r.contact_email||'ไม่ระบุอีเมล')}</p><p>${esc(r.details||'')}</p><div class="help">พบคำตอบที่มีรหัสนี้ ${matching.length} รายการ (ต้องยืนยันตัวบุคคลก่อนดำเนินการ)</div><div class="row" style="margin-top:12px"><button class="btn small" data-req-status="${r.id}" data-status="reviewing">กำลังตรวจสอบ</button><button class="btn small" data-req-status="${r.id}" data-status="resolved">ดำเนินการแล้ว</button>${r.request_type==='delete'&&matching.length?`<button class="btn danger small" data-delete-ref="${r.submission_ref}">ลบคำตอบตามรหัส</button>`:''}</div></div>`;
  }).join(''):'<div class="empty">ยังไม่มีคำขอ</div>';}
 $('save-privacy').onclick=async()=>{const days=Number($('retention-days').value),notice=$('privacy-notice').value.trim(),v=$('privacy-version').value.trim();if(!Number.isInteger(days)||days<30||days>3650)return alert('ระยะเวลาเก็บข้อมูลต้องอยู่ระหว่าง 30–3650 วัน');if(notice.length<50||!v)return alert('โปรดระบุประกาศ PDPA และรหัสเวอร์ชัน');
